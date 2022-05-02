@@ -1,0 +1,32 @@
+repos:
+  - repo: local
+    hooks:
+      - id: isort
+        name: isort
+        stages: [commit]
+        language: system
+        entry: isort
+        types: [python]
+        args: ["--profile", "black"]
+      - id: black
+        name: black
+        stages: [commit]
+        language: system
+        entry: black
+        types: [python]
+        args: ["--experimental-string-processing"]
+      - id: flake8
+        name: flake8
+        stages: [commit]
+        language: system
+        entry: flake8
+        types: [python]
+        exclude: setup.py
+        args: ["--darglint-ignore-regex", "*"]
+      - id: yamllint
+        name: yamllint
+        stages: [commit]
+        language: system
+        entry: yamllint
+        types: [yaml]
+        args: ["-d", "{extends: relaxed, rules: {line-length: disable}}"]
