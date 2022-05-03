@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # install requirements and puma
-pip install -r requirements.txt
-source run_setup.sh
+pip install .
 
 # install requirements for sphinx
 pip install -r sphinx/requirements.txt
