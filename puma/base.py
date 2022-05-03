@@ -47,7 +47,7 @@ class PlotLineObject:
 # TODO: enable `kw_only` when switching to Python 3.10
 # @dataclass(kw_only=True)
 @dataclass
-class PlotObject:
+class PlotObject:  # pylint: disable=too-many-instance-attributes
     """Data base class defining properties of a plot object.
 
     Parameters
@@ -216,7 +216,7 @@ class PlotObject:
             )
 
 
-class plot_base(PlotObject):
+class PlotBase(PlotObject):
     """Base class for plotting"""
 
     def __init__(self, **kwargs) -> None:
@@ -255,10 +255,10 @@ class plot_base(PlotObject):
                 figsize=(9.352, 6.616) if self.figsize is None else self.figsize
             )
 
-            gs = gridspec.GridSpec(8, 1, figure=self.fig)
-            self.axis_top = self.fig.add_subplot(gs[:sub_plot_index, 0])
+            grid = gridspec.GridSpec(8, 1, figure=self.fig)
+            self.axis_top = self.fig.add_subplot(grid[:sub_plot_index, 0])
             self.axis_ratio_1 = self.fig.add_subplot(
-                gs[sub_plot_index:, 0], sharex=self.axis_top
+                grid[sub_plot_index:, 0], sharex=self.axis_top
             )
 
         elif self.n_ratio_panels == 2:
@@ -266,10 +266,10 @@ class plot_base(PlotObject):
             self.fig = Figure(figsize=(8, 8) if self.figsize is None else self.figsize)
 
             # Define the grid of the subplots
-            gs = gridspec.GridSpec(11, 1, figure=self.fig)
-            self.axis_top = self.fig.add_subplot(gs[:5, 0])
-            self.axis_ratio_1 = self.fig.add_subplot(gs[5:8, 0], sharex=self.axis_top)
-            self.axis_ratio_2 = self.fig.add_subplot(gs[8:, 0], sharex=self.axis_top)
+            grid = gridspec.GridSpec(11, 1, figure=self.fig)
+            self.axis_top = self.fig.add_subplot(grid[:5, 0])
+            self.axis_ratio_1 = self.fig.add_subplot(grid[5:8, 0], sharex=self.axis_top)
+            self.axis_ratio_2 = self.fig.add_subplot(grid[8:, 0], sharex=self.axis_top)
 
         if self.n_ratio_panels >= 1:
             set_xaxis_ticklabels_invisible(self.axis_top)
@@ -339,7 +339,7 @@ class plot_base(PlotObject):
 
     def set_ylabel(
         self,
-        ax,
+        axis,
         label: str = None,
         align_right: bool = True,
         **kwargs,
@@ -348,7 +348,7 @@ class plot_base(PlotObject):
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        axis : matplotlib.axes.Axes
             matplotlib axis object
         label : str, optional
             x-axis label, by default None
@@ -369,7 +369,7 @@ class plot_base(PlotObject):
                 "fontsize": self.label_fontsize,
             }
 
-        ax.set_ylabel(
+        axis.set_ylabel(
             self.ylabel if label is None else label,
             **label_options,
             **kwargs,
@@ -474,7 +474,7 @@ class plot_base(PlotObject):
         **kwargs : kwargs
             kwargs passed to `matplotlib.figure.Figure.savefig()`
         """
-        logger.debug(f"Saving plot to {plot_name}")
+        logger.debug("Saving plot to %s", plot_name)
         self.fig.savefig(
             plot_name,
             transparent=transparent,

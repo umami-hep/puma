@@ -52,7 +52,7 @@ def get_log_level(
 
     Raises
     ------
-    KeyError
+    ValueError
         if non-valid option is given
     """
     log_levels = {
@@ -64,7 +64,7 @@ def get_log_level(
         "NOTSET": logging.NOTSET,
     }
     if level not in log_levels:
-        raise KeyError(f"The 'DebugLevel' option {level} is not valid.")
+        raise ValueError(f"The 'DebugLevel' option {level} is not valid.")
     return log_levels[level]
 
 
