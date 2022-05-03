@@ -79,16 +79,16 @@ def get_dummy_2_taggers(
     output_rnnip, labels = get_dummy_multiclass_scores(
         bjets_mean=0.9, size=size, seed=seed
     )
-    df = pd.DataFrame(output_rnnip, columns=["rnnip_pu", "rnnip_pc", "rnnip_pb"])
-    df["HadronConeExclTruthLabelID"] = labels
+    df_gen = pd.DataFrame(output_rnnip, columns=["rnnip_pu", "rnnip_pc", "rnnip_pb"])
+    df_gen["HadronConeExclTruthLabelID"] = labels
     output_dips, _ = get_dummy_multiclass_scores(
         bjets_mean=1.4, size=size, seed=seed + 10
     )
-    df2 = pd.DataFrame(output_dips, columns=["dips_pu", "dips_pc", "dips_pb"])
-    df = pd.concat([df, df2], axis=1)
+    df_gen2 = pd.DataFrame(output_dips, columns=["dips_pu", "dips_pc", "dips_pb"])
+    df_gen = pd.concat([df_gen, df_gen2], axis=1)
     if add_pt:
         rng = np.random.default_rng(seed=seed)
-        df["pt"] = rng.exponential(100_000, size=len(df))
+        df_gen["pt"] = rng.exponential(100_000, size=len(df_gen))
     if shuffle:
-        df = df.sample(frac=1).reset_index(drop=True)
-    return df
+        df_gen = df_gen.sample(frac=1).reset_index(drop=True)
+    return df_gen

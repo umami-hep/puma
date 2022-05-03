@@ -50,7 +50,7 @@ def save_divide(
 
 
 def hist_w_unc(
-    a,
+    arr,
     bins,
     normed: bool = True,
 ):
@@ -59,7 +59,7 @@ def hist_w_unc(
 
     Parameters
     ----------
-    a : array_like
+    arr : array_like
         Input data. The histogram is computed over the flattened array.
     bins: int or sequence of scalars or str
         bins parameter from np.histogram
@@ -81,10 +81,10 @@ def hist_w_unc(
         lower uncertainty band location: hist - unc
         If normed is true (default), returns the normed values.
     """
-    arr_length = len(a)
+    arr_length = len(arr)
 
     # Calculate the counts and the bin edges
-    counts, bin_edges = np.histogram(a, bins=bins)
+    counts, bin_edges = np.histogram(arr, bins=bins)
 
     unc = save_divide(np.sqrt(counts), arr_length, 0) if normed else np.sqrt(counts)
     band = save_divide(counts, arr_length, 0) - unc if normed else counts - unc

@@ -219,6 +219,9 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
 class PlotBase(PlotObject):
     """Base class for plotting"""
 
+    # pylint: disable=too-many-instance-attributes
+    # Eight is reasonable in this case.
+
     def __init__(self, **kwargs) -> None:
         """Initialise class
 
