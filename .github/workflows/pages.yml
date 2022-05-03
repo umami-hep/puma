@@ -2,7 +2,7 @@ name: Pages
 on:
   push:
     branches:
-    - master
+    - main
 jobs:
   build-sphinx-docs:
     runs-on: ubuntu-latest
