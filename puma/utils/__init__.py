@@ -1,5 +1,6 @@
 """Module for usefule tools in puma."""
-from puma.utils.logging import logger, set_log_level
+
+from puma.utils.logging import logger, set_log_level  # noqa: F401
 
 
 def set_xaxis_ticklabels_invisible(axis):
@@ -7,7 +8,7 @@ def set_xaxis_ticklabels_invisible(axis):
 
     Parameters
     ----------
-    ax : matplotlib.axes.Axes
+    axis : matplotlib.axes.Axes
         Axis you want to modify
     """
 

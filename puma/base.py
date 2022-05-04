@@ -6,8 +6,7 @@ import atlasify
 from matplotlib import gridspec
 from matplotlib.figure import Figure
 
-from puma.utils import logger
-from puma.utils import set_xaxis_ticklabels_invisible
+from puma.utils import logger, set_xaxis_ticklabels_invisible
 
 atlasify.LINE_SPACING = 1.3  # overwrite the default, which is 1.2
 
@@ -227,7 +226,7 @@ class PlotBase(PlotObject):
 
         Parameters
         ----------
-        ``**kwargs`` : kwargs
+        **kwargs : kwargs
             kwargs from `plot_object`
         """
         super().__init__(**kwargs)
@@ -287,7 +286,7 @@ class PlotBase(PlotObject):
         title : str, optional
             title of top panel, if None using the value form the class variables,
             by default None
-        ``**kwargs`` : kwargs
+        **kwargs : kwargs
             kwargs passed to `matplotlib.axes.Axes.set_title()`
         """
         self.axis_top.set_title(self.title if title is None else title, **kwargs)
@@ -389,7 +388,7 @@ class PlotBase(PlotObject):
         ----------
         label : str, optional
             x-axis label, by default None
-        ``**kwargs`` : kwargs
+        **kwargs : kwargs
             kwargs passed to `matplotlib.axes.Axes.set_xlabel()`
         """
         xlabel_args = {
@@ -418,7 +417,7 @@ class PlotBase(PlotObject):
         labelsize : int, optional
             label size of x- and y- axis ticks, by default None
             if None then using global fontsize
-        ``**kwargs`` : kwargs
+        **kwargs : kwargs
             kwargs passed to `matplotlib.axes.Axes.set_xlabel()`
         """
         labelsize = self.fontsize if labelsize is None else labelsize
@@ -448,7 +447,7 @@ class PlotBase(PlotObject):
             min of x-axis, by default None
         xmax : float, optional
             max of x-axis, by default None
-        ``**kwargs`` : kwargs
+        **kwargs : kwargs
             kwargs passed to `matplotlib.axes.Axes.set_xlim()`
         """
         self.axis_top.set_xlim(
@@ -474,7 +473,7 @@ class PlotBase(PlotObject):
             if plot transparent, by default True
         dpi : int, optional
             dpi for plotting, by default 400
-        ``**kwargs`` : kwargs
+        **kwargs : kwargs
             kwargs passed to `matplotlib.figure.Figure.savefig()`
         """
         logger.debug("Saving plot to %s", plot_name)
@@ -490,7 +489,7 @@ class PlotBase(PlotObject):
 
         Parameters
         ----------
-        ``**kwargs`` : kwargs
+        **kwargs : kwargs
             kwargs from `matplotlib.figure.Figure.tight_layout()`
         """
         self.fig.tight_layout(**kwargs)
@@ -563,7 +562,7 @@ class PlotBase(PlotObject):
         labels : list, optional
             plot labels. If None, the labels are extracted from the `handles`.
             By default None
-        ``**kwargs`` : kwargs
+        **kwargs : kwargs
             kwargs which can be passed to matplotlib axis
         """
         self.axis_top.legend(

@@ -8,27 +8,27 @@ jobs:
     runs-on: ubuntu-latest
     container: python:3.8
     steps:
-    # checkout repo
-    - uses: actions/checkout@master
-      with:
-        fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
+      # checkout repo
+      - uses: actions/checkout@master
+        with:
+          fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
 
-    # build the documentation
-    - name: Build Sphinx documentation
-      run: bash sphinx/build_docs.sh
+      # build the documentation
+      - name: Build Sphinx documentation
+        run: bash sphinx/build_docs.sh
 
-    # create branch "gh-pages", which will then overwrite the current "gh-pages" 
-    # branch of the repo
-    - name: Create gh-pages branch from current master
-      run: git checkout -b gh-pages
+      # create branch "gh-pages", which will then overwrite the current "gh-pages"
+      # branch of the repo
+      - name: Create gh-pages branch from current master
+        run: git checkout -b gh-pages
 
-    # force push the new gh-pages branch
-    # this means that the new gh-pages branch is a copy of the current master + one
-    # further commit, which includes the sphinx docs
-    - name: Overwrite gh-pages branch with new version
-      uses: stefanzweifel/git-auto-commit-action@v4
-      with:
-        branch: gh-pages
-        file_pattern: docs
-        push_options: --force
-        commit_message: Adding the sphinx documentation
+      # force push the new gh-pages branch
+      # this means that the new gh-pages branch is a copy of the current master + one
+      # further commit, which includes the sphinx docs
+      - name: Overwrite gh-pages branch with new version
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          branch: gh-pages
+          file_pattern: docs
+          push_options: --force
+          commit_message: Adding the sphinx documentation
