@@ -1,11 +1,7 @@
-=========================
-puma - Plotting UMami Api
-=========================
+.. include README.md as the home site
+.. include:: ../README.md
+   :parser: myst_parser.sphinx_
 
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-   :target: https://github.com/psf/black
-   :alt: code style
-   
 .. table of contents on the left side of the website
 .. toctree::
    :maxdepth: 2
@@ -15,27 +11,6 @@ puma - Plotting UMami Api
    example
    module_reference
    modules
-
-
-.. TODO: add pip version badge here once deployed
-   
-
-The Python package `puma` provides a plotting API for commonly used plots in flavour tagging.
-
-    - ROC curves
-    - histogram comparison plots
-    - variable vs. efficiency
-
-
-Quickstart
-==========
-
-The `puma` package is currently under construction. It will be available on PyPI soon.
-
-.. code::
-
-   pip install puma
-
 
 Indices and tables
 ==================
