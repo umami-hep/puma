@@ -15,4 +15,6 @@ The `puma` package is currently under construction. It will be available on PyPI
 
 ```bash   
 pip install puma
+# or
+pip install https://github.com/umami-hep/puma/archive/master.tar.gz
 ```
