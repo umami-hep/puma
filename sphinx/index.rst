@@ -14,6 +14,7 @@ puma - Plotting UMami Api
    Quickstart <self>
    example
    module_reference
+   modules
 
 
 .. TODO: add pip version badge here once deployed
