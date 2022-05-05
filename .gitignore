@@ -1,5 +1,4 @@
 # Artifacts from sphinx docs (generated when built locally)
-docs
 sphinx/modules.rst
 sphinx/puma*.rst
 
