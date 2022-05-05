@@ -1,3 +1,8 @@
+# Artifacts from sphinx docs (generated when built locally)
+docs
+sphinx/modules.rst
+sphinx/puma*.rst
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -128,3 +133,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Config files create by Finder on macOS
+.DS_Store

@@ -15,7 +15,9 @@ make html
 
 # copy html files to docs folder
 mkdir -p ../docs
-mv html/* ../docs
+shopt -s dotglob
+mv _build/html/* ../docs
+rm -rf _build
 
 # we have to create an empty .nojekyll file in order to make the html theme work
 touch ../docs/.nojekyll
