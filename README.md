@@ -9,9 +9,10 @@ ROC curves | Histogram plots | Variable vs efficiency |
 <img src=https://umami-docs.web.cern.ch/ci_assets/roc.png width=200> | <img src=https://umami-docs.web.cern.ch/ci_assets/histogram_discriminant.png width=220> | <img src=https://umami-docs.web.cern.ch/ci_assets/pt_light_rej.png width=220> |
 
 
-## Quickstart
+## Installation
 
 The `puma` package is currently under construction. It will be available on PyPI soon.
+However, it can already be installed with the link provided in the second option below.
 
 ```bash   
 pip install puma
