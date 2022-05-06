@@ -4,13 +4,9 @@
 
 The Python package `puma` provides a plotting API for commonly used plots in flavour tagging.
 
-<img src=https://umami-docs.web.cern.ch/ci_assets/roc.png width=200>
-<img src=https://umami-docs.web.cern.ch/ci_assets/histogram_discriminant.png width=220>
-<img src=https://umami-docs.web.cern.ch/ci_assets/pt_light_rej.png width=220>
-
-* ROC curves
-* histogram comparison plots
-* variable vs. efficiency
+ROC curves | Histogram plots | Variable vs efficiency |
+:---------:|:--------------: | :--------------------: |
+<img src=https://umami-docs.web.cern.ch/ci_assets/roc.png width=200> | <img src=https://umami-docs.web.cern.ch/ci_assets/histogram_discriminant.png width=220> | <img src=https://umami-docs.web.cern.ch/ci_assets/pt_light_rej.png width=220> |
 
 
 ## Quickstart
