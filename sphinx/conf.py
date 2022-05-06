@@ -53,3 +53,13 @@ default_role = "code"
 # a list of builtin themes.
 #
 html_theme = "pydata_sphinx_theme"
+html_theme_options = {
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/umami-hep/puma",
+            "icon": "fab fa-github-square",
+            "type": "fontawesome",
+        },
+    ],
+}
