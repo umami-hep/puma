@@ -3,7 +3,7 @@ on: [push]
 jobs:
   publish:
     name: Publish to PyPI
-    # needs: [linter, pylint, darglint, black]
+    needs: [linter, pylint, darglint, black]
     # Only run for a tagged commit
     if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
     runs-on: ubuntu-latest
