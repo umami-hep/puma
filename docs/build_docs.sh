@@ -4,20 +4,13 @@
 pip install .
 
 # install requirements for sphinx
-pip install -r sphinx/requirements.txt
+pip install -r docs/requirements.txt
 
 # build the documentation
-cd sphinx
-rm -rf _build _static _templates source
-mkdir source
+cd docs
+rm -rf _build _static _templates
 sphinx-apidoc -f -o . ../puma
 make html
 
-# copy html files to docs folder
-mkdir -p ../docs
-shopt -s dotglob
-mv _build/html/* ../docs
-rm -rf _build
-
 # we have to create an empty .nojekyll file in order to make the html theme work
-touch ../docs/.nojekyll
+touch _build/html/.nojekyll

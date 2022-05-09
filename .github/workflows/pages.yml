@@ -8,27 +8,24 @@ jobs:
     runs-on: ubuntu-latest
     container: python:3.8
     steps:
-      # checkout repo
-      - uses: actions/checkout@master
+
+      - name: Checkout
+        uses: actions/checkout@master
         with:
           fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
 
-      # build the documentation
       - name: Build Sphinx documentation
         run: bash sphinx/build_docs.sh
 
-      # create branch "gh-pages", which will then overwrite the current "gh-pages"
-      # branch of the repo
-      - name: Create gh-pages branch from current master
-        run: git checkout -b gh-pages
-
-      # force push the new gh-pages branch
-      # this means that the new gh-pages branch is a copy of the current master + one
-      # further commit, which includes the sphinx docs
-      - name: Overwrite gh-pages branch with new version
-        uses: stefanzweifel/git-auto-commit-action@v4
+      # rsync is needed for the subsequently used workflow
+      - name: Install rsync
+        run: apt update && apt install -y rsync
+          
+      # This workflow will only update the gh-pages branch if the documentation
+      # is affected by the changes that triggered the job
+      - name: Deploy to GitHub pages
+        if: ${{ github.event_name == 'push' }}
+        uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
-          branch: gh-pages
-          file_pattern: docs
-          push_options: --force
-          commit_message: Adding the sphinx documentation
+          BRANCH: gh-pages
+          FOLDER: docs/_build/html
