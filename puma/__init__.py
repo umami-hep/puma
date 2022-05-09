@@ -1,5 +1,5 @@
 """puma framework - Plotting UMami Api."""
-__version__ = "0.0.0rc4"
+__version__ = "0.0.0rc5"
 
 
 def get_good_colours():
