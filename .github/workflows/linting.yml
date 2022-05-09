@@ -43,7 +43,7 @@ jobs:
 
   publish:
     name: Publish to PyPI
-    needs: [linter, pylint, darglint, black]
+    # needs: [linter, pylint, darglint, black]
     if: github.event_name == 'push'
     # if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
     runs-on: ubuntu-latest
@@ -63,4 +63,4 @@ jobs:
         with:
           user: __token__
           password: ${{ secrets.PYPI_TOKEN }}
-          url: https://pypi.org/project/puma/
+          url: https://test.pypi.org/legacy/
