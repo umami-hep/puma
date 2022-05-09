@@ -22,5 +22,5 @@ jobs:
         uses: pypa/gh-action-pypi-publish@v1.1.0
         with:
           user: __token__
-          password: ${{ secrets.PYPI_TOKEN }}
+          password: ${{ secrets.TEST_PYPI_TOKEN }}
           repository_url: https://test.pypi.org/project/puma-hep/
