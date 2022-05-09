@@ -1,5 +1,5 @@
 .. include README.md as the home site
-.. include:: ../README.md
+.. include:: ../../README.md
    :parser: myst_parser.sphinx_
 
 .. table of contents on the left side of the website
@@ -8,9 +8,8 @@
    :hidden:
 
    Quickstart <self>
-   example
-   module_reference
-   modules
+   module_reference.rst
+   example.md
 
 Indices and tables
 ==================
