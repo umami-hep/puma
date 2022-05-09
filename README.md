@@ -15,7 +15,7 @@ The `puma` package is currently under construction. It will be available on PyPI
 However, it can already be installed with the link provided in the second option below.
 
 ```bash   
-pip install puma
+pip install puma-hep
 # or
 pip install https://github.com/umami-hep/puma/archive/master.tar.gz
 ```
