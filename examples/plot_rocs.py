@@ -12,13 +12,15 @@ logger.info("caclulate tagger discriminants")
 
 
 # define a small function to calculate discriminant
-def disc_fct(a: np.ndarray) -> np.ndarray:
+def disc_fct(arr: np.ndarray, f_c: float = 0.018) -> np.ndarray:
     """Tagger discriminant
 
     Parameters
     ----------
-    a : numpy.ndarray
+    arr : numpy.ndarray
         array with with shape (, 3)
+    f_c : float, optional
+        f_c value in the discriminant (weight for c-jets rejection)
 
     Returns
     -------
@@ -26,7 +28,7 @@ def disc_fct(a: np.ndarray) -> np.ndarray:
         Array with the discriminant values inside.
     """
     # you can adapt this for your needs
-    return np.log(a[2] / (0.018 * a[1] + 0.92 * a[0]))
+    return np.log(arr[2] / (f_c * arr[1] + (1 - f_c) * arr[0]))
 
 
 # you can also use a lambda function
