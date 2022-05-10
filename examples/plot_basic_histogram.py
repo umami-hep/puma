@@ -13,7 +13,7 @@ measurement = np.concatenate(
     (rng.exponential(size=n_bkg), rng.normal(loc=2, scale=0.2, size=n_sig))
 )
 expectation_hist = histogram(expectation, label="MC", histtype="stepfilled", alpha=1)
-measurement_hist = histogram(measurement, label="data")
+measurement_hist = histogram(measurement, label="dummy data")
 
 # Initialise histogram plot
 plot_histo = histogram_plot(
