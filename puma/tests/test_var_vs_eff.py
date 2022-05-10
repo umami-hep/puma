@@ -18,7 +18,7 @@ set_log_level(logger, "DEBUG")
 
 
 class var_vs_eff_TestCase(unittest.TestCase):
-    """Test class for the umami.plotting.var_vs_eff functions."""
+    """Test class for the puma.var_vs_eff functions."""
 
     def setUp(self):
         self.wp = 0.77
@@ -213,7 +213,7 @@ class var_vs_eff_TestCase(unittest.TestCase):
 
 
 class var_vs_eff_output_TestCase(unittest.TestCase):
-    """Test class for the umami.plotting.var_vs_eff_plot output"""
+    """Test class for the puma.var_vs_eff_plot output"""
 
     def setUp(self):
         # Set up temp directory for comparison plots

@@ -18,7 +18,7 @@ set_log_level(logger, "DEBUG")
 
 
 class histogram_plot_TestCase(unittest.TestCase):
-    """Test class for umami.plotting.histogram_plot"""
+    """Test class for puma.histogram_plot"""
 
     def setUp(self):
         np.random.seed(42)

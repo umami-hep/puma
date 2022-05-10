@@ -18,7 +18,7 @@ set_log_level(logger, "DEBUG")
 
 
 class histogram_TestCase(unittest.TestCase):
-    """Test class for the umami.plotting.histogram functions."""
+    """Test class for the puma.histogram functions."""
 
     def test_empty_histogram(self):
         """test if providing wrong input type to histogram raises ValueError"""
@@ -88,7 +88,7 @@ class histogram_TestCase(unittest.TestCase):
 
 
 class histogram_plot_TestCase(unittest.TestCase):
-    """Test class for umami.plotting.histogram_plot"""
+    """Test class for puma.histogram_plot"""
 
     def setUp(self):
 

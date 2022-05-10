@@ -13,7 +13,7 @@ set_log_level(logger, "DEBUG")
 
 
 class plot_object_TestCase(unittest.TestCase):
-    """Test class for the umami.plotting plot_object dataclass."""
+    """Test class for the puma plot_object dataclass."""
 
     def test_only_one_input_figsize(self):
         with self.assertRaises(ValueError):

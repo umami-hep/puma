@@ -18,7 +18,7 @@ set_log_level(logger, "DEBUG")
 
 
 class roc_TestCase(unittest.TestCase):
-    """Test class for the umami.plotting.roc functions."""
+    """Test class for the puma.roc functions."""
 
     def setUp(self):
         self.sig_eff = np.linspace(0.4, 1, 100)
@@ -110,7 +110,7 @@ class roc_TestCase(unittest.TestCase):
 
 
 class roc_mask_TestCase(unittest.TestCase):
-    """Test class for the umami.plotting.roc non_zero_mask function."""
+    """Test class for the puma.roc non_zero_mask function."""
 
     def setUp(self):
         self.sig_eff = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7])
@@ -182,7 +182,7 @@ class roc_mask_TestCase(unittest.TestCase):
 
 
 class roc_output_TestCase(unittest.TestCase):
-    """Test class for the umami.plotting.roc_plot function."""
+    """Test class for the puma.roc_plot function."""
 
     def setUp(self):
         # Set up temp directory for comparison plots
