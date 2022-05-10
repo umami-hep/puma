@@ -1,13 +1,11 @@
 """puma framework - Plotting UMami Api."""
+
+# flake8: noqa
+# pylint: skip-file
+
 __version__ = "0.0.0rc5"
 
-
-def get_good_colours():
-    """List of colours adequate for plotting
-
-    Returns
-    -------
-    list
-        list with colours
-    """
-    return ["#AA3377", "#228833", "#4477AA", "#CCBB44", "#EE6677", "#BBBBBB"]
+from puma.histogram import histogram, histogram_plot
+from puma.plot_base import PlotBase, PlotLineObject, PlotObject
+from puma.roc import roc, roc_plot
+from puma.var_vs_eff import var_vs_eff, var_vs_eff_plot

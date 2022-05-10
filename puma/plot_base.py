@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 
 import atlasify
-from matplotlib import gridspec
+from matplotlib import axis, gridspec
 from matplotlib.figure import Figure
 
 from puma.utils import logger, set_xaxis_ticklabels_invisible
@@ -59,7 +59,7 @@ class PlotLineObject:  # pylint: disable=too-many-instance-attributes
 # TODO: enable `kw_only` when switching to Python 3.10
 # @dataclass(kw_only=True)
 @dataclass
-class PlotObject:  # pylint: disable=too-many-instance-attributes
+class PlotObject:
     """Data base class defining properties of a plot object.
 
     Parameters
@@ -103,6 +103,9 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
         Used fontsize, by default 10
     n_ratio_panels : int, optional
         Amount of ratio panels between 0 and 2, by default 1
+    vertical_split: bool
+        Set to False if you would like to split the figure horizonally. If set to
+        True the figure is split vertically (e.g for pie chart). By default False.
     figsize : (float, float), optional
         Tuple of figure size `(width, height)` in inches, by default (8, 6)
     dpi : int, optional
@@ -159,6 +162,7 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
     fontsize: int = 10
 
     n_ratio_panels: int = 1
+    vertical_split: bool = False
 
     figsize: tuple = None
     dpi: int = 400
@@ -190,7 +194,7 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
         ValueError
             if n_ratio_panels not in [0, 1, 2]
         """
-        self._check_figsize()
+        self.__check_figsize()
         allowed_n_ratio_panels = [0, 1, 2]
         if self.n_ratio_panels not in allowed_n_ratio_panels:
             raise ValueError(
@@ -209,7 +213,7 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
                 "Tag will therefore not be shown on plot."
             )
 
-    def _check_figsize(self):
+    def __check_figsize(self):
         """Check `figsize`
 
         Raises
@@ -231,9 +235,6 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
 class PlotBase(PlotObject):
     """Base class for plotting"""
 
-    # pylint: disable=too-many-instance-attributes
-    # Eight is reasonable in this case.
-
     def __init__(self, **kwargs) -> None:
         """Initialise class
 
@@ -246,6 +247,7 @@ class PlotBase(PlotObject):
         self.axis_top = None
         self.axis_ratio_1 = None
         self.axis_ratio_2 = None
+        self.axis_leg = None
         self.fig = None
 
     def initialise_figure(self, sub_plot_index: int = 5):
@@ -260,36 +262,126 @@ class PlotBase(PlotObject):
             panels are, by default 5
         """
         # TODO: switch to cases syntax in python 3.10
-        if self.n_ratio_panels == 0:
-            # no ratio panel
+
+        if self.vertical_split:
+            # split figure vertically instead of horizonally
+            if self.n_ratio_panels <= 1:
+                logger.warning(
+                    f"You set the number of ratio panels to {self.n_ratio_panels}"
+                    "but also set the vertical splitting to True. Therefore no ratio"
+                    "panels are created."
+                )
             self.fig = Figure(figsize=(8, 6) if self.figsize is None else self.figsize)
-            self.axis_top = self.fig.gca()
-        elif self.n_ratio_panels == 1:
-            # 1 ratio panel
-            self.fig = Figure(
-                figsize=(9.352, 6.616) if self.figsize is None else self.figsize
+            gs = gridspec.GridSpec(1, 11, figure=self.fig)
+            self.axis_top = self.fig.add_subplot(gs[0, :9])
+            self.axis_leg = self.fig.add_subplot(gs[0, 9:])
+
+        else:
+            if self.n_ratio_panels == 0:
+                # no ratio panel
+                self.fig = Figure(
+                    figsize=(8, 6) if self.figsize is None else self.figsize
+                )
+                self.axis_top = self.fig.gca()
+
+            elif self.n_ratio_panels == 1:
+                # 1 ratio panel
+                self.fig = Figure(
+                    figsize=(9.352, 6.616) if self.figsize is None else self.figsize
+                )
+
+                gs = gridspec.GridSpec(8, 1, figure=self.fig)
+                self.axis_top = self.fig.add_subplot(gs[:sub_plot_index, 0])
+                self.axis_ratio_1 = self.fig.add_subplot(
+                    gs[sub_plot_index:, 0], sharex=self.axis_top
+                )
+
+            elif self.n_ratio_panels == 2:
+                # 2 ratio panels
+                self.fig = Figure(
+                    figsize=(8, 8) if self.figsize is None else self.figsize
+                )
+
+                # Define the grid of the subplots
+                gs = gridspec.GridSpec(11, 1, figure=self.fig)
+                self.axis_top = self.fig.add_subplot(gs[:5, 0])
+                self.axis_ratio_1 = self.fig.add_subplot(
+                    gs[5:8, 0], sharex=self.axis_top
+                )
+                self.axis_ratio_2 = self.fig.add_subplot(
+                    gs[8:, 0], sharex=self.axis_top
+                )
+
+            if self.n_ratio_panels >= 1:
+                set_xaxis_ticklabels_invisible(self.axis_top)
+            if self.n_ratio_panels >= 2:
+                set_xaxis_ticklabels_invisible(self.axis_ratio_1)
+
+    def draw_vlines(
+        self,
+        vlines_xvalues: list,
+        vlines_label_list: list = None,
+        vlines_line_height_list: list = None,
+        same_height: bool = False,
+        colour: str = "#920000",
+        fontsize: int = 10,
+    ):
+        """Drawing working points in plot
+
+        Parameters
+        ----------
+        vlines_xvalues : list
+            List of working points x values to draw
+        vlines_label_list : list, optional
+            List with labels for the vertical lines. Must be the same
+            order as the vlines_xvalues. If None, the xvalues * 100 will be
+            used as labels. By default None
+        vlines_line_height_list : list, optional
+            List with the y height of the vertical lines in percent of the
+            upper plot (0 is bottom, 1 is top). Must be the same
+            order as the vlines_xvalues and the labels. By default None
+        same_height : bool, optional
+            working point lines on same height, by default False
+        colour : str, optional
+            colour of the vertical line, by default "#920000"
+        fontsize : int, optional
+            Fontsize of the vertical line text. By default 10.
+        """
+        for vline_counter, vline in enumerate(vlines_xvalues):
+            # Set y-point of the WP lines/text
+            if vlines_line_height_list is None:
+                ytext = 0.65 if same_height else 0.65 - vline_counter * 0.07
+
+            else:
+                ytext = vlines_line_height_list[vline_counter]
+
+            self.axis_top.axvline(
+                x=vline,
+                ymax=ytext,
+                color=colour,
+                linestyle="dashed",
+                linewidth=1.0,
             )
 
-            grid = gridspec.GridSpec(8, 1, figure=self.fig)
-            self.axis_top = self.fig.add_subplot(grid[:sub_plot_index, 0])
-            self.axis_ratio_1 = self.fig.add_subplot(
-                grid[sub_plot_index:, 0], sharex=self.axis_top
+            # Set the number above the line
+            self.axis_top.text(
+                x=vline - 0.005,
+                y=ytext + 0.005,
+                s=f"{int(vline * 100)}%"
+                if vlines_label_list is None
+                else f"{vlines_label_list[vline_counter]}",
+                transform=self.axis_top.get_xaxis_text1_transform(0)[0],
+                fontsize=fontsize,
             )
 
-        elif self.n_ratio_panels == 2:
-            # 2 ratio panels
-            self.fig = Figure(figsize=(8, 8) if self.figsize is None else self.figsize)
-
-            # Define the grid of the subplots
-            grid = gridspec.GridSpec(11, 1, figure=self.fig)
-            self.axis_top = self.fig.add_subplot(grid[:5, 0])
-            self.axis_ratio_1 = self.fig.add_subplot(grid[5:8, 0], sharex=self.axis_top)
-            self.axis_ratio_2 = self.fig.add_subplot(grid[8:, 0], sharex=self.axis_top)
-
-        if self.n_ratio_panels >= 1:
-            set_xaxis_ticklabels_invisible(self.axis_top)
-        if self.n_ratio_panels >= 2:
-            set_xaxis_ticklabels_invisible(self.axis_ratio_1)
+            if self.n_ratio_panels > 0:
+                self.axis_ratio_1.axvline(
+                    x=vline, color=colour, linestyle="dashed", linewidth=1.0
+                )
+            if self.n_ratio_panels == 2:
+                self.axis_ratio_2.axvline(
+                    x=vline, color=colour, linestyle="dashed", linewidth=1.0
+                )
 
     def set_title(self, title: str = None, **kwargs):
         """Set title of top panel.
@@ -352,18 +444,12 @@ class PlotBase(PlotObject):
 
                 self.axis_ratio_2.set_ylim(bottom=ymin, top=ymax)
 
-    def set_ylabel(
-        self,
-        axis,
-        label: str = None,
-        align_right: bool = True,
-        **kwargs,
-    ):
+    def set_ylabel(self, ax, label: str = None, align_right: bool = True, **kwargs):
         """Set y-axis label.
 
         Parameters
         ----------
-        axis : matplotlib.axes.Axes
+        ax : matplotlib.axes.Axes
             matplotlib axis object
         label : str, optional
             x-axis label, by default None
@@ -384,17 +470,13 @@ class PlotBase(PlotObject):
                 "fontsize": self.label_fontsize,
             }
 
-        axis.set_ylabel(
+        ax.set_ylabel(
             self.ylabel if label is None else label,
             **label_options,
             **kwargs,
         )
 
-    def set_xlabel(
-        self,
-        label: str = None,
-        **kwargs,
-    ):
+    def set_xlabel(self, label: str = None, **kwargs):
         """Set x-axis label.
 
         Parameters
@@ -418,11 +500,7 @@ class PlotBase(PlotObject):
         elif self.n_ratio_panels == 2:
             self.axis_ratio_2.set_xlabel(**xlabel_args, **kwargs)
 
-    def set_tick_params(
-        self,
-        labelsize: int = None,
-        **kwargs,
-    ):
+    def set_tick_params(self, labelsize: int = None, **kwargs):
         """Set x-axis label.
 
         Parameters
@@ -446,12 +524,7 @@ class PlotBase(PlotObject):
             self.axis_ratio_2.tick_params(axis="y", labelsize=labelsize, **kwargs)
             self.axis_ratio_2.tick_params(axis="x", labelsize=labelsize, **kwargs)
 
-    def set_xlim(
-        self,
-        xmin: float = None,
-        xmax: float = None,
-        **kwargs,
-    ):
+    def set_xlim(self, xmin: float = None, xmax: float = None, **kwargs):
         """Set limits of x-axis
 
         Parameters
@@ -489,7 +562,7 @@ class PlotBase(PlotObject):
         **kwargs : kwargs
             kwargs passed to `matplotlib.figure.Figure.savefig()`
         """
-        logger.debug("Saving plot to %s", plot_name)
+        logger.debug(f"Saving plot to {plot_name}")
         self.fig.savefig(
             plot_name,
             transparent=transparent,
@@ -502,7 +575,7 @@ class PlotBase(PlotObject):
 
         Parameters
         ----------
-        **kwargs : kwargs
+        **kwargs: kwargs
             kwargs from `matplotlib.figure.Figure.tight_layout()`
         """
         self.fig.tight_layout(**kwargs)
@@ -528,9 +601,12 @@ class PlotBase(PlotObject):
             return
 
         if self.apply_atlas_style or force:
-            logger.info("Initialise ATLAS style using atlasify.")
+            logger.debug("Initialise ATLAS style using atlasify.")
             if use_tag is True:
-                atlasify.atlasify(
+                # TODO: for some reason, pylint complains about the used arguments
+                # when calling atlasify ("unexpected-keyword-arg") error
+                # --> fix this
+                atlasify.atlasify(  # pylint: disable=E1123
                     atlas=self.atlas_first_tag,
                     subtext=self.atlas_second_tag,
                     axes=self.axis_top,
@@ -548,6 +624,8 @@ class PlotBase(PlotObject):
                 atlasify.atlasify(atlas=False, axes=self.axis_ratio_1, enlarge=1)
             if self.n_ratio_panels == 2:
                 atlasify.atlasify(atlas=False, axes=self.axis_ratio_2, enlarge=1)
+            if self.vertical_split:
+                atlasify.atlasify(atlas=False, axes=self.axis_leg, enlarge=1)
             if force:
                 if self.apply_atlas_style is False:
                     logger.warning(
@@ -560,25 +638,22 @@ class PlotBase(PlotObject):
                         " False."
                     )
 
-    def make_legend(
-        self,
-        handles: list,
-        labels: list = None,
-        **kwargs,
-    ):
+    def make_legend(self, handles: list, ax: axis, labels: list = None, **kwargs):
         """Drawing legend on axis.
 
         Parameters
         ----------
-        handles : list
+        handles :  list
             list of matplotlib.lines.Line2D object returned when plotting
+        ax : axis
+            matplotlib.axis object where the legend should be plotted
         labels : list, optional
             plot labels. If None, the labels are extracted from the `handles`.
             By default None
         **kwargs : kwargs
             kwargs which can be passed to matplotlib axis
         """
-        self.axis_top.legend(
+        ax.legend(
             handles=handles,
             labels=[handle.get_label() for handle in handles]
             if labels is None

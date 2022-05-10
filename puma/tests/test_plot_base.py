@@ -1,17 +1,19 @@
+#!/usr/bin/env python
+
 """
-Unit test script for the functions in base.py
+Unit test script for the functions in plot_base.py
 """
 
 import unittest
 
 from puma.utils import logger, set_log_level
-from puma.base import PlotObject
+from puma import PlotObject
 
 set_log_level(logger, "DEBUG")
 
 
 class plot_object_TestCase(unittest.TestCase):
-    """Test class for the puma.base PlotObject dataclass."""
+    """Test class for the puma.PlotObject dataclass."""
 
     def test_only_one_input_figsize(self):
         with self.assertRaises(ValueError):
