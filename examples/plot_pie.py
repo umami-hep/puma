@@ -1,3 +1,4 @@
+"""Example of pie char plot."""
 from puma import histogram, histogram_plot
 from puma.utils import get_dummy_2_taggers
 

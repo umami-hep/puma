@@ -14,10 +14,28 @@ jobs:
       - run: pip install .
       - run: pip install pytest
       - run: pytest -v puma/tests/
+  example_tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    container: python:3.8-slim
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - run: echo "The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
+      - run: pip install .
+      - run: mkdir plots
+      - run: cd plots
+      - run: ls ../examples/*.py | xargs -n 1 -P 3 python
+      - uses: actions/upload-artifact@v3
+        with:
+          name: plot-example-artifacts
+          path: plots/*.png
   publish:
     name: Publish to PyPI
     # For now this is an independent job, but we should make this dependent on the
-    # unit tests --> put at end of test pipeline and make it require all the previous 
+    # unit tests --> put at end of test pipeline and make it require all the previous
     # jobs
     # needs: [linter, pylint, darglint, black]
     needs: [unit_tests]

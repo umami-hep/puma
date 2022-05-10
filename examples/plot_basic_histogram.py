@@ -1,4 +1,4 @@
-"""Example of histogram plot that deviates from puma default plots"""
+"""Example of histogram plot that deviates from puma default plots."""
 
 import numpy as np
 

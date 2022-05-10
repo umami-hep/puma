@@ -1,4 +1,4 @@
-""" Example plot script for flavour probability comparison """
+"""Example plot script for flavour probability comparison."""
 
 from puma import histogram, histogram_plot
 from puma.utils import get_dummy_2_taggers
