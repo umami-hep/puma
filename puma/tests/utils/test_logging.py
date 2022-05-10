@@ -4,7 +4,7 @@ Unit test script for the functions in utils.logging
 
 import unittest
 
-from puma.utils.logging import logger, set_log_level
+from puma.utils import logger, set_log_level
 from puma.utils.logging import get_log_level
 
 
