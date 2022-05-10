@@ -1,5 +1,11 @@
 name: Test and publish
-on: [push]
+# Only trigger, when the linting workflow succeeded
+on:
+  workflow_run:
+    workflows: ["Linting"]
+    types:
+      - completed
+
 jobs:
   unit_tests:
     name: Unit tests
@@ -33,7 +39,7 @@ jobs:
           path: plots/*.png
   publish:
     name: Publish to PyPI
-    needs: [unit_tests, linter, pylint, darglint, black]
+    needs: [unit_tests]
     # Only run for a tagged commit
     if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
     runs-on: ubuntu-latest
