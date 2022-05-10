@@ -14,7 +14,7 @@ atlasify.LINE_SPACING = 1.3  # overwrite the default, which is 1.2
 # TODO: enable `kw_only` when switching to Python 3.10
 # @dataclass(kw_only=True)
 @dataclass
-class PlotLineObject:
+class PlotLineObject:  # pylint: disable=too-many-instance-attributes
     """Base data class defining properties of a plot object.
 
     Parameters
@@ -31,7 +31,16 @@ class PlotLineObject:
         linestyle following numpy style, by default None
     alpha : float, optional
        Value for visibility of the plot lines, by default None
-
+    marker : str, optional
+        Marker that is used in the plot. For example an x.
+        By default None
+    markersize : int, optional
+        Size of the marker. By default None
+    markeredgewidth : int, optional
+        Edge width of the marker. By default None
+    is_marker : bool, optional
+        Bool, to give info about if this is a marker or a line.
+        By default None
     """
 
     xmin: float = None
@@ -41,6 +50,10 @@ class PlotLineObject:
     linestyle: str = None
     linewidth: str = None
     alpha: float = None
+    marker: str = None
+    markersize: int = None
+    markeredgewidth: int = None
+    is_marker: bool = None
 
 
 # TODO: enable `kw_only` when switching to Python 3.10
@@ -108,7 +121,7 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
         Use the ATLAS Tag in the plots, by default True
     atlas_first_tag : str, optional
         First row of the ATLAS tag (i.e. the first row is "ATLAS <atlas_first_tag>"),
-        by default "Internal Simulation"
+        by default "Simulation Internal"
     atlas_second_tag : str, optional
         Second row of the ATLAS tag, by default ""
     atlas_fontsize : float, optional
@@ -160,7 +173,7 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
     # defining ATLAS style and tags
     apply_atlas_style: bool = True
     use_atlas_tag: bool = True
-    atlas_first_tag: str = "Internal Simulation"
+    atlas_first_tag: str = "Simulation Internal"
     atlas_second_tag: str = ""
     atlas_fontsize: int = None
     atlas_vertical_offset: float = 5
