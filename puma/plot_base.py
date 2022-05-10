@@ -591,7 +591,10 @@ class plot_base(plot_object):
         if self.apply_atlas_style or force:
             logger.info("Initialise ATLAS style using atlasify.")
             if use_tag is True:
-                atlasify.atlasify(
+                # TODO: for some reason, pylint complains about the used arguments
+                # when calling atlasify ("unexpected-keyword-arg") error
+                # --> fix this
+                atlasify.atlasify(  # pylint: disable=E1123
                     atlas=self.atlas_first_tag,
                     subtext=self.atlas_second_tag,
                     axes=self.axis_top,

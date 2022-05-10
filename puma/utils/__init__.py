@@ -1,8 +1,9 @@
 """Module for usefule tools in puma."""
 
+import pathlib
+
 import numpy as np
 import pandas as pd
-import pathlib
 import yaml
 from scipy.special import softmax
 
