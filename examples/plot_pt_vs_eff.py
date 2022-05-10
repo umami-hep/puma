@@ -98,7 +98,7 @@ plot_bkg_rej = var_vs_eff_plot(
     xlabel=r"$p_{T}$ [GeV]",
     logy=False,
     atlas_second_tag=(
-        "$\\sqrt{s}=13$ TeV, PFlow jets, \n$t\\bar{t}$ test sample, $f_{c}=0.018$"
+        "$\\sqrt{s}=13$ TeV, dummy jets, \n$t\\bar{t}$ test sample, $f_{c}=0.018$"
     ),
     figsize=(6, 4.5),
 )
@@ -114,7 +114,7 @@ plot_sig_eff = var_vs_eff_plot(
     xlabel=r"$p_{T}$ [GeV]",
     logy=False,
     atlas_second_tag=(
-        "$\\sqrt{s}=13$ TeV, PFlow jets, \n$t\\bar{t}$ test sample, $f_{c}=0.018$"
+        "$\\sqrt{s}=13$ TeV, dummy jets, \n$t\\bar{t}$ test sample, $f_{c}=0.018$"
     ),
     figsize=(6, 4.5),
 )
@@ -128,4 +128,4 @@ plot_sig_eff.atlas_second_tag += "\nInclusive $\\epsilon_b=70%%$"
 plot_sig_eff.draw()
 # Drawing a hline indicating inclusive efficiency
 plot_sig_eff.draw_hline(0.7)
-plot_sig_eff.savefig("pt_b_eff.png")
+plot_sig_eff.savefig("pt_b_eff.png", transparent=False)

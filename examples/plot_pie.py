@@ -29,4 +29,4 @@ plot_pie = histogram_plot(
 
 plot_pie.add(histogram(df["HadronConeExclTruthLabelID"]))
 plot_pie.draw()
-plot_pie.savefig("pie_chart_HadronConeExclTruthLabelID.png")
+plot_pie.savefig("pie_chart_HadronConeExclTruthLabelID.png", transparent=False)
