@@ -26,7 +26,7 @@ jobs:
       - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
       - run: pip install .
       - run: mkdir plots
-      - run: cd plots && ls ../examples/*.py | xargs -n 1 -P 3 python
+      - run: cd plots && for f in ../examples/*.py; do python "$f"; done
       - uses: actions/upload-artifact@v3
         with:
           name: plot-example-artifacts
