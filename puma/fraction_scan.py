@@ -2,9 +2,8 @@
 import matplotlib as mpl
 import numpy as np
 
-from puma import get_good_colours
-from puma.base import PlotBase, PlotLineObject
-from puma.utils import logger
+from puma.plot_base import PlotBase, PlotLineObject
+from puma.utils import get_good_colours, logger
 
 
 class FractionScan(PlotLineObject):  # pylint: disable=too-few-public-methods
@@ -219,7 +218,6 @@ class FractionScanPlot(PlotBase):
                 )
             )
 
-        self.plotting_done = True
         return plt_handles
 
     def draw(self):
@@ -229,7 +227,7 @@ class FractionScanPlot(PlotBase):
         plt_handles = self.plot()
 
         # Make the legend
-        self.make_legend(plt_handles)
+        self.make_legend(plt_handles, ax=self.axis_top)
 
         self.set_title()
         self.set_logy()
