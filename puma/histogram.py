@@ -363,7 +363,7 @@ class histogram_plot(plot_base):
                     bins=bins,
                     bottom=elem.band,
                     weights=elem.unc * 2,
-                    **global_config.hist_err_style,
+                    **global_config["hist_err_style"],
                 )
 
             plt_handles.append(
@@ -379,7 +379,7 @@ class histogram_plot(plot_base):
         if self.draw_errors:
             plt_handles.append(
                 mpl.patches.Patch(
-                    label="stat. uncertainty", **global_config.hist_err_style
+                    label="stat. uncertainty", **global_config["hist_err_style"]
                 )
             )
 
@@ -629,9 +629,9 @@ class histogram_plot(plot_base):
                     y2=ratio_unc_band_high,
                     step="pre",
                     facecolor="none",
-                    edgecolor=global_config.hist_err_style["edgecolor"],
-                    linewidth=global_config.hist_err_style["linewidth"],
-                    hatch=global_config.hist_err_style["hatch"],
+                    edgecolor=global_config["hist_err_style"]["edgecolor"],
+                    linewidth=global_config["hist_err_style"]["linewidth"],
+                    hatch=global_config["hist_err_style"]["hatch"],
                 )
 
     def add_bin_width_to_ylabel(self):

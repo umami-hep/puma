@@ -589,7 +589,7 @@ class plot_base(plot_object):
             return
 
         if self.apply_atlas_style or force:
-            logger.info("Initialise ATLAS style using atlasify.")
+            logger.debug("Initialise ATLAS style using atlasify.")
             if use_tag is True:
                 # TODO: for some reason, pylint complains about the used arguments
                 # when calling atlasify ("unexpected-keyword-arg") error

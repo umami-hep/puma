@@ -318,6 +318,21 @@ def get_good_colours():
     return ["#AA3377", "#228833", "#4477AA", "#CCBB44", "#EE6677", "#BBBBBB"]
 
 
-global_config_yaml = f"{pathlib.Path(__file__).parent.absolute()}/global_config.yaml"
-with open(global_config_yaml, "r") as stream:
-    global_config = yaml.safe_load(stream)
+global_config = {
+    "flavour_categories": {
+        "bjets": {"colour": "#1f77b4", "legend_label": "$b$-jets"},
+        "cjets": {"colour": "#ff7f0e", "legend_label": "$c$-jets"},
+        "ujets": {"colour": "#2ca02c", "legend_label": "light-flavour jets"},
+        "taujets": {"colour": "#7c5295", "legend_label": "$\\tau$-jets"},
+        "singlebjets": {"colour": "#1f77b4", "legend_label": "$b$-jets"},
+        "bbjets": {"colour": "#012F51", "legend_label": "$bb$-jets"},
+        "singlecjets": {"colour": "#ff7f0e", "legend_label": "$c$-jets"},
+        "ccjets": {"colour": "", "legend_label": "$cc$-jets"},
+    },
+    "hist_err_style": {
+        "fill": False,
+        "linewidth": 0,
+        "hatch": "/////",
+        "edgecolor": "#666666",
+    },
+}
