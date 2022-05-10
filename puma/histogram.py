@@ -75,9 +75,7 @@ class histogram(plot_line_object):
         )
         # If flavour was specified, extract configuration from global config
         if self.flavour is not None:
-            self.colour = global_config["flavour_categories"][self.flavour][
-                "legend_label"
-            ]
+            self.colour = global_config["flavour_categories"][self.flavour]["colour"]
             logger.debug(f"Histogram colour was set to {self.colour}")
 
             self.label = (

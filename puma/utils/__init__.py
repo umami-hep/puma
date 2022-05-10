@@ -327,7 +327,6 @@ global_config = {
         "singlebjets": {"colour": "#1f77b4", "legend_label": "$b$-jets"},
         "bbjets": {"colour": "#012F51", "legend_label": "$bb$-jets"},
         "singlecjets": {"colour": "#ff7f0e", "legend_label": "$c$-jets"},
-        "ccjets": {"colour": "", "legend_label": "$cc$-jets"},
     },
     "hist_err_style": {
         "fill": False,

@@ -2,6 +2,102 @@
 import numpy as np
 
 from puma.utils.logging import logger
+from puma.utils.histogram import save_divide
+
+
+def calc_eff(
+    sig_disc: np.ndarray,
+    bkg_disc: np.ndarray,
+    target_eff,
+    return_cuts: bool = False,
+):
+    """Calculate efficiency
+
+    Parameters
+    ----------
+    sig_disc : np.ndarray
+        signal discriminant
+    bkg_disc : np.ndarray
+        background discriminant
+    target_eff : float or list
+         WP which is used for discriminant calculation
+    return_cuts : bool
+        Specifies if the cut values corresponding to the provided WPs are returned.
+        If target_eff is a float, only one cut value will be returned. If target_eff
+        is an array, target_eff is an array as well.
+
+    Returns
+    -------
+    float or np.ndarray
+        efficiency
+        if target_eff is a float, a float is returned if it's a list a np.ndarray
+    float or np.ndarray
+        cutvalue if return_cuts is True
+        if target_eff is a float, a float is returned if it's a list a np.ndarray
+    """
+    # TODO: with python 3.10 using type union operator
+    # float | np.ndarray for both target_eff and the returned values
+    if isinstance(target_eff, float):
+        cutvalue = np.percentile(sig_disc, 100.0 * (1.0 - target_eff))
+        eff = save_divide(len(bkg_disc[bkg_disc > cutvalue]), len(bkg_disc), 0)
+
+        if return_cuts:
+            return eff, cutvalue
+        return eff
+
+    eff = np.zeros(len(target_eff))
+    cutvalue = np.zeros(len(target_eff))
+    for i, t_eff in enumerate(target_eff):
+        cutvalue[i] = np.percentile(sig_disc, 100.0 * (1.0 - t_eff))
+        eff[i] = save_divide(len(bkg_disc[bkg_disc > cutvalue[i]]), len(bkg_disc), 0)
+    if return_cuts:
+        return eff, cutvalue
+    return eff
+
+
+def calc_rej(
+    sig_disc: np.ndarray,
+    bkg_disc: np.ndarray,
+    target_eff,
+    return_cuts: bool = False,
+):
+    """Calculate efficiency
+
+    Parameters
+    ----------
+    sig_disc : np.ndarray
+        signal discriminant
+    bkg_disc : np.ndarray
+        background discriminant
+    target_eff : float or list
+         WP which is used for discriminant calculation
+    return_cuts : bool
+        Specifies if the cut values corresponding to the provided WPs are returned.
+        If target_eff is a float, only one cut value will be returned. If target_eff
+        is an array, target_eff is an array as well.
+
+    Returns
+    -------
+    float or np.ndarray
+        rejection
+        if target_eff is a float, a float is returned if it's a list a np.ndarray
+    float or np.ndarray
+        cutvalue if return_cuts is True
+        if target_eff is a float, a float is returned if it's a list a np.ndarray
+    """
+    # TODO: with python 3.10 using type union operator
+    # float | np.ndarray for both target_eff and the returned values
+    eff = calc_eff(
+        sig_disc=sig_disc,
+        bkg_disc=bkg_disc,
+        target_eff=target_eff,
+        return_cuts=return_cuts,
+    )
+    rej = save_divide(1, eff[0] if return_cuts else eff, np.inf)
+
+    if return_cuts:
+        return rej, eff[1]
+    return rej
 
 
 def eff_err(
