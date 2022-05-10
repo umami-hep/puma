@@ -14,7 +14,7 @@ atlasify.LINE_SPACING = 1.3  # overwrite the default, which is 1.2
 # TODO: enable `kw_only` when switching to Python 3.10
 # @dataclass(kw_only=True)
 @dataclass
-class plot_line_object:
+class PlotLineObject:
     """Base data class defining properties of a plot object.
 
     Parameters
@@ -46,7 +46,7 @@ class plot_line_object:
 # TODO: enable `kw_only` when switching to Python 3.10
 # @dataclass(kw_only=True)
 @dataclass
-class plot_object:
+class PlotObject:
     """Data base class defining properties of a plot object.
 
     Parameters
@@ -219,7 +219,7 @@ class plot_object:
             )
 
 
-class plot_base(plot_object):
+class PlotBase(PlotObject):
     """Base class for plotting"""
 
     def __init__(self, **kwargs) -> None:

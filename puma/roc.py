@@ -6,10 +6,10 @@ from scipy.interpolate import pchip
 
 from puma.utils import logger, get_good_colours
 from puma.metrics import rej_err
-from puma.plot_base import plot_base, plot_line_object
+from puma.plot_base import PlotBase, PlotLineObject
 
 
-class roc(plot_line_object):
+class roc(PlotLineObject):
     """
     ROC class storing info about curve and allows to calculate ratio w.r.t other roc.
     """
@@ -43,7 +43,7 @@ class roc(plot_line_object):
         key : str
             identifier for roc curve e.g. tagger, by default None
         **kwargs : kwargs
-            kwargs passed to `plot_line_object`
+            kwargs passed to `PlotLineObject`
 
         Raises
         ------
@@ -184,7 +184,7 @@ class roc(plot_line_object):
         return self.sig_eff[self.non_zero_mask], self.bkg_rej[self.non_zero_mask]
 
 
-class roc_plot(plot_base):
+class roc_plot(PlotBase):
     """Roc plot class"""
 
     def __init__(self, **kwargs) -> None:

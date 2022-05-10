@@ -6,11 +6,11 @@ from puma.utils import logger, get_good_colours
 
 # TODO: fix the import below
 from puma.metrics import eff_err, rej_err
-from puma.plot_base import plot_base, plot_line_object
+from puma.plot_base import PlotBase, PlotLineObject
 from puma.utils.histogram import hist_ratio, save_divide
 
 
-class var_vs_eff(plot_line_object):
+class var_vs_eff(PlotLineObject):
     """
     var_vs_eff class storing info about curve and allows to calculate ratio w.r.t other
     efficiency plots.
@@ -57,7 +57,7 @@ class var_vs_eff(plot_line_object):
         key : str, optional
             identifier for the curve e.g. tagger, by default None
          **kwargs : kwargs
-            kwargs passed to `plot_line_object`
+            kwargs passed to `PlotLineObject`
 
         Raises
         ------
@@ -431,7 +431,7 @@ class var_vs_eff(plot_line_object):
         )
 
 
-class var_vs_eff_plot(plot_base):
+class var_vs_eff_plot(PlotBase):
     """var_vs_eff plot class"""
 
     def __init__(self, mode, **kwargs) -> None:
