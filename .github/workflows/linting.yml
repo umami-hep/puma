@@ -22,6 +22,7 @@ jobs:
         run: pip install pylint==2.12.2
       - run: pip install .
       - run: pylint -j2 ./puma
+      - run: pylint -j2 ./examples/*.py
   darglint:
     runs-on: ubuntu-latest
     container: python:3.8-slim
