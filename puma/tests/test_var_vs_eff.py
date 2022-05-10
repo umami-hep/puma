@@ -11,7 +11,10 @@ import unittest
 import numpy as np
 from matplotlib.testing.compare import compare_images
 
+from puma.utils.logging import logger, set_log_level
 from puma import var_vs_eff, var_vs_eff_plot
+
+set_log_level(logger, "DEBUG")
 
 
 class var_vs_eff_TestCase(unittest.TestCase):

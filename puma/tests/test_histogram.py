@@ -11,10 +11,10 @@ import unittest
 import numpy as np
 from matplotlib.testing.compare import compare_images
 
-from puma.utils.logging import logger
+from puma.utils.logging import logger, set_log_level
 from puma import histogram, histogram_plot
 
-# set_log_level(logger, "DEBUG")
+set_log_level(logger, "DEBUG")
 
 
 class histogram_TestCase(unittest.TestCase):
