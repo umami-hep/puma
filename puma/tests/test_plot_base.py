@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Unit test script for the functions in metrics.py
+Unit test script for the functions in plot_base.py
 """
 
 import unittest
@@ -13,7 +13,7 @@ set_log_level(logger, "DEBUG")
 
 
 class plot_object_TestCase(unittest.TestCase):
-    """Test class for the puma plot_object dataclass."""
+    """Test class for the puma.PlotObject dataclass."""
 
     def test_only_one_input_figsize(self):
         with self.assertRaises(ValueError):
