@@ -6,7 +6,7 @@ Unit test script for the functions in metrics.py
 
 import unittest
 
-from puma.utils.logging import logger, set_log_level
+from puma.utils import logger, set_log_level
 from puma import plot_object
 
 set_log_level(logger, "DEBUG")

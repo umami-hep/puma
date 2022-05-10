@@ -1,7 +1,7 @@
 """Tools for metrics module."""
 import numpy as np
 
-from puma.utils.logging import logger
+from puma.utils import logger
 from puma.utils.histogram import save_divide
 
 

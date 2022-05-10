@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from scipy.special import softmax
 
-from puma.utils.logging import logger
+from puma.utils.logging import logger, set_log_level  # noqa: F401
 
 
 def translate_kwargs(kwargs):

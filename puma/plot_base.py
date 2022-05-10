@@ -6,8 +6,7 @@ import atlasify
 from matplotlib import axis, gridspec
 from matplotlib.figure import Figure
 
-from puma.utils import set_xaxis_ticklabels_invisible
-from puma.utils.logging import logger
+from puma.utils import logger, set_xaxis_ticklabels_invisible
 
 atlasify.LINE_SPACING = 1.3  # overwrite the default, which is 1.2
 

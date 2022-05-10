@@ -1,8 +1,7 @@
 """Produce roc curves from tagger output and labels."""
 import numpy as np
 
-from puma.utils.logging import logger
-from puma.utils import get_dummy_2_taggers
+from puma.utils import logger, get_dummy_2_taggers
 from puma.metrics import calc_rej
 from puma import roc, roc_plot
 

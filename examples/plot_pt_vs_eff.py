@@ -1,9 +1,8 @@
 """Produce pT vs efficiency plot from tagger output and labels."""
 import numpy as np
 
-from puma.utils.logging import logger
+from puma.utils import logger, get_dummy_2_taggers
 from puma import var_vs_eff, var_vs_eff_plot
-from puma.utils import get_dummy_2_taggers
 
 
 # define a small function to calculate discriminant

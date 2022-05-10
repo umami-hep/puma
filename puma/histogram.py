@@ -4,10 +4,8 @@ import numpy as np
 import pandas as pd
 
 from puma.plot_base import plot_base, plot_line_object
-from puma.utils import get_good_pie_colours, get_good_colours
+from puma.utils import logger, global_config, get_good_pie_colours, get_good_colours
 from puma.utils.histogram import hist_ratio, hist_w_unc
-from puma.utils.logging import logger
-from puma.utils import global_config
 
 
 class histogram(plot_line_object):
