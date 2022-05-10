@@ -12,7 +12,7 @@ set_log_level(logger, "DEBUG")
 
 
 class get_log_level_TestCase(unittest.TestCase):
-    """Test class for the puma.base PlotObject dataclass."""
+    """Test class for the puma logger"""
 
     def test_wrong_input(self):
         with self.assertRaises(ValueError):
