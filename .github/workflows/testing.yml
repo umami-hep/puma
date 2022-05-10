@@ -15,7 +15,7 @@ jobs:
       - run: pip install pytest
       - run: pytest -v puma/tests/
   example_tests:
-    name: Unit tests
+    name: Example tests
     runs-on: ubuntu-latest
     container: python:3.8-slim
     steps:
@@ -33,11 +33,7 @@ jobs:
           path: plots/*.png
   publish:
     name: Publish to PyPI
-    # For now this is an independent job, but we should make this dependent on the
-    # unit tests --> put at end of test pipeline and make it require all the previous
-    # jobs
-    # needs: [linter, pylint, darglint, black]
-    needs: [unit_tests]
+    needs: [unit_tests, linter, pylint, darglint, black]
     # Only run for a tagged commit
     if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
     runs-on: ubuntu-latest
