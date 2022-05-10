@@ -1,10 +1,10 @@
 """Module for usefule tools in puma."""
 
-import pathlib
+# flake8: noqa
+# pylint: skip-file
 
 import numpy as np
 import pandas as pd
-import yaml
 from scipy.special import softmax
 
 from puma.utils.logging import logger
