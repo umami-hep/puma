@@ -27,7 +27,7 @@ jobs:
       - run: pip install .
       - run: mkdir plots
       - run: cd plots
-      - run: ls ../examples/*.py|xargs -n 1 -P 3 python
+      - run: ls ../examples/*.py | xargs -n 1 -P 3 python
       - uses: actions/upload-artifact@v3
         with:
           name: plot-example-artifacts
