@@ -21,7 +21,7 @@ class FractionScanTestCase(unittest.TestCase):
     """Test class for the puma.fraction_scan functions."""
 
     def test_wrong_inputs_xvalues(self):
-        """test if providing wrong input type to fraction_scan raises ValueError"""
+        """test if providing wrong input type to FractionScan raises ValueError"""
         with self.assertRaises(ValueError):
             FractionScan(
                 x_values="Test",
@@ -60,7 +60,7 @@ class FractionScanTestCase(unittest.TestCase):
 
 
 class TestCase(unittest.TestCase):
-    """Test class for puma.fraction_scan_plot"""
+    """Test class for puma.FractionScanPlot"""
 
     def setUp(self):
         """Set up values needed."""
@@ -68,21 +68,20 @@ class TestCase(unittest.TestCase):
         # Line values
         self.x_values = np.arange(0.001, 1, 0.001)
         self.y_values = np.arange(0.001, 1, 0.001)
-        self.label = "Tagger 1"
 
         # Marker values
         self.marker_x = 0.5
         self.marker_y = 0.5
 
         # Set up directories for comparison plots
-        tmp_dir = tempfile.TemporaryDirectory()  # pylint: disable=R1732
-        self.actual_plots_dir = f"{tmp_dir.name}/"
+        self.tmp_dir = tempfile.TemporaryDirectory()  # pylint: disable=R1732
+        self.actual_plots_dir = f"{self.tmp_dir.name}"
         self.expected_plots_dir = os.path.join(
             os.path.dirname(__file__), "expected_plots"
         )
 
-    def test_fraction_scan_plot(self):
-        """Test the basic functions of fraction_scan_plot"""
+    def test_FractionScanPlot(self):
+        """Test the basic functions of FractionScanPlot"""
         frac_plot = FractionScanPlot(**{"n_ratio_panels": 0})
 
         # Add line
@@ -90,7 +89,7 @@ class TestCase(unittest.TestCase):
             FractionScan(
                 x_values=self.x_values,
                 y_values=self.y_values,
-                label=self.label,
+                label="Tagger 1",
                 colour="r",
                 linestyle="-",
             )
@@ -132,8 +131,8 @@ class TestCase(unittest.TestCase):
             )
         )
 
-    def test_fraction_scan_plot_grid_off(self):
-        """Test the basic functions of fraction_scan_plot"""
+    def test_FractionScanPlot_grid_off(self):
+        """Test the basic functions of FractionScanPlot"""
         frac_plot = FractionScanPlot(**{"n_ratio_panels": 0}, grid=False)
 
         # Add line
@@ -141,7 +140,7 @@ class TestCase(unittest.TestCase):
             FractionScan(
                 x_values=self.x_values,
                 y_values=self.y_values,
-                label=self.label,
+                label="Tagger 1",
                 colour="r",
                 linestyle="-",
             )
@@ -183,8 +182,8 @@ class TestCase(unittest.TestCase):
             )
         )
 
-    def test_fraction_scan_plot_no_param_set(self):
-        """Test the basic functions of fraction_scan_plot"""
+    def test_FractionScanPlot_no_param_set(self):
+        """Test the basic functions of FractionScanPlot"""
         frac_plot = FractionScanPlot(**{"n_ratio_panels": 0})
 
         # Add line
@@ -192,7 +191,7 @@ class TestCase(unittest.TestCase):
             FractionScan(
                 x_values=self.x_values,
                 y_values=self.y_values,
-                label=self.label,
+                label="Tagger 1",
                 colour=None,
                 linestyle=None,
             )
@@ -234,8 +233,8 @@ class TestCase(unittest.TestCase):
             )
         )
 
-    def test_fraction_scan_plot_double_key(self):
-        """Test the basic functions of fraction_scan_plot"""
+    def test_FractionScanPlot_double_key(self):
+        """Test the basic functions of FractionScanPlot"""
         frac_plot = FractionScanPlot(**{"n_ratio_panels": 0})
 
         # Add line
@@ -243,7 +242,7 @@ class TestCase(unittest.TestCase):
             FractionScan(
                 x_values=self.x_values,
                 y_values=self.y_values,
-                label=self.label,
+                label="Tagger 1",
                 colour="r",
                 linestyle="-",
             ),

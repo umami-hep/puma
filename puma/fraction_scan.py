@@ -218,6 +218,7 @@ class FractionScanPlot(PlotBase):
                 )
             )
 
+        self.plotting_done = True
         return plt_handles
 
     def draw(self):

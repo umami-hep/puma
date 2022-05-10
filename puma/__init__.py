@@ -5,6 +5,7 @@
 
 __version__ = "0.0.0rc5"
 
+from puma.fraction_scan import FractionScan, FractionScanPlot
 from puma.histogram import histogram, histogram_plot
 from puma.plot_base import PlotBase, PlotLineObject, PlotObject
 from puma.roc import roc, roc_plot
