@@ -34,4 +34,4 @@ plot_histo.add(expectation_hist, reference=True)
 plot_histo.add(measurement_hist)
 plot_histo.draw()
 
-plot_histo.savefig("histogram_basic_example.png")
+plot_histo.savefig("histogram_basic_example.png", transparent=False)
