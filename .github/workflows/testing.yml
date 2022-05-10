@@ -1,10 +1,5 @@
 name: Test and publish
-# Only trigger, when the linting workflow succeeded
-on:
-  workflow_run:
-    workflows: ["Linting"]
-    types:
-      - completed
+on: [push]
 
 jobs:
   unit_tests:
