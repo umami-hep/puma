@@ -1,4 +1,8 @@
 """puma framework - Plotting UMami Api."""
+
+# flake8: noqa
+# pylint: skip-file
+
 __version__ = "0.0.0rc5"
 
 from puma.histogram import histogram, histogram_plot
