@@ -3,11 +3,11 @@ import matplotlib as mpl
 import numpy as np
 import pandas as pd
 
-import umami.tools.PyATLASstyle.PyATLASstyle as pas
-from umami.configuration import global_config, logger
-from umami.helper_tools import hist_ratio, hist_w_unc
-from umami.plotting.plot_base import plot_base, plot_line_object
-from umami.plotting.utils import get_good_pie_colours
+from puma import get_good_colours
+from puma.plot_base import plot_base, plot_line_object
+from puma.utils import get_good_pie_colours
+from puma.utils.histogram import hist_ratio, hist_w_unc
+from puma.utils.logging import logger
 
 
 class histogram(plot_line_object):
@@ -250,7 +250,7 @@ class histogram_plot(plot_base):
             curve.linestyle = "-"
         # Set colours
         if curve.colour is None:
-            curve.colour = pas.get_good_colours()[len(self.plot_objects)]
+            curve.colour = get_good_colours()[len(self.plot_objects)]
         # Set alpha
         if curve.alpha is None:
             curve.alpha = 0.8

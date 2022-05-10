@@ -2,11 +2,14 @@
 import matplotlib as mpl
 import numpy as np
 
-import umami.tools.PyATLASstyle.PyATLASstyle as pas
-from umami.configuration import logger
-from umami.helper_tools import hist_ratio, save_divide
+# TODO: fix the import below
 from umami.metrics import eff_err, rej_err
-from umami.plotting.plot_base import plot_base, plot_line_object
+
+from puma import get_good_colours
+from puma.plot_base import plot_base, plot_line_object
+from puma.utils import get_good_pie_colours
+from puma.utils.histogram import hist_ratio, save_divide
+from puma.utils.logging import logger
 
 
 class var_vs_eff(plot_line_object):
@@ -499,7 +502,7 @@ class var_vs_eff_plot(plot_base):
 
         # set colours
         if curve.colour is None:
-            curve.colour = pas.get_good_colours()[len(self.plot_objects) - 1]
+            curve.colour = get_good_colours()[len(self.plot_objects) - 1]
         # set alpha
         if curve.alpha is None:
             curve.alpha = 0.8

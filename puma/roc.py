@@ -4,10 +4,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import pchip
 
-import umami.tools.PyATLASstyle.PyATLASstyle as pas
-from umami.configuration import logger
+# TODO: fix the following import
 from umami.metrics import rej_err
-from umami.plotting.plot_base import plot_base, plot_line_object
+
+from puma import get_good_colours
+from puma.plot_base import plot_base, plot_line_object
+from puma.utils.logging import logger
 
 
 class roc(plot_line_object):
@@ -258,7 +260,7 @@ class roc_plot(plot_base):
         # set colours
         if roc_curve.label not in self.label_colours:
             self.label_colours[roc_curve.label] = (
-                pas.get_good_colours()[len(self.label_colours)]
+                get_good_colours()[len(self.label_colours)]
                 if roc_curve.colour is None
                 else roc_curve.colour
             )
