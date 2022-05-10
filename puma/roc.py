@@ -4,10 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import pchip
 
-# TODO: fix the following import
-from umami.metrics import rej_err
-
-from puma import get_good_colours
+from puma.utils import get_good_colours
+from puma.metrics import rej_err
 from puma.plot_base import plot_base, plot_line_object
 from puma.utils.logging import logger
 

@@ -1,0 +1,61 @@
+flavour_categories:
+  bjets:
+    # for now HadronConeExclTruthLabelID and HadronConeExclExtendedTruthLabelID
+    # more to come hopefully
+    label_var: HadronConeExclTruthLabelID
+    # EDM ID
+    label_value: 5
+    # colour used to plot this category
+    colour: "#1f77b4"  # blue
+    # label used in the plotting
+    legend_label: $b$-jets
+    prob_var_name: "pb"
+  cjets:
+    label_var: HadronConeExclTruthLabelID
+    label_value: 4
+    colour: "#ff7f0e"  # orange
+    legend_label: $c$-jets
+    prob_var_name: "pc"
+  ujets:
+    label_var: HadronConeExclTruthLabelID
+    label_value: 0
+    colour: "#2ca02c"  # green
+    legend_label: light-flavour jets
+    prob_var_name: "pu"
+  taujets:
+    label_var: HadronConeExclTruthLabelID
+    label_value: 15
+    colour: "#7c5295"  # purple
+    legend_label: $\tau$-jets
+    prob_var_name: "ptau"
+  singlebjets:
+    label_var: HadronConeExclExtendedTruthLabelID
+    label_value: [5, 54]
+    colour: "#1f77b4"  # blue (same as bjets)
+    legend_label: $b$-jets
+    prob_var_name: "pb"
+  bbjets:
+    label_var: HadronConeExclExtendedTruthLabelID
+    label_value: 55
+    colour: "#012F51"  # dark blue
+    legend_label: $bb$-jets
+    prob_var_name: "pbb"
+  singlecjets:
+    label_var: HadronConeExclExtendedTruthLabelID
+    label_value: 4
+    colour: "#ff7f0e"  # orange (same as cjets)
+    legend_label: $c$-jets
+    prob_var_name: "pc"
+  ccjets:
+    label_var: HadronConeExclExtendedTruthLabelID
+    label_value: 44
+    colour: ""
+    legend_label: $cc$-jets
+    prob_var_name: "pcc"
+
+# plot style definitions
+hist_err_style:
+  fill: False
+  linewidth: 0
+  hatch: "/////"
+  edgecolor: "#666666"

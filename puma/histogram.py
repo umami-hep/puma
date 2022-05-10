@@ -3,11 +3,11 @@ import matplotlib as mpl
 import numpy as np
 import pandas as pd
 
-from puma import get_good_colours
 from puma.plot_base import plot_base, plot_line_object
-from puma.utils import get_good_pie_colours
+from puma.utils import get_good_pie_colours, get_good_colours
 from puma.utils.histogram import hist_ratio, hist_w_unc
 from puma.utils.logging import logger
+from puma.utils import global_config
 
 
 class histogram(plot_line_object):
@@ -75,11 +75,13 @@ class histogram(plot_line_object):
         )
         # If flavour was specified, extract configuration from global config
         if self.flavour is not None:
-            self.colour = global_config.flavour_categories[self.flavour]["colour"]
+            self.colour = global_config["flavour_categories"][self.flavour][
+                "legend_label"
+            ]
             logger.debug(f"Histogram colour was set to {self.colour}")
 
             self.label = (
-                f"{global_config.flavour_categories[self.flavour]['legend_label']}"
+                f"{global_config['flavour_categories'][self.flavour]['legend_label']}"
                 f" {self.label_addition}"
             )
             logger.debug(f"Histogram label was set to {self.label}")

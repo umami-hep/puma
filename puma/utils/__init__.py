@@ -2,6 +2,8 @@
 
 import numpy as np
 import pandas as pd
+import pathlib
+import yaml
 from scipy.special import softmax
 
 from puma.utils.logging import logger
@@ -304,14 +306,17 @@ def get_dummy_2_taggers(
     return df
 
 
-def set_xaxis_ticklabels_invisible(axis):
-    """Helper function to set the ticklabels of the xaxis invisible
+def get_good_colours():
+    """List of colours adequate for plotting
 
-    Parameters
-    ----------
-    axis : matplotlib.axes.Axes
-        Axis you want to modify
+    Returns
+    -------
+    list
+        list with colours
     """
+    return ["#AA3377", "#228833", "#4477AA", "#CCBB44", "#EE6677", "#BBBBBB"]
 
-    for label in axis.get_xticklabels():
-        label.set_visible(False)
+
+global_config_yaml = f"{pathlib.Path(__file__).parent.absolute()}/global_config.yaml"
+with open(global_config_yaml, "r") as stream:
+    global_config = yaml.safe_load(stream)

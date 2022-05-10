@@ -2,12 +2,11 @@
 import matplotlib as mpl
 import numpy as np
 
-# TODO: fix the import below
-from umami.metrics import eff_err, rej_err
+from puma.utils import get_good_colours
 
-from puma import get_good_colours
+# TODO: fix the import below
+from puma.metrics import eff_err, rej_err
 from puma.plot_base import plot_base, plot_line_object
-from puma.utils import get_good_pie_colours
 from puma.utils.histogram import hist_ratio, save_divide
 from puma.utils.logging import logger
 
