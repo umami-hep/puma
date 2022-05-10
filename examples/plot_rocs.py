@@ -133,4 +133,4 @@ plot_roc.set_leg_rej_labels("cjets", "c-jets rejection")
 
 
 plot_roc.draw()
-plot_roc.savefig("roc.png")
+plot_roc.savefig("roc.png", transparent=False)
