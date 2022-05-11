@@ -574,4 +574,21 @@ class RocPlot(PlotBase):
                 zorder=2,
                 **kwargs,
             )
+            if elem.n_test is not None:
+                y1 = (
+                    elem.bkg_rej[elem.non_zero_mask]
+                    - elem.binomial_error()[elem.non_zero_mask]
+                )
+                y2 = (
+                    elem.bkg_rej[elem.non_zero_mask]
+                    + elem.binomial_error()[elem.non_zero_mask]
+                )
+                self.axis_top.fill_between(
+                    elem.sig_eff[elem.non_zero_mask],
+                    y1,
+                    y2,
+                    color=elem.colour,
+                    alpha=0.3,
+                    zorder=2,
+                )
         return plt_handles

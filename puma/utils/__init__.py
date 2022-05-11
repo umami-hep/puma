@@ -135,8 +135,8 @@ def get_dummy_multiclass_scores(
     """
     size_class = int(size / 3)
     rng = np.random.default_rng(seed=seed)
-    ujets = softmax(rng.normal(loc=[-1, 0, 0], scale=1, size=(size_class, 3)), axis=1)
-    cjets = softmax(rng.normal(loc=[0, 1, 0], scale=2.5, size=(size_class, 3)), axis=1)
+    ujets = softmax(rng.normal(loc=[0, 1, 0], scale=2.5, size=(size_class, 3)), axis=1)
+    cjets = softmax(rng.normal(loc=[-1, 0, 0], scale=1, size=(size_class, 3)), axis=1)
     bjets = softmax(
         rng.normal(loc=[0, 0, bjets_mean], scale=2, size=(size_class, 3)), axis=1
     )
