@@ -131,7 +131,7 @@ plot_roc.set_ratio_class(2, "cjets", label="$c$-jets ratio")
 # plot_roc.set_ratio_class(2, "ujets", label="light-flavour jets ratio")
 # plot_roc.set_ratio_class(1, "cjets", label="c-jets ratio")
 plot_roc.set_leg_rej_labels("ujets", "Light-flavour jets rejection")
-plot_roc.set_leg_rej_labels("cjets", "c-jets rejection")
+plot_roc.set_leg_rej_labels("cjets", "$c$-jets rejection")
 
 
 plot_roc.draw()
