@@ -23,6 +23,8 @@ class FractionScan(PlotLineObject):  # pylint: disable=too-few-public-methods
             x values of the fraction scan curve
         y_values : np.ndarray
             y values of the fraction scan curve
+        **kwargs : kwargs
+            kwargs passed to `PlotLineObject`
 
         Raises
         ------
@@ -106,6 +108,8 @@ class FractionScanPlot(PlotBase):
         logy : bool, optional
             Decide, if the y-axis of the plot will
             be in log, by default False
+        **kwargs : kwargs
+            kwargs from `plot_base`
         """
 
         super().__init__(**kwargs)
