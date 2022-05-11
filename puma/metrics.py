@@ -136,7 +136,7 @@ def eff_err(
     """
     logger.debug("Calculating efficiency error.")
     logger.debug("arr: %s", arr)
-    logger.debug("n_counts: %s", n_counts)
+    logger.debug("n_counts: %i", n_counts)
     logger.debug("suppress_zero_divison_error: %s", suppress_zero_divison_error)
     logger.debug("norm: %s", norm)
     # TODO: suppress_zero_divison_error should not be necessary, but functions calling
@@ -184,7 +184,7 @@ def rej_err(
     """
     logger.debug("Calculating rejection error.")
     logger.debug("arr: %s", arr)
-    logger.debug("n_counts: %s", n_counts)
+    logger.debug("n_counts: %i", n_counts)
     logger.debug("norm: %s", norm)
     if np.any(n_counts <= 0):
         raise ValueError(

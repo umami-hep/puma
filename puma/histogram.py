@@ -313,7 +313,7 @@ class histogram_plot(PlotBase):
                     "the bin edges. The range will be ignored."
                 )
         elif isinstance(self.bins, int):
-            logger.debug("Calculating bin edges of %s equal-width bins", self.bins)
+            logger.debug("Calculating bin edges of %i equal-width bins", self.bins)
             _, self.bins = np.histogram(
                 np.hstack([elem.values for elem in self.plot_objects.values()]),
                 bins=self.bins,
@@ -422,7 +422,7 @@ class histogram_plot(PlotBase):
                     "the bin edges. The range will be ignored."
                 )
         elif isinstance(self.bins, int):
-            logger.debug("Calculating bin edges of %s equal-width bins", self.bins)
+            logger.debug("Calculating bin edges of %i equal-width bins", self.bins)
             _, self.bins = np.histogram(
                 np.hstack([elem.values for elem in self.plot_objects.values()]),
                 bins=self.bins,

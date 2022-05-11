@@ -157,7 +157,7 @@ class var_vs_eff(PlotLineObject):
         self.x_bin_centres = (self.bin_edges[:-1] + self.bin_edges[1:]) / 2.0
         self.bin_widths = (self.bin_edges[1:] - self.bin_edges[:-1]) / 2.0
         self.n_bins = self.bin_edges.size - 1
-        logger.debug("N bins: %s", self.n_bins)
+        logger.debug("N bins: %i", self.n_bins)
 
     def _apply_binning(self):
         """Get binned distributions for the signal and background."""
@@ -202,7 +202,7 @@ class var_vs_eff(PlotLineObject):
             self.disc_cut = [
                 np.percentile(self.disc_sig, (1 - self.wp) * 100)
             ] * self.n_bins
-        logger.debug("Discriminant cut: %s", self.disc_cut)
+        logger.debug("Discriminant cut: %.3f", self.disc_cut)
 
     def efficiency(self, x: np.ndarray, cut: float):
         """Calculate efficiency and the associated error.
@@ -268,7 +268,7 @@ class var_vs_eff(PlotLineObject):
         """
         logger.debug("Calculating signal efficiency.")
         eff = list(map(self.efficiency, self.disc_binned_sig, self.disc_cut))
-        logger.debug("Retrieved signal efficiencies: %s", eff)
+        logger.debug("Retrieved signal efficiencies: %.2f", eff)
         return np.array(eff)[:, 0], np.array(eff)[:, 1]
 
     @property
@@ -284,7 +284,7 @@ class var_vs_eff(PlotLineObject):
         """
         logger.debug("Calculating background efficiency.")
         eff = list(map(self.efficiency, self.disc_binned_bkg, self.disc_cut))
-        logger.debug("Retrieved background efficiencies: %s", eff)
+        logger.debug("Retrieved background efficiencies: %.2f", eff)
         return np.array(eff)[:, 0], np.array(eff)[:, 1]
 
     @property
@@ -300,7 +300,7 @@ class var_vs_eff(PlotLineObject):
         """
         logger.debug("Calculating signal rejection.")
         rej = list(map(self.rejection, self.disc_binned_sig, self.disc_cut))
-        logger.debug("Retrieved signal rejections: %s", rej)
+        logger.debug("Retrieved signal rejections: %.1f", rej)
         return np.array(rej)[:, 0], np.array(rej)[:, 1]
 
     @property
@@ -316,7 +316,7 @@ class var_vs_eff(PlotLineObject):
         """
         logger.debug("Calculating background rejection.")
         rej = list(map(self.rejection, self.disc_binned_bkg, self.disc_cut))
-        logger.debug("Retrieved background rejections: %s", rej)
+        logger.debug("Retrieved background rejections: %.1f", rej)
         return np.array(rej)[:, 0], np.array(rej)[:, 1]
 
     def __eq__(self, other):

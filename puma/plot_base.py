@@ -267,7 +267,7 @@ class PlotBase(PlotObject):
             # split figure vertically instead of horizonally
             if self.n_ratio_panels <= 1:
                 logger.warning(
-                    "You set the number of ratio panels to %s"
+                    "You set the number of ratio panels to %i"
                     "but also set the vertical splitting to True. Therefore no ratio"
                     "panels are created.",
                     self.n_ratio_panels,
