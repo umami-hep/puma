@@ -2,14 +2,12 @@
 import matplotlib as mpl
 import numpy as np
 
-from puma.plot_base import PlotBase, PlotLineObject
+from puma import PlotBase, PlotLineObject
 from puma.utils import get_good_colours, logger
 
 
 class FractionScan(PlotLineObject):  # pylint: disable=too-few-public-methods
-    """
-    fraction_scan class storing info about the fractions.
-    """
+    """FractionScan class storing info about the fractions."""
 
     def __init__(
         self,
@@ -18,7 +16,6 @@ class FractionScan(PlotLineObject):  # pylint: disable=too-few-public-methods
         **kwargs,
     ) -> None:
 
-        # Super init
         super().__init__(**kwargs)
 
         # Check input dtype
@@ -27,7 +24,8 @@ class FractionScan(PlotLineObject):  # pylint: disable=too-few-public-methods
             if type(x_values) != type(y_values):  # pylint: disable=C0123
                 raise ValueError(
                     "Invalid types of input given! Both must be either "
-                    f"numpy.ndarray, list or int! x_values: {type(x_values)} "
+                    f"numpy.ndarray, list or int! \n"
+                    f"You specified: x_values: {type(x_values)} , "
                     f"y_values: {type(y_values)}"
                 )
 
@@ -59,7 +57,7 @@ class FractionScan(PlotLineObject):  # pylint: disable=too-few-public-methods
         else:
             raise ValueError(
                 "Invalid type of fraction scan input data. Allowed values are "
-                "numpy.ndarray, list, int"
+                "numpy.ndarray, list, int, float"
             )
 
         # Set inputs as attributes
@@ -79,7 +77,6 @@ class FractionScanPlot(PlotBase):
         **kwargs,
     ) -> None:
 
-        # Super init
         super().__init__(**kwargs)
 
         # Set inputs as attributes
@@ -89,7 +86,6 @@ class FractionScanPlot(PlotBase):
         self.plot_objects = {}
         self.add_order = []
 
-        # Init the figure
         self.initialise_figure(sub_plot_index=6)
 
     def add(
@@ -98,14 +94,14 @@ class FractionScanPlot(PlotBase):
         key: str = None,
         is_marker: bool = False,
     ):
-        """Adding histogram object to figure.
+        """Adding FractionScan object to figure.
 
         Parameters
         ----------
-        curve : histogram class
-            histogram curve
+        curve : FractionScan
+            Fraction scan curve
         key : str, optional
-            Unique identifier for histogram, by default None
+            Unique identifier for FractionScan, by default None
         is_marker : bool, optional
             Defines if this is a marker (True) or a line (False).
             By default False.
@@ -124,7 +120,7 @@ class FractionScanPlot(PlotBase):
         if key in self.plot_objects:
             raise KeyError(f"Duplicated key {key} already used for unique identifier.")
 
-        # Add key to histogram object
+        # Add key to FractionScan object
         curve.key = key
         logger.debug("Adding fraction scan of %s", key)
 
@@ -136,7 +132,6 @@ class FractionScanPlot(PlotBase):
             # Set colours
             if curve.colour is None:
                 curve.colour = get_good_colours()[len(self.plot_objects)]
-            # Set is_marker to True
             curve.is_marker = False
             # Set linestyle
             if curve.linestyle is None:
@@ -146,7 +141,6 @@ class FractionScanPlot(PlotBase):
                 curve.linewidth = 1.6
 
         else:
-            # Set is_marker to True
             curve.is_marker = True
             # Set colour of the marker the same as the last line plotted
             if curve.colour is None:
@@ -168,9 +162,6 @@ class FractionScanPlot(PlotBase):
         self.plot_objects[key] = curve
         self.add_order.append(key)
 
-    def set_grid(self):
-        """Set grid lines."""
-        self.axis_top.grid()
 
     def plot(self, **kwargs):
         """Plotting curves. Plot objects are drawn in the same order as they
@@ -179,7 +170,7 @@ class FractionScanPlot(PlotBase):
         Parameters
         ----------
         **kwargs: kwargs
-            kwargs passed to matplotlib.axes.Axes.hist()
+            kwargs passed to matplotlib.axes.Axes.plot()
 
         Returns
         -------

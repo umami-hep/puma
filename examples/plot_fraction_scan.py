@@ -1,4 +1,4 @@
-"""Example of fraction scan plot that deviates from puma default plots"""
+"""Example of fraction scan plot"""
 
 import numpy as np
 
@@ -60,4 +60,4 @@ frac_plot.ylabel = "Test_y_label"
 
 # Draw and save the plot
 frac_plot.draw()
-frac_plot.savefig("FractionScanPlot_test.png", transparent=True)
+frac_plot.savefig("FractionScanPlot_test.png", transparent=False)
