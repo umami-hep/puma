@@ -11,8 +11,8 @@ import unittest
 import numpy as np
 from matplotlib.testing.compare import compare_images
 
+from puma import Histogram, HistogramPlot
 from puma.utils import logger, set_log_level
-from puma import histogram, histogram_plot
 
 set_log_level(logger, "DEBUG")
 
@@ -24,7 +24,7 @@ class histogram_plot_TestCase(unittest.TestCase):
         np.random.seed(42)
         n_random = 10_000
         self.discrete_vals = [0, 4, 5, 15]
-        self.pie = histogram(
+        self.pie = Histogram(
             np.random.choice(self.discrete_vals, size=n_random), label=f"N={n_random:_}"
         )
 
@@ -37,14 +37,14 @@ class histogram_plot_TestCase(unittest.TestCase):
 
     def test_invalid_bins_type(self):
         """check if ValueError is raised when using invalid type in `bins` argument"""
-        hist_plot = histogram_plot(bins=1.1, plot_pie=True)
+        hist_plot = HistogramPlot(bins=1.1, plot_pie=True)
         hist_plot.add(self.pie, reference=True)
         with self.assertRaises(ValueError):
             hist_plot.plot_pie_chart()
 
     def test_invalid_binwidth(self):
         """check if ValueError is raised when using a bin width larger than 1"""
-        hist_plot = histogram_plot(
+        hist_plot = HistogramPlot(
             bins=5, bins_range=(0, 16), discrete_vals=self.discrete_vals, plot_pie=True
         )
         hist_plot.add(self.pie)
@@ -53,7 +53,7 @@ class histogram_plot_TestCase(unittest.TestCase):
 
     def test_no_discrete_vals(self):
         """check if ValueError is raised when no discrete values are provided"""
-        hist_plot = histogram_plot(
+        hist_plot = HistogramPlot(
             bins=5, bins_range=(0, 16), plot_pie=True, vertical_split=True
         )
         hist_plot.add(self.pie)
@@ -61,7 +61,7 @@ class histogram_plot_TestCase(unittest.TestCase):
             hist_plot.plot_pie_chart()
 
     def test_no_vertical_split(self):
-        hist_plot = histogram_plot(
+        hist_plot = HistogramPlot(
             bins=5, bins_range=(0, 16), discrete_vals=[0, 4, 5, 15], plot_pie=True
         )
         hist_plot.add(self.pie)
@@ -70,7 +70,7 @@ class histogram_plot_TestCase(unittest.TestCase):
 
     def test_plot_pie_chart(self):
         """check if plot chart is plotted correctly"""
-        hist_plot = histogram_plot(
+        hist_plot = HistogramPlot(
             bins=16,
             bins_range=(0, 16),
             discrete_vals=[0, 4, 5, 15],

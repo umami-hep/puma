@@ -4,12 +4,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import pchip
 
-from puma.utils import logger, get_good_colours
 from puma.metrics import rej_err
 from puma.plot_base import PlotBase, PlotLineObject
+from puma.utils import get_good_colours, logger
 
 
-class roc(PlotLineObject):
+class Roc(PlotLineObject):
     """
     ROC class storing info about curve and allows to calculate ratio w.r.t other roc.
     """
@@ -160,10 +160,10 @@ class roc(PlotLineObject):
             masked indices
         """
         # Mask the points where there was no change in the signal eff
-        dx = np.concatenate((np.ones(1), np.diff(self.sig_eff)))
+        delta_x = np.concatenate((np.ones(1), np.diff(self.sig_eff)))
 
         # Also mask the rejections that are 0
-        nonzero = (self.bkg_rej != 0) & (dx > 0)
+        nonzero = (self.bkg_rej != 0) & (delta_x > 0)
         if self.xmin is not None:
             nonzero = nonzero & (self.sig_eff >= self.xmin)
         if self.xmax is not None:
@@ -184,7 +184,7 @@ class roc(PlotLineObject):
         return self.sig_eff[self.non_zero_mask], self.bkg_rej[self.non_zero_mask]
 
 
-class roc_plot(PlotBase):
+class RocPlot(PlotBase):
     """Roc plot class"""
 
     def __init__(self, **kwargs) -> None:
@@ -369,13 +369,13 @@ class roc_plot(PlotBase):
             raise ValueError(
                 "Ratio classes not set, set them first with `set_ratio_class`."
             )
-        self.plot_ratios(ax=self.axis_ratio_1, rej_class=self.ratio_axes[1])
+        self.plot_ratios(axis=self.axis_ratio_1, rej_class=self.ratio_axes[1])
 
         if self.grid:
             self.axis_ratio_1.grid()
 
         if self.n_ratio_panels == 2:
-            self.plot_ratios(ax=self.axis_ratio_2, rej_class=self.ratio_axes[2])
+            self.plot_ratios(axis=self.axis_ratio_2, rej_class=self.ratio_axes[2])
 
             if self.grid:
                 self.axis_ratio_2.grid()
@@ -395,12 +395,12 @@ class roc_plot(PlotBase):
 
         return self.eff_min, self.eff_max
 
-    def plot_ratios(self, ax: plt.axis, rej_class: str):
+    def plot_ratios(self, axis: plt.axis, rej_class: str):
         """Plotting ratio curves
 
         Parameters
         ----------
-        ax : plt.axis
+        axis : plt.axis
             matplotlib axis object
         rej_class : str
             rejection class
@@ -412,7 +412,7 @@ class roc_plot(PlotBase):
                 self.rocs[self.reference_roc[rej_class]]
             )
             self.roc_ratios[key] = (ratio_sig_eff, ratio, ratio_err)
-            ax.plot(
+            axis.plot(
                 ratio_sig_eff,
                 ratio,
                 color=elem.colour,
@@ -420,7 +420,7 @@ class roc_plot(PlotBase):
                 linewidth=1.6,
             )
             if ratio_err is not None:
-                ax.fill_between(
+                axis.fill_between(
                     ratio_sig_eff,
                     ratio - ratio_err,
                     ratio + ratio_err,
@@ -532,7 +532,7 @@ class roc_plot(PlotBase):
             )
 
         if self.n_ratio_panels < 2:
-            self.make_legend(plt_handles, ax=self.axis_top)
+            self.make_legend(plt_handles, ax_mpl=self.axis_top)
         else:
             if not self.leg_rej_labels:
                 self.leg_rej_labels[self.ratio_axes[1]] = self.ratio_axes[1]

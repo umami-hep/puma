@@ -273,9 +273,9 @@ class PlotBase(PlotObject):
                     self.n_ratio_panels,
                 )
             self.fig = Figure(figsize=(8, 6) if self.figsize is None else self.figsize)
-            gs = gridspec.GridSpec(1, 11, figure=self.fig)
-            self.axis_top = self.fig.add_subplot(gs[0, :9])
-            self.axis_leg = self.fig.add_subplot(gs[0, 9:])
+            g_spec = gridspec.GridSpec(1, 11, figure=self.fig)
+            self.axis_top = self.fig.add_subplot(g_spec[0, :9])
+            self.axis_leg = self.fig.add_subplot(g_spec[0, 9:])
 
         else:
             if self.n_ratio_panels == 0:
@@ -291,10 +291,10 @@ class PlotBase(PlotObject):
                     figsize=(9.352, 6.616) if self.figsize is None else self.figsize
                 )
 
-                gs = gridspec.GridSpec(8, 1, figure=self.fig)
-                self.axis_top = self.fig.add_subplot(gs[:sub_plot_index, 0])
+                g_spec = gridspec.GridSpec(8, 1, figure=self.fig)
+                self.axis_top = self.fig.add_subplot(g_spec[:sub_plot_index, 0])
                 self.axis_ratio_1 = self.fig.add_subplot(
-                    gs[sub_plot_index:, 0], sharex=self.axis_top
+                    g_spec[sub_plot_index:, 0], sharex=self.axis_top
                 )
 
             elif self.n_ratio_panels == 2:
@@ -304,13 +304,13 @@ class PlotBase(PlotObject):
                 )
 
                 # Define the grid of the subplots
-                gs = gridspec.GridSpec(11, 1, figure=self.fig)
-                self.axis_top = self.fig.add_subplot(gs[:5, 0])
+                g_spec = gridspec.GridSpec(11, 1, figure=self.fig)
+                self.axis_top = self.fig.add_subplot(g_spec[:5, 0])
                 self.axis_ratio_1 = self.fig.add_subplot(
-                    gs[5:8, 0], sharex=self.axis_top
+                    g_spec[5:8, 0], sharex=self.axis_top
                 )
                 self.axis_ratio_2 = self.fig.add_subplot(
-                    gs[8:, 0], sharex=self.axis_top
+                    g_spec[8:, 0], sharex=self.axis_top
                 )
 
             if self.n_ratio_panels >= 1:
@@ -445,12 +445,12 @@ class PlotBase(PlotObject):
 
                 self.axis_ratio_2.set_ylim(bottom=ymin, top=ymax)
 
-    def set_ylabel(self, ax, label: str = None, align_right: bool = True, **kwargs):
+    def set_ylabel(self, ax_mpl, label: str = None, align_right: bool = True, **kwargs):
         """Set y-axis label.
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax_mpl : matplotlib.axes.Axes
             matplotlib axis object
         label : str, optional
             x-axis label, by default None
@@ -471,7 +471,7 @@ class PlotBase(PlotObject):
                 "fontsize": self.label_fontsize,
             }
 
-        ax.set_ylabel(
+        ax_mpl.set_ylabel(
             self.ylabel if label is None else label,
             **label_options,
             **kwargs,
@@ -639,14 +639,14 @@ class PlotBase(PlotObject):
                         " False."
                     )
 
-    def make_legend(self, handles: list, ax: axis, labels: list = None, **kwargs):
+    def make_legend(self, handles: list, ax_mpl: axis, labels: list = None, **kwargs):
         """Drawing legend on axis.
 
         Parameters
         ----------
         handles :  list
             list of matplotlib.lines.Line2D object returned when plotting
-        ax : axis
+        ax_mpl : axis
             matplotlib.axis object where the legend should be plotted
         labels : list, optional
             plot labels. If None, the labels are extracted from the `handles`.
@@ -654,7 +654,7 @@ class PlotBase(PlotObject):
         **kwargs : kwargs
             kwargs which can be passed to matplotlib axis
         """
-        ax.legend(
+        ax_mpl.legend(
             handles=handles,
             labels=[handle.get_label() for handle in handles]
             if labels is None

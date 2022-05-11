@@ -14,8 +14,8 @@ y_values = np.linspace(30, 50, 1000)
 
 # If you want to mark a specific point with a marker, you just need to
 # define the x- and y values again for the marker (This must be floats)
-marker_x = 40
-marker_y = 40
+MARKER_X = 40
+MARKER_Y = 40
 
 # You can give several plotting options to the plot itself
 # TODO Remove the n_ratio_panels here if the default value is 0
@@ -43,8 +43,8 @@ frac_plot.add(
 # The is_marker bool tells the plot that this is a marker and not a line
 frac_plot.add(
     FractionScan(
-        x_values=marker_x,
-        y_values=marker_y,
+        x_values=MARKER_X,
+        y_values=MARKER_Y,
         colour="r",
         marker="x",
         label="Marker label",

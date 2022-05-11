@@ -1,8 +1,8 @@
 """Produce pT vs efficiency plot from tagger output and labels."""
 import numpy as np
 
-from puma.utils import logger, get_dummy_2_taggers
-from puma import var_vs_eff, var_vs_eff_plot
+from puma import VarVsEff, VarVsEffPlot
+from puma.utils import get_dummy_2_taggers, logger
 
 
 # define a small function to calculate discriminant
@@ -68,24 +68,24 @@ is_b = df["HadronConeExclTruthLabelID"] == 5
 # here the plotting starts
 
 # define the curves
-rnnip_light = var_vs_eff(
+rnnip_light = VarVsEff(
     x_var_sig=pt[is_b],
     disc_sig=discs_rnnip[is_b],
     x_var_bkg=pt[is_light],
     disc_bkg=discs_rnnip[is_light],
     bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
-    wp=0.7,
+    working_point=0.7,
     disc_cut=None,
     fixed_eff_bin=False,
     label="RNNIP",
 )
-dips_light = var_vs_eff(
+dips_light = VarVsEff(
     x_var_sig=pt[is_b],
     disc_sig=discs_dips[is_b],
     x_var_bkg=pt[is_light],
     disc_bkg=discs_dips[is_light],
     bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
-    wp=0.7,
+    working_point=0.7,
     disc_cut=None,
     fixed_eff_bin=False,
     label="DIPS",
@@ -94,7 +94,7 @@ dips_light = var_vs_eff(
 
 logger.info("Plotting bkg rejection for inclusive efficiency as a function of pt.")
 # You can choose between different modes: "sig_eff", "bkg_eff", "sig_rej", "bkg_rej"
-plot_bkg_rej = var_vs_eff_plot(
+plot_bkg_rej = VarVsEffPlot(
     mode="bkg_rej",
     ylabel="Light-flavour jets rejection",
     xlabel=r"$p_{T}$ [GeV]",
@@ -110,7 +110,7 @@ plot_bkg_rej.add(dips_light)
 plot_bkg_rej.draw()
 plot_bkg_rej.savefig("pt_light_rej.png")
 
-plot_sig_eff = var_vs_eff_plot(
+plot_sig_eff = VarVsEffPlot(
     mode="sig_eff",
     ylabel="$b$-jets efficiency",
     xlabel=r"$p_{T}$ [GeV]",

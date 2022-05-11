@@ -253,7 +253,7 @@ class FractionScanPlot(PlotBase):
         plt_handles = self.plot()
 
         # Make the legend
-        self.make_legend(plt_handles, ax=self.axis_top)
+        self.make_legend(plt_handles, ax_mpl=self.axis_top)
 
         self.set_title()
         self.set_logy()

@@ -11,8 +11,8 @@ import unittest
 import numpy as np
 from matplotlib.testing.compare import compare_images
 
+from puma import Histogram, HistogramPlot
 from puma.utils import logger, set_log_level
-from puma import histogram, histogram_plot
 
 set_log_level(logger, "DEBUG")
 
@@ -23,21 +23,21 @@ class histogram_TestCase(unittest.TestCase):
     def test_empty_histogram(self):
         """test if providing wrong input type to histogram raises ValueError"""
         with self.assertRaises(ValueError):
-            histogram(values=5)
+            Histogram(values=5)
 
     def test_divide_before_plotting(self):
         """test if ValueError is raised when dividing before plotting the histograms"""
-        hist_1 = histogram([1, 1, 1, 2, 2])
-        hist_2 = histogram([1, 2, 2, 2])
+        hist_1 = Histogram([1, 1, 1, 2, 2])
+        hist_2 = Histogram([1, 2, 2, 2])
         with self.assertRaises(ValueError):
             hist_1.divide(hist_2)
 
     def test_divide_after_plotting_no_norm(self):
         """test if ratio is calculated correctly after plotting (without norm)"""
-        hist_1 = histogram([1, 1, 1, 2, 2])
-        hist_2 = histogram([1, 2, 2, 2])
+        hist_1 = Histogram([1, 1, 1, 2, 2])
+        hist_2 = Histogram([1, 2, 2, 2])
         bins = np.array([1, 2, 3])
-        hist_plot = histogram_plot(bins=bins, norm=False)
+        hist_plot = HistogramPlot(bins=bins, norm=False)
         hist_plot.add(hist_1)
         hist_plot.add(hist_2)
         hist_plot.plot()
@@ -52,10 +52,10 @@ class histogram_TestCase(unittest.TestCase):
 
     def test_divide_after_plotting_norm(self):
         """test if ratio is calculated correctly after plotting (with norm)"""
-        hist_1 = histogram([1, 1, 1, 2, 2])
-        hist_2 = histogram([1, 2, 2, 2])
+        hist_1 = Histogram([1, 1, 1, 2, 2])
+        hist_2 = Histogram([1, 2, 2, 2])
         bins = np.array([1, 2, 3])
-        hist_plot = histogram_plot(bins=bins, norm=True)
+        hist_plot = HistogramPlot(bins=bins, norm=True)
         hist_plot.add(hist_1)
         hist_plot.add(hist_2)
         hist_plot.plot()
@@ -70,10 +70,10 @@ class histogram_TestCase(unittest.TestCase):
 
     def test_ratio_same_histogram(self):
         """test if ratio is 1 for equal histograms (with norm)"""
-        hist_1 = histogram([1, 1, 1, 2, 2])
-        hist_2 = histogram([1, 1, 1, 2, 2])
+        hist_1 = Histogram([1, 1, 1, 2, 2])
+        hist_2 = Histogram([1, 1, 1, 2, 2])
         bins = np.array([1, 2, 3])
-        hist_plot = histogram_plot(bins=bins, norm=True)
+        hist_plot = HistogramPlot(bins=bins, norm=True)
         hist_plot.add(hist_1)
         hist_plot.add(hist_2)
         hist_plot.plot()
@@ -94,10 +94,10 @@ class histogram_plot_TestCase(unittest.TestCase):
 
         np.random.seed(42)
         n_random = 10_000
-        self.hist_1 = histogram(
+        self.hist_1 = Histogram(
             np.random.normal(size=n_random), label=f"N={n_random:_}"
         )
-        self.hist_2 = histogram(
+        self.hist_2 = Histogram(
             np.random.normal(size=2 * n_random), label=f"N={2*n_random:_}"
         )
 
@@ -110,14 +110,14 @@ class histogram_plot_TestCase(unittest.TestCase):
 
     def test_invalid_bins_type(self):
         """check if ValueError is raised when using invalid type in `bins` argument"""
-        hist_plot = histogram_plot(bins=1.1)
+        hist_plot = HistogramPlot(bins=1.1)
         hist_plot.add(self.hist_1, reference=True)
         with self.assertRaises(ValueError):
             hist_plot.plot()
 
     def test_add_bin_width_to_ylabel(self):
         """check if ValueError is raised when using invalid type in `bins` argument"""
-        hist_plot = histogram_plot(bins=60)
+        hist_plot = HistogramPlot(bins=60)
         hist_plot.add(self.hist_1, reference=True)
         with self.assertRaises(ValueError):
             hist_plot.add_bin_width_to_ylabel()
@@ -128,7 +128,7 @@ class histogram_plot_TestCase(unittest.TestCase):
         2. deactivate ATLAS branding works
         3. adding bin width to ylabel works
         """
-        hist_plot = histogram_plot(
+        hist_plot = HistogramPlot(
             bins=20,
             bins_range=(0, 4),
             atlas_brand="",
@@ -155,7 +155,7 @@ class histogram_plot_TestCase(unittest.TestCase):
 
     def test_output_ratio(self):
         """check with a plot if the ratio is the expected value"""
-        hist_plot = histogram_plot(norm=False, ymax_ratio_1=4, figsize=(6.5, 5))
+        hist_plot = HistogramPlot(norm=False, ymax_ratio_1=4, figsize=(6.5, 5))
         hist_plot.add(self.hist_1, reference=True)
         hist_plot.add(self.hist_2)
         hist_plot.draw()
@@ -175,7 +175,7 @@ class histogram_plot_TestCase(unittest.TestCase):
         )
 
     def test_output_empty_histogram_norm(self):
-        hist_plot = histogram_plot(
+        hist_plot = HistogramPlot(
             norm=True,
             figsize=(6.5, 5),
             atlas_second_tag=(
@@ -183,7 +183,7 @@ class histogram_plot_TestCase(unittest.TestCase):
                 "(+ normalised)"
             ),
         )
-        hist_plot.add(histogram(np.array([]), label="empty histogram"), reference=True)
+        hist_plot.add(Histogram(np.array([]), label="empty histogram"), reference=True)
         hist_plot.add(self.hist_1)
         hist_plot.draw()
 
@@ -201,14 +201,14 @@ class histogram_plot_TestCase(unittest.TestCase):
 
     def test_output_empty_histogram_no_norm(self):
         """Test if ratio is 1 for whole range if reference histogram is empty"""
-        hist_plot = histogram_plot(
+        hist_plot = HistogramPlot(
             norm=False,
             figsize=(6.5, 5),
             atlas_second_tag=(
                 "Test if ratio is 1 for whole range if reference histogram is empty"
             ),
         )
-        hist_plot.add(histogram(np.array([]), label="empty histogram"), reference=True)
+        hist_plot.add(Histogram(np.array([]), label="empty histogram"), reference=True)
         hist_plot.add(self.hist_1)
         hist_plot.draw()
 
@@ -228,7 +228,7 @@ class histogram_plot_TestCase(unittest.TestCase):
         """Test if ratio yields the expected values for case of different histogram
         ranges"""
 
-        hist_plot = histogram_plot(
+        hist_plot = HistogramPlot(
             atlas_second_tag=(
                 "Test ratio for the case of different histogram ranges. \n"
             ),
@@ -248,11 +248,11 @@ class histogram_plot_TestCase(unittest.TestCase):
         x2 = np.random.uniform(0, 2, n_random)
         x3 = np.random.uniform(-1, 1, n_random)
         hist_plot.add(
-            histogram(x1, label="uniform [-2, 0] and uniform [0.5, 1] \n(reference)"),
+            Histogram(x1, label="uniform [-2, 0] and uniform [0.5, 1] \n(reference)"),
             reference=True,
         )
-        hist_plot.add(histogram(x2, label="uniform [0, 2]"))
-        hist_plot.add(histogram(x3, label="uniform [-1, 1]"))
+        hist_plot.add(Histogram(x2, label="uniform [0, 2]"))
+        hist_plot.add(Histogram(x3, label="uniform [-1, 1]"))
         hist_plot.draw()
 
         plotname = "test_histogram_different_ranges.png"
@@ -269,7 +269,7 @@ class histogram_plot_TestCase(unittest.TestCase):
 
     def test_draw_vlines_histogram(self):
         """Test the drawing of vertical lines in the histogram."""
-        hist_plot = histogram_plot(
+        hist_plot = HistogramPlot(
             bins=20,
             bins_range=(0, 4),
             atlas_brand="",
@@ -298,7 +298,7 @@ class histogram_plot_TestCase(unittest.TestCase):
 
     def test_draw_vlines_histogram_custom_labels(self):
         """Test the drawing of vertical lines in the histogram."""
-        hist_plot = histogram_plot(
+        hist_plot = HistogramPlot(
             bins=20,
             bins_range=(0, 4),
             atlas_brand="",
@@ -328,7 +328,7 @@ class histogram_plot_TestCase(unittest.TestCase):
 
     def test_draw_vlines_histogram_same_height(self):
         """Test the drawing of vertical lines in the histogram."""
-        hist_plot = histogram_plot(
+        hist_plot = HistogramPlot(
             bins=20,
             bins_range=(0, 4),
             atlas_brand="",
@@ -358,7 +358,7 @@ class histogram_plot_TestCase(unittest.TestCase):
 
     def test_draw_vlines_histogram_custom_yheight(self):
         """Test the drawing of vertical lines in the histogram."""
-        hist_plot = histogram_plot(
+        hist_plot = HistogramPlot(
             bins=20,
             bins_range=(0, 4),
             atlas_brand="",
