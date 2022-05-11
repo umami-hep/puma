@@ -15,6 +15,29 @@ class FractionScan(PlotLineObject):  # pylint: disable=too-few-public-methods
         y_values: np.ndarray,
         **kwargs,
     ) -> None:
+        """Initialise properties of fraction scan curve object.
+
+        Parameters
+        ----------
+        x_values : np.ndarray
+            x values of the fraction scan curve
+        y_values : np.ndarray
+            y values of the fraction scan curve
+
+        Raises
+        ------
+        ValueError
+            If the dtype of x_values and y_values is different.
+        ValueError
+            If provided x_values array is empty.
+        ValueError
+            If provided y_values array is empty.
+        ValueError
+            If provided x_values and y_values arrays have different
+            shapes.
+        ValueError
+            If an invalid type was given for x_values
+        """
 
         super().__init__(**kwargs)
 
@@ -24,7 +47,7 @@ class FractionScan(PlotLineObject):  # pylint: disable=too-few-public-methods
             if type(x_values) != type(y_values):  # pylint: disable=C0123
                 raise ValueError(
                     "Invalid types of input given! Both must be either "
-                    f"numpy.ndarray, list or int! \n"
+                    "numpy.ndarray, list or int! \n"
                     f"You specified: x_values: {type(x_values)} , "
                     f"y_values: {type(y_values)}"
                 )
@@ -76,6 +99,14 @@ class FractionScanPlot(PlotBase):
         logy: bool = False,
         **kwargs,
     ) -> None:
+        """Fraction scan plot properties
+
+        Parameters
+        ----------
+        logy : bool, optional
+            Decide, if the y-axis of the plot will
+            be in log, by default False
+        """
 
         super().__init__(**kwargs)
 
@@ -126,7 +157,7 @@ class FractionScanPlot(PlotBase):
 
         # Set alpha
         if curve.alpha is None:
-            curve.alpha = 0.8
+            curve.alpha = 1
 
         if is_marker is False:
             # Set colours
@@ -161,7 +192,6 @@ class FractionScanPlot(PlotBase):
 
         self.plot_objects[key] = curve
         self.add_order.append(key)
-
 
     def plot(self, **kwargs):
         """Plotting curves. Plot objects are drawn in the same order as they
@@ -231,7 +261,7 @@ class FractionScanPlot(PlotBase):
 
         # Set grid if grid is true
         if self.grid:
-            self.set_grid()
+            self.axis_top.grid()
 
         # Apply atlas style if defined
         if self.apply_atlas_style:
