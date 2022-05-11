@@ -2,15 +2,14 @@
 import matplotlib as mpl
 import numpy as np
 
-from puma.utils import logger, get_good_colours
-
 # TODO: fix the import below
 from puma.metrics import eff_err, rej_err
 from puma.plot_base import PlotBase, PlotLineObject
+from puma.utils import get_good_colours, logger
 from puma.utils.histogram import hist_ratio, save_divide
 
 
-class var_vs_eff(PlotLineObject):
+class VarVsEff(PlotLineObject):
     """
     var_vs_eff class storing info about curve and allows to calculate ratio w.r.t other
     efficiency plots.
@@ -23,7 +22,7 @@ class var_vs_eff(PlotLineObject):
         x_var_bkg: np.ndarray = None,
         disc_bkg: np.ndarray = None,
         bins=10,
-        wp: float = None,
+        working_point: float = None,
         disc_cut=None,
         fixed_eff_bin: bool = False,
         key: str = None,
@@ -46,7 +45,7 @@ class var_vs_eff(PlotLineObject):
             given range (10, by default). If bins is a sequence, it defines a
             monotonically increasing array of bin edges, including the
             rightmost edge, allowing for non-uniform bin widths, by default 10
-        wp : float, optional
+        working_point : float, optional
             working point, by default None
         disc_cut : float or  sequence of floats, optional
             cut value for discriminant, if it is a sequence it has to have the same
@@ -80,14 +79,14 @@ class var_vs_eff(PlotLineObject):
         # checking that the given options are compatible
         # could also think about porting it to a class function insted of passing
         # the arguments to init e.g. `set_method`
-        if wp is None and disc_cut is None:
+        if working_point is None and disc_cut is None:
             raise ValueError("Either `wp` or `disc_cut` needs to be specified.")
         if fixed_eff_bin:
             if disc_cut is not None:
                 raise ValueError(
                     "You cannot specify `disc_cut` when `fixed_eff_bin` is set to True."
                 )
-            if wp is None:
+            if working_point is None:
                 raise ValueError(
                     "You need to specify a working point `wp`, when `fixed_eff_bin` is "
                     "set to True."
@@ -96,7 +95,7 @@ class var_vs_eff(PlotLineObject):
         self.disc_sig = np.array(disc_sig)
         self.x_var_bkg = None if x_var_bkg is None else np.array(x_var_bkg)
         self.disc_bkg = None if disc_bkg is None else np.array(disc_bkg)
-        self.wp = wp
+        self.working_point = working_point
         self.disc_cut = disc_cut
         self.fixed_eff_bin = fixed_eff_bin
         self.key = key
@@ -115,7 +114,7 @@ class var_vs_eff(PlotLineObject):
         self._set_bin_edges(bins)
 
         if disc_cut is not None:
-            if wp is not None:
+            if working_point is not None:
                 raise ValueError("You cannot specify `disc_cut` when providing `wp`.")
             if isinstance(disc_cut, (list, np.ndarray)):
                 if self.n_bins != len(disc_cut):
@@ -194,22 +193,22 @@ class var_vs_eff(PlotLineObject):
         elif self.fixed_eff_bin:
             self.disc_cut = list(
                 map(
-                    lambda x: np.percentile(x, (1 - self.wp) * 100),
+                    lambda x: np.percentile(x, (1 - self.working_point) * 100),
                     self.disc_binned_sig,
                 )
             )
         else:
             self.disc_cut = [
-                np.percentile(self.disc_sig, (1 - self.wp) * 100)
+                np.percentile(self.disc_sig, (1 - self.working_point) * 100)
             ] * self.n_bins
         logger.debug("Discriminant cut: %.3f", self.disc_cut)
 
-    def efficiency(self, x: np.ndarray, cut: float):
+    def efficiency(self, arr: np.ndarray, cut: float):
         """Calculate efficiency and the associated error.
 
         Parameters
         ----------
-        x : np.ndarray
+        arr : np.ndarray
             array with discriminants
         cut : float
             cut value
@@ -222,18 +221,18 @@ class var_vs_eff(PlotLineObject):
             efficiency error
         """
         if self.inverse_cut:
-            eff = sum(x < cut) / len(x)
+            eff = sum(arr < cut) / len(arr)
         else:
-            eff = sum(x > cut) / len(x)
-        eff_error = eff_err(eff, len(x))
+            eff = sum(arr > cut) / len(arr)
+        eff_error = eff_err(eff, len(arr))
         return eff, eff_error
 
-    def rejection(self, x: np.ndarray, cut: float):
+    def rejection(self, arr: np.ndarray, cut: float):
         """Calculate rejection and the associated error.
 
         Parameters
         ----------
-        x : np.ndarray
+        arr : np.ndarray
             array with discriminants
         cut : float
             cut value
@@ -246,13 +245,13 @@ class var_vs_eff(PlotLineObject):
             rejection error
         """
         if self.inverse_cut:
-            rej = save_divide(len(x), sum(x < cut), default=np.inf)
+            rej = save_divide(len(arr), sum(arr < cut), default=np.inf)
         else:
-            rej = save_divide(len(x), sum(x > cut), default=np.inf)
+            rej = save_divide(len(arr), sum(arr > cut), default=np.inf)
         if rej == np.inf:
             logger.warning("Your rejection is infinity -> setting it to np.nan.")
             return np.nan, np.nan
-        rej_error = rej_err(rej, len(x))
+        rej_error = rej_err(rej, len(arr))
         return rej, rej_error
 
     @property
@@ -327,7 +326,7 @@ class var_vs_eff(PlotLineObject):
                 and np.all(self.x_var_bkg == other.x_var_bkg)
                 and np.all(self.disc_bkg == other.disc_bkg)
                 and np.all(self.bn_edges == other.bn_edges)
-                and self.wp == other.wp
+                and self.working_point == other.working_point
                 and np.all(self.disc_cut == other.disc_cut)
                 and self.fixed_eff_bin == other.fixed_eff_bin
                 and self.key == other.key
@@ -410,7 +409,7 @@ class var_vs_eff(PlotLineObject):
         ValueError
             if binning is not identical between 2 objects
         """
-        if not np.all(self.bin_edges == other.bin_edges):
+        if not np.array_equal(self.bin_edges, other.bin_edges):
             raise ValueError("The binning of the two given objects do not match.")
         # TODO: python 3.10 switch to cases syntax
         nom, nom_err = self.get(mode, inverse_cut=inverse_cut)
@@ -431,7 +430,7 @@ class var_vs_eff(PlotLineObject):
         )
 
 
-class var_vs_eff_plot(PlotBase):
+class VarVsEffPlot(PlotBase):
     """var_vs_eff plot class"""
 
     def __init__(self, mode, **kwargs) -> None:
@@ -646,16 +645,16 @@ class var_vs_eff_plot(PlotBase):
         """
         self.inverse_cut = inverse_cut
 
-    def draw_hline(self, y: float):
+    def draw_hline(self, y_val: float):
         """Draw hline in top plot panel.
 
         Parameters
         ----------
-        y : float
+        y_val : float
             y value of the horizontal line
         """
         self.axis_top.hlines(
-            y=y,
+            y=y_val,
             xmin=self.bin_edge_min,
             xmax=self.bin_edge_max,
             colors="black",
@@ -695,7 +694,7 @@ class var_vs_eff_plot(PlotBase):
                 align_right=False,
                 labelpad=labelpad,
             )
-        self.make_legend(plt_handles, ax=self.axis_top)
+        self.make_legend(plt_handles, ax_mpl=self.axis_top)
         self.tight_layout()
         self.plotting_done = True
         if self.apply_atlas_style is True:

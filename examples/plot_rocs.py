@@ -1,9 +1,9 @@
 """Produce roc curves from tagger output and labels."""
 import numpy as np
 
-from puma.utils import logger, get_dummy_2_taggers
+from puma import Roc, RocPlot
 from puma.metrics import calc_rej
-from puma import roc, roc_plot
+from puma.utils import get_dummy_2_taggers, logger
 
 # The line below generates dummy data which is similar to a NN output
 df = get_dummy_2_taggers()
@@ -74,7 +74,7 @@ dips_cjets_rej = calc_rej(discs_dips[is_b], discs_dips[is_c], sig_eff)
 
 # here the plotting of the roc starts
 logger.info("Plotting ROC curves.")
-plot_roc = roc_plot(
+plot_roc = RocPlot(
     n_ratio_panels=2,
     ylabel="background rejection",
     xlabel="b-jets efficiency",
@@ -83,7 +83,7 @@ plot_roc = roc_plot(
     ),
 )
 plot_roc.add_roc(
-    roc(
+    Roc(
         sig_eff,
         rnnip_ujets_rej,
         n_test=n_jets_light,
@@ -94,7 +94,7 @@ plot_roc.add_roc(
     reference=True,
 )
 plot_roc.add_roc(
-    roc(
+    Roc(
         sig_eff,
         dips_ujets_rej,
         n_test=n_jets_light,
@@ -104,7 +104,7 @@ plot_roc.add_roc(
     ),
 )
 plot_roc.add_roc(
-    roc(
+    Roc(
         sig_eff,
         rnnip_cjets_rej,
         n_test=n_jets_c,
@@ -115,7 +115,7 @@ plot_roc.add_roc(
     reference=True,
 )
 plot_roc.add_roc(
-    roc(
+    Roc(
         sig_eff,
         dips_cjets_rej,
         n_test=n_jets_c,

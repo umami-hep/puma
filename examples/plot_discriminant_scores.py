@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from puma import histogram, histogram_plot
+from puma import Histogram, HistogramPlot
 from puma.utils import get_dummy_2_taggers
 
 # The line below generates dummy data which is similar to a NN output
@@ -22,21 +22,21 @@ is_light = df["HadronConeExclTruthLabelID"] == 0
 is_c = df["HadronConeExclTruthLabelID"] == 4
 is_b = df["HadronConeExclTruthLabelID"] == 5
 
-hist_dips_light = histogram(df[is_light]["disc_dips"], flavour="ujets", label="DIPS")
-hist_dips_c = histogram(df[is_c]["disc_dips"], flavour="cjets", label="DIPS")
-hist_dips_b = histogram(df[is_b]["disc_dips"], flavour="bjets", label="DIPS")
-hist_rnnip_light = histogram(
+hist_dips_light = Histogram(df[is_light]["disc_dips"], flavour="ujets", label="DIPS")
+hist_dips_c = Histogram(df[is_c]["disc_dips"], flavour="cjets", label="DIPS")
+hist_dips_b = Histogram(df[is_b]["disc_dips"], flavour="bjets", label="DIPS")
+hist_rnnip_light = Histogram(
     df[is_light]["disc_rnnip"], flavour="ujets", label="RNNIP", linestyle="dashed"
 )
-hist_rnnip_c = histogram(
+hist_rnnip_c = Histogram(
     df[is_c]["disc_rnnip"], flavour="cjets", label="RNNIP", linestyle="dashed"
 )
-hist_rnnip_b = histogram(
+hist_rnnip_b = Histogram(
     df[is_b]["disc_rnnip"], flavour="bjets", label="RNNIP", linestyle="dashed"
 )
 
 # Initialise histogram plot
-plot_histo = histogram_plot(
+plot_histo = HistogramPlot(
     n_ratio_panels=1,
     ylabel="Normalised number of jets",
     ylabel_ratio_1="Ratio to DIPS",

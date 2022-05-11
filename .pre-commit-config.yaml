@@ -23,14 +23,14 @@ repos:
         types: [python]
         exclude: setup.py
         args: ["--darglint-ignore-regex", "*"]
-      - id: pylint
-        name: pylint
-        stages: [commit]
-        language: system
-        entry: pylint
-        types: [python]
-        args:
-          [
-            "-rn", # Only display messages
-            "-sn", # Don't display the score
-          ]
+      # - id: pylint
+      #   name: pylint
+      #   stages: [commit]
+      #   language: system
+      #   entry: pylint
+      #   types: [python]
+      #   args:
+      #     [
+      #       "-rn", # Only display messages
+      #       "-sn", # Don't display the score
+      #     ]

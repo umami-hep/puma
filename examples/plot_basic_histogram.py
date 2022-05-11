@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from puma import histogram, histogram_plot
+from puma import Histogram, HistogramPlot
 
 # Generate two distributions to plot
 n_bkg = int(1e6)
@@ -12,11 +12,11 @@ expectation = rng.exponential(size=n_bkg)
 measurement = np.concatenate(
     (rng.exponential(size=n_bkg), rng.normal(loc=2, scale=0.2, size=n_sig))
 )
-expectation_hist = histogram(expectation, label="MC", histtype="stepfilled", alpha=1)
-measurement_hist = histogram(measurement, label="dummy data")
+expectation_hist = Histogram(expectation, label="MC", histtype="stepfilled", alpha=1)
+measurement_hist = Histogram(measurement, label="dummy data")
 
 # Initialise histogram plot
-plot_histo = histogram_plot(
+plot_histo = HistogramPlot(
     ylabel="Number of events",
     xlabel="Invariant mass $m$ [a.u.]",
     logy=False,

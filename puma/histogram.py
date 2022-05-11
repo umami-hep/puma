@@ -4,13 +4,13 @@ import numpy as np
 import pandas as pd
 
 from puma.plot_base import PlotBase, PlotLineObject
-from puma.utils import logger, global_config, get_good_pie_colours, get_good_colours
+from puma.utils import get_good_colours, get_good_pie_colours, global_config, logger
 from puma.utils.histogram import hist_ratio, hist_w_unc
 
 
-class histogram(PlotLineObject):
+class Histogram(PlotLineObject):
     """
-    histogram class storing info about histogram and allows to calculate ratio w.r.t
+    Histogram class storing info about histogram and allows to calculate ratio w.r.t
     other histograms.
     """
 
@@ -136,7 +136,7 @@ class histogram(PlotLineObject):
         return (ratio, ratio_unc)
 
 
-class histogram_plot(PlotBase):
+class HistogramPlot(PlotBase):
     """Histogram plot class"""
 
     def __init__(
@@ -699,7 +699,7 @@ class histogram_plot(PlotBase):
         else:
             legend_axis = self.axis_leg
 
-        self.make_legend(plt_handles, ax=legend_axis)
+        self.make_legend(plt_handles, ax_mpl=legend_axis)
         self.set_title()
         self.fig.tight_layout()
 

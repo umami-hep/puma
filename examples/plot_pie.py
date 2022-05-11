@@ -1,5 +1,5 @@
 """Example of pie char plot."""
-from puma import histogram, histogram_plot
+from puma import Histogram, HistogramPlot
 from puma.utils import get_dummy_2_taggers
 
 # The line below generates dummy data which is similar to a NN output
@@ -14,7 +14,7 @@ title = "HadronConeExclTruthLabelID"
 bins = 16
 bins_range = (0, 16)
 
-plot_pie = histogram_plot(
+plot_pie = HistogramPlot(
     n_ratio_panels=0,
     title=title,
     discrete_vals=HadrTruthLabel_vals,
@@ -28,6 +28,6 @@ plot_pie = histogram_plot(
     pie_labels=HadrTruthLabel_labels,
 )
 
-plot_pie.add(histogram(df["HadronConeExclTruthLabelID"]))
+plot_pie.add(Histogram(df["HadronConeExclTruthLabelID"]))
 plot_pie.draw()
 plot_pie.savefig("pie_chart_HadronConeExclTruthLabelID.png", transparent=False)

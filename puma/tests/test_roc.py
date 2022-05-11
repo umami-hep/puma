@@ -11,8 +11,8 @@ import unittest
 import numpy as np
 from matplotlib.testing.compare import compare_images
 
+from puma import Roc, RocPlot
 from puma.utils.logging import logger, set_log_level
-from puma import roc, roc_plot
 
 set_log_level(logger, "DEBUG")
 
@@ -27,20 +27,20 @@ class roc_TestCase(unittest.TestCase):
     def test_roc_init(self):
         """Test roc init."""
         with self.assertRaises(ValueError):
-            roc(np.ones(4), np.ones(5))
+            Roc(np.ones(4), np.ones(5))
 
     def test_ratio_same_object(self):
         """Test roc divide function."""
-        roc_curve = roc(self.sig_eff, self.bkg_rej)
-        roc_curve_ref = roc(self.sig_eff, self.bkg_rej)
+        roc_curve = Roc(self.sig_eff, self.bkg_rej)
+        roc_curve_ref = Roc(self.sig_eff, self.bkg_rej)
         _, ratio, _ = roc_curve.divide(roc_curve_ref)
 
         np.testing.assert_array_almost_equal(ratio, np.ones(len(self.bkg_rej)))
 
     def test_ratio_factor_two(self):
         """Test roc divide function."""
-        roc_curve = roc(self.sig_eff, self.bkg_rej)
-        roc_curve_ref = roc(self.sig_eff, self.bkg_rej * 2)
+        roc_curve = Roc(self.sig_eff, self.bkg_rej)
+        roc_curve_ref = Roc(self.sig_eff, self.bkg_rej * 2)
         _, ratio, _ = roc_curve.divide(roc_curve_ref)
 
         np.testing.assert_array_almost_equal(ratio, 1 / 2 * np.ones(len(self.bkg_rej)))
@@ -51,8 +51,8 @@ class roc_TestCase(unittest.TestCase):
         sig_eff_ref = np.linspace(0.6, 1, 5)
         bkg_rej = np.exp(-sig_eff) * 10e3
         bkg_rej_ref = np.exp(-sig_eff_ref) * 10e3
-        roc_curve = roc(sig_eff, bkg_rej)
-        roc_curve_ref = roc(sig_eff_ref, bkg_rej_ref * 2)
+        roc_curve = Roc(sig_eff, bkg_rej)
+        roc_curve_ref = Roc(sig_eff_ref, bkg_rej_ref * 2)
         sig_eff, ratio, _ = roc_curve.divide(roc_curve_ref)
 
         np.testing.assert_array_almost_equal(
@@ -62,33 +62,33 @@ class roc_TestCase(unittest.TestCase):
 
     def test_ratio_factor_two_inverse(self):
         """Test roc divide function."""
-        roc_curve = roc(self.sig_eff, self.bkg_rej)
-        roc_curve_ref = roc(self.sig_eff, self.bkg_rej * 2)
+        roc_curve = Roc(self.sig_eff, self.bkg_rej)
+        roc_curve_ref = Roc(self.sig_eff, self.bkg_rej * 2)
         _, ratio, _ = roc_curve.divide(roc_curve_ref, inverse=True)
 
         np.testing.assert_array_almost_equal(ratio, 2 * np.ones(len(self.bkg_rej)))
 
     def test_binomial_error_no_ntest(self):
         """Test roc binomial_error function."""
-        roc_curve = roc(self.sig_eff, self.bkg_rej)
+        roc_curve = Roc(self.sig_eff, self.bkg_rej)
         with self.assertRaises(ValueError):
             roc_curve.binomial_error()
 
     def test_binomial_error_only_zeros(self):
         """Test roc binomial_error function."""
-        roc_curve = roc(self.sig_eff, np.zeros(len(self.sig_eff)), n_test=10e5)
+        roc_curve = Roc(self.sig_eff, np.zeros(len(self.sig_eff)), n_test=10e5)
         np.testing.assert_array_almost_equal(roc_curve.binomial_error(), [])
 
     def test_binomial_error_example(self):
         """Test roc binomial_error function."""
         error_rej = np.array([8.717798, 35.0, 99.498744])
-        roc_curve = roc(np.array([0.1, 0.2, 0.3]), np.array([20, 50, 100]), n_test=100)
+        roc_curve = Roc(np.array([0.1, 0.2, 0.3]), np.array([20, 50, 100]), n_test=100)
         np.testing.assert_array_almost_equal(roc_curve.binomial_error(), error_rej)
 
     def test_binomial_error_example_norm(self):
         """Test roc binomial_error function."""
         error_rej = np.array([8.717798, 35.0, 99.498744]) / np.array([20, 50, 100])
-        roc_curve = roc(np.array([0.1, 0.2, 0.3]), np.array([20, 50, 100]), n_test=100)
+        roc_curve = Roc(np.array([0.1, 0.2, 0.3]), np.array([20, 50, 100]), n_test=100)
         np.testing.assert_array_almost_equal(
             roc_curve.binomial_error(norm=True), error_rej
         )
@@ -96,14 +96,14 @@ class roc_TestCase(unittest.TestCase):
     def test_binomial_error_example_pass_ntest(self):
         """Test roc binomial_error function."""
         error_rej = np.array([8.717798, 35.0, 99.498744])
-        roc_curve = roc(np.array([0.1, 0.2, 0.3]), np.array([20, 50, 100]))
+        roc_curve = Roc(np.array([0.1, 0.2, 0.3]), np.array([20, 50, 100]))
         np.testing.assert_array_almost_equal(
             roc_curve.binomial_error(n_test=100), error_rej
         )
 
     def test_fct_inter(self):
         """Test roc fct_inter function."""
-        roc_curve = roc(self.sig_eff, self.bkg_rej)
+        roc_curve = Roc(self.sig_eff, self.bkg_rej)
         np.testing.assert_array_almost_equal(
             roc_curve.fct_inter(self.sig_eff), self.bkg_rej
         )
@@ -118,35 +118,35 @@ class roc_mask_TestCase(unittest.TestCase):
 
     def test_non_zero_mask(self):
         """Test roc non_zero_mask function."""
-        roc_curve = roc(self.sig_eff, self.bkg_rej)
+        roc_curve = Roc(self.sig_eff, self.bkg_rej)
         np.testing.assert_array_almost_equal(
             roc_curve.non_zero_mask, [False, True, False, True, True, False, True]
         )
 
     def test_non_zero_mask_xmin(self):
         """Test roc non_zero_mask function."""
-        roc_curve = roc(self.sig_eff, self.bkg_rej, xmin=0.4)
+        roc_curve = Roc(self.sig_eff, self.bkg_rej, xmin=0.4)
         np.testing.assert_array_almost_equal(
             roc_curve.non_zero_mask, [False, False, False, True, True, False, True]
         )
 
     def test_non_zero_mask_xmax(self):
         """Test roc non_zero_mask function."""
-        roc_curve = roc(self.sig_eff, self.bkg_rej, xmax=0.6)
+        roc_curve = Roc(self.sig_eff, self.bkg_rej, xmax=0.6)
         np.testing.assert_array_almost_equal(
             roc_curve.non_zero_mask, [False, True, False, True, True, False, False]
         )
 
     def test_non_zero_mask_xmin_xmax(self):
         """Test roc non_zero_mask function."""
-        roc_curve = roc(self.sig_eff, self.bkg_rej, xmax=0.6, xmin=0.4)
+        roc_curve = Roc(self.sig_eff, self.bkg_rej, xmax=0.6, xmin=0.4)
         np.testing.assert_array_almost_equal(
             roc_curve.non_zero_mask, [False, False, False, True, True, False, False]
         )
 
     def test_non_zero(self):
         """Test roc non_zero function."""
-        roc_curve = roc(self.sig_eff, self.bkg_rej)
+        roc_curve = Roc(self.sig_eff, self.bkg_rej)
         result_bkg_rej = self.bkg_rej[[False, True, False, True, True, False, True]]
         result_sig_eff = self.sig_eff[[False, True, False, True, True, False, True]]
         np.testing.assert_array_almost_equal(
@@ -155,7 +155,7 @@ class roc_mask_TestCase(unittest.TestCase):
 
     def test_non_zero_xmin(self):
         """Test roc non_zero function."""
-        roc_curve = roc(self.sig_eff, self.bkg_rej, xmin=0.4)
+        roc_curve = Roc(self.sig_eff, self.bkg_rej, xmin=0.4)
         result_bkg_rej = self.bkg_rej[[False, False, False, True, True, False, True]]
         result_sig_eff = self.sig_eff[[False, False, False, True, True, False, True]]
         np.testing.assert_array_almost_equal(
@@ -164,7 +164,7 @@ class roc_mask_TestCase(unittest.TestCase):
 
     def test_non_zero_xmax(self):
         """Test roc non_zero function."""
-        roc_curve = roc(self.sig_eff, self.bkg_rej, xmax=0.6)
+        roc_curve = Roc(self.sig_eff, self.bkg_rej, xmax=0.6)
         result_bkg_rej = self.bkg_rej[[False, True, False, True, True, False, False]]
         result_sig_eff = self.sig_eff[[False, True, False, True, True, False, False]]
         np.testing.assert_array_almost_equal(
@@ -173,7 +173,7 @@ class roc_mask_TestCase(unittest.TestCase):
 
     def test_non_zero_xmin_xmax(self):
         """Test roc non_zero function."""
-        roc_curve = roc(self.sig_eff, self.bkg_rej, xmax=0.6, xmin=0.4)
+        roc_curve = Roc(self.sig_eff, self.bkg_rej, xmax=0.6, xmin=0.4)
         result_bkg_rej = self.bkg_rej[[False, False, False, True, True, False, False]]
         result_sig_eff = self.sig_eff[[False, False, False, True, True, False, False]]
         np.testing.assert_array_almost_equal(
@@ -205,7 +205,7 @@ class roc_output_TestCase(unittest.TestCase):
 
     def test_output_two_curves_one_ratio(self):
         """Test with two curves of same flavour, one ratio panel"""
-        plot = roc_plot(
+        plot = RocPlot(
             n_ratio_panels=1,
             ylabel="background rejection",
             xlabel="$b$-jets efficiency",
@@ -218,7 +218,7 @@ class roc_output_TestCase(unittest.TestCase):
 
         # Add two roc curves
         plot.add_roc(
-            roc(
+            Roc(
                 self.sig_eff,
                 self.u_rej_1,
                 rej_class="ujets",
@@ -227,7 +227,7 @@ class roc_output_TestCase(unittest.TestCase):
             reference=True,
         )
         plot.add_roc(
-            roc(
+            Roc(
                 self.sig_eff,
                 self.u_rej_2,
                 rej_class="ujets",
@@ -254,7 +254,7 @@ class roc_output_TestCase(unittest.TestCase):
 
     def test_output_four_curves_two_ratio(self):
         """Test with two curves for each flavour, two ratio panels"""
-        plot = roc_plot(
+        plot = RocPlot(
             n_ratio_panels=2,
             ylabel="background rejection",
             xlabel="$b$-jets efficiency",
@@ -266,7 +266,7 @@ class roc_output_TestCase(unittest.TestCase):
 
         # Add four roc curves
         plot.add_roc(
-            roc(
+            Roc(
                 self.sig_eff,
                 self.u_rej_1,
                 rej_class="ujets",
@@ -275,7 +275,7 @@ class roc_output_TestCase(unittest.TestCase):
             reference=True,
         )
         plot.add_roc(
-            roc(
+            Roc(
                 self.sig_eff,
                 self.u_rej_2,
                 rej_class="ujets",
@@ -283,7 +283,7 @@ class roc_output_TestCase(unittest.TestCase):
             )
         )
         plot.add_roc(
-            roc(
+            Roc(
                 self.sig_eff,
                 self.c_rej_1,
                 rej_class="cjets",
@@ -292,7 +292,7 @@ class roc_output_TestCase(unittest.TestCase):
             reference=True,
         )
         plot.add_roc(
-            roc(
+            Roc(
                 self.sig_eff,
                 self.c_rej_2,
                 rej_class="cjets",
