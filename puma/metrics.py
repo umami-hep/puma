@@ -135,10 +135,10 @@ def eff_err(
     https://inspirehep.net/files/57287ac8e45a976ab423f3dd456af694
     """
     logger.debug("Calculating efficiency error.")
-    logger.debug(f"arr: {arr}")
-    logger.debug(f"n_counts: {n_counts}")
-    logger.debug(f"suppress_zero_divison_error: {suppress_zero_divison_error}")
-    logger.debug(f"norm: {norm}")
+    logger.debug("arr: %s", arr)
+    logger.debug("n_counts: %i", n_counts)
+    logger.debug("suppress_zero_divison_error: %s", suppress_zero_divison_error)
+    logger.debug("norm: %s", norm)
     # TODO: suppress_zero_divison_error should not be necessary, but functions calling
     # eff_err seem to need this functionality - should be deprecated though.
     if np.any(n_counts <= 0) and not suppress_zero_divison_error:
@@ -183,9 +183,9 @@ def rej_err(
     special case of `eff_err()`
     """
     logger.debug("Calculating rejection error.")
-    logger.debug(f"arr: {arr}")
-    logger.debug(f"n_counts: {n_counts}")
-    logger.debug(f"norm: {norm}")
+    logger.debug("arr: %s", arr)
+    logger.debug("n_counts: %i", n_counts)
+    logger.debug("norm: %s", norm)
     if np.any(n_counts <= 0):
         raise ValueError(
             f"You passed as argument `n_counts` {n_counts} but it has to be larger 0."

@@ -267,9 +267,10 @@ class PlotBase(PlotObject):
             # split figure vertically instead of horizonally
             if self.n_ratio_panels <= 1:
                 logger.warning(
-                    f"You set the number of ratio panels to {self.n_ratio_panels}"
+                    "You set the number of ratio panels to %i"
                     "but also set the vertical splitting to True. Therefore no ratio"
-                    "panels are created."
+                    "panels are created.",
+                    self.n_ratio_panels,
                 )
             self.fig = Figure(figsize=(8, 6) if self.figsize is None else self.figsize)
             gs = gridspec.GridSpec(1, 11, figure=self.fig)
@@ -562,7 +563,7 @@ class PlotBase(PlotObject):
         **kwargs : kwargs
             kwargs passed to `matplotlib.figure.Figure.savefig()`
         """
-        logger.debug(f"Saving plot to {plot_name}")
+        logger.debug("Saving plot to %s", plot_name)
         self.fig.savefig(
             plot_name,
             transparent=transparent,

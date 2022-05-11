@@ -152,12 +152,12 @@ class var_vs_eff(PlotLineObject):
             self.bin_edges = np.linspace(xmin, xmax, bins + 1)
         elif isinstance(bins, (list, np.ndarray)):
             self.bin_edges = np.array(bins)
-        logger.debug(f"Retrieved bin edges{self.bin_edges}")
+        logger.debug("Retrieved bin edges %s}", self.bin_edges)
         # Get the bins for the histogram
         self.x_bin_centres = (self.bin_edges[:-1] + self.bin_edges[1:]) / 2.0
         self.bin_widths = (self.bin_edges[1:] - self.bin_edges[:-1]) / 2.0
         self.n_bins = self.bin_edges.size - 1
-        logger.debug(f"N bins: {self.n_bins}")
+        logger.debug("N bins: %i", self.n_bins)
 
     def _apply_binning(self):
         """Get binned distributions for the signal and background."""
@@ -202,7 +202,7 @@ class var_vs_eff(PlotLineObject):
             self.disc_cut = [
                 np.percentile(self.disc_sig, (1 - self.wp) * 100)
             ] * self.n_bins
-        logger.debug(f"Discriminant cut: {self.disc_cut}")
+        logger.debug("Discriminant cut: %.3f", self.disc_cut)
 
     def efficiency(self, x: np.ndarray, cut: float):
         """Calculate efficiency and the associated error.
@@ -268,7 +268,7 @@ class var_vs_eff(PlotLineObject):
         """
         logger.debug("Calculating signal efficiency.")
         eff = list(map(self.efficiency, self.disc_binned_sig, self.disc_cut))
-        logger.debug(f"Retrieved signal efficiencies: {eff}")
+        logger.debug("Retrieved signal efficiencies: %.2f", eff)
         return np.array(eff)[:, 0], np.array(eff)[:, 1]
 
     @property
@@ -284,7 +284,7 @@ class var_vs_eff(PlotLineObject):
         """
         logger.debug("Calculating background efficiency.")
         eff = list(map(self.efficiency, self.disc_binned_bkg, self.disc_cut))
-        logger.debug(f"Retrieved background efficiencies: {eff}")
+        logger.debug("Retrieved background efficiencies: %.2f", eff)
         return np.array(eff)[:, 0], np.array(eff)[:, 1]
 
     @property
@@ -300,7 +300,7 @@ class var_vs_eff(PlotLineObject):
         """
         logger.debug("Calculating signal rejection.")
         rej = list(map(self.rejection, self.disc_binned_sig, self.disc_cut))
-        logger.debug(f"Retrieved signal rejections: {rej}")
+        logger.debug("Retrieved signal rejections: %.1f", rej)
         return np.array(rej)[:, 0], np.array(rej)[:, 1]
 
     @property
@@ -316,7 +316,7 @@ class var_vs_eff(PlotLineObject):
         """
         logger.debug("Calculating background rejection.")
         rej = list(map(self.rejection, self.disc_binned_bkg, self.disc_cut))
-        logger.debug(f"Retrieved background rejections: {rej}")
+        logger.debug("Retrieved background rejections: %.1f", rej)
         return np.array(rej)[:, 0], np.array(rej)[:, 1]
 
     def __eq__(self, other):
@@ -513,7 +513,7 @@ class var_vs_eff_plot(PlotBase):
         self.bin_edge_max = max(self.bin_edge_max, curve.bin_edges[-1])
 
         if reference:
-            logger.debug(f"Setting roc {key} as reference.")
+            logger.debug("Setting roc %s as reference.", key)
             self.set_reference(key)
 
     def set_reference(self, key: str):
@@ -528,8 +528,10 @@ class var_vs_eff_plot(PlotBase):
             self.reference_object = key
         else:
             logger.warning(
-                f"You specified a second curve {key} as reference for ratio. "
-                f"Using it as new reference instead of {self.reference_object}."
+                "You specified a second curve %s as reference for ratio. "
+                "Using it as new reference instead of %s.",
+                key,
+                self.reference_object,
             )
             self.reference_object = key
 
@@ -546,7 +548,7 @@ class var_vs_eff_plot(PlotBase):
         Line2D
             matplotlib Line2D object
         """
-        logger.debug(f"Plotting curves with mode {self.mode}")
+        logger.debug("Plotting curves with mode %s", self.mode)
         plt_handles = []
         for key in self.add_order:
             elem = self.plot_objects[key]

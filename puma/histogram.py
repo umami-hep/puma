@@ -74,13 +74,13 @@ class histogram(PlotLineObject):
         # If flavour was specified, extract configuration from global config
         if self.flavour is not None:
             self.colour = global_config["flavour_categories"][self.flavour]["colour"]
-            logger.debug(f"Histogram colour was set to {self.colour}")
+            logger.debug("Histogram colour was set to %s", self.colour)
 
             self.label = (
                 f"{global_config['flavour_categories'][self.flavour]['legend_label']}"
                 f" {self.label_addition}"
             )
-            logger.debug(f"Histogram label was set to {self.label}")
+            logger.debug("Histogram label was set to %s", {self.label})
 
     def divide(self, other):
         """Calculate ratio between two class objects.
@@ -241,7 +241,7 @@ class histogram_plot(PlotBase):
 
         # Add key to histogram object
         curve.key = key
-        logger.debug(f"Adding histogram {key}")
+        logger.debug("Adding histogram %s", key)
 
         # Set linestyle
         if curve.linestyle is None:
@@ -271,13 +271,15 @@ class histogram_plot(PlotBase):
         """
         if self.reference_object is None:
             self.reference_object = [key]
-            logger.info(f"Using '{key}' as reference histogram")
+            logger.info("Using '%s' as reference histogram", key)
         else:
             self.reference_object.append(key)
             logger.warning(
-                f"You specified another curve {key} as reference for ratio. "
+                "You specified another curve %s as reference for ratio. "
                 "Adding it to reference histograms. "
-                f"New list of reference histograms: {self.reference_object}"
+                "New list of reference histograms: %s",
+                key,
+                self.reference_object,
             )
 
     def plot(self, **kwargs):
@@ -311,7 +313,7 @@ class histogram_plot(PlotBase):
                     "the bin edges. The range will be ignored."
                 )
         elif isinstance(self.bins, int):
-            logger.debug(f"Calculating bin edges of {self.bins} equal-width bins")
+            logger.debug("Calculating bin edges of %i equal-width bins", self.bins)
             _, self.bins = np.histogram(
                 np.hstack([elem.values for elem in self.plot_objects.values()]),
                 bins=self.bins,
@@ -420,7 +422,7 @@ class histogram_plot(PlotBase):
                     "the bin edges. The range will be ignored."
                 )
         elif isinstance(self.bins, int):
-            logger.debug(f"Calculating bin edges of {self.bins} equal-width bins")
+            logger.debug("Calculating bin edges of %i equal-width bins", self.bins)
             _, self.bins = np.histogram(
                 np.hstack([elem.values for elem in self.plot_objects.values()]),
                 bins=self.bins,
@@ -577,7 +579,7 @@ class histogram_plot(PlotBase):
             raise ValueError("Found more than one matching reference candidate.")
 
         logger.debug(
-            f"Reference histogram for '{histo.key}' is '{reference_histo.key}'"
+            "Reference histogram for '%s' is '%s'", histo.key, reference_histo.key
         )
 
         return reference_histo
