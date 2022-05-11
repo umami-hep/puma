@@ -9,12 +9,12 @@ from puma.utils import get_dummy_2_taggers
 df = get_dummy_2_taggers()
 
 # Calculate discriminant scores for DIPS and RNNIP, and add them to the dataframe
-fc = 0.018
+frac_c = 0.018
 df["disc_dips"] = np.log(
-    df["dips_pb"] / (fc * df["dips_pc"] + (1 - fc) * df["dips_pu"])
+    df["dips_pb"] / (frac_c * df["dips_pc"] + (1 - frac_c) * df["dips_pu"])
 )
 df["disc_rnnip"] = np.log(
-    df["rnnip_pb"] / (fc * df["rnnip_pc"] + (1 - fc) * df["rnnip_pu"])
+    df["rnnip_pb"] / (frac_c * df["rnnip_pc"] + (1 - frac_c) * df["rnnip_pu"])
 )
 
 # defining boolean arrays to select the different flavour classes

@@ -5,12 +5,12 @@ import numpy as np
 from puma import Histogram, HistogramPlot
 
 # Generate two distributions to plot
-n_bkg = int(1e6)
-n_sig = int(2e4)
+N_BKG = int(1e6)
+N_SIG = int(2e4)
 rng = np.random.default_rng(seed=42)
-expectation = rng.exponential(size=n_bkg)
+expectation = rng.exponential(size=N_BKG)
 measurement = np.concatenate(
-    (rng.exponential(size=n_bkg), rng.normal(loc=2, scale=0.2, size=n_sig))
+    (rng.exponential(size=N_BKG), rng.normal(loc=2, scale=0.2, size=N_SIG))
 )
 expectation_hist = Histogram(expectation, label="MC", histtype="stepfilled", alpha=1)
 measurement_hist = Histogram(measurement, label="dummy data")
