@@ -249,7 +249,8 @@ class roc_plot(PlotBase):
         ):
             logger.warning(
                 "You specified a different linestyle for the same rejection class "
-                f"{roc_curve.rej_class}. Will keep the linestyle defined first."
+                "%s. Will keep the linestyle defined first.",
+                roc_curve.rej_class,
             )
         if roc_curve.linestyle is None:
             roc_curve.linestyle = self.rej_class_ls[roc_curve.rej_class]
@@ -267,14 +268,17 @@ class roc_plot(PlotBase):
         ):
             logger.warning(
                 "You specified a different colour for the same label"
-                f" {roc_curve.label}. This will lead to a mismatch in the line colours"
-                " and the legend."
+                " %s. This will lead to a mismatch in the line colours"
+                " and the legend.",
+                roc_curve.label,
             )
         if roc_curve.colour is None:
             roc_curve.colour = self.label_colours[roc_curve.label]
 
         if reference:
-            logger.debug(f"Setting roc {key} as reference for {roc_curve.rej_class}.")
+            logger.debug(
+                "Setting roc %s as reference for %s.", key, roc_curve.rej_class
+            )
             self.set_roc_reference(key, roc_curve.rej_class)
 
     def set_roc_reference(self, key: str, rej_class: str):
@@ -303,8 +307,10 @@ class roc_plot(PlotBase):
             self.reference_roc[rej_class] = key
         else:
             logger.warning(
-                f"You specified a second roc curve {key} as reference for ratio. "
-                f"Using it as new reference instead of {self.reference_roc[rej_class]}."
+                "You specified a second roc curve %s as reference for ratio. "
+                "Using it as new reference instead of %s.",
+                key,
+                self.reference_roc[rej_class],
             )
             self.reference_roc[rej_class] = key
 
