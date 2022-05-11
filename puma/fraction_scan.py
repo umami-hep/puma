@@ -2,7 +2,7 @@
 import matplotlib as mpl
 import numpy as np
 
-from puma import PlotBase, PlotLineObject
+from puma.plot_base import PlotBase, PlotLineObject
 from puma.utils import get_good_colours, logger
 
 
