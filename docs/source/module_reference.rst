@@ -1,17 +1,54 @@
 
+****************
 Module reference
-================
+****************
 
-puma
-----
-.. automodule:: puma
+Plot base
+=========
+
+`PlotBase`
+----------
+.. autoclass:: puma.PlotBase
    :members:
    :show-inheritance:
-   
+`PlotObject`
+------------
+.. autoclass:: puma.PlotObject
+   :members:
+   :show-inheritance:
+`PlotLineObject`
+----------------
+.. autoclass:: puma.PlotLineObject
+   :members:
+   :show-inheritance:
 ______
 
-puma.base
+Histograms
+==========
+
+`Histogram`
+-----------
+.. autoclass:: puma.Histogram
+   :members:
+   :show-inheritance:
+
+`HistogramPlot`
+---------------
+.. autoclass:: puma.HistogramPlot
+   :members:
+   :show-inheritance:
+______
+
+ROC curves
+==========
+
+`Roc`
+-----
+.. autoclass:: puma.Roc
+   :members:
+   :show-inheritance:
+`RocPlot`
 ---------
-.. automodule:: puma.base
+.. autoclass:: puma.RocPlot
    :members:
    :show-inheritance:
