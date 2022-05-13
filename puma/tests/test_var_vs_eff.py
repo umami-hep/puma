@@ -289,7 +289,7 @@ class var_vs_eff_output_TestCase(unittest.TestCase):
         )
         plot_bkg_rej = VarVsEffPlot(
             mode="bkg_rej",
-            ylabel="background rejection",
+            ylabel="Background rejection",
             xlabel=r"$p_{T}$ [GeV]",
             logy=True,
             atlas_second_tag=(

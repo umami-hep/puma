@@ -135,3 +135,7 @@ dmypy.json
 
 # Config files create by Finder on macOS
 .DS_Store
+
+
+# package specific excludes
+examples/*.png

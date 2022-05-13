@@ -546,7 +546,7 @@ class PlotBase(PlotObject):
     def savefig(
         self,
         plot_name: str,
-        transparent: bool = True,
+        transparent: bool = False,
         dpi: int = None,
         **kwargs,
     ):
