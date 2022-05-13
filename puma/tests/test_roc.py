@@ -207,11 +207,11 @@ class roc_output_TestCase(unittest.TestCase):
         """Test with two curves of same flavour, one ratio panel"""
         plot = RocPlot(
             n_ratio_panels=1,
-            ylabel="background rejection",
+            ylabel="Background rejection",
             xlabel="$b$-jets efficiency",
             atlas_second_tag=(
                 "$\\sqrt{s}=13$ TeV, PFlow Jets,\n"
-                "$t\\bar{t}$ Test Sample, $f_{c}=0.018$"
+                "$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
             ),
             # logy=False,
         )
@@ -256,11 +256,11 @@ class roc_output_TestCase(unittest.TestCase):
         """Test with two curves for each flavour, two ratio panels"""
         plot = RocPlot(
             n_ratio_panels=2,
-            ylabel="background rejection",
+            ylabel="Background rejection",
             xlabel="$b$-jets efficiency",
             atlas_second_tag=(
                 "$\\sqrt{s}=13$ TeV, PFlow Jets,\n"
-                "$t\\bar{t}$ Test Sample, $f_{c}=0.018$"
+                "$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
             ),
         )
 
@@ -300,15 +300,87 @@ class roc_output_TestCase(unittest.TestCase):
             )
         )
 
-        plot.set_ratio_class(1, "ujets", label="light-flavour jets ratio")
+        plot.set_ratio_class(1, "ujets", label="Light-flavour jets ratio")
         plot.set_ratio_class(2, "cjets", label="$c$-jets ratio")
-        plot.set_leg_rej_labels("ujets", "light-flavour jets rejection")
+        plot.set_leg_rej_labels("ujets", "Light-flavour jets rejection")
         plot.set_leg_rej_labels("cjets", "$c$-jets rejection")
 
         # Draw the figure
         plot.draw()
 
         plotname = "test_roc_four_curves_2_ratio.png"
+        plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        # Uncomment line below to update expected image
+        # plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname}",
+                f"{self.expected_plots_dir}/{plotname}",
+                tol=1,
+            )
+        )
+
+    def test_output_four_curves_two_ratio_uncertainties(self):
+        """Test with two curves for each flavour, two ratio panels and binom. unc."""
+        plot = RocPlot(
+            n_ratio_panels=2,
+            ylabel="Background rejection",
+            xlabel="$b$-jets efficiency",
+            atlas_second_tag=(
+                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n"
+                "$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
+            ),
+        )
+
+        # Add four roc curves
+        plot.add_roc(
+            Roc(
+                self.sig_eff,
+                self.u_rej_1,
+                rej_class="ujets",
+                label="reference curve",
+                n_test=1_000,
+            ),
+            reference=True,
+        )
+        plot.add_roc(
+            Roc(
+                self.sig_eff,
+                self.u_rej_2,
+                rej_class="ujets",
+                label="second curve",
+                n_test=1_000,
+            )
+        )
+        plot.add_roc(
+            Roc(
+                self.sig_eff,
+                self.c_rej_1,
+                rej_class="cjets",
+                label="reference curve",
+                n_test=1_000,
+            ),
+            reference=True,
+        )
+        plot.add_roc(
+            Roc(
+                self.sig_eff,
+                self.c_rej_2,
+                rej_class="cjets",
+                label="second curve",
+                n_test=1_000,
+            )
+        )
+
+        plot.set_ratio_class(1, "ujets", label="Light-flavour jets ratio")
+        plot.set_ratio_class(2, "cjets", label="$c$-jets ratio")
+        plot.set_leg_rej_labels("ujets", "Light-flavour jets rejection")
+        plot.set_leg_rej_labels("cjets", "$c$-jets rejection")
+
+        # Draw the figure
+        plot.draw()
+
+        plotname = "test_roc_four_curves_2_ratio_unc.png"
         plot.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
         # plot.savefig(f"{self.expected_plots_dir}/{plotname}")
