@@ -120,7 +120,7 @@ class Roc(PlotLineObject):
             ratio = np.ones(len(self.sig_eff))
             if self.n_test is None:
                 return self.sig_eff, ratio, None
-            ratio_err = self.binomial_error(norm=True)
+            ratio_err = self.binomial_error(norm=True) * ratio
             return self.sig_eff, ratio, ratio_err
 
         # get overlapping sig_eff interval of the two roc curves
@@ -135,7 +135,7 @@ class Roc(PlotLineObject):
             ratio = 1 / ratio
         if self.n_test is None:
             return ratio_sig_eff, ratio, None
-        ratio_err = self.binomial_error(norm=True)
+        ratio_err = self.binomial_error(norm=True) * ratio
         return ratio_sig_eff, ratio, ratio_err[eff_mask]
 
     @property
