@@ -235,7 +235,7 @@ class roc_output_TestCase(unittest.TestCase):
             )
         )
 
-        plot.set_ratio_class(1, "ujets", label="light-flavour jets ratio")
+        plot.set_ratio_class(1, "ujets", label="Light-flavour jets ratio")
 
         # Draw the figure
         plot.draw()

@@ -117,10 +117,10 @@ class TestCase(unittest.TestCase):
 
         # Draw and save the plot
         frac_plot.draw()
-        frac_plot.savefig(f"{self.actual_plots_dir}/{plotname}", transparent=True)
+        frac_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
 
         # Uncomment line below to update expected image
-        # frac_plot.savefig(f"{self.expected_plots_dir}/{plotname}", transparent=True)
+        # frac_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
 
         # Check
         self.assertIsNone(
@@ -168,10 +168,10 @@ class TestCase(unittest.TestCase):
 
         # Draw and save the plot
         frac_plot.draw()
-        frac_plot.savefig(f"{self.actual_plots_dir}/{plotname}", transparent=True)
+        frac_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
 
         # Uncomment line below to update expected image
-        # frac_plot.savefig(f"{self.expected_plots_dir}/{plotname}", transparent=True)
+        # frac_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
 
         # Check
         self.assertIsNone(
@@ -219,10 +219,10 @@ class TestCase(unittest.TestCase):
 
         # Draw and save the plot
         frac_plot.draw()
-        frac_plot.savefig(f"{self.actual_plots_dir}/{plotname}", transparent=True)
+        frac_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
 
         # Uncomment line below to update expected image
-        # frac_plot.savefig(f"{self.expected_plots_dir}/{plotname}", transparent=True)
+        # frac_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
 
         # Check
         self.assertIsNone(
