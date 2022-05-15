@@ -19,8 +19,22 @@ The Python package `puma` provides a plotting API for commonly used plots in fla
 The `puma` package is currently under construction. It can be installed from PyPI or
 using the latest code from this repository.
 
-```bash
+### Install latest release from PyPI
+
+```bash   
 pip install puma-hep
-# or
+```
+
+The installation from PyPI only allows to install tagged releases, meaning you can not
+install the latest code from this repo using the above command.
+If you just want to use a stable release of `puma`, this is the way to go.
+
+### Install latest version from GitHub
+```bash   
 pip install https://github.com/umami-hep/puma/archive/master.tar.gz
 ```
+
+This will install the latest version of `puma`, i.e. the current version
+from the `main` branch (no matter if it is a release/tagged commit).
+If you plan on contributing to `puma` and/or want the latest version possible, this
+is what you want.
