@@ -18,7 +18,7 @@ jobs:
   example_tests:
     name: Example tests
     runs-on: ubuntu-latest
-    container: python:3.8-slim
+    container: python:3.8
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -28,14 +28,13 @@ jobs:
       - run: pip install .
       - run: mkdir plots
       - run: cd plots && for f in ../examples/*.py; do python "$f"; done
-      - uses: actions/upload-artifact@v3
-        with:
-          name: plot-example-artifacts
-          path: plots/*.png
       # This action will only update the examples-material branch if it
       # is affected by the changes that triggered the job
-      - name: Install deployment dependencies
-        run: apt update && apt install -y rsync git
+      # rsync is needed for the subsequently used workflow
+      - name: Install rsync
+        run: apt update && apt install -y rsync
+      # - name: Install dependencies
+      #   run: apt update && apt install -y rsync git
       - name: Upload examples-material
         if: ${{ github.event_name == 'push' }}
         uses: JamesIves/github-pages-deploy-action@3.7.1
