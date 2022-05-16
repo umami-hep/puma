@@ -1,5 +1,9 @@
 # Changelog
 
+### Latest
+
+- Update documentation [#24](https://github.com/umami-hep/puma/pull/24)
+
 ### [v0.1.0]
 
 - Set default number of ratio panels to 0 [#17](https://github.com/umami-hep/puma/pull/17)
