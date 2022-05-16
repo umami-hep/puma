@@ -1,4 +1,4 @@
-## Examples
+# Examples
 
 ```py
 from puma import histogram, histogram_plot

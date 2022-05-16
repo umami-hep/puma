@@ -1,6 +1,5 @@
 # Artifacts from sphinx docs (generated when built locally)
-sphinx/modules.rst
-sphinx/puma*.rst
+docs/source/generated
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
