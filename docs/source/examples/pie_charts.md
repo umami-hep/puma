@@ -9,5 +9,5 @@ Then we can start the actual plotting part
 ![pies](https://github.com/umami-hep/puma/raw/examples-material/pie_chart_HadronConeExclTruthLabelID.png)
 
 ```py
-§§§examples/plotting/plot_pie.py§§§
+§§§examples/plot_pie.py§§§
 ```

@@ -13,32 +13,30 @@ import pandas as pd
 from umami.metrics import calc_rej
 ```
 
-???+ example "Reading `.h5` file"
-
-    ```py
-    # this is just an example to read in your h5 file
-    # if you have tagger predictions you can plug them in directly in the `disc_fct` as well
-    # taking one random ttbar file
-    ttbar_file = (
-        "user.alfroch.410470.btagTraining.e6337_s3681_r13144_p4931.EMPFlowAll."
-        "2022-02-07-T174158_output.h5/user.alfroch.28040424._001207.output.h5"
-    )
-    with h5py.File(ttbar_file, "r") as f:
-    df = pd.DataFrame(
-        f["jets"].fields(
-            [
-                "rnnip_pu",
-                "rnnip_pc",
-                "rnnip_pb",
-                "dipsLoose20210729_pu",
-                "dipsLoose20210729_pc",
-                "dipsLoose20210729_pb",
-                "HadronConeExclTruthLabelID",
-            ]
-        )[:300000]
-    )
-    n_test = len(df)
-    ```
+```py
+# this is just an example to read in your h5 file
+# if you have tagger predictions you can plug them in directly in the `disc_fct` as well
+# taking one random ttbar file
+ttbar_file = (
+    "user.alfroch.410470.btagTraining.e6337_s3681_r13144_p4931.EMPFlowAll."
+    "2022-02-07-T174158_output.h5/user.alfroch.28040424._001207.output.h5"
+)
+with h5py.File(ttbar_file, "r") as f:
+df = pd.DataFrame(
+    f["jets"].fields(
+        [
+            "rnnip_pu",
+            "rnnip_pc",
+            "rnnip_pb",
+            "dipsLoose20210729_pu",
+            "dipsLoose20210729_pc",
+            "dipsLoose20210729_pb",
+            "HadronConeExclTruthLabelID",
+        ]
+    )[:300000]
+)
+n_test = len(df)
+```
 
 ```py
 # define a small function to calculate discriminant
