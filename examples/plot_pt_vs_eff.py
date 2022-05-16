@@ -103,6 +103,7 @@ plot_bkg_rej = VarVsEffPlot(
         "$\\sqrt{s}=13$ TeV, dummy jets, \n$t\\bar{t}$ test sample, $f_{c}=0.018$"
     ),
     figsize=(6, 4.5),
+    n_ratio_panels=1,
 )
 plot_bkg_rej.add(rnnip_light, reference=True)
 plot_bkg_rej.add(dips_light)

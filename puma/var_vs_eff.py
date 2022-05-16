@@ -679,7 +679,8 @@ class VarVsEffPlot(PlotBase):
             self.bin_edge_max if self.xmax is None else self.xmax,
         )
         plt_handles = self.plot()
-        self.plot_ratios()
+        if self.n_ratio_panels == 1:
+            self.plot_ratios()
         self.set_title()
         self.set_logy()
         self.set_y_lim()

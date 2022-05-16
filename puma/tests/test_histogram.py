@@ -136,6 +136,7 @@ class histogram_plot_TestCase(unittest.TestCase):
             atlas_second_tag="",
             figsize=(5, 4),
             ylabel="Number of jets",
+            n_ratio_panels=1,
         )
         hist_plot.add(self.hist_1, reference=True)
         hist_plot.draw()
@@ -155,7 +156,12 @@ class histogram_plot_TestCase(unittest.TestCase):
 
     def test_output_ratio(self):
         """check with a plot if the ratio is the expected value"""
-        hist_plot = HistogramPlot(norm=False, ymax_ratio_1=4, figsize=(6.5, 5))
+        hist_plot = HistogramPlot(
+            norm=False,
+            ymax_ratio_1=4,
+            figsize=(6.5, 5),
+            n_ratio_panels=1,
+        )
         hist_plot.add(self.hist_1, reference=True)
         hist_plot.add(self.hist_2)
         hist_plot.draw()
@@ -182,6 +188,7 @@ class histogram_plot_TestCase(unittest.TestCase):
                 "Test if ratio is 1 for whole range if reference histogram is empty\n"
                 "(+ normalised)"
             ),
+            n_ratio_panels=1,
         )
         hist_plot.add(Histogram(np.array([]), label="empty histogram"), reference=True)
         hist_plot.add(self.hist_1)
@@ -207,6 +214,7 @@ class histogram_plot_TestCase(unittest.TestCase):
             atlas_second_tag=(
                 "Test if ratio is 1 for whole range if reference histogram is empty"
             ),
+            n_ratio_panels=1,
         )
         hist_plot.add(Histogram(np.array([]), label="empty histogram"), reference=True)
         hist_plot.add(self.hist_1)
@@ -236,6 +244,7 @@ class histogram_plot_TestCase(unittest.TestCase):
             figsize=(7, 6),
             leg_loc="upper right",
             y_scale=1.5,
+            n_ratio_panels=1,
         )
         np.random.seed(42)
         n_random = 10_000
@@ -277,6 +286,7 @@ class histogram_plot_TestCase(unittest.TestCase):
             atlas_second_tag="",
             figsize=(5, 4),
             ylabel="Number of jets",
+            n_ratio_panels=1,
         )
         hist_plot.add(self.hist_1, reference=True)
         hist_plot.draw_vlines(
@@ -306,6 +316,7 @@ class histogram_plot_TestCase(unittest.TestCase):
             atlas_second_tag="",
             figsize=(5, 4),
             ylabel="Number of jets",
+            n_ratio_panels=1,
         )
         hist_plot.add(self.hist_1, reference=True)
         hist_plot.draw_vlines(
@@ -336,6 +347,7 @@ class histogram_plot_TestCase(unittest.TestCase):
             atlas_second_tag="",
             figsize=(5, 4),
             ylabel="Number of jets",
+            n_ratio_panels=1,
         )
         hist_plot.add(self.hist_1, reference=True)
         hist_plot.draw_vlines(
@@ -366,6 +378,7 @@ class histogram_plot_TestCase(unittest.TestCase):
             atlas_second_tag="",
             figsize=(5, 4),
             ylabel="Number of jets",
+            n_ratio_panels=1,
         )
         hist_plot.add(self.hist_1, reference=True)
         hist_plot.draw_vlines(

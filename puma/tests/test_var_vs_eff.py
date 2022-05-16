@@ -300,6 +300,7 @@ class var_vs_eff_output_TestCase(unittest.TestCase):
                 "'better model' should have quite large bkg efficiency $p_T > 110$\n"
             ),
             y_scale=1.5,
+            n_ratio_panels=1,
         )
         plot_bkg_rej.add(ref_light, reference=True)
         plot_bkg_rej.add(better_light)
@@ -356,6 +357,7 @@ class var_vs_eff_output_TestCase(unittest.TestCase):
                 "'better model' should have bkg efficiency of ~ 0 for $p_T > 110$\n"
             ),
             y_scale=1.5,
+            n_ratio_panels=1,
         )
         plot_bkg_rej.add(ref_light, reference=True)
         plot_bkg_rej.add(better_light)
