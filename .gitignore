@@ -135,6 +135,7 @@ dmypy.json
 
 # Config files create by Finder on macOS
 .DS_Store
+._.DS_Store
 
 
 # package specific excludes

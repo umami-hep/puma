@@ -99,9 +99,7 @@ plot_bkg_rej = VarVsEffPlot(
     ylabel="Light-flavour jets rejection",
     xlabel=r"$p_{T}$ [GeV]",
     logy=False,
-    atlas_second_tag=(
-        "$\\sqrt{s}=13$ TeV, dummy jets, \n$t\\bar{t}$ test sample, $f_{c}=0.018$"
-    ),
+    atlas_second_tag="$\\sqrt{s}=13$ TeV, dummy jets \ndummy sample, $f_{c}=0.018$",
     figsize=(6, 4.5),
     n_ratio_panels=1,
 )

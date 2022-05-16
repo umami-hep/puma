@@ -48,9 +48,7 @@ plot_histo = HistogramPlot(
     y_scale=1.5,
     ymax_ratio_1=1.5,
     ymin_ratio_1=0.5,
-    atlas_second_tag=(
-        "$\\sqrt{s}=13$ TeV, dummy jets, \n$t\\bar{t}$ test sample, $f_{c}=0.018$"
-    ),
+    atlas_second_tag="$\\sqrt{s}=13$ TeV, dummy jets \ndummy sample, $f_{c}=0.018$",
 )
 
 # Add the histograms

@@ -130,7 +130,7 @@ class PlotObject:
     atlas_fontsize : float, optional
         Fontsize of ATLAS label, by default 10
     atlas_vertical_offset : float, optional
-        Vertical offset of the ATLAS tag, by default 5
+        Vertical offset of the ATLAS tag, by default 7
     atlas_horizontal_offset : float, optional
         Horizontal offset of the ATLAS tag, by default 8
     atlas_brand : str, optional
@@ -180,7 +180,7 @@ class PlotObject:
     atlas_first_tag: str = "Simulation Internal"
     atlas_second_tag: str = ""
     atlas_fontsize: int = None
-    atlas_vertical_offset: float = 5
+    atlas_vertical_offset: float = 7
     atlas_horizontal_offset: float = 8
     atlas_brand: str = "ATLAS"
 
