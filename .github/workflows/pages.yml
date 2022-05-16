@@ -1,5 +1,5 @@
 name: Pages
-on: push
+on: [push]
 jobs:
   build-sphinx-docs:
     runs-on: ubuntu-latest
@@ -13,8 +13,8 @@ jobs:
       # render placeholders with librep
       - name: librep
         run: |
-        pip install librep
-        librep --ref_dir $PWD --input "docs/**/*.md" --no_backup
+          pip install librep
+          librep --ref_dir $PWD --input "docs/**/*.md" --no_backup
 
       - name: Build Sphinx documentation
         run: bash docs/build_docs.sh
