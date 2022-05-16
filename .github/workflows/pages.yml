@@ -10,8 +10,7 @@ jobs:
         with:
           fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
 
-      # render placeholders with librep
-      - name: librep
+      - name: librep # render placeholders with librep
         run: |
           pip install librep
           librep --ref_dir $PWD --input "docs/**/*.md" --no_backup
@@ -19,14 +18,13 @@ jobs:
       - name: Build Sphinx documentation
         run: bash docs/build_docs.sh
 
-      # rsync is needed for the subsequently used action
-      - name: Install rsync
+      - name: Install rsync # rsync is needed for the subsequently used action
         run: apt update && apt install -y rsync
 
-      # This action will only update the gh-pages branch if the documentation
-      # is affected by the changes that triggered the job
       - name: Deploy to GitHub pages
         # Only run this action on the main branch
+        # + This action will only update the gh-pages branch if the documentation
+        # is affected by the changes that triggered the job
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
