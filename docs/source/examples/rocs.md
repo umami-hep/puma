@@ -6,7 +6,7 @@ To set up the inputs for the plots, have a look [here](./index.md).
 
 Then we can start the actual plotting part
 
-![rocs](https://github.com/umami-hep/puma/raw/examples-material/roc.png)
+<img src=https://github.com/umami-hep/puma/raw/examples-material/roc.png width=500>
 
 ```py
 §§§examples/plot_rocs.py§§§

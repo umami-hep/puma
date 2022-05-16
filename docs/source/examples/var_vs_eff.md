@@ -7,9 +7,9 @@ To set up the inputs for the plots, have a look [here](./index.md).
 
 Then we can start the actual plotting part
 
-![pt_vs_eff](https://github.com/umami-hep/puma/raw/examples-material/pt_light_rej.png)
+<img src=https://github.com/umami-hep/puma/raw/examples-material/pt_light_rej.png width=500>
 
-![pt_vs_eff](https://github.com/umami-hep/puma/raw/examples-material/pt_b_eff.png)
+<img src=https://github.com/umami-hep/puma/raw/examples-material/pt_b_eff.png width=500>
 
 ```py
 §§§examples/plot_pt_vs_eff.py§§§

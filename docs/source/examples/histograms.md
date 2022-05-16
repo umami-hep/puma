@@ -6,7 +6,7 @@ The following examples use the dummy data which is described [here](./dummy_data
 
 ## _b_-tagging discriminant plot
 
-![discriminant](https://github.com/umami-hep/puma/raw/examples-material/histogram_discriminant.png)
+<img src=https://github.com/umami-hep/puma/raw/examples-material/histogram_discriminant.png width=500>
 
 ```py linenums="1"
 §§§examples/plot_discriminant_scores.py§§§
@@ -14,7 +14,7 @@ The following examples use the dummy data which is described [here](./dummy_data
 
 ## Flavour probabilities plot
 
-![b-jets probability](https://github.com/umami-hep/puma/raw/examples-material/histogram_bjets_probability.png)
+<img src=https://github.com/umami-hep/puma/raw/examples-material/histogram_bjets_probability.png width=500>
 
 ```py linenums="1"
 §§§examples/plot_flavour_probabilities.py§§§
@@ -27,7 +27,7 @@ like in the examples above.
 However, the python plotting API allows to plot any kind of data. As an example, you
 could e.g. produce a `MC` vs `data` plot with the following example code:
 
-![non-ftag example](https://github.com/umami-hep/puma/raw/examples-material/histogram_basic_example.png)
+<img src=https://github.com/umami-hep/puma/raw/examples-material/histogram_basic_example.png width=500>
 
 ```py
 §§§examples/plot_basic_histogram.py§§§
