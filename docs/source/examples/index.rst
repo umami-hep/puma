@@ -10,6 +10,8 @@ can be used as a starting point for your plotting scripts.
    dummy_data.md
    histograms.md
    rocs.md
+   var_vs_eff.md
+   pie_charts.md
    
 
 .. include:: index.md
