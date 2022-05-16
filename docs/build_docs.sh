@@ -6,6 +6,9 @@ pip install .
 # install requirements for sphinx
 pip install -r docs/requirements.txt
 
+# render placeholders with librep
+librep --ref_dir $PWD --input "docs/**/*.md" --no_backup
+
 # build the documentation
 cd docs
 rm -rf _build _static _templates
