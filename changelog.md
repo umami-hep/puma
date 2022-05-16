@@ -1,8 +1,6 @@
 # Changelog
 
-
-
-### Latest
+### [v0.0.1]
 
 - Set default number of ratio panels to 0 [#17](https://github.com/umami-hep/puma/pull/17)
 - Adding uncertainties to Roc main plots and improving dummy data generator [#14](https://github.com/umami-hep/puma/pull/14)
