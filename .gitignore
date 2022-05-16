@@ -136,6 +136,9 @@ dmypy.json
 .DS_Store
 ._.DS_Store
 
+# VSCode config files
+.vscode
+
 
 # package specific excludes
 examples/*.png
