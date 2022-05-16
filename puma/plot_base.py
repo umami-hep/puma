@@ -102,7 +102,7 @@ class PlotObject:
     fontsize : int, optional
         Used fontsize, by default 10
     n_ratio_panels : int, optional
-        Amount of ratio panels between 0 and 2, by default 1
+        Amount of ratio panels between 0 and 2, by default 0
     vertical_split: bool
         Set to False if you would like to split the figure horizonally. If set to
         True the figure is split vertically (e.g for pie chart). By default False.
@@ -161,7 +161,7 @@ class PlotObject:
     label_fontsize: int = 12
     fontsize: int = 10
 
-    n_ratio_panels: int = 1
+    n_ratio_panels: int = 0
     vertical_split: bool = False
 
     figsize: tuple = None
