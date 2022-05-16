@@ -8,7 +8,7 @@
    :hidden:
 
    Quickstart <self>
-   Examples examples/index.rst
+   examples/index.rst
 
 Indices and tables
 ==================
