@@ -27,6 +27,7 @@ plot_histo = HistogramPlot(
     atlas_first_tag="Simulation Internal",
     atlas_second_tag="Example plot for plotting python API",
     figsize=(6, 5),
+    n_ratio_panels=1,
 )
 
 # Add histograms and plot
