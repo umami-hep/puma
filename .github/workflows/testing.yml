@@ -32,6 +32,14 @@ jobs:
         with:
           name: plot-example-artifacts
           path: plots/*.png
+      # This action will only update the examples-material branch if it
+      # is affected by the changes that triggered the job
+      - name: Upload examples-material
+        if: ${{ github.event_name == 'push' }}
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          BRANCH: examples-material
+          FOLDER: plots
   publish:
     name: Publish to PyPI
     needs: [unit_tests]
