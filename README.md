@@ -12,7 +12,8 @@ The Python package `puma` provides a plotting API for commonly used plots in fla
 
 |                              ROC curves                              |                                     Histogram plots                                     |                            Variable vs efficiency                             |
 | :------------------------------------------------------------------: | :-------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------: |
-| <img src=https://umami-docs.web.cern.ch/ci_assets/roc.png width=200> | <img src=https://umami-docs.web.cern.ch/ci_assets/histogram_discriminant.png width=220> | <img src=https://umami-docs.web.cern.ch/ci_assets/pt_light_rej.png width=220> |
+| <img src=https://github.com/umami-hep/puma/raw/examples-material/roc.png width=200> | <img src=https://github.com/umami-hep/puma/raw/examples-material/histogram_discriminant.png width=220> | <img src=https://github.com/umami-hep/puma/raw/examples-material/pt_b_eff.png width=220> |
+
 
 ## Installation
 
