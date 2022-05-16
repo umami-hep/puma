@@ -17,11 +17,11 @@ jobs:
       - name: Build Sphinx documentation
         run: bash docs/build_docs.sh
 
-      # rsync is needed for the subsequently used workflow
+      # rsync is needed for the subsequently used action
       - name: Install rsync
         run: apt update && apt install -y rsync
           
-      # This workflow will only update the gh-pages branch if the documentation
+      # This action will only update the gh-pages branch if the documentation
       # is affected by the changes that triggered the job
       - name: Deploy to GitHub pages
         if: ${{ github.event_name == 'push' }}
