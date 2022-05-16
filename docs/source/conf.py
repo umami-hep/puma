@@ -39,8 +39,12 @@ extensions = [
     "autoapi.extension",
 ]
 
+# Configuration of sphinx-autoapi extension
+# https://sphinx-autoapi.readthedocs.io/en/latest/reference/config.html#
 autoapi_type = "python"
 autoapi_dirs = ["../../puma"]
+autoapi_python_use_implicit_namespaces = True
+autoapi_python_class_content = "both"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]

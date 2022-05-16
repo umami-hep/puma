@@ -8,7 +8,7 @@
    :hidden:
 
    Quickstart <self>
-   example.md
+   example
 
 Indices and tables
 ==================
