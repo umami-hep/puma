@@ -2,7 +2,7 @@
 import numpy as np
 
 from puma.utils import logger
-from puma.utils.histogram import save_divide
+from puma.utils.histogram import hist_w_unc, save_divide
 
 
 def calc_eff(
@@ -195,3 +195,81 @@ def rej_err(
     if norm:
         return np.power(arr, 2) * eff_err(1 / arr, n_counts) / arr
     return np.power(arr, 2) * eff_err(1 / arr, n_counts)
+
+
+def calc_separation(
+    dist_a: np.ndarray,
+    dist_b: np.ndarray,
+    bins: int = 100,
+    bins_range: tuple = None,
+) -> float:
+    """Calculates the separation of two distributions
+
+    Parameters
+    ----------
+    dist_a : np.ndarray
+        first distribution
+    dist_b : np.ndarray
+        second distribution
+    bins : int, optional
+        Number of bins used for the histograms (common binning over whole range if
+        `bins_range` is not defined), by default 100
+    bins_range : tuple, optional
+        Lower and upper limit for binning. If not provided, the whole range of the
+        joined distribution is used, by default None
+
+    Returns
+    -------
+    float
+        separation value
+    float
+        separation uncertainty
+    """
+
+    _, bin_edges = np.histogram(
+        np.hstack([dist_a, dist_b]), bins=bins, range=bins_range
+    )
+
+    _, hist_a, unc_a, _ = hist_w_unc(dist_a, bin_edges)
+    _, hist_b, unc_b, _ = hist_w_unc(dist_b, bin_edges)
+
+    separation = 0.5 * np.sum(
+        save_divide(
+            numerator=(hist_a - hist_b) ** 2,
+            denominator=(hist_a + hist_b),
+            default=0,
+        )
+    )
+
+    # helper variable for error calculation below
+    ab_diff_over_sum = save_divide(hist_a - hist_b, hist_a + hist_b, default=0)
+
+    separation_uncertainty = 0.5 * np.sqrt(
+        np.sum(
+            (unc_a * (2 * ab_diff_over_sum - ab_diff_over_sum**2)) ** 2
+            + (unc_b * (-2 * ab_diff_over_sum - ab_diff_over_sum**2)) ** 2
+        )
+    )
+
+    return separation, separation_uncertainty, hist_a, hist_b, bin_edges
+    # return separation, separation_uncertainty
+
+
+# def get_separation_dict(
+#     df: pd.DataFrame,
+#     variable_name: str,
+#     labels_dict: dict,
+#     signal: list = ["singlebjets", "bbjets"],
+# ):
+#     sep_combinations = list(
+#         itertools.product(signal, set(labels_dict.keys()) - set(signal))
+#     )
+#     separation_dict = {}
+
+#     for flav_comb in sep_combinations:
+#         separation_dict[f"sep({flav_comb[0]}, {flav_comb[1]})"] = calc_separation(
+#             df.query(f"labels == {labels_dict[flav_comb[0]]}")[variable_name],
+#             df.query(f"labels == {labels_dict[flav_comb[1]]}")[variable_name],
+#         )[0]
+
+#     return separation_dict
