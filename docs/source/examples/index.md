@@ -1,8 +1,9 @@
 ## Some basics before plotting
 
-In the following a small example how to read in h5 and calculate discriminants.
+In the following a small example how to read in h5 and calculate the _b_-tagging
+discriminant.
 
-first you need to import some packages
+First you need to import some packages
 
 ```py
 import h5py
@@ -10,8 +11,10 @@ import numpy as np
 import pandas as pd
 
 
-from umami.metrics import calc_rej
+from puma.metrics import calc_rej
 ```
+
+Then you can read a h5 file that contains the data you want to plot:
 
 ```py
 # this is just an example to read in your h5 file
@@ -22,21 +25,24 @@ ttbar_file = (
     "2022-02-07-T174158_output.h5/user.alfroch.28040424._001207.output.h5"
 )
 with h5py.File(ttbar_file, "r") as f:
-df = pd.DataFrame(
-    f["jets"].fields(
-        [
-            "rnnip_pu",
-            "rnnip_pc",
-            "rnnip_pb",
-            "dipsLoose20210729_pu",
-            "dipsLoose20210729_pc",
-            "dipsLoose20210729_pb",
-            "HadronConeExclTruthLabelID",
-        ]
-    )[:300000]
-)
-n_test = len(df)
+    df = pd.DataFrame(
+        f["jets"].fields(
+            [
+                "rnnip_pu",
+                "rnnip_pc",
+                "rnnip_pb",
+                "dipsLoose20210729_pu",
+                "dipsLoose20210729_pc",
+                "dipsLoose20210729_pb",
+                "HadronConeExclTruthLabelID",
+            ]
+        )[:300000]
+    )
+    n_test = len(df)
 ```
+
+In the example below you can find an example on how you can calculate the tagger
+discriminant using the raw output (i.e. `p_u`, `p_c` and `p_b`) of the tagger.
 
 ```py
 # define a small function to calculate discriminant
@@ -70,7 +76,8 @@ discs_dips = np.apply_along_axis(
 )
 ```
 
-To calculate the rejection values you can do the following or using a results file from umami directly.
+To calculate the rejection values you can do the following or using a results file
+from a previous evaluation.
 
 ```py
 # defining target efficiency
