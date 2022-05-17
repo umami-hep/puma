@@ -1,6 +1,5 @@
 # Artifacts from sphinx docs (generated when built locally)
-sphinx/modules.rst
-sphinx/puma*.rst
+docs/source/generated
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -136,6 +135,9 @@ dmypy.json
 # Config files create by Finder on macOS
 .DS_Store
 ._.DS_Store
+
+# VSCode config files
+.vscode
 
 
 # package specific excludes

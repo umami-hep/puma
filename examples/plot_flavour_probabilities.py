@@ -15,7 +15,7 @@ plot_histo = HistogramPlot(
     leg_ncol=1,
     figsize=(6, 4.5),
     atlas_first_tag="Simulation, $\\sqrt{s}=13$ TeV",
-    atlas_second_tag="$t\\bar{t}$ test sample, dummy jets",
+    atlas_second_tag="dummy sample, dummy jets",
     atlas_brand=None,
     draw_errors=False,
     # bins=np.linspace(0, 1, 30),  # you can also force a binning for the plot here

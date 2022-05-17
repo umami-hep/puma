@@ -1,4 +1,4 @@
-Sphinx~=4.2.0
-piccolo-theme==0.10.2 
 myst-parser~=0.17.0
 pydata-sphinx-theme
+sphinx-autoapi
+Sphinx~=4.2.0

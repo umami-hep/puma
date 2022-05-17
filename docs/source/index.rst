@@ -8,8 +8,7 @@
    :hidden:
 
    Quickstart <self>
-   module_reference.rst
-   example.md
+   examples/index.rst
 
 Indices and tables
 ==================

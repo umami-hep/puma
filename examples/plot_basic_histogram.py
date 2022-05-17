@@ -25,8 +25,9 @@ plot_histo = HistogramPlot(
     bins_range=(1.1, 4),  # only considered if bins is an integer
     norm=False,
     atlas_first_tag="Simulation Internal",
-    atlas_second_tag="Example plot for plotting python API",
+    atlas_second_tag="Example for more general plot",
     figsize=(6, 5),
+    n_ratio_panels=1,
 )
 
 # Add histograms and plot

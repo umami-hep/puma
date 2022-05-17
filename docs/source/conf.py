@@ -13,7 +13,7 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath("."))
+sys.path.insert(0, os.path.abspath("../../puma"))
 
 
 # -- Project information -----------------------------------------------------
@@ -35,7 +35,16 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.doctest",
     "myst_parser",
+    "sphinx.ext.napoleon",
+    "autoapi.extension",
 ]
+
+# Configuration of sphinx-autoapi extension
+# https://sphinx-autoapi.readthedocs.io/en/latest/reference/config.html#
+autoapi_type = "python"
+autoapi_dirs = ["../../puma"]
+autoapi_python_use_implicit_namespaces = True
+autoapi_python_class_content = "both"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -63,3 +72,6 @@ html_theme_options = {
         },
     ],
 }
+
+# The name of the Pygments (syntax highlighting) style to use.
+pygments_style = "friendly"
