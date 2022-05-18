@@ -72,7 +72,7 @@ class Histogram(PlotLineObject):
             kwargs["label"] if "label" in kwargs and kwargs["label"] is not None else ""
         )
         # If flavour was specified, extract configuration from global config
-        if self.flavour is not None:
+        if self.colour is None and self.flavour is not None:
             self.colour = global_config["flavour_categories"][self.flavour]["colour"]
             logger.debug("Histogram colour was set to %s", self.colour)
 
@@ -216,12 +216,12 @@ class HistogramPlot(PlotBase):
             raise ValueError("Not more than one ratio panel supported.")
         self.initialise_figure(sub_plot_index=6)
 
-    def add(self, curve: object, key: str = None, reference: bool = False):
+    def add(self, histogram: object, key: str = None, reference: bool = False):
         """Adding histogram object to figure.
 
         Parameters
         ----------
-        curve : histogram class
+        histogram : Histogram class
             Histogram curve
         key : str, optional
             Unique identifier for histogram, by default None
@@ -240,23 +240,23 @@ class HistogramPlot(PlotBase):
             raise KeyError(f"Duplicated key {key} already used for unique identifier.")
 
         # Add key to histogram object
-        curve.key = key
+        histogram.key = key
         logger.debug("Adding histogram %s", key)
 
         # Set linestyle
-        if curve.linestyle is None:
-            curve.linestyle = "-"
+        if histogram.linestyle is None:
+            histogram.linestyle = "-"
         # Set colours
-        if curve.colour is None:
-            curve.colour = get_good_colours()[len(self.plot_objects)]
+        if histogram.colour is None:
+            histogram.colour = get_good_colours()[len(self.plot_objects)]
         # Set alpha
-        if curve.alpha is None:
-            curve.alpha = 0.8
+        if histogram.alpha is None:
+            histogram.alpha = 0.8
         # Set linewidth
-        if curve.linewidth is None:
-            curve.linewidth = 1.6
+        if histogram.linewidth is None:
+            histogram.linewidth = 1.6
 
-        self.plot_objects[key] = curve
+        self.plot_objects[key] = histogram
         self.add_order.append(key)
         if reference is True:
             self.set_reference(key)
