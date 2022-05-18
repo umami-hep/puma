@@ -271,16 +271,9 @@ class HistogramPlot(PlotBase):
         """
         if self.reference_object is None:
             self.reference_object = [key]
-            logger.info("Using '%s' as reference histogram", key)
         else:
             self.reference_object.append(key)
-            logger.warning(
-                "You specified another curve %s as reference for ratio. "
-                "Adding it to reference histograms. "
-                "New list of reference histograms: %s",
-                key,
-                self.reference_object,
-            )
+        logger.debug("Adding '%s' to reference histogram(s)", key)
 
     def plot(self, **kwargs):
         """Plotting curves. This also generates the bins of the histograms that are
