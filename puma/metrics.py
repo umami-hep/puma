@@ -198,18 +198,19 @@ def rej_err(
 
 
 def calc_separation(
-    dist_a: np.ndarray,
-    dist_b: np.ndarray,
+    values_a: np.ndarray,
+    values_b: np.ndarray,
     bins: int = 100,
     bins_range: tuple = None,
+    return_hist: bool = False,
 ) -> float:
     """Calculates the separation of two distributions
 
     Parameters
     ----------
-    dist_a : np.ndarray
+    values_a : np.ndarray
         first distribution
-    dist_b : np.ndarray
+    values_b : np.ndarray
         second distribution
     bins : int, optional
         Number of bins used for the histograms (common binning over whole range if
@@ -217,6 +218,8 @@ def calc_separation(
     bins_range : tuple, optional
         Lower and upper limit for binning. If not provided, the whole range of the
         joined distribution is used, by default None
+    return_hist : bool, optional
+        Option to also return the hist_a, hist_b and bin_edges arrays
 
     Returns
     -------
@@ -227,11 +230,11 @@ def calc_separation(
     """
 
     _, bin_edges = np.histogram(
-        np.hstack([dist_a, dist_b]), bins=bins, range=bins_range
+        np.hstack([values_a, values_b]), bins=bins, range=bins_range
     )
 
-    _, hist_a, unc_a, _ = hist_w_unc(dist_a, bin_edges)
-    _, hist_b, unc_b, _ = hist_w_unc(dist_b, bin_edges)
+    _, hist_a, unc_a, _ = hist_w_unc(values_a, bin_edges)
+    _, hist_b, unc_b, _ = hist_w_unc(values_b, bin_edges)
 
     separation = 0.5 * np.sum(
         save_divide(
@@ -251,8 +254,9 @@ def calc_separation(
         )
     )
 
-    return separation, separation_uncertainty, hist_a, hist_b, bin_edges
-    # return separation, separation_uncertainty
+    if return_hist:
+        return separation, separation_uncertainty, hist_a, hist_b, bin_edges
+    return separation, separation_uncertainty
 
 
 # def get_separation_dict(
