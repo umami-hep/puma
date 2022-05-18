@@ -53,7 +53,7 @@ def get_log_level(
     Raises
     ------
     ValueError
-        if non-valid option is given
+        If non-valid option is given
     """
     log_levels = {
         "CRITICAL": logging.CRITICAL,
@@ -76,7 +76,7 @@ def initialise_logger(
     Parameters
     ----------
     log_level : str, optional
-        logging level defining the verbose level. Accepted values are:
+        Logging level defining the verbose level. Accepted values are:
         CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET, by default None
         If the log_level is not set, it will
 
@@ -112,7 +112,7 @@ def set_log_level(
     puma_logger : logger
         logger object
     log_level : str
-        logging level corresponding CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET
+        Logging level corresponding CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET
     """
 
     puma_logger.setLevel(get_log_level(log_level))

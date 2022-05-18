@@ -37,7 +37,7 @@ class Histogram(PlotLineObject):
             histograms. Supported values are "bar", "barstacked", "step", "stepfilled".
             By default "step"
         **kwargs : kwargs
-            kwargs passed to `PlotLineObject`
+            Keyword arguments passed to `PlotLineObject`
 
         Raises
         ------
@@ -93,9 +93,9 @@ class Histogram(PlotLineObject):
         Returns
         -------
         np.ndarray
-            ratio
+            Ratio
         np.ndarray
-            ratio error
+            Ratio error
         Raises
         ------
         ValueError
@@ -188,7 +188,7 @@ class HistogramPlot(PlotBase):
         bin_width_in_ylabel : bool, optional
             Specify if the bin width should be added to the ylabel, by default False
         **kwargs : kwargs
-            kwargs from `plot_base`
+            Keyword arguments from `puma.PlotObject`
 
         Raises
         ------
@@ -222,7 +222,7 @@ class HistogramPlot(PlotBase):
         Parameters
         ----------
         curve : histogram class
-            histogram curve
+            Histogram curve
         key : str, optional
             Unique identifier for histogram, by default None
         reference : bool, optional
@@ -267,7 +267,7 @@ class HistogramPlot(PlotBase):
         Parameters
         ----------
         key : str
-            unique identifier of histogram object
+            Unique identifier of histogram object
         """
         if self.reference_object is None:
             self.reference_object = [key]
@@ -290,7 +290,7 @@ class HistogramPlot(PlotBase):
         Parameters
         ----------
         **kwargs: kwargs
-            kwargs passed to matplotlib.axes.Axes.hist()
+            Keyword arguments passed to matplotlib.axes.Axes.hist()
 
         Returns
         -------
@@ -393,8 +393,7 @@ class HistogramPlot(PlotBase):
 
         Returns
         -------
-        Patch
-            matplotlib Patch object
+        Patch : matplotlib Patch object
 
         Raises
         ------
@@ -501,7 +500,8 @@ class HistogramPlot(PlotBase):
 
         Returns
         -------
-        bins : recalculated bins including only the discrete values
+        bins : numpy.ndarray
+            Recalculated bins including only the discrete values
 
         Raises
         ------
@@ -548,13 +548,13 @@ class HistogramPlot(PlotBase):
 
         Parameters
         ----------
-        histo : histogram class
+        histo : puma.histogram.Histogram
             Histogram we want to calculate the ratio for
 
         Returns
         -------
-        histogram class
-            Reference histogram
+        reference_histo_name : str, int
+            Identifier of the corresponding reference histogram
 
         Raises
         ------
