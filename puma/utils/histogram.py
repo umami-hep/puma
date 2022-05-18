@@ -18,7 +18,7 @@ def save_divide(
     denominator: array_like, int, float
         Denominator in the ratio calculation.
     default: float
-        default value which is returned if denominator is 0.
+        Default value which is returned if denominator is 0.
 
     Returns
     -------

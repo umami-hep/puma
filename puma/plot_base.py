@@ -24,13 +24,13 @@ class PlotLineObject:  # pylint: disable=too-many-instance-attributes
     xmax : float, optional
         Maximum value of the x-axis, by default None
     colour : str, optional
-        colour of the object, by default None
+        Colour of the object, by default None
     label : str, optional
-        label of object, by default None
+        Label of object, by default None
     linestyle : str, optional
-        linestyle following numpy style, by default None
+        Linestyle following numpy style, by default None
     alpha : float, optional
-       Value for visibility of the plot lines, by default None
+        Value for visibility of the plot lines, by default None
     marker : str, optional
         Marker that is used in the plot. For example an x.
         By default None
@@ -192,7 +192,7 @@ class PlotObject:
         Raises
         ------
         ValueError
-            if n_ratio_panels not in [0, 1, 2]
+            If n_ratio_panels not in [0, 1, 2]
         """
         self.__check_figsize()
         allowed_n_ratio_panels = [0, 1, 2]
@@ -219,7 +219,7 @@ class PlotObject:
         Raises
         ------
         ValueError
-            if shape of `figsize` is not a tuple or list with length 2
+            If shape of `figsize` is not a tuple or list with length 2
         """
         if self.figsize is None:
             return
@@ -241,7 +241,7 @@ class PlotBase(PlotObject):
         Parameters
         ----------
         **kwargs : kwargs
-            kwargs from `plot_object`
+            Keyword arguments from `puma.PlotObject`
         """
         super().__init__(**kwargs)
         self.axis_top = None
@@ -258,7 +258,7 @@ class PlotBase(PlotObject):
         Parameters
         ----------
         sub_plot_index : int, optional
-            indicates for the scenario with one ratio how large the upper and lower
+            Indicates for the scenario with one ratio how large the upper and lower
             panels are, by default 5
         """
         # TODO: switch to cases syntax in python 3.10
@@ -342,9 +342,9 @@ class PlotBase(PlotObject):
             upper plot (0 is bottom, 1 is top). Must be the same
             order as the vlines_xvalues and the labels. By default None
         same_height : bool, optional
-            working point lines on same height, by default False
+            Working point lines on same height, by default False
         colour : str, optional
-            colour of the vertical line, by default "#920000"
+            Colour of the vertical line, by default "#920000"
         fontsize : int, optional
             Fontsize of the vertical line text. By default 10.
         """
@@ -390,10 +390,10 @@ class PlotBase(PlotObject):
         Parameters
         ----------
         title : str, optional
-            title of top panel, if None using the value form the class variables,
+            Title of top panel, if None using the value form the class variables,
             by default None
         **kwargs : kwargs
-            kwargs passed to `matplotlib.axes.Axes.set_title()`
+            Keyword arguments passed to `matplotlib.axes.Axes.set_title()`
         """
         self.axis_top.set_title(self.title if title is None else title, **kwargs)
 
@@ -403,7 +403,7 @@ class PlotBase(PlotObject):
         Parameters
         ----------
         force : bool, optional
-            forcing logy even if class variable is False, by default False
+            Forcing logy even if class variable is False, by default False
         """
         if not self.logy and not force:
             return
@@ -455,9 +455,9 @@ class PlotBase(PlotObject):
         label : str, optional
             x-axis label, by default None
         align_right : bool, optional
-            alignment of y-axis label, by default True
+            Alignment of y-axis label, by default True
         **kwargs, kwargs
-            kwargs passed to `matplotlib.axes.Axes.set_ylabel()`
+            Keyword arguments passed to `matplotlib.axes.Axes.set_ylabel()`
         """
         label_options = {}
         if align_right:
@@ -485,7 +485,7 @@ class PlotBase(PlotObject):
         label : str, optional
             x-axis label, by default None
         **kwargs : kwargs
-            kwargs passed to `matplotlib.axes.Axes.set_xlabel()`
+            Keyword arguments passed to `matplotlib.axes.Axes.set_xlabel()`
         """
         xlabel_args = {
             "xlabel": self.xlabel if label is None else label,
@@ -507,10 +507,10 @@ class PlotBase(PlotObject):
         Parameters
         ----------
         labelsize : int, optional
-            label size of x- and y- axis ticks, by default None
-            if None then using global fontsize
+            Label size of x- and y- axis ticks, by default None.
+            If None then using global fontsize
         **kwargs : kwargs
-            kwargs passed to `matplotlib.axes.Axes.set_xlabel()`
+            Keyword arguments passed to `matplotlib.axes.Axes.set_xlabel()`
         """
         labelsize = self.fontsize if labelsize is None else labelsize
         self.axis_top.tick_params(axis="y", labelsize=labelsize, **kwargs)
@@ -531,11 +531,11 @@ class PlotBase(PlotObject):
         Parameters
         ----------
         xmin : float, optional
-            min of x-axis, by default None
+            Min of x-axis, by default None
         xmax : float, optional
-            max of x-axis, by default None
+            Max of x-axis, by default None
         **kwargs : kwargs
-            kwargs passed to `matplotlib.axes.Axes.set_xlim()`
+            Keyword arguments passed to `matplotlib.axes.Axes.set_xlim()`
         """
         self.axis_top.set_xlim(
             self.xmin if xmin is None else xmin,
@@ -555,13 +555,13 @@ class PlotBase(PlotObject):
         Parameters
         ----------
         plot_name : str
-            file name of the plot
+            File name of the plot
         transparent : bool, optional
-            if plot transparent, by default True
+            If plot transparent, by default True
         dpi : int, optional
-            dpi for plotting, by default 400
+            DPI for plotting, by default 400
         **kwargs : kwargs
-            kwargs passed to `matplotlib.figure.Figure.savefig()`
+            Keyword arguments passed to `matplotlib.figure.Figure.savefig()`
         """
         logger.debug("Saving plot to %s", plot_name)
         self.fig.savefig(
@@ -577,7 +577,7 @@ class PlotBase(PlotObject):
         Parameters
         ----------
         **kwargs: kwargs
-            kwargs from `matplotlib.figure.Figure.tight_layout()`
+            Keyword arguments from `matplotlib.figure.Figure.tight_layout()`
         """
         self.fig.tight_layout(**kwargs)
 
@@ -645,14 +645,14 @@ class PlotBase(PlotObject):
         Parameters
         ----------
         handles :  list
-            list of matplotlib.lines.Line2D object returned when plotting
-        ax_mpl : axis
-            matplotlib.axis object where the legend should be plotted
+            List of matplotlib.lines.Line2D object returned when plotting
+        ax_mpl : matplotlib.axis.Axes
+            `matplotlib.axis.Axes` object where the legend should be plotted
         labels : list, optional
-            plot labels. If None, the labels are extracted from the `handles`.
+            Plot labels. If None, the labels are extracted from the `handles`.
             By default None
         **kwargs : kwargs
-            kwargs which can be passed to matplotlib axis
+            Keyword arguments which can be passed to matplotlib axis
         """
         ax_mpl.legend(
             handles=handles,
@@ -671,14 +671,14 @@ class PlotBase(PlotObject):
         Parameters
         ----------
         ratio_panel : int
-            ratio panel either 1 or 2
+            Indicates which ratio panel to modify (either 1 or 2).
         label : str
             y-axis label of the ratio panel
 
         Raises
         ------
         ValueError
-            if requested ratio panels and given ratio_panel do not match.
+            If requested ratio panels and given ratio_panel do not match.
         """
         # TODO: could add possibility to specify ratio label as function of rej_class
         if self.n_ratio_panels < ratio_panel and ratio_panel not in [1, 2]:

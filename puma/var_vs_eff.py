@@ -33,35 +33,35 @@ class VarVsEff(PlotLineObject):
         Parameters
         ----------
         x_var_sig : np.ndarray
-            values for x-axis variable for signal
+            Values for x-axis variable for signal
         disc_sig : np.ndarray
-            discriminant values for signal
+            Discriminant values for signal
         x_var_bkg : np.ndarray, optional
-            values for x-axis variable for background, by default None
+            Values for x-axis variable for background, by default None
         disc_bkg : np.ndarray, optional
-            discriminant values for background, by default None
+            Discriminant values for background, by default None
         bins : int or sequence of scalars, optional
             If bins is an int, it defines the number of equal-width bins in the
             given range (10, by default). If bins is a sequence, it defines a
             monotonically increasing array of bin edges, including the
             rightmost edge, allowing for non-uniform bin widths, by default 10
         working_point : float, optional
-            working point, by default None
+            Working point, by default None
         disc_cut : float or  sequence of floats, optional
-            cut value for discriminant, if it is a sequence it has to have the same
+            Cut value for discriminant, if it is a sequence it has to have the same
             length as number of bins, by default None
         fixed_eff_bin : bool, optional
-            if True and no `disc_cut` is given the signal efficiency is held constant
+            If True and no `disc_cut` is given the signal efficiency is held constant
             in each bin, by default False
         key : str, optional
-            identifier for the curve e.g. tagger, by default None
-         **kwargs : kwargs
-            kwargs passed to `PlotLineObject`
+            Identifier for the curve e.g. tagger, by default None
+        **kwargs : kwargs
+            Keyword arguments passed to `PlotLineObject`
 
         Raises
         ------
         ValueError
-            if provided options are not compatible with each other
+            If provided options are not compatible with each other
         """
         # TODO: in python 3.10 add multipe type operator | for bins and disc_cut
 
@@ -209,16 +209,16 @@ class VarVsEff(PlotLineObject):
         Parameters
         ----------
         arr : np.ndarray
-            array with discriminants
+            Array with discriminants
         cut : float
-            cut value
+            Cut value
 
         Returns
         -------
         float
-            efficiency
+            Efficiency
         float
-            efficiency error
+            Efficiency error
         """
         if self.inverse_cut:
             eff = sum(arr < cut) / len(arr)
@@ -233,16 +233,16 @@ class VarVsEff(PlotLineObject):
         Parameters
         ----------
         arr : np.ndarray
-            array with discriminants
+            Array with discriminants
         cut : float
-            cut value
+            Cut value
 
         Returns
         -------
         float
-            rejection
+            Rejection
         float
-            rejection error
+            Rejection error
         """
         if self.inverse_cut:
             rej = save_divide(len(arr), sum(arr < cut), default=np.inf)
@@ -261,9 +261,9 @@ class VarVsEff(PlotLineObject):
         Returns
         -------
         np.ndarray
-            efficiency
+            Efficiency
         np.ndarray
-            efficiency_error
+            Efficiency_error
         """
         logger.debug("Calculating signal efficiency.")
         eff = list(map(self.efficiency, self.disc_binned_sig, self.disc_cut))
@@ -277,9 +277,9 @@ class VarVsEff(PlotLineObject):
         Returns
         -------
         np.ndarray
-            efficiency
+            Efficiency
         np.ndarray
-            efficiency_error
+            Efficiency_error
         """
         logger.debug("Calculating background efficiency.")
         eff = list(map(self.efficiency, self.disc_binned_bkg, self.disc_cut))
@@ -293,9 +293,9 @@ class VarVsEff(PlotLineObject):
         Returns
         -------
         np.ndarray
-            rejection
+            Rejection
         np.ndarray
-            rejection_error
+            Rejection_error
         """
         logger.debug("Calculating signal rejection.")
         rej = list(map(self.rejection, self.disc_binned_sig, self.disc_cut))
@@ -309,9 +309,9 @@ class VarVsEff(PlotLineObject):
         Returns
         -------
         np.ndarray
-            rejection
+            Rejection
         np.ndarray
-            rejection_error
+            Rejection_error
         """
         logger.debug("Calculating background rejection.")
         rej = list(map(self.rejection, self.disc_binned_bkg, self.disc_cut))
@@ -339,22 +339,22 @@ class VarVsEff(PlotLineObject):
         Parameters
         ----------
         mode : str
-            can be "sig_eff", "bkg_eff", "sig_rej", "bkg_rej"
+            Can be "sig_eff", "bkg_eff", "sig_rej", "bkg_rej"
         inverse_cut : bool, optional
-            inverts the discriminant cut, which will yield the efficiency or rejection
+            Inverts the discriminant cut, which will yield the efficiency or rejection
             of the jets not passing the working point, by default False
 
         Returns
         -------
         np.ndarray
-            rejection or efficiency depending on `mode` value
+            Rejection or efficiency depending on `mode` value
         np.ndarray
-            rejection or efficiency error depending on `mode` value
+            Rejection or efficiency error depending on `mode` value
 
         Raises
         ------
         ValueError
-            if mode not supported
+            If mode not supported
         """
         mode_options = ["sig_eff", "bkg_eff", "sig_rej", "bkg_rej"]
         self.inverse_cut = inverse_cut
@@ -382,32 +382,32 @@ class VarVsEff(PlotLineObject):
         Parameters
         ----------
         other : var_vs_eff class
-            second var_vs_eff object to calculate ratio with
+            Second var_vs_eff object to calculate ratio with
         mode : str
-            defines the mode which is used for the ratoi calculation, can be the
+            Defines the mode which is used for the ratoi calculation, can be the
             following values: `sig_eff`, `bkg_eff`, `sig_rej`, `bkg_rej`
         inverse : bool
-            if False the ratio is calculated `this / other`,
+            If False the ratio is calculated `this / other`,
             if True the inverse is calculated
         inverse_cut : bool
-            inverts the discriminant cut, which will yield the efficiency or rejection
+            Inverts the discriminant cut, which will yield the efficiency or rejection
             of the jets not passing the working point, by default False
 
         Returns
         -------
         np.ndarray
-            ratio
+            Ratio
         np.ndarray
-            ratio error
+            Ratio error
         np.ndarray
-            bin centres
+            Bin centres
         np.ndarray
-            bin widths
+            Bin widths
 
         Raises
         ------
         ValueError
-            if binning is not identical between 2 objects
+            If binning is not identical between 2 objects
         """
         if not np.array_equal(self.bin_edges, other.bin_edges):
             raise ValueError("The binning of the two given objects do not match.")
@@ -439,15 +439,15 @@ class VarVsEffPlot(PlotBase):
         Parameters
         ----------
         mode : str
-            defines which quantity is plotted, the following options ar available:
+            Defines which quantity is plotted, the following options ar available:
             "sig_eff", "bkg_eff", "sig_rej" or "bkg_rej"
         **kwargs : kwargs
-            kwargs from `plot_base`
+            Keyword arguments from `puma.PlotObject`
 
         Raises
         ------
         ValueError
-            if incompatible mode given or more than 1 ratio panel requested
+            If incompatible mode given or more than 1 ratio panel requested
         """
         super().__init__(**kwargs)
         mode_options = ["sig_eff", "bkg_eff", "sig_rej", "bkg_rej"]
@@ -475,16 +475,16 @@ class VarVsEffPlot(PlotBase):
         Parameters
         ----------
         curve : var_vs_eff class
-            var_vs_eff curve
+            Var_vs_eff curve
         key : str, optional
-            unique identifier for var_vs_eff, by default None
+            Unique identifier for var_vs_eff, by default None
         reference : bool, optional
-            if var_vs_eff is used as reference for ratio calculation, by default False
+            If var_vs_eff is used as reference for ratio calculation, by default False
 
         Raises
         ------
         KeyError
-            if unique identifier key is used twice
+            If unique identifier key is used twice
         """
         if key is None:
             key = len(self.plot_objects) + 1
@@ -521,7 +521,7 @@ class VarVsEffPlot(PlotBase):
         Parameters
         ----------
         key : str
-            unique identifier of roc object
+            Unique identifier of roc object
         """
         if self.reference_object is None:
             self.reference_object = key
@@ -540,9 +540,9 @@ class VarVsEffPlot(PlotBase):
         Parameters
         ----------
         **kwargs: kwargs
-            kwargs passed to plt.axis.errorbar
+            Keyword arguments passed to plt.axis.errorbar
 
-         Returns
+        Returns
         -------
         Line2D
             matplotlib Line2D object
@@ -592,7 +592,7 @@ class VarVsEffPlot(PlotBase):
         Raises
         ------
         ValueError
-            if no reference curve is defined
+            If no reference curve is defined
         """
         if self.reference_object is None:
             raise ValueError("Please specify a reference curve.")
@@ -641,7 +641,7 @@ class VarVsEffPlot(PlotBase):
         Parameters
         ----------
         inverse_cut : bool, optional
-            invert discriminant cut, by default True
+            Invert discriminant cut, by default True
         """
         self.inverse_cut = inverse_cut
 

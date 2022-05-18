@@ -106,10 +106,9 @@ class FractionScanPlot(PlotBase):
         Parameters
         ----------
         logy : bool, optional
-            Decide, if the y-axis of the plot will
-            be in log, by default False
+            Decide, if the y-axis of the plot will be in log, by default False
         **kwargs : kwargs
-            kwargs from `plot_base`
+            Keyword arguments from `puma.PlotObject`
         """
 
         super().__init__(**kwargs)
@@ -138,8 +137,7 @@ class FractionScanPlot(PlotBase):
         key : str, optional
             Unique identifier for FractionScan, by default None
         is_marker : bool, optional
-            Defines if this is a marker (True) or a line (False).
-            By default False.
+            Defines if this is a marker (True) or a line (False). By default False.
 
         Raises
         ------
@@ -204,7 +202,7 @@ class FractionScanPlot(PlotBase):
         Parameters
         ----------
         **kwargs: kwargs
-            kwargs passed to matplotlib.axes.Axes.plot()
+            Keyword arguments passed to matplotlib.axes.Axes.plot()
 
         Returns
         -------
