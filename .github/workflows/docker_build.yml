@@ -9,7 +9,6 @@ jobs:
   build_latest:
     runs-on: ubuntu-latest
     # TODO: change all "jobirk-docker-buid" -> "main" before merging
-    # TODO: change all "test" -> "latest" before merging
     if: github.ref == 'refs/heads/jobirk-docker-build'
     steps:
 
@@ -27,14 +26,14 @@ jobs:
       - name: Build and push slim image
         if: github.ref == 'refs/heads/jobirk-docker-build'
         run: |
-          docker build -f docker/Dockerfile --tag ${GITLAB_CONTAINER_REGISTRY}/puma:test .
-          docker push ${GITLAB_CONTAINER_REGISTRY}/puma:test
+          docker build -f docker/Dockerfile --tag ${GITLAB_CONTAINER_REGISTRY}/puma:latest .
+          docker push ${GITLAB_CONTAINER_REGISTRY}/puma:latest
 
       - name: Build and push dev image
         if: github.ref == 'refs/heads/jobirk-docker-build'
         run: |
-          docker build -f docker/Dockerfile_dev --tag ${GITLAB_CONTAINER_REGISTRY}/puma:test-dev .
-          docker push ${GITLAB_CONTAINER_REGISTRY}/puma:test-dev
+          docker build -f docker/Dockerfile_dev --tag ${GITLAB_CONTAINER_REGISTRY}/puma:latest-dev .
+          docker push ${GITLAB_CONTAINER_REGISTRY}/puma:latest-dev
   
   build_release:
     # Build an extra image for tagged commits
