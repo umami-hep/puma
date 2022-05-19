@@ -16,8 +16,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@master
           
-      - run: echo ${{  github.ref_name  }}
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
@@ -26,6 +24,13 @@ jobs:
 
       - name: Login to GitLab container registry
         run: docker login gitlab-registry.cern.ch -u ${{ secrets.GITLAB_USERNAME }} -p ${{ secrets.GITLAB_TOKEN }}
+
+      - name: Build and push release image
+        # Build an extra image for tagged commits
+        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+        run: |
+          docker build -f docker/Dockerfile --tag ${GITLAB_CONTAINER_REGISTRY}/puma:${{  github.ref_name  }} .
+          docker push ${GITLAB_CONTAINER_REGISTRY}/puma:${{  github.ref_name  }}
 
       - name: Build and push slim image
         run: |
@@ -37,8 +42,3 @@ jobs:
           docker build -f docker/Dockerfile_dev --tag ${GITLAB_CONTAINER_REGISTRY}/puma:test-dev .
           docker push ${GITLAB_CONTAINER_REGISTRY}/puma:test-dev
   
-      # - name: Build and push release image
-        # if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-        # run: |
-        #   docker build -f docker/Dockerfile_dev --tag ${GITLAB_CONTAINER_REGISTRY}/puma:test-dev .
-        #   docker push ${GITLAB_CONTAINER_REGISTRY}/puma:test-dev

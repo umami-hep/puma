@@ -3,7 +3,7 @@
 # flake8: noqa
 # pylint: skip-file
 
-__version__ = "0.1.0"
+__version__ = "0.1.1rc1"
 
 from puma.fraction_scan import FractionScan, FractionScanPlot
 from puma.histogram import Histogram, HistogramPlot
