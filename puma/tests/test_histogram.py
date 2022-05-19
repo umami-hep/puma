@@ -122,6 +122,28 @@ class histogram_plot_TestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             hist_plot.add_bin_width_to_ylabel()
 
+    def test_multiple_references_no_flavour(self):
+        """Tests if error is raised in case of non-unique reference histogram"""
+        hist_plot = HistogramPlot(n_ratio_panels=1)
+        hist_plot.add(self.hist_1, reference=True)
+        hist_plot.add(self.hist_2, reference=True)
+        hist_plot.add(self.hist_1)
+        hist_plot.plot()
+        with self.assertRaises(ValueError):
+            hist_plot.plot_ratios()
+
+    def test_multiple_references_flavour(self):
+        """Tests if error is raised in case of non-unique reference histogram
+        when flavoured histograms are used"""
+        hist_plot = HistogramPlot(n_ratio_panels=1)
+        dummy_array = np.array([1, 1, 2, 3, 2, 3])
+        hist_plot.add(Histogram(dummy_array, flavour="ujets"), reference=True)
+        hist_plot.add(Histogram(dummy_array, flavour="ujets"), reference=True)
+        hist_plot.add(Histogram(dummy_array, flavour="ujets"))
+        hist_plot.plot()
+        with self.assertRaises(ValueError):
+            hist_plot.plot_ratios()
+
     def test_custom_range(self):
         """check if
         1. bins_range argument is used correctly
