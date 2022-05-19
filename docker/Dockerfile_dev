@@ -6,5 +6,3 @@ RUN apt update && apt install -y \
 # install requirements that are needed for development
 RUN wget https://raw.githubusercontent.com/umami-hep/puma/main/requirements.txt
 RUN pip install -r requirements.txt
-
-RUN pip install puma-hep
