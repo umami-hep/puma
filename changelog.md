@@ -2,6 +2,7 @@
 
 ### Latest
 
+- Adding Docker images [#33](https://github.com/umami-hep/puma/pull/33)
 - Update documentation [#24](https://github.com/umami-hep/puma/pull/24)
 
 ### [v0.1.0]

@@ -4,5 +4,5 @@ RUN apt update && apt install -y \
     vim
 
 # install requirements that are needed for development
-RUN wget https://raw.githubusercontent.com/umami-hep/puma/main/requirements.txt
+COPY requirements.txt .
 RUN pip install -r requirements.txt

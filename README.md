@@ -39,3 +39,23 @@ This will install the latest version of `puma`, i.e. the current version
 from the `main` branch (no matter if it is a release/tagged commit).
 If you plan on contributing to `puma` and/or want the latest version possible, this
 is what you want.
+
+## Docker images
+
+The Docker images are built on GitHub and contain the latest version from the `main` branch.
+
+The container registry with all available tags can be found 
+[here](https://gitlab.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images/container_registry/13727).
+
+The `puma:latest` image is based on `python:3.8-slim` and is meant for users who want to use the latest version of `puma`. For each release, there is a corresponding tagged image.
+You can start an interactive shell in a container with your current working directory 
+mounted into the container by using one of the commands provided below.
+
+On a machine with Docker installed:
+```bash
+docker run -it --rm -v $PWD:/puma_container -w /puma_container gitlab-registry.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images/puma:latest bash
+```
+On a machine/cluster with singularity installed:
+```bash
+singularity shell --contain -B $PWD docker://gitlab-registry.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images/puma:latest
+```
