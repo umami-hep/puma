@@ -27,4 +27,4 @@ jobs:
 
       - name: Build and push slim image
         run: |
-          docker buildx build -f docker/Dockerfile --tag gitlab-registry.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images/puma:test --push .
+          docker buildx build -f docker/Dockerfile --tag ${GITLAB_CONTAINER_REGISTRY}/puma:test --push --platform linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8 .
