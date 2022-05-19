@@ -5,6 +5,9 @@ on: [push]
 env:
   GITLAB_CONTAINER_REGISTRY: gitlab-registry.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images
 
+# TODO: change all "jobirk-docker-buid" -> "main" before merging
+if: github.ref == 'refs/heads/jobirk-docker-build' || startsWith(github.event.ref, 'refs/tags')
+
 jobs:
   docker:
     runs-on: ubuntu-latest
@@ -22,22 +25,21 @@ jobs:
       - name: Login to GitLab container registry
         run: docker login gitlab-registry.cern.ch -u ${{ secrets.GITLAB_USERNAME }} -p ${{ secrets.GITLAB_TOKEN }}
 
-      - name: Build and push release image
-        # Build an extra image for tagged commits
-        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-        run: |
-          docker build -f docker/Dockerfile --tag ${GITLAB_CONTAINER_REGISTRY}/puma:${{  github.ref_name  }} .
-          docker push ${GITLAB_CONTAINER_REGISTRY}/puma:${{  github.ref_name  }}
-
       - name: Build and push slim image
-        if: github.event_name == 'push' && github.ref == 'refs/heads/jobirk-docker-build'
+        if: github.ref == 'refs/heads/jobirk-docker-build'
         run: |
           docker build -f docker/Dockerfile --tag ${GITLAB_CONTAINER_REGISTRY}/puma:test .
           docker push ${GITLAB_CONTAINER_REGISTRY}/puma:test
 
       - name: Build and push dev image
-        if: github.event_name == 'push' && github.ref == 'refs/heads/jobirk-docker-build'
+        if: github.ref == 'refs/heads/jobirk-docker-build'
         run: |
           docker build -f docker/Dockerfile_dev --tag ${GITLAB_CONTAINER_REGISTRY}/puma:test-dev .
           docker push ${GITLAB_CONTAINER_REGISTRY}/puma:test-dev
   
+      - name: Build and push release image
+        # Build an extra image for tagged commits
+        if: startsWith(github.event.ref, 'refs/tags')
+        run: |
+          docker build -f docker/Dockerfile --tag ${GITLAB_CONTAINER_REGISTRY}/puma:${{  github.ref_name  }} .
+          docker push ${GITLAB_CONTAINER_REGISTRY}/puma:${{  github.ref_name  }}
