@@ -39,6 +39,7 @@ jobs:
   build_release_image:
     runs-on: ubuntu-latest
     if: startsWith(github.event.ref, 'refs/tags')
+    steps:
 
       - name: Checkout
         uses: actions/checkout@master
