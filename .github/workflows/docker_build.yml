@@ -5,12 +5,11 @@ on: [push]
 env:
   GITLAB_CONTAINER_REGISTRY: gitlab-registry.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images
 
-# TODO: change all "jobirk-docker-buid" -> "main" before merging
-if: github.ref == 'refs/heads/jobirk-docker-build' || startsWith(github.event.ref, 'refs/tags')
-
 jobs:
   docker:
     runs-on: ubuntu-latest
+    # TODO: change all "jobirk-docker-buid" -> "main" before merging
+    if: github.ref == 'refs/heads/jobirk-docker-build' || startsWith(github.event.ref, 'refs/tags')
     steps:
 
       - name: Checkout
