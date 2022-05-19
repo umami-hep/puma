@@ -5,6 +5,9 @@ on:
     branches:
       - 'jobirk-docker-build'
         
+env:
+  GITLAB_CONTAINER_REGISTRY: gitlab-registry.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images
+
 jobs:
   docker:
     runs-on: ubuntu-latest
@@ -24,5 +27,4 @@ jobs:
 
       - name: Build and push slim image
         run: |
-          docker buildx build -f docker/Dockerfile -t gitlab-registry.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images/puma:test .
-          docker push gitlab-registry.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images/puma:test
+          docker buildx build -f docker/Dockerfile --tag gitlab-registry.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images/puma:test --push .
