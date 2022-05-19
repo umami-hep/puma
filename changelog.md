@@ -2,6 +2,7 @@
 
 ### Latest
 
+- Add warning for plotting normalised histograms without saying to in the ylabel [#34](https://github.com/umami-hep/puma/pull/34/files)
 - Remove warning when adding more than one reference histogram is case is allowed [#32](https://github.com/umami-hep/puma/pull/32)
 - Update documentation [#24](https://github.com/umami-hep/puma/pull/24)
 
