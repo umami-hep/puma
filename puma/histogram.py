@@ -295,6 +295,11 @@ class HistogramPlot(PlotBase):
         ValueError
             If specified bins type is not supported.
         """
+        if self.norm and "norm" not in self.ylabel.lower():
+            logger.warning(
+                "You are plotting normalised distributions but 'norm' is not "
+                "included in your y-label."
+            )
         plt_handles = []
 
         # Calculate bins of stacked histograms to ensure all histograms fit in plot
