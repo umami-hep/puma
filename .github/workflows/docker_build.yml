@@ -25,30 +25,14 @@ jobs:
       - name: Login to GitLab container registry
         run: docker login gitlab-registry.cern.ch -u ${{ secrets.GITLAB_USERNAME }} -p ${{ secrets.GITLAB_TOKEN }}
 
-      - name: Build slim image
-        run: docker build -f docker/Dockerfile --tag ${GITLAB_CONTAINER_REGISTRY}/puma:test .
+      - name: Build and push slim image
+        run: |
+          docker build -f docker/Dockerfile --tag ${GITLAB_CONTAINER_REGISTRY}/puma:test .
+          docker push ${GITLAB_CONTAINER_REGISTRY}/puma:test
 
-      - name: Push slim image
-        run: docker push ${GITLAB_CONTAINER_REGISTRY}/puma:test
-
-      - name: Build dev image
-        run: docker build -f docker/Dockerfile_dev --tag ${GITLAB_CONTAINER_REGISTRY}/puma:test-dev .
-
-      - name: Push dev image
-        run: docker push ${GITLAB_CONTAINER_REGISTRY}/puma:test-dev
+      - name: Build and push dev image
+        run: |
+          docker build -f docker/Dockerfile_dev --tag ${GITLAB_CONTAINER_REGISTRY}/puma:test-dev .
+          docker push ${GITLAB_CONTAINER_REGISTRY}/puma:test-dev
   
-    #   - name: Build and push dev image
-    #     run: |
-    #       docker buildx build \
-    #         -f docker/Dockerfile_dev \
-    #         --tag ${GITLAB_CONTAINER_REGISTRY}/puma:test-dev \
-    #         --push --platform linux/amd64 \
-    #         .
-    #   - name: Build and push dev image
-    #     run: |
-    #       docker buildx build \
-    #         -f docker/Dockerfile_dev \
-    #         --tag ${GITLAB_CONTAINER_REGISTRY}/puma:test-dev \
-    #         --push --platform linux/amd64 \
-    #         .
     # if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
