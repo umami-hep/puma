@@ -2,6 +2,7 @@
 
 ### Latest
 
+- Remove warning when adding more than one reference histogram is case is allowed [#32](https://github.com/umami-hep/puma/pull/32)
 - Update documentation [#24](https://github.com/umami-hep/puma/pull/24)
 
 ### [v0.1.0]
