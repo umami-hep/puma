@@ -1,9 +1,6 @@
 name: docker_build
 
-on:
-  push:
-    branches:
-      - 'jobirk-docker-build'
+on: [push]
         
 env:
   GITLAB_CONTAINER_REGISTRY: gitlab-registry.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images
@@ -33,11 +30,13 @@ jobs:
           docker push ${GITLAB_CONTAINER_REGISTRY}/puma:${{  github.ref_name  }}
 
       - name: Build and push slim image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/jobirk-docker-build'
         run: |
           docker build -f docker/Dockerfile --tag ${GITLAB_CONTAINER_REGISTRY}/puma:test .
           docker push ${GITLAB_CONTAINER_REGISTRY}/puma:test
 
       - name: Build and push dev image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/jobirk-docker-build'
         run: |
           docker build -f docker/Dockerfile_dev --tag ${GITLAB_CONTAINER_REGISTRY}/puma:test-dev .
           docker push ${GITLAB_CONTAINER_REGISTRY}/puma:test-dev
