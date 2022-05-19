@@ -37,6 +37,7 @@ jobs:
           docker push ${GITLAB_CONTAINER_REGISTRY}/puma:test-dev
   
   build_release_image:
+    # Build an extra image for tagged commits
     runs-on: ubuntu-latest
     if: startsWith(github.event.ref, 'refs/tags')
     steps:
@@ -54,7 +55,6 @@ jobs:
         run: docker login gitlab-registry.cern.ch -u ${{ secrets.GITLAB_USERNAME }} -p ${{ secrets.GITLAB_TOKEN }}
 
       - name: Build and push release image
-        # Build an extra image for tagged commits
         run: |
           docker build -f docker/Dockerfile --tag ${GITLAB_CONTAINER_REGISTRY}/puma:${{  github.ref_name  }} .
           docker push ${GITLAB_CONTAINER_REGISTRY}/puma:${{  github.ref_name  }}
