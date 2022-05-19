@@ -23,7 +23,7 @@ jobs:
         run: docker login gitlab-registry.cern.ch -u ${{ secrets.GITLAB_USERNAME }} -p ${{ secrets.GITLAB_TOKEN }}
 
       - name: Build slim image
-        run: docker build -f docker/Dockerfile -t gitlab-registry.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images/puma:test .
+        run: docker buildx build -f docker/Dockerfile -t gitlab-registry.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images/puma:test .
           
       - name: Push image to GitLab
         run: docker push gitlab-registry.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images/puma:test
