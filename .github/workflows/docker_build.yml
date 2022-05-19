@@ -8,8 +8,7 @@ env:
 jobs:
   build_latest:
     runs-on: ubuntu-latest
-    # TODO: change all "jobirk-docker-buid" -> "main" before merging
-    if: github.ref == 'refs/heads/jobirk-docker-build'
+    if: github.ref == 'refs/heads/main'
     steps:
 
       - name: Checkout
