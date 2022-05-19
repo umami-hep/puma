@@ -21,8 +21,6 @@ jobs:
       - name: Login to GitLab container registry
         run: docker login gitlab-registry.cern.ch -u ${{ secrets.GITLAB_USERNAME }} -p ${{ secrets.GITLAB_TOKEN }}
           
-      - run: ls -l
-
       - name: Build and push slim image
         if: github.ref == 'refs/heads/jobirk-docker-build'
         run: |
