@@ -15,7 +15,7 @@ set_log_level(logger, "DEBUG")
 
 
 class eff_err_TestCase(unittest.TestCase):
-    """Test class for the umami.metrics functions."""
+    """Test class for the puma.metrics functions."""
 
     def test_zero_N_case(self):
         """Test eff_err function."""
@@ -39,7 +39,7 @@ class eff_err_TestCase(unittest.TestCase):
 
 
 class rej_err_TestCase(unittest.TestCase):
-    """Test class for the umami.metrics functions."""
+    """Test class for the puma.metrics functions."""
 
     def setUp(self):
         self.array = np.array([[1, 2, 3], [4, 5, 6]])
