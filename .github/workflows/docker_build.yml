@@ -1,4 +1,4 @@
-name: docker_build
+name: Docker build
 
 on: [push]
         

@@ -7,6 +7,7 @@
 ![Testing workflow](https://github.com/umami-hep/puma/actions/workflows/testing.yml/badge.svg)
 ![Linting workflow](https://github.com/umami-hep/puma/actions/workflows/linting.yml/badge.svg)
 ![Pages workflow](https://github.com/umami-hep/puma/actions/workflows/pages.yml/badge.svg)
+![Docker build workflow](https://github.com/umami-hep/puma/actions/workflows/docker_build.yml/badge.svg)
 
 The Python package `puma` provides a plotting API for commonly used plots in flavour tagging.
 
