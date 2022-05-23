@@ -18,8 +18,7 @@ MARKER_X = 40
 MARKER_Y = 40
 
 # You can give several plotting options to the plot itself
-# TODO Remove the n_ratio_panels here if the default value is 0
-kwargs = {"n_ratio_panels": 0}
+kwargs = {"xlabel": "Rejection 1", "ylabel": "Rejection 2"}
 
 # Now init a fraction scan plot
 frac_plot = FractionScanPlot(**kwargs)
@@ -53,10 +52,6 @@ frac_plot.add(
     ),
     is_marker=True,
 )
-
-# Adding labels
-frac_plot.xlabel = "Test_x_label"
-frac_plot.ylabel = "Test_y_label"
 
 # Draw and save the plot
 frac_plot.draw()
