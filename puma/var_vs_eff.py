@@ -682,7 +682,7 @@ class VarVsEffPlot(PlotBase):
         if self.n_ratio_panels == 1:
             self.plot_ratios()
         self.set_title()
-        self.set_logy()
+        self.set_log()
         self.set_y_lim()
         self.set_xlabel()
         self.set_tick_params()

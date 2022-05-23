@@ -87,6 +87,8 @@ class PlotObject:
     y_scale : float, optional
         Scaling up the y axis, e.g. to fit the ATLAS Tag. Applied if ymax not defined,
         by default 1.3
+    logx: bool, optional
+        Set the log of x-axis, by default False
     logy : bool, optional
         Set log of y-axis of main panel, by default True
     xlabel : str, optional
@@ -153,6 +155,7 @@ class PlotObject:
     ymin_ratio_2: float = None
     ymax_ratio_2: float = None
     y_scale: float = 1.3
+    logx: bool = False
     logy: bool = True
     xlabel: str = None
     ylabel: str = None
@@ -397,21 +400,38 @@ class PlotBase(PlotObject):
         """
         self.axis_top.set_title(self.title if title is None else title, **kwargs)
 
-    def set_logy(self, force: bool = False):
-        """Set log scale of y-axis of main panel.
+    def set_log(self, force: bool = False):
+        """Set log scale of the axes. For the y-axis, only the main panel is
+        set. For the x-axes (also from the ratio subpanels), all are changed.
 
         Parameters
         ----------
         force : bool, optional
-            Forcing logy even if class variable is False, by default False
+            Forcing log even if class variable is False, by default False
         """
-        if not self.logy and not force:
-            return
-        if not self.logy:
-            logger.warning("Setting log of y-axis but `logy` flag was set to False.")
-        self.axis_top.set_yscale("log")
-        ymin, ymax = self.axis_top.get_ylim()
-        self.y_scale = ymin * ((ymax / ymin) ** self.y_scale) / ymax
+
+        if self.logx or force:
+            if not self.logx and force:
+                logger.warning(
+                    "Setting log of x-axis but `logx` flag was set to False."
+                )
+
+            # Set log scale for all plots
+            self.axis_top.set_xscale("log")
+            if self.axis_ratio_1:
+                self.axis_ratio_1.set_xscale("log")
+            if self.axis_ratio_2:
+                self.axis_ratio_2.set_xscale("log")
+
+        if self.logy or force:
+            if not self.logy and force:
+                logger.warning(
+                    "Setting log of y-axis but `logy` flag was set to False."
+                )
+
+            self.axis_top.set_yscale("log")
+            ymin, ymax = self.axis_top.get_ylim()
+            self.y_scale = ymin * ((ymax / ymin) ** self.y_scale) / ymax
 
     def set_y_lim(self):
         """Set limits of y-axis."""
@@ -693,7 +713,7 @@ class PlotBase(PlotObject):
     def initialise_plot(self):
         """Calls other methods which are usually used when plotting"""
         self.set_title()
-        self.set_logy()
+        self.set_log()
         self.set_y_lim()
         self.set_xlabel()
         self.set_ylabel(self.axis_top)

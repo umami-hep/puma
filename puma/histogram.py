@@ -677,7 +677,7 @@ class HistogramPlot(PlotBase):
                 self.bins[0] if self.xmin is None else self.xmin,
                 self.bins[-1] if self.xmax is None else self.xmax,
             )
-            self.set_logy()
+            self.set_log()
             self.set_y_lim()
             self.set_xlabel()
             self.set_tick_params()
