@@ -411,7 +411,7 @@ class PlotBase(PlotObject):
         """
 
         if self.logx or force:
-            if not self.logx and force:
+            if not self.logx:
                 logger.warning(
                     "Setting log of x-axis but `logx` flag was set to False."
                 )
@@ -424,7 +424,7 @@ class PlotBase(PlotObject):
                 self.axis_ratio_2.set_xscale("log")
 
         if self.logy or force:
-            if not self.logy and force:
+            if not self.logy:
                 logger.warning(
                     "Setting log of y-axis but `logy` flag was set to False."
                 )
