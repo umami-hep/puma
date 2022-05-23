@@ -557,7 +557,7 @@ class PlotBase(PlotObject):
         plot_name : str
             File name of the plot
         transparent : bool, optional
-            If plot transparent, by default True
+            If plot transparent, by default False
         dpi : int, optional
             DPI for plotting, by default 400
         **kwargs : kwargs
