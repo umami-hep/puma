@@ -70,5 +70,7 @@ In addition to the minimal requirements that are required to use `puma`, the
 `puma:latest-dev` image has the `requirements.txt` from the `puma` repo installed as
 well.
 This means that packages like `pytest`, `black`, `pylint`, etc. are installed as well.
+However, note that `puma` itself is not installed in that image such that the dev-version
+on your machine can be used/tested.
 
 **The images are automatically updated via GitHub and pushed to this [repository registry](https://gitlab.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images/container_registry).**
