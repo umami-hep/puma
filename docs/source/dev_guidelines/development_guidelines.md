@@ -19,7 +19,8 @@ In addition to the pure style-component of checking the code with `black`, we us
 `flake8` and `pylint` to check the code for bad coding practices. Make sure to run them before
 you commit your code.
 
-For yaml file
+In addition to that, we require docstrings in the `numpy`-style, which are checked in
+the pipeline by `darglint`.
 
 ## Pre-commit hook
 
