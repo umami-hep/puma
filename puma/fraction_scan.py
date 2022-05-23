@@ -254,7 +254,7 @@ class FractionScanPlot(PlotBase):
         self.make_legend(plt_handles, ax_mpl=self.axis_top)
 
         self.set_title()
-        self.set_logy()
+        self.set_log()
         self.set_y_lim()
         self.set_xlabel()
         self.set_tick_params()
