@@ -60,3 +60,15 @@ On a machine/cluster with singularity installed:
 ```bash
 singularity shell -B $PWD docker://gitlab-registry.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images/puma:latest
 ```
+### Extended image for development
+
+*For development, just replace the tag of the image*:
+
+`latest` -> `latest-dev`
+
+In addition to the minimal requirements that are required to use `puma`, the
+`puma:latest-dev` image has the `requirements.txt` from the `puma` repo installed as
+well.
+This means that packages like `pytest`, `black`, `pylint`, etc. are installed as well.
+
+**The images are automatically updated via GitHub and pushed to this [repository registry](https://gitlab.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images/container_registry).**
