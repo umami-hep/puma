@@ -6,7 +6,7 @@ import pygit2
 
 versions = [
     "main",
-    # "v0.1.0",
+    "v0.1.0",
 ]
 
 initial_branch = pygit2.Repository('.').head.shorthand
@@ -14,7 +14,7 @@ initial_branch = pygit2.Repository('.').head.shorthand
 for version in versions:
     # build the documentation
     print(f"Building docs for branch/tag {version}")
-    command = f"git checkout {version} "  # && sphinx-build -b html source _build/html/{version}"
+    command = f"git checkout {version}  && sphinx-build -b html source _build/html/{version}"
     run(command, shell=True, check=True)
 
 run(f"git checkout {initial_branch}", shell=True, check=True)
