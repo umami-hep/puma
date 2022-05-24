@@ -11,7 +11,8 @@ import pygit2  # pylint: disable=E0401
 with open("docs/source/_static/switcher.json", "r") as f:  # pylint: disable=W1514
     version_switcher = json.load(f)
 
-initial_branch = pygit2.Repository(".").head.shorthand
+# initial_branch = pygit2.Repository(".").head.shorthand
+initial_branch = "jobirk-docs-add-version-button"
 copy("docs/source/conf.py", "./conf_latest.py")
 
 for entry in version_switcher:
