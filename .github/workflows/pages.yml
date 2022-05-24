@@ -10,11 +10,6 @@ jobs:
         with:
           fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
 
-      - name: librep # render placeholders with librep
-        run: |
-          pip install librep
-          librep --ref_dir $PWD --input "docs/**/*.md" --no_backup
-
       - name: Build Sphinx documentation
         run: bash docs/build_docs.sh
 
