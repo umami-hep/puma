@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath("../../puma"))
 # -- Project information -----------------------------------------------------
 
 project = "puma"
-copyright = "2022, puma developers"
+copyright = "2022 test, puma developers"
 author = "puma developers"
 
 # The full version, including alpha/beta/rc tags
