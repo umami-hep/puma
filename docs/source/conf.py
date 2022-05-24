@@ -55,11 +55,17 @@ html_sidebars = {
     ],
 }
 
+# -- sphinx-multiversion settings -------------------------------------------
+# define which tags are used in sphinx-multiversion
+smv_tag_whitelist = r"^.*$"  # use all tagged commits
+# define which branches are used in sphinx-multiversion
+smv_branch_whitelist = r"^(main)"  # only use main branch
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+html_static_path = ['_static']
 
 default_role = "code"
 
@@ -68,6 +74,9 @@ default_role = "code"
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
+# TODO: define url of the json dict that stores the different docs version links
+# json_url = "https://umami-hep.github.io/puma/main/_static/switcher.json"
+
 html_theme = "pydata_sphinx_theme"
 html_theme_options = {
     "icon_links": [
@@ -78,6 +87,12 @@ html_theme_options = {
             "type": "fontawesome",
         },
     ],
+    # TODO: implement this
+    # "switcher": {
+    #     "json_url": json_url,
+    #     "version_match": "latest",
+    # },
+    # "navbar_end": ["version-switcher", "navbar-icon-links"]
 }
 
 # The name of the Pygments (syntax highlighting) style to use.
