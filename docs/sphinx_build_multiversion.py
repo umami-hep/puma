@@ -25,7 +25,7 @@ for entry in version_switcher:
     copy("conf_latest.py", "docs/source/conf.py")
     
     # run librep
-    run("librep --ref_dir $PWD --input 'docs/**/*.md' --no_backup")
+    run("librep --ref_dir $PWD --input 'docs/**/*.md' --no_backup", shell=True, check=True)
     
     # build the docs for this version
     run(f"sphinx-build -b html docs/source docs/_build/html/{entry['version']}", shell=True, check=True)
