@@ -60,6 +60,7 @@ html_sidebars = {
 smv_tag_whitelist = r"^.*$"  # use all tagged commits
 # define which branches are used in sphinx-multiversion
 smv_branch_whitelist = r"^(main)"  # only use main branch
+smv_remote_whitelist = r"^(main)"  # only use main branch
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
