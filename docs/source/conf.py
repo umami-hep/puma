@@ -25,7 +25,6 @@ author = "puma developers"
 # The full version, including alpha/beta/rc tags
 release = ""
 
-
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -40,20 +39,12 @@ extensions = [
     "sphinx_multiversion",
 ]
 
-# Configuration of sphinx-autoapi extension
+# -- of sphinx-autoapi extension --------------------------------------------
 # https://sphinx-autoapi.readthedocs.io/en/latest/reference/config.html#
 autoapi_type = "python"
 autoapi_dirs = ["../../puma"]
 autoapi_python_use_implicit_namespaces = True
 autoapi_python_class_content = "both"
-
-# Add any paths that contain templates here, relative to this directory.
-templates_path = ["_templates"]
-html_sidebars = {
-    "**": [
-        "versioning.html",
-    ],
-}
 
 # -- sphinx-multiversion settings -------------------------------------------
 # define which tags are used in sphinx-multiversion
@@ -62,6 +53,7 @@ smv_tag_whitelist = r"^v\d+\.\d+\.\d+$"  # only tags of the form vX.X.X
 # using 'all' local branches (in the pipeline this is only the branch on which
 # the pipeline runs)
 smv_branch_whitelist = r"^.*$"
+# smv_branch_whitelist = r"^(main)"  # for dev use this (or the branch you want)
 smv_remote_whitelist = None
 
 
@@ -70,6 +62,8 @@ smv_remote_whitelist = None
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 html_static_path = ["_static"]
+# Add any paths that contain templates here, relative to this directory.
+templates_path = ["_templates"]
 
 default_role = "code"
 
@@ -78,8 +72,7 @@ default_role = "code"
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-# TODO: define url of the json dict that stores the different docs version links
-# json_url = "https://umami-hep.github.io/puma/main/_static/switcher.json"
+json_url = "https://umami-hep.github.io/puma/main/_static/switcher.json"
 
 html_theme = "pydata_sphinx_theme"
 html_theme_options = {
@@ -91,12 +84,11 @@ html_theme_options = {
             "type": "fontawesome",
         },
     ],
-    # TODO: implement this
-    # "switcher": {
-    #     "json_url": json_url,
-    #     "version_match": "latest",
-    # },
-    # "navbar_end": ["version-switcher", "navbar-icon-links"]
+    "switcher": {
+        "json_url": json_url,
+        "version_match": "latest",
+    },
+    "navbar_end": ["version-switcher", "navbar-icon-links"],
 }
 
 # The name of the Pygments (syntax highlighting) style to use.
