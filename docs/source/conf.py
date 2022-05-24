@@ -36,7 +36,6 @@ extensions = [
     "myst_parser",
     "sphinx.ext.napoleon",
     "autoapi.extension",
-    "sphinx_multiversion",
 ]
 
 # -- sphinx-autoapi extension -----------------------------------------------
@@ -45,17 +44,6 @@ autoapi_type = "python"
 autoapi_dirs = ["../../puma"]
 autoapi_python_use_implicit_namespaces = True
 autoapi_python_class_content = "both"
-
-# -- sphinx-multiversion extension -------------------------------------------
-# define which tags are used in sphinx-multiversion
-smv_tag_whitelist = r"^v\d+\.\d+\.\d+$"  # only tags of the form vX.X.X
-# define which branches are used in sphinx-multiversion
-# using 'all' local branches (in the pipeline this is only the branch on which
-# the pipeline runs)
-smv_branch_whitelist = r"^.*$"
-# smv_branch_whitelist = r"^(main)"  # for dev use this (or the branch you want)
-smv_remote_whitelist = None
-
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
