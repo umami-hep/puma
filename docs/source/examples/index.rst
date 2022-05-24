@@ -11,6 +11,7 @@ can be used as a starting point for your plotting scripts.
    histograms.md
    rocs.md
    var_vs_eff.md
+   fraction_scan.md
    pie_charts.md
    
 
