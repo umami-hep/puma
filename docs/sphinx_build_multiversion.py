@@ -9,7 +9,7 @@ versions = [
 ]
 
 proc = run("git rev-parse --abbrev-ref HEAD", shell=True, check=True, capture_output=True)
-initial_branch = proc.stdout
+initial_branch = proc.stdout.splitlines()[0]
 
 for version in versions:
     # build the documentation
