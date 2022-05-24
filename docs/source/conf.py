@@ -1,4 +1,3 @@
-# Test
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -20,7 +19,7 @@ sys.path.insert(0, os.path.abspath("../../puma"))
 # -- Project information -----------------------------------------------------
 
 project = "puma"
-copyright = "2022 test, puma developers"
+copyright = "2022, puma developers"
 author = "puma developers"
 
 # The full version, including alpha/beta/rc tags
