@@ -1,11 +1,11 @@
-## Docker images
+# Docker images
 
 The Docker images are built on GitHub and contain the latest version from the `main` branch.
 
 The container registry with all available tags can be found
 [here](https://gitlab.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images/container_registry/13727).
 
-### Extended image for development
+## Extended image for development
 
 _For development, you should use the `latest-dev` tagged image_:
 

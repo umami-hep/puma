@@ -37,6 +37,7 @@ extensions = [
     "myst_parser",
     "sphinx.ext.napoleon",
     "autoapi.extension",
+    "sphinx_multiversion",
 ]
 
 # Configuration of sphinx-autoapi extension
@@ -48,11 +49,27 @@ autoapi_python_class_content = "both"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
+html_sidebars = {
+    "**": [
+        "versioning.html",
+    ],
+}
+
+# -- sphinx-multiversion settings -------------------------------------------
+# define which tags are used in sphinx-multiversion
+smv_tag_whitelist = r"^v\d+\.\d+\.\d+$"  # only tags of the form vX.X.X
+# define which branches are used in sphinx-multiversion
+# using 'all' local branches (in the pipeline this is only the branch on which
+# the pipeline runs)
+smv_branch_whitelist = r"^.*$"
+smv_remote_whitelist = None
+
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+html_static_path = ["_static"]
 
 default_role = "code"
 
@@ -61,6 +78,9 @@ default_role = "code"
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
+# TODO: define url of the json dict that stores the different docs version links
+# json_url = "https://umami-hep.github.io/puma/main/_static/switcher.json"
+
 html_theme = "pydata_sphinx_theme"
 html_theme_options = {
     "icon_links": [
@@ -71,6 +91,12 @@ html_theme_options = {
             "type": "fontawesome",
         },
     ],
+    # TODO: implement this
+    # "switcher": {
+    #     "json_url": json_url,
+    #     "version_match": "latest",
+    # },
+    # "navbar_end": ["version-switcher", "navbar-icon-links"]
 }
 
 # The name of the Pygments (syntax highlighting) style to use.
