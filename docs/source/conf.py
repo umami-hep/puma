@@ -39,14 +39,14 @@ extensions = [
     "sphinx_multiversion",
 ]
 
-# -- of sphinx-autoapi extension --------------------------------------------
+# -- sphinx-autoapi extension -----------------------------------------------
 # https://sphinx-autoapi.readthedocs.io/en/latest/reference/config.html#
 autoapi_type = "python"
 autoapi_dirs = ["../../puma"]
 autoapi_python_use_implicit_namespaces = True
 autoapi_python_class_content = "both"
 
-# -- sphinx-multiversion settings -------------------------------------------
+# -- sphinx-multiversion extension -------------------------------------------
 # define which tags are used in sphinx-multiversion
 smv_tag_whitelist = r"^v\d+\.\d+\.\d+$"  # only tags of the form vX.X.X
 # define which branches are used in sphinx-multiversion
