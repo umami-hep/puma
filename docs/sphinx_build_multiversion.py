@@ -4,15 +4,16 @@ the sphinx docs"""
 import json
 import os
 from shutil import copy
-from subprocess import run, Popen, PIPE
+from subprocess import run
 
 with open("docs/source/_static/switcher.json", "r") as f:  # pylint: disable=W1514
     version_switcher = json.load(f)
 
 # get currently active branch
 command = "git rev-parse --abbrev-ref HEAD".split()
-branch = Popen(command, stdout=PIPE).stdout.read()  # pylint: disable=R1732
-initial_branch = branch.strip().decode("utf-8")
+initial_branch = (
+    run(command, capture_output=True, check=True).stdout.strip().decode("utf-8")
+)
 
 copy("docs/source/conf.py", "./conf_latest.py")
 
