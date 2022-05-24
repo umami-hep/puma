@@ -9,8 +9,8 @@ jobs:
         uses: actions/checkout@master
         with:
           fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
-      - run: git branch
       - run: git fetch
+      - run: git branch
 
       - name: librep # render placeholders with librep
         run: |
