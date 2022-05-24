@@ -3,7 +3,10 @@ Develop
 
 If you find a bug, have a feature request or similar, feel free to submit an issue
 `here
-<https://github.com/umami-hep/puma/issues/new>`_.
+<https://github.com/umami-hep/puma/issues/new>`_ where further steps can be discussed
+and assigned to somebody who takes care of the necessary steps.
+
+Pull requests are highly welcome!
 
 In this part of the documentation you find different resources that you might find
 helpful when working on the `puma` source code.
