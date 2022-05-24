@@ -2,14 +2,14 @@
 the sphinx docs"""
 
 from subprocess import run, PIPE
+import pygit2
 
 versions = [
-    # "main",
-    "v0.1.0",
+    "main",
+    # "v0.1.0",
 ]
 
-proc = run("git rev-parse --abbrev-ref HEAD", shell=True, check=True, capture_output=True)
-initial_branch = proc.stdout.splitlines()[0]
+initial_branch = pygit2.Repository('.').head.shorthand
 
 for version in versions:
     # build the documentation

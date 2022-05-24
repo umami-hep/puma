@@ -1,5 +1,6 @@
 myst-parser~=0.17.0
 pydata-sphinx-theme
+pygit2
 sphinx-autoapi
 sphinx-multiversion
 Sphinx~=4.2.0
