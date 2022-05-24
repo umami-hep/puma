@@ -8,7 +8,7 @@ pip install -r docs/requirements.txt
 
 # build the documentation
 rm -rf docs/_*
-python sphinx_build_multiversion.py
+python docs/sphinx_build_multiversion.py
 # copy the redirect_index.html that redirects to the main/latest version
 cp docs/source/redirect_index.html docs/_build/html/index.html
 
