@@ -7,11 +7,11 @@ from shutil import copy, move, copytree
 import os
 import json
 
-with open("source/_static/switcher.json", "r") as f:
+with open("docs/source/_static/switcher.json", "r") as f:
     version_switcher = json.load(f)
 
 initial_branch = pygit2.Repository('.').head.shorthand
-copy("source/conf.py", "./conf_latest.py")
+copy("docs/source/conf.py", "./conf_latest.py")
 
 for entry in version_switcher:
     # build the documentation
@@ -19,13 +19,13 @@ for entry in version_switcher:
     
     # checkout the version/tag and obtain latest conf.py
     run(f"git checkout {entry['version']}", shell=True, check=True)
-    if os.path.isfile("source/conf.py"):
+    if os.path.isfile("docs/source/conf.py"):
         print("removing the old conf.py file")
-        os.remove("source/conf.py")
-    copy("conf_latest.py", "source/conf.py")
+        os.remove("docs/source/conf.py")
+    copy("conf_latest.py", "docs/source/conf.py")
     
     # build the docs for this version
-    run(f"sphinx-build -b html source _build/html/{entry['version']}", shell=True, check=True)
+    run(f"sphinx-build -b html docs/source docs/_build/html/{entry['version']}", shell=True, check=True)
     run("git stash", shell=True, check=True)
 
 # checkout initial branch for following steps
