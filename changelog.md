@@ -2,6 +2,7 @@
 
 ### Latest
 
+- Adding version support in docs [#41](https://github.com/umami-hep/puma/pull/42)
 - Adding development guidelines to the docs [#41](https://github.com/umami-hep/puma/pull/41)
 - Adding logx [#40](https://github.com/umami-hep/puma/pull/40)
 - Adding example page for the fraction scan plots [#38](https://github.com/umami-hep/puma/pull/38)
