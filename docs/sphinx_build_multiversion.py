@@ -1,13 +1,14 @@
 """Script to loop over a number of git branches/tags, check them out and build the
 the sphinx docs"""
 
-from subprocess import run
-import pygit2
-from shutil import copy, move, copytree
-import os
 import json
+import os
+from shutil import copy
+from subprocess import run
 
-with open("docs/source/_static/switcher.json", "r") as f:
+import pygit2  # pylint: disable=E0401
+
+with open("docs/source/_static/switcher.json", "r") as f:  # pylint: disable=W1514
     version_switcher = json.load(f)
 
 initial_branch = pygit2.Repository(".").head.shorthand
