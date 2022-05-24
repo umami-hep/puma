@@ -57,7 +57,7 @@ html_sidebars = {
 
 # -- sphinx-multiversion settings -------------------------------------------
 # define which tags are used in sphinx-multiversion
-smv_tag_whitelist = r"^.*$"  # use all tagged commits
+smv_tag_whitelist = r"^v\d+\.\d+\.\d"  # only tags of the form vX.X.X
 # define which branches are used in sphinx-multiversion
 smv_branch_whitelist = r"^(main)"  # only use main branch
 smv_remote_whitelist = r"^(origin/main)"  # only use origin/main branch
