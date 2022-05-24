@@ -50,8 +50,8 @@ autoapi_python_class_content = "both"
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 html_sidebars = {
-    '**': [
-        'versioning.html',
+    "**": [
+        "versioning.html",
     ],
 }
 
