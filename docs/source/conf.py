@@ -12,6 +12,7 @@
 
 import os
 import sys
+import puma
 
 sys.path.insert(0, os.path.abspath("../../puma"))
 
@@ -61,6 +62,11 @@ default_role = "code"
 # a list of builtin themes.
 #
 json_url = "https://umami-hep.github.io/puma/main/_static/switcher.json"
+release = puma.__version__
+if "dev" in release:
+    version_match = "main"
+else:
+    version_match = f"v{release}"
 
 html_theme = "pydata_sphinx_theme"
 html_theme_options = {
@@ -74,7 +80,7 @@ html_theme_options = {
     ],
     "switcher": {
         "json_url": json_url,
-        "version_match": "latest",
+        "version_match": version_match,
     },
     "navbar_end": ["version-switcher", "navbar-icon-links"],
 }
