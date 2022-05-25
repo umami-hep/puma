@@ -1,8 +1,9 @@
 """Script to loop over a number of git branches/tags, check them out and build the
 the sphinx docs.
 The branches/tags for which the docs are generated are defined in the file
-docs/source/_static/switcher.json (the version from the main branch, since the
-file uses the url on GitHub.
+"docs/source/_static/switcher.json" (note that the docs do not use the local version
+by default, but instead the version from the latest commit on GH-Pages. This is due to
+the fact that this button prefers urls instead of local filenames).
 
 This script has to be executed in the root of the repository!
 """
