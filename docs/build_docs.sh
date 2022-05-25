@@ -1,12 +1,13 @@
 #!/bin/bash
 
-# install requirements and puma
-# pip install .
+# install requirements
 pip install -r requirements.txt
-export PYTHONPATH=$PWD:$PYTHONPATH
 
-# install requirements for sphinx
+# install docs requirements
 pip install -r docs/requirements.txt
+
+# add current working directory to PYTHONPATH such that package is found
+export PYTHONPATH=$PWD:$PYTHONPATH
 
 # build the documentation
 rm -rf docs/_*
