@@ -1,5 +1,5 @@
+librep
 myst-parser~=0.17.0
 pydata-sphinx-theme
 sphinx-autoapi
-sphinx-multiversion
 Sphinx~=4.2.0
