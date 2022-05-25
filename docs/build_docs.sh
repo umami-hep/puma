@@ -3,6 +3,7 @@
 # install requirements and puma
 # pip install .
 pip install -r requirements.txt
+export PYTHONPATH=$PWD:$PYTHONPATH
 
 # install requirements for sphinx
 pip install -r docs/requirements.txt
