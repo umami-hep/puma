@@ -73,6 +73,9 @@ def main():
     # checkout initial branch for following steps
     run(f"git checkout {initial_branch}", shell=True, check=True)
 
+    # remove temporary copy of latest conf.py
+    os.remove("./conf_latest.py")
+
 
 if __name__ == "__main__":
     main()
