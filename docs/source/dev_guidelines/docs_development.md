@@ -28,8 +28,6 @@ it is built for each tag.
 Let's say we want to update `puma` from version `0.1.0dev` to `0.1.1`. This means that
 the version switcher in the docs currently looks like this:
 
-<img alt=../assets/version_switcher_update_1.png src=../assets/version_switcher_update_1.png width=200>
-
 ![](../assets/version_switcher_update_1.png)
 
 In order to update the `puma` version in the docs correctly, please follow the steps
@@ -40,7 +38,7 @@ below (adapting the version numbers to your case).
     any more - as a result of that, the switcher shows the version number instead of
     "latest", even if you click on "latest"
 
-<img src=../assets/version_switcher_update_2.png width=200>
+![](../assets/version_switcher_update_2.png)
 
 2.  Create release / push tag `v0.1.0`.
 3.  Create another PR which adds a switcher entry with the new tag (this has to be
@@ -50,6 +48,6 @@ below (adapting the version numbers to your case).
     `0.1.1` → `0.1.1dev`. The version switcher should now correctly display both the
     latest version and the new tag.
 
-<img src=../assets/version_switcher_update_edit.png width=400>
+![](../assets/version_switcher_update_edit.png)
 
-<img src=../assets/version_switcher_update_3.png width=200>
+![](../assets/version_switcher_update_3.png)
