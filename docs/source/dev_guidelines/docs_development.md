@@ -28,7 +28,7 @@ it is built for each tag.
 Let's say we want to update `puma` from version `0.1.0dev` to `0.1.1`. This means that
 the version switcher in the docs currently looks like this:
 
-<img src=../assets/version_switcher_update_1.png width=200>
+<img alt=../assets/version_switcher_update_1.png src=../assets/version_switcher_update_1.png width=200>
 
 ![](../assets/version_switcher_update_1.png)
 
