@@ -30,6 +30,8 @@ the version switcher in the docs currently looks like this:
 
 <img src=../assets/version_switcher_update_1.png width=200>
 
+![](../assets/version_switcher_update_1.png)
+
 In order to update the `puma` version in the docs correctly, please follow the steps
 below (adapting the version numbers to your case).
 
