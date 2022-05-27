@@ -13,25 +13,20 @@ import os
 from shutil import copy
 from subprocess import run
 
-with open("docs/source/_static/switcher.json", "r") as f:  # pylint: disable=W1514
-    version_switcher = json.load(f)
 
-# get currently active branch
-command = "git rev-parse --abbrev-ref HEAD".split()
-initial_branch = (
-    run(command, capture_output=True, check=True).stdout.strip().decode("utf-8")
-)
+def build_docs_version(version):
+    """Builds the docs for a specific version. The latest conf.py is used no matter
+    if it differs from the version from back then.
 
-copy("docs/source/conf.py", "./conf_latest.py")
-
-for entry in version_switcher:
-    # build the documentation
-    print(f"Building docs for branch/tag {entry['version']}")
-
+    Parameters
+    ----------
+    version : str
+        Branch or tag name for which the docs are built
+    """
     # checkout the version/tag and obtain latest conf.py
-    run(f"git checkout {entry['version']}", shell=True, check=True)
+    run(f"git checkout {version}", shell=True, check=True)
     if os.path.isfile("docs/source/conf.py"):
-        print("removing the old conf.py file")
+        # removing the old conf.py file to make room for the latest one
         os.remove("docs/source/conf.py")
     copy("conf_latest.py", "docs/source/conf.py")
 
@@ -44,11 +39,40 @@ for entry in version_switcher:
 
     # build the docs for this version
     run(
-        f"sphinx-build -b html docs/source docs/_build/html/{entry['version']}",
+        f"sphinx-build -b html docs/source docs/_build/html/{version}",
         shell=True,
         check=True,
     )
     run("git stash", shell=True, check=True)
 
-# checkout initial branch for following steps
-run(f"git checkout {initial_branch}", shell=True, check=True)
+
+def main():
+    """main function that is executed when the script is called."""
+    with open("docs/source/_static/switcher.json", "r") as f:  # pylint: disable=W1514
+        version_switcher = json.load(f)
+
+    # get currently active branch
+    command = "git rev-parse --abbrev-ref HEAD".split()
+    initial_branch = (
+        run(command, capture_output=True, check=True).stdout.strip().decode("utf-8")
+    )
+
+    copy("docs/source/conf.py", "./conf_latest.py")
+
+    # build docs for main branch no matter what versions are present in the switcher
+    # (this is kind of a safety measure to make sure the main branch docs are built
+    # even if the version switcher is messed up)
+    build_docs_version("main")
+
+    # build docs for the version that are listed in the version switcher
+    for entry in version_switcher:
+        if entry["version"] == "main":
+            continue
+        build_docs_version(entry["version"])
+
+    # checkout initial branch for following steps
+    run(f"git checkout {initial_branch}", shell=True, check=True)
+
+
+if __name__ == "__main__":
+    main()
