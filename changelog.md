@@ -1,5 +1,7 @@
 # Changelog
 
+### [Latest]
+
 ### [v0.1.1]
 
 - Adding documentation for updating the version switcher in the docs [#49](https://github.com/umami-hep/puma/pull/49)
