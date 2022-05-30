@@ -17,6 +17,8 @@ from subprocess import run
 def build_docs_version(version):
     """Builds the docs for a specific version. The latest conf.py is used no matter
     if it differs from the version from back then.
+    This function expects the file "conf_latest.py" to exist in the current working
+    directory.
 
     Parameters
     ----------
@@ -57,6 +59,8 @@ def main():
         run(command, capture_output=True, check=True).stdout.strip().decode("utf-8")
     )
 
+    # copy the latest conf.py, since we want to use that configuration for all the
+    # docs versions that are built
     copy("docs/source/conf.py", "./conf_latest.py")
 
     # build docs for main branch no matter what versions are present in the switcher
@@ -64,7 +68,7 @@ def main():
     # even if the version switcher is messed up)
     build_docs_version("main")
 
-    # build docs for the version that are listed in the version switcher
+    # build docs for the versions that are listed in the version switcher
     for entry in version_switcher:
         if entry["version"] == "main":
             continue
