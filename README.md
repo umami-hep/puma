@@ -4,9 +4,6 @@
 [![Umami docs](https://img.shields.io/badge/info-documentation-informational)](https://umami-hep.github.io/puma/)
 [![PyPI version](https://badge.fury.io/py/puma-hep.svg)](https://badge.fury.io/py/puma-hep)
 
-<!-- Pytest Coverage Coment:Begin -->
-<!-- Pytest Coverage Comment:End -->
-
 ![Testing workflow](https://github.com/umami-hep/puma/actions/workflows/testing.yml/badge.svg)
 ![Linting workflow](https://github.com/umami-hep/puma/actions/workflows/linting.yml/badge.svg)
 ![Pages workflow](https://github.com/umami-hep/puma/actions/workflows/pages.yml/badge.svg)
