@@ -1,6 +1,7 @@
 # Changelog
 
 ### [Latest]
+- Fix that colour and legend label can be individually modified in case of flavoured histogram [#57](https://github.com/umami-hep/puma/pull/57)
 
 ### [v0.1.1]
 
