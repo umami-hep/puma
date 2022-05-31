@@ -14,11 +14,11 @@ jobs:
       - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
       - run: pip install .
       - run: pip install flake8 pytest pytest-cov
-      - run: pytest -v --junitxml=pytest.xml --cov-report=term-missing:skip-covered puma/tests/
+      - run: pytest -v -s --junitxml=pytest.xml --cov-report= --cov=./ puma/tests/ | tee pytest-coverage.txt
       - name: Pytest coverage comment
         uses: MishaKav/pytest-coverage-comment@main
         with:
-          # pytest-coverage-path: ./pytest-coverage.txt
+          pytest-coverage-path: ./pytest-coverage.txt
           junitxml-path: ./pytest.xml
   example_tests:
     name: Example tests
