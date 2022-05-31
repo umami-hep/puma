@@ -72,15 +72,20 @@ class Histogram(PlotLineObject):
             kwargs["label"] if "label" in kwargs and kwargs["label"] is not None else ""
         )
         # If flavour was specified, extract configuration from global config
-        if self.colour is None and self.flavour is not None:
-            self.colour = global_config["flavour_categories"][self.flavour]["colour"]
-            logger.debug("Histogram colour was set to %s", self.colour)
-
-            self.label = (
-                f"{global_config['flavour_categories'][self.flavour]['legend_label']}"
-                f" {self.label_addition}"
-            )
-            logger.debug("Histogram label was set to %s", {self.label})
+        if self.flavour is not None:
+            # Use globally defined flavour colour if not specified
+            if self.colour is None:
+                self.colour = global_config["flavour_categories"][self.flavour][
+                    "colour"
+                ]
+                logger.debug("Histogram colour was set to %s", self.colour)
+            # Use globally defined flavour label if not specified
+            if self.label is None:
+                global_flavour_label = global_config["flavour_categories"][
+                    self.flavour
+                ]["legend_label"]
+                self.label = f"{global_flavour_label} {self.label_addition}"
+                logger.debug("Histogram label was set to %s", {self.label})
 
     def divide(self, other):
         """Calculate ratio between two class objects.
