@@ -3,6 +3,8 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Umami docs](https://img.shields.io/badge/info-documentation-informational)](https://umami-hep.github.io/puma/)
 [![PyPI version](https://badge.fury.io/py/puma-hep.svg)](https://badge.fury.io/py/puma-hep)
+<!-- Pytest Coverage Coment:Begin -->
+<!-- Pytest Coverage Comment:End -->
 
 ![Testing workflow](https://github.com/umami-hep/puma/actions/workflows/testing.yml/badge.svg)
 ![Linting workflow](https://github.com/umami-hep/puma/actions/workflows/linting.yml/badge.svg)
@@ -11,10 +13,9 @@
 
 The Python package `puma` provides a plotting API for commonly used plots in flavour tagging.
 
-|                              ROC curves                              |                                     Histogram plots                                     |                            Variable vs efficiency                             |
-| :------------------------------------------------------------------: | :-------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------: |
+|                                     ROC curves                                      |                                            Histogram plots                                             |                                    Variable vs efficiency                                    |
+| :---------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------: |
 | <img src=https://github.com/umami-hep/puma/raw/examples-material/roc.png width=200> | <img src=https://github.com/umami-hep/puma/raw/examples-material/histogram_discriminant.png width=220> | <img src=https://github.com/umami-hep/puma/raw/examples-material/pt_light_rej.png width=220> |
-
 
 ## Installation
 
@@ -23,7 +24,7 @@ using the latest code from this repository.
 
 ### Install latest release from PyPI
 
-```bash   
+```bash
 pip install puma-hep
 ```
 
@@ -32,7 +33,8 @@ install the latest code from this repo using the above command.
 If you just want to use a stable release of `puma`, this is the way to go.
 
 ### Install latest version from GitHub
-```bash   
+
+```bash
 pip install https://github.com/umami-hep/puma/archive/master.tar.gz
 ```
 
@@ -45,24 +47,28 @@ is what you want.
 
 The Docker images are built on GitHub and contain the latest version from the `main` branch.
 
-The container registry with all available tags can be found 
+The container registry with all available tags can be found
 [here](https://gitlab.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images/container_registry/13727).
 
 The `puma:latest` image is based on `python:3.8-slim` and is meant for users who want to use the latest version of `puma`. For each release, there is a corresponding tagged image.
-You can start an interactive shell in a container with your current working directory 
+You can start an interactive shell in a container with your current working directory
 mounted into the container by using one of the commands provided below.
 
 On a machine with Docker installed:
+
 ```bash
 docker run -it --rm -v $PWD:/puma_container -w /puma_container gitlab-registry.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images/puma:latest bash
 ```
+
 On a machine/cluster with singularity installed:
+
 ```bash
 singularity shell -B $PWD docker://gitlab-registry.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images/puma:latest
 ```
+
 ### Extended image for development
 
-*For development, just replace the tag of the image*:
+_For development, just replace the tag of the image_:
 
 `latest` -> `latest-dev`
 
