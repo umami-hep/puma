@@ -8,7 +8,7 @@ from puma.utils import get_good_colours, get_good_pie_colours, global_config, lo
 from puma.utils.histogram import hist_ratio, hist_w_unc
 
 
-class Histogram(PlotLineObject):
+class Histogram(PlotLineObject):  # pylint: disable=too-few-public-methods
     """
     Histogram class storing info about histogram and allows to calculate ratio w.r.t
     other histograms.
