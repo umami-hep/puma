@@ -8,7 +8,9 @@ from puma.utils import get_good_colours, get_good_pie_colours, global_config, lo
 from puma.utils.histogram import hist_ratio, hist_w_unc
 
 
-class Histogram(PlotLineObject):  # pylint: disable=too-few-public-methods
+class Histogram(
+    PlotLineObject
+):  # pylint: disable=too-few-public-methods,too-many-instance-attributes
     """
     Histogram class storing info about histogram and allows to calculate ratio w.r.t
     other histograms.
@@ -141,7 +143,7 @@ class Histogram(PlotLineObject):  # pylint: disable=too-few-public-methods
         return (ratio, ratio_unc)
 
 
-class HistogramPlot(PlotBase):
+class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
     """Histogram plot class"""
 
     def __init__(

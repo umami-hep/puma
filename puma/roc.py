@@ -184,7 +184,7 @@ class Roc(PlotLineObject):
         return self.sig_eff[self.non_zero_mask], self.bkg_rej[self.non_zero_mask]
 
 
-class RocPlot(PlotBase):
+class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
     """ROC plot class"""
 
     def __init__(self, **kwargs) -> None:
