@@ -146,7 +146,7 @@ class Histogram(
 class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
     """Histogram plot class"""
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         bins=40,
         bins_range: tuple = None,

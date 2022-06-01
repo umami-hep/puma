@@ -14,7 +14,7 @@ class Roc(PlotLineObject):
     ROC class storing info about curve and allows to calculate ratio w.r.t other roc.
     """
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         sig_eff: np.ndarray,
         bkg_rej: np.ndarray,

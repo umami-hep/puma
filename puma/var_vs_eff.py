@@ -15,7 +15,7 @@ class VarVsEff(PlotLineObject):  # pylint: disable=too-many-instance-attributes
     efficiency plots.
     """
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         x_var_sig: np.ndarray,
         disc_sig: np.ndarray,

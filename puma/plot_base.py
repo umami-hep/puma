@@ -329,7 +329,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         same_height: bool = False,
         colour: str = "#920000",
         fontsize: int = 10,
-    ):
+    ):  # pylint: disable=too-many-arguments
         """Drawing working points in plot
 
         Parameters
