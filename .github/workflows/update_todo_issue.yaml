@@ -16,7 +16,7 @@ jobs:
       - name: Get issue content
         id: get-comment-body
         run: |
-          body="test body for todo issue"
+          body="new body to see if replacement works"
           echo "::set-output name=body::$body"
         # run: |
         #   body="$(cat todo_comment_body.txt)"
