@@ -51,5 +51,8 @@ if __name__ == "__main__":
         issue_description += f"- [ ] {files} - *{msgs}*\n"
     issue_description += python_3_9_todos
     issue_description += python_3_10_todos
+    # the substitution below is necessary such that the text is understood by
+    # the github actions that posts the comment
+    # https://github.com/marketplace/actions/create-or-update-comment#setting-the-comment-body-from-a-file
     issue_description = issue_description.replace("\n", "%0A")
     print(issue_description)
