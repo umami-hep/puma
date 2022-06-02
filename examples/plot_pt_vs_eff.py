@@ -27,7 +27,7 @@ def disc_fct(arr: np.ndarray, f_c: float = 0.018) -> np.ndarray:
 
 # you can also use a lambda function
 # discs_rnnip = np.apply_along_axis(
-#     lambda a: np.log(a[2] / (0.018 * a[1] + 0.92 * a[0])),
+#     lambda a: np.log(a[2] / (0.018 * a[1] + (1 - 0.018) * a[0])),
 #     1,
 #     df[["rnnip_pu", "rnnip_pc", "rnnip_pb"]].values,
 # )
