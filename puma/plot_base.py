@@ -59,7 +59,7 @@ class PlotLineObject:  # pylint: disable=too-many-instance-attributes
 # TODO: enable `kw_only` when switching to Python 3.10
 # @dataclass(kw_only=True)
 @dataclass
-class PlotObject:
+class PlotObject:  # pylint: disable=too-many-instance-attributes
     """Data base class defining properties of a plot object.
 
     Parameters
@@ -235,7 +235,7 @@ class PlotObject:
             )
 
 
-class PlotBase(PlotObject):
+class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
     """Base class for plotting"""
 
     def __init__(self, **kwargs) -> None:
@@ -329,7 +329,7 @@ class PlotBase(PlotObject):
         same_height: bool = False,
         colour: str = "#920000",
         fontsize: int = 10,
-    ):
+    ):  # pylint: disable=too-many-arguments
         """Drawing working points in plot
 
         Parameters

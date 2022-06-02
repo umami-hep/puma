@@ -14,7 +14,7 @@ class Roc(PlotLineObject):
     ROC class storing info about curve and allows to calculate ratio w.r.t other roc.
     """
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         sig_eff: np.ndarray,
         bkg_rej: np.ndarray,
@@ -184,7 +184,7 @@ class Roc(PlotLineObject):
         return self.sig_eff[self.non_zero_mask], self.bkg_rej[self.non_zero_mask]
 
 
-class RocPlot(PlotBase):
+class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
     """ROC plot class"""
 
     def __init__(self, **kwargs) -> None:
