@@ -51,4 +51,5 @@ if __name__ == "__main__":
         issue_description += f"- [ ] {files} - *{msgs}*\n"
     issue_description += python_3_9_todos
     issue_description += python_3_10_todos
+    issue_description = issue_description.replace("\n", "%0A")
     print(issue_description)
