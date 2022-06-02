@@ -15,7 +15,7 @@ jobs:
       # - run: python .github/workflows/github_update_todo.py | tee todo_comment_body.txt
       - name: Dummy content
         run: |
-          echo "first line\n second line" >> todo_comment_body.txt
+          echo "first line%0A second line" >> todo_comment_body.txt
       - name: Get issue content
         id: get-comment-body
         run: |
