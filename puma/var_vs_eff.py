@@ -9,13 +9,13 @@ from puma.utils import get_good_colours, logger
 from puma.utils.histogram import hist_ratio, save_divide
 
 
-class VarVsEff(PlotLineObject):
+class VarVsEff(PlotLineObject):  # pylint: disable=too-many-instance-attributes
     """
     var_vs_eff class storing info about curve and allows to calculate ratio w.r.t other
     efficiency plots.
     """
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         x_var_sig: np.ndarray,
         disc_sig: np.ndarray,
@@ -430,7 +430,7 @@ class VarVsEff(PlotLineObject):
         )
 
 
-class VarVsEffPlot(PlotBase):
+class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
     """var_vs_eff plot class"""
 
     def __init__(self, mode, **kwargs) -> None:
