@@ -19,7 +19,7 @@ jobs:
       - name: Get issue content
         id: get-comment-body
         run: |
-          body="first line\n second line"
+          body="$(cat todo_comment_body.txt)"
           echo "::set-output name=body::$body"
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v2
