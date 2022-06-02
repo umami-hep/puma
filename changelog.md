@@ -1,6 +1,9 @@
 # Changelog
 
-### [Latest]
+### Latest
+- Adding Zenodo link
+
+### [v0.1.2]
 
 - Adding automated coverage comment for pull request [#58](https://github.com/umami-hep/puma/pull/58)
 - Fix that colour and legend label can be individually modified in case of flavoured histogram [#57](https://github.com/umami-hep/puma/pull/57)
