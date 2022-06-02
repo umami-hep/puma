@@ -29,3 +29,4 @@ jobs:
         with:
           issue-number: 63
           body: ${{ steps.get-comment-body.outputs.body }}
+          edit-mode: replace
