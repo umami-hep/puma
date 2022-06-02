@@ -12,4 +12,4 @@ jobs:
       - name: Install pylint
         run: pip install pylint==2.12.2
       - run: pip install .
-      - run: python .github/workflow/github-update-todo.py
+      - run: python .github/workflows/github_update_todo.py
