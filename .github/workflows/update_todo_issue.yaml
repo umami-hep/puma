@@ -16,11 +16,14 @@ jobs:
       - name: Get issue content
         id: get-comment-body
         run: |
-          body="$(cat todo_comment_body.txt)"
-          body="${body//'%'/'%25'}"
-          body="${body//$'\n'/'%0A'}"
-          body="${body//$'\r'/'%0D'}" 
+          body="test body for todo issue"
           echo "::set-output name=body::$body"
+        # run: |
+        #   body="$(cat todo_comment_body.txt)"
+        #   body="${body//'%'/'%25'}"
+        #   body="${body//$'\n'/'%0A'}"
+        #   body="${body//$'\r'/'%0D'}"
+        #   echo "::set-output name=body::$body"
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v2
         with:
