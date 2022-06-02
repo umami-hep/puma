@@ -7,13 +7,15 @@ jobs:
     runs-on: ubuntu-latest
     container: python:3.8-slim
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v3
-      - name: Install pylint
-        run: pip install pylint==2.12.2
-      - run: pip install .
-      - run: python .github/workflows/github_update_todo.py | tee todo_comment_body.txt
-      - run: apt update && apt install -y libfreetype6-dev
+      # - name: Check out repository code
+      #   uses: actions/checkout@v3
+      # - name: Install pylint
+      #   run: pip install pylint==2.12.2
+      # - run: pip install .
+      # - run: python .github/workflows/github_update_todo.py | tee todo_comment_body.txt
+      - name: Dummy content
+        run: |
+          echo "first line\n second line" >> todo_comment_body.txt
       - name: Get issue content
         id: get-comment-body
         run: |
