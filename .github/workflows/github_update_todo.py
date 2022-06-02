@@ -51,8 +51,14 @@ if __name__ == "__main__":
         issue_description += f"- [ ] {files} - *{msgs}*\n"
     issue_description += python_3_9_todos
     issue_description += python_3_10_todos
-    # the substitution below is necessary such that the text is understood by
-    # the github actions that posts the comment
-    # https://github.com/marketplace/actions/create-or-update-comment#setting-the-comment-body-from-a-file
-    issue_description = issue_description.replace("\n", "%0A")
     print(issue_description)
+
+    # write the output to a txt file which can be used when posting the comment
+    output_filename = "todo_comment_body.txt"
+    with open(output_filename, "w") as comment_file:
+        # the substitution below is necessary such that the text is understood by
+        # the github action that posts the comment
+        # https://github.com/marketplace/actions/create-or-update-comment#setting-the-comment-body-from-a-file
+        issue_description = issue_description.replace("\n", "%0A")
+        print(f"writing output to {output_filename}")
+        comment_file.write(issue_description)

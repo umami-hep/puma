@@ -12,7 +12,7 @@ jobs:
       - name: Install pylint
         run: pip install pylint==2.12.2
       - run: pip install .
-      - run: python .github/workflows/github_update_todo.py | tee todo_comment_body.txt
+      - run: python .github/workflows/github_update_todo.py
       # - name: Dummy content
       #   run: |
       #     echo "first line%0A second line" >> todo_comment_body.txt
