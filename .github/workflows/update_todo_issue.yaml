@@ -13,6 +13,7 @@ jobs:
         run: pip install pylint==2.12.2
       - run: pip install .
       - run: python .github/workflows/github_update_todo.py | tee todo_comment_body.txt
+      - run: apt update && apt install -y libfreetype6-dev
       - name: Get issue content
         id: get-comment-body
         run: |
