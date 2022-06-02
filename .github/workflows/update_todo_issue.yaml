@@ -19,7 +19,7 @@ jobs:
       - name: Get issue content
         id: get-comment-body
         run: |
-          body="$(cat todo_comment_body.txt)"
+          body="first line\n second line\n"
           body="${body//'%'/'%25'}"
           body="${body//$'\n'/'%0A'}"
           body="${body//$'\r'/'%0D'}"
