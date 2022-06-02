@@ -14,11 +14,11 @@ def pylint_fixmes():
         pylint_msgs with Todos
     """
 
-    (pylint_stdout, _) = lint.py_run("umami/ --disable=all --enable=fixme ", True)
+    (pylint_stdout, _) = lint.py_run("puma/ --disable=all --enable=fixme ", True)
     pylint_stdout = pylint_stdout.read()
     pylint_files, pylint_msgs = [], []
     for line in pylint_stdout.splitlines():
-        if "umami/" not in line:
+        if "puma/" not in line:
             continue
         file_name, todo_message = line.split(" warning (W0511, fixme, ) ")
         if "TODO: " in todo_message:
