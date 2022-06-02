@@ -1,0 +1,15 @@
+name: Update TODO Issue
+on: [push]
+
+jobs:
+  update_issue:
+    name: Update the TODO Issue
+    runs-on: ubuntu-latest
+    container: python:3.8-slim
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Install pylint
+        run: pip install pylint==2.12.2
+      - run: pip install .
+      - run: python .github/workflow/github-update-todo.py
