@@ -12,11 +12,17 @@ jobs:
       - name: Install pylint
         run: pip install pylint==2.12.2
       - run: pip install .
-      - run: python .github/workflows/github_update_todo.py
-        id: todo_comment_content
+      - run: python .github/workflows/github_update_todo.py | tee todo_comment_body.txt
+      - name: Get issue content
+        id: get-comment-body
+        run: |
+          body="$(cat todo_comment_body.txt)"
+          body="${body//'%'/'%25'}"
+          body="${body//$'\n'/'%0A'}"
+          body="${body//$'\r'/'%0D'}" 
+          echo "::set-output name=body::$body"
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v2
         with:
           issue-number: 63
-          body: ${{  join(steps.todo_comment_content.outputs.*, '\n')  }}
-          edit-mode: replace
+          body: ${{ steps.get-comment-body.outputs.body }}
