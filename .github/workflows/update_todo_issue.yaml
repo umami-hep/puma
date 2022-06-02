@@ -13,13 +13,14 @@ jobs:
       - name: Install pylint
         run: pip install pylint==2.12.2
       - run: pip install .
-      - run: python .github/workflows/github_update_todo.py
-      - name: Get issue content
+      - name: Extract TODOs from pylint output # the output is saved as todo_comment_body.txt
+        run: python .github/workflows/github_update_todo.py
+      - name: Get comment content
         id: get-comment-body
         run: |
           body="$(cat todo_comment_body.txt)"
           echo "::set-output name=body::$body"
-      - name: Create comment
+      - name: Update comment
         uses: peter-evans/create-or-update-comment@v2
         with:
           issue-number: 63
