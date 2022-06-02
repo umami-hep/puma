@@ -6,6 +6,7 @@ jobs:
     name: Update the TODO Issue
     runs-on: ubuntu-latest
     container: python:3.8-slim
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -13,9 +14,6 @@ jobs:
         run: pip install pylint==2.12.2
       - run: pip install .
       - run: python .github/workflows/github_update_todo.py
-      # - name: Dummy content
-      #   run: |
-      #     echo "first line%0A second line" >> todo_comment_body.txt
       - name: Get issue content
         id: get-comment-body
         run: |
