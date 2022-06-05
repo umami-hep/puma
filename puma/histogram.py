@@ -19,7 +19,9 @@ class Histogram(
     def __init__(
         self,
         values: np.ndarray,
+        ratio_group: str = None,
         flavour: str = None,
+        add_flavour_label: bool = True,
         histtype: str = "step",
         **kwargs,
     ) -> None:
@@ -29,11 +31,19 @@ class Histogram(
         ----------
         values : np.ndarray
             Input data for the histogram
+        ratio_group : str, optional
+            Name of the ratio group this histogram is compared with. The ratio group
+            allows you to compare different groups of histograms within one plot.
+            By default None
         flavour: str, optional
             Jet flavour in case the histogram corresponds to one specific flavour. If
             this is specified, the correct colour will be extracted from the global
             config. Allowed values are the ones from the global config, i.e. "bjets",
             "cjets", "ujets", "bbjets", ..., by default None
+        add_flavour_label : bool, optional
+            Set to False to suppress the automatic "flavour label" prefix in the label
+            of the curve (i.e. "$b$-jets" in the case of b-jets). This is ignored
+            if `flavour` is not set. By default False
         histtype: str, optional
             `histtype` parameter which is handed to matplotlib.hist() when plotting the
             histograms. Supported values are "bar", "barstacked", "step", "stepfilled".
@@ -59,7 +69,9 @@ class Histogram(
             )
 
         self.values = values
+        self.ratio_group = ratio_group
         self.flavour = flavour
+        self.add_flavour_label = add_flavour_label
         self.histtype = histtype
 
         # Set histogram attributes to None. They will be defined when the histograms
@@ -75,19 +87,33 @@ class Histogram(
         )
         # If flavour was specified, extract configuration from global config
         if self.flavour is not None:
-            # Use globally defined flavour colour if not specified
-            if self.colour is None:
-                self.colour = global_config["flavour_categories"][self.flavour][
-                    "colour"
-                ]
-                logger.debug("Histogram colour was set to %s", self.colour)
-            # Use globally defined flavour label if not specified
-            if self.label is None:
+            if self.ratio_group is None:
+                self.ratio_group = self.flavour
+                logger.info(
+                    "Setting ratio group of histogram to flavour. If this is not what "
+                    "you intended, specify the 'ratio_group' argument."
+                )
+            if self.flavour in global_config["flavour_categories"]:
+                # Use globally defined flavour colour if not specified
+                if self.colour is None:
+                    self.colour = global_config["flavour_categories"][self.flavour][
+                        "colour"
+                    ]
+                    logger.debug("Histogram colour was set to %s", self.colour)
+                # Add globally defined flavour label if not suppressed
                 global_flavour_label = global_config["flavour_categories"][
                     self.flavour
                 ]["legend_label"]
-                self.label = f"{global_flavour_label} {self.label_addition}"
+
+                if self.add_flavour_label:
+                    self.label = f"{global_flavour_label} {self.label_addition}"
+                else:
+                    self.label = self.label_addition
                 logger.debug("Histogram label was set to %s", {self.label})
+            else:
+                logger.warning(
+                    "The flavour '%s' was not found in the global config.", self.flavour
+                )
 
     def divide(self, other):
         """Calculate ratio between two class objects.
@@ -573,8 +599,8 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
 
         for key in self.reference_object:
             reference_candidate = self.plot_objects[key]
-            if histo.flavour is not None:
-                if histo.flavour == reference_candidate.flavour:
+            if histo.ratio_group is not None:
+                if histo.ratio_group == reference_candidate.ratio_group:
                     matches += 1
                     reference_histo = reference_candidate
             else:
@@ -582,7 +608,10 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                 reference_histo = reference_candidate
 
         if matches != 1:
-            raise ValueError("Found more than one matching reference candidate.")
+            raise ValueError(
+                f"Found {matches} matching reference candidates, but only one match "
+                "is allowed."
+            )
 
         logger.debug(
             "Reference histogram for '%s' is '%s'", histo.key, reference_histo.key
