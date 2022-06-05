@@ -16,7 +16,7 @@ class Histogram(
     other histograms.
     """
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         values: np.ndarray,
         ratio_group: str = None,
@@ -82,7 +82,7 @@ class Histogram(
         self.band = None
         self.key = None
 
-        self.label_addition = (
+        label = (
             kwargs["label"] if "label" in kwargs and kwargs["label"] is not None else ""
         )
         # If flavour was specified, extract configuration from global config
@@ -106,9 +106,9 @@ class Histogram(
                 ]["legend_label"]
 
                 if self.add_flavour_label:
-                    self.label = f"{global_flavour_label} {self.label_addition}"
+                    self.label = f"{global_flavour_label} {label}"
                 else:
-                    self.label = self.label_addition
+                    self.label = label
                 logger.debug("Histogram label was set to %s", {self.label})
             else:
                 logger.warning(
