@@ -209,9 +209,9 @@ def calc_separation(
     Parameters
     ----------
     values_a : np.ndarray
-        first distribution
+        First distribution
     values_b : np.ndarray
-        second distribution
+        Second distribution
     bins : int, optional
         Number of bins used for the histograms (common binning over whole range if
         `bins_range` is not defined), by default 100
@@ -227,11 +227,11 @@ def calc_separation(
         separation value
     float
         separation uncertainty
-    hist_a
+    numpy.ndarray
         Bins height of histogram a (only returned if `return_hist` is True)
-    hist_b
+    numpy.ndarray
         Bins height of histogram b (only returned if `return_hist` is True)
-    bin_edges
+    numpy.ndarray
         Bin edges of the two histograms (only returned if `return_hist` is True)
     """
 
