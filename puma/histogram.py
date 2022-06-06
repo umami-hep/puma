@@ -102,11 +102,10 @@ class Histogram(
                     ]
                     logger.debug("Histogram colour was set to %s", self.colour)
                 # Add globally defined flavour label if not suppressed
-                global_flavour_label = global_config["flavour_categories"][
-                    self.flavour
-                ]["legend_label"]
-
                 if self.add_flavour_label:
+                    global_flavour_label = global_config["flavour_categories"][
+                        self.flavour
+                    ]["legend_label"]
                     self.label = f"{global_flavour_label} {label}"
                 else:
                     self.label = label
