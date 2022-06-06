@@ -41,9 +41,9 @@ class Histogram(
             config. Allowed values are the ones from the global config, i.e. "bjets",
             "cjets", "ujets", "bbjets", ..., by default None
         add_flavour_label : bool, optional
-            Set to False to suppress the automatic "flavour label" prefix in the label
-            of the curve (i.e. "$b$-jets" in the case of b-jets). This is ignored
-            if `flavour` is not set. By default False
+            Set to False to suppress the automatic addition of the flavour label prefix
+            in the label of the curve (i.e. "$b$-jets" in the case of b-jets).
+            This is ignored if `flavour` is not set. By default False
         histtype: str, optional
             `histtype` parameter which is handed to matplotlib.hist() when plotting the
             histograms. Supported values are "bar", "barstacked", "step", "stepfilled".
