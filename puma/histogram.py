@@ -90,8 +90,9 @@ class Histogram(
             if self.ratio_group is None:
                 self.ratio_group = self.flavour
                 logger.info(
-                    "Setting ratio group of histogram to flavour. If this is not what "
-                    "you intended, specify the 'ratio_group' argument."
+                    "Setting ratio group of histogram to %s. If this is not what "
+                    "you intended, specify the 'ratio_group' argument.",
+                    self.ratio_group,
                 )
             if self.flavour in global_config["flavour_categories"]:
                 # Use globally defined flavour colour if not specified
