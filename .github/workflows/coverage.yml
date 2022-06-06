@@ -1,4 +1,4 @@
-name: pytest-coverage-comment
+name: Coverage
 on:
   pull_request:
     branches:
