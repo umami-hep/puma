@@ -478,7 +478,17 @@ class histogram_plot_TestCase(unittest.TestCase):
 
         rng = np.random.default_rng(seed=42)
 
-        hist_plot = HistogramPlot(bins=100)
+        hist_plot = HistogramPlot(
+            bins=100,
+            atlas_brand=None,
+            atlas_first_tag="",
+            atlas_second_tag=(
+                "Unit test plot to test the behaviour of \n"
+                "the legend labels for different combinations \n"
+                "of using the flavour label from the global \n"
+                "config and not doing so"
+            ),
+        )
         # No flavour
         hist_plot.add(
             Histogram(rng.normal(0, 1, size=10_000), label="Unflavoured histogram")
