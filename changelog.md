@@ -1,6 +1,7 @@
 # Changelog
 
 ### Latest
+-  Adding more general ratio_group argument to puma.Histogram [#67](https://github.com/umami-hep/puma/pull/67)
 - Adding Zenodo link
 
 ### [v0.1.2]
