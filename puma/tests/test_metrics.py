@@ -45,6 +45,38 @@ class separation_TestCase(unittest.TestCase):
         values_b = np.array([1, 2])
         self.assertAlmostEqual(0.5, calc_separation(values_a, values_b, bins=3)[0])
 
+    def test_return_bins(self):
+        """Test if bins are correctly returned"""
+        values_a = np.array([0, 1])
+        values_b = np.array([1, 2])
+
+        _, _, hist_a, hist_b, bin_edges = calc_separation(
+            values_a,
+            values_b,
+            bins=3,
+            return_hist=True,
+        )
+        # Check for correct values in hist_a, hist_b and bin_edges
+        np.testing.assert_array_equal(np.array([0.5, 0.5, 0]), hist_a)
+        np.testing.assert_array_equal(np.array([0, 0.5, 0.5]), hist_b)
+        np.testing.assert_array_equal(np.array([0, 2 / 3, 4 / 3, 2]), bin_edges)
+
+    def test_bins_range(self):
+        """Test if bins_range is properly treated."""
+        values_a = np.array([0, 1])
+        values_b = np.array([1, 2])
+
+        _, _, hist_a, hist_b, bin_edges = calc_separation(
+            values_a,
+            values_b,
+            bins=4,
+            bins_range=(0, 4),  # this should result in bin edges [0, 1, 2, 3, 4]
+            return_hist=True,
+        )
+        # Check for correct values in hist_a and bin_edges
+        np.testing.assert_array_equal(np.array([0.5, 0.5, 0, 0]), hist_a)
+        np.testing.assert_array_equal(np.array([0, 1, 2, 3, 4]), bin_edges)
+
 
 class eff_err_TestCase(unittest.TestCase):
     """Test class for the puma.metrics functions."""
