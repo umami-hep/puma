@@ -204,7 +204,7 @@ def calc_separation(
     bins_range: tuple = None,
     return_hist: bool = False,
 ) -> float:
-    """Calculates the separation of two distributions
+    """Calculates the separation of two distributions.
 
     Parameters
     ----------
@@ -227,6 +227,12 @@ def calc_separation(
         separation value
     float
         separation uncertainty
+    hist_a
+        Bins height of histogram a (only returned if `return_hist` is True)
+    hist_b
+        Bins height of histogram b (only returned if `return_hist` is True)
+    bin_edges
+        Bin edges of the two histograms (only returned if `return_hist` is True)
     """
 
     _, bin_edges = np.histogram(
@@ -257,23 +263,3 @@ def calc_separation(
     if return_hist:
         return separation, separation_uncertainty, hist_a, hist_b, bin_edges
     return separation, separation_uncertainty
-
-
-# def get_separation_dict(
-#     df: pd.DataFrame,
-#     variable_name: str,
-#     labels_dict: dict,
-#     signal: list = ["singlebjets", "bbjets"],
-# ):
-#     sep_combinations = list(
-#         itertools.product(signal, set(labels_dict.keys()) - set(signal))
-#     )
-#     separation_dict = {}
-
-#     for flav_comb in sep_combinations:
-#         separation_dict[f"sep({flav_comb[0]}, {flav_comb[1]})"] = calc_separation(
-#             df.query(f"labels == {labels_dict[flav_comb[0]]}")[variable_name],
-#             df.query(f"labels == {labels_dict[flav_comb[1]]}")[variable_name],
-#         )[0]
-
-#     return separation_dict
