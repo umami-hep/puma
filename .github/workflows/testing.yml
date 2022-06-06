@@ -21,6 +21,7 @@ jobs:
         with:
           pytest-coverage-path: ./pytest-coverage.txt
           junitxml-path: ./pytest.xml
+          create-new-comment: false
       - name: Run pytest  # we have to run pytest here again, since the previous steps don't fail even if a test fails (due to the pipe)
         run: pytest -v puma/tests/
   example_tests:
