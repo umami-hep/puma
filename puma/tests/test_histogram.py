@@ -478,7 +478,7 @@ class histogram_plot_TestCase(unittest.TestCase):
 
         rng = np.random.default_rng(seed=42)
 
-        hist_plot = HistogramPlot()
+        hist_plot = HistogramPlot(bins=100)
         # No flavour
         hist_plot.add(
             Histogram(rng.normal(0, 1, size=10_000), label="Unflavoured histogram")
@@ -486,7 +486,7 @@ class histogram_plot_TestCase(unittest.TestCase):
         # Flavour, but also label (using the default flavour label + the specified one)
         hist_plot.add(
             Histogram(
-                rng.normal(2, 1, size=10_000),
+                rng.normal(4, 1, size=10_000),
                 label="(flavoured, adding default flavour label '$b$-jets' to legend)",
                 flavour="bjets",
             )
@@ -494,11 +494,21 @@ class histogram_plot_TestCase(unittest.TestCase):
         # Flavour + label (this time with suppressing the default flavour label)
         hist_plot.add(
             Histogram(
-                rng.normal(4, 1, size=10_000),
+                rng.normal(8, 1, size=10_000),
                 label="Flavoured histogram (default flavour label suppressed)",
                 flavour="bjets",
                 add_flavour_label=False,
                 linestyle="--",
+            )
+        )
+        # Flavoured, but using custom colour
+        hist_plot.add(
+            Histogram(
+                rng.normal(12, 1, size=10_000),
+                label="(flavoured, with custom colour)",
+                flavour="bjets",
+                linestyle="dotted",
+                colour="b",
             )
         )
         hist_plot.draw()
