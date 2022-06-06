@@ -423,7 +423,15 @@ class histogram_plot_TestCase(unittest.TestCase):
 
     def test_ratio_group_options(self):
         """Test different combinations of using ratio groups."""
-        hist_plot = HistogramPlot(n_ratio_panels=1)
+        hist_plot = HistogramPlot(
+            n_ratio_panels=1,
+            atlas_brand=None,
+            atlas_first_tag="",
+            atlas_second_tag=(
+                "Unit test plot to test the ratio_group argument of the "
+                "puma.Histogram class"
+            ),
+        )
 
         rng = np.random.default_rng(seed=42)
         # add two histograms with flavour=None but ratio_goup set
