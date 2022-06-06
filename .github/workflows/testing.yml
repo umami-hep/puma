@@ -14,12 +14,15 @@ jobs:
       - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
       - run: pip install -e . # install in editable mode for coverage to work
       - run: pip install flake8 pytest pytest-cov
-      - run: pytest -v --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov=puma puma/tests/ | tee pytest-coverage.txt
-      - name: Pytest coverage comment
+      - name: Create output for coverage comment
+        run: pytest -v --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov=puma puma/tests/ | tee pytest-coverage.txt
+      - name: Post coverage comment
         uses: MishaKav/pytest-coverage-comment@main
         with:
           pytest-coverage-path: ./pytest-coverage.txt
           junitxml-path: ./pytest.xml
+      - name: Run pytest  # we have to run pytest here again, since the previous steps don't fail even if a test fails (due to the pipe)
+        run: pytest -v puma/tests/
   example_tests:
     name: Example tests
     runs-on: ubuntu-latest
