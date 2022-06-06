@@ -399,7 +399,7 @@ class histogram_plot_TestCase(unittest.TestCase):
             atlas_first_tag="Simulation, $\\sqrt{s}=13$ TeV",
             atlas_second_tag="",
             figsize=(5, 4),
-            ylabel="Number of jets",
+            ylabel="Number of jets test",
             n_ratio_panels=1,
         )
         hist_plot.add(self.hist_1, reference=True)
