@@ -7,7 +7,6 @@ import unittest
 from puma.utils import logger, set_log_level
 from puma.utils.logging import get_log_level
 
-
 set_log_level(logger, "DEBUG")
 
 

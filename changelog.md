@@ -1,7 +1,23 @@
 # Changelog
 
 ### Latest
+- Adding Zenodo link
 
+### [v0.1.2]
+
+- Adding automated coverage comment for pull request [#58](https://github.com/umami-hep/puma/pull/58)
+- Fix that colour and legend label can be individually modified in case of flavoured histogram [#57](https://github.com/umami-hep/puma/pull/57)
+
+### [v0.1.1]
+
+- Adding documentation for updating the version switcher in the docs [#49](https://github.com/umami-hep/puma/pull/49)
+- Adding version support in docs [#42](https://github.com/umami-hep/puma/pull/42)[#45](https://github.com/umami-hep/puma/pull/45)
+- Adding development guidelines to the docs [#41](https://github.com/umami-hep/puma/pull/41)
+- Adding `logx` [#40](https://github.com/umami-hep/puma/pull/40)
+- Adding example page for the fraction scan plots [#38](https://github.com/umami-hep/puma/pull/38)
+- Add warning for plotting normalised histograms without saying to in the ylabel [#34](https://github.com/umami-hep/puma/pull/34)
+- Adding Docker images [#33](https://github.com/umami-hep/puma/pull/33)
+- Remove warning when adding more than one reference histogram is case is allowed [#32](https://github.com/umami-hep/puma/pull/32)
 - Update documentation [#24](https://github.com/umami-hep/puma/pull/24)
 
 ### [v0.1.0]

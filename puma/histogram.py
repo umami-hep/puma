@@ -8,7 +8,9 @@ from puma.utils import get_good_colours, get_good_pie_colours, global_config, lo
 from puma.utils.histogram import hist_ratio, hist_w_unc
 
 
-class Histogram(PlotLineObject):
+class Histogram(
+    PlotLineObject
+):  # pylint: disable=too-few-public-methods,too-many-instance-attributes
     """
     Histogram class storing info about histogram and allows to calculate ratio w.r.t
     other histograms.
@@ -37,7 +39,7 @@ class Histogram(PlotLineObject):
             histograms. Supported values are "bar", "barstacked", "step", "stepfilled".
             By default "step"
         **kwargs : kwargs
-            kwargs passed to `PlotLineObject`
+            Keyword arguments passed to `PlotLineObject`
 
         Raises
         ------
@@ -73,14 +75,19 @@ class Histogram(PlotLineObject):
         )
         # If flavour was specified, extract configuration from global config
         if self.flavour is not None:
-            self.colour = global_config["flavour_categories"][self.flavour]["colour"]
-            logger.debug("Histogram colour was set to %s", self.colour)
-
-            self.label = (
-                f"{global_config['flavour_categories'][self.flavour]['legend_label']}"
-                f" {self.label_addition}"
-            )
-            logger.debug("Histogram label was set to %s", {self.label})
+            # Use globally defined flavour colour if not specified
+            if self.colour is None:
+                self.colour = global_config["flavour_categories"][self.flavour][
+                    "colour"
+                ]
+                logger.debug("Histogram colour was set to %s", self.colour)
+            # Use globally defined flavour label if not specified
+            if self.label is None:
+                global_flavour_label = global_config["flavour_categories"][
+                    self.flavour
+                ]["legend_label"]
+                self.label = f"{global_flavour_label} {self.label_addition}"
+                logger.debug("Histogram label was set to %s", {self.label})
 
     def divide(self, other):
         """Calculate ratio between two class objects.
@@ -93,9 +100,9 @@ class Histogram(PlotLineObject):
         Returns
         -------
         np.ndarray
-            ratio
+            Ratio
         np.ndarray
-            ratio error
+            Ratio error
         Raises
         ------
         ValueError
@@ -136,10 +143,10 @@ class Histogram(PlotLineObject):
         return (ratio, ratio_unc)
 
 
-class HistogramPlot(PlotBase):
+class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
     """Histogram plot class"""
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         bins=40,
         bins_range: tuple = None,
@@ -188,7 +195,7 @@ class HistogramPlot(PlotBase):
         bin_width_in_ylabel : bool, optional
             Specify if the bin width should be added to the ylabel, by default False
         **kwargs : kwargs
-            kwargs from `plot_base`
+            Keyword arguments from `puma.PlotObject`
 
         Raises
         ------
@@ -216,13 +223,13 @@ class HistogramPlot(PlotBase):
             raise ValueError("Not more than one ratio panel supported.")
         self.initialise_figure(sub_plot_index=6)
 
-    def add(self, curve: object, key: str = None, reference: bool = False):
+    def add(self, histogram: object, key: str = None, reference: bool = False):
         """Adding histogram object to figure.
 
         Parameters
         ----------
-        curve : histogram class
-            histogram curve
+        histogram : Histogram class
+            Histogram curve
         key : str, optional
             Unique identifier for histogram, by default None
         reference : bool, optional
@@ -240,23 +247,23 @@ class HistogramPlot(PlotBase):
             raise KeyError(f"Duplicated key {key} already used for unique identifier.")
 
         # Add key to histogram object
-        curve.key = key
+        histogram.key = key
         logger.debug("Adding histogram %s", key)
 
         # Set linestyle
-        if curve.linestyle is None:
-            curve.linestyle = "-"
+        if histogram.linestyle is None:
+            histogram.linestyle = "-"
         # Set colours
-        if curve.colour is None:
-            curve.colour = get_good_colours()[len(self.plot_objects)]
+        if histogram.colour is None:
+            histogram.colour = get_good_colours()[len(self.plot_objects)]
         # Set alpha
-        if curve.alpha is None:
-            curve.alpha = 0.8
+        if histogram.alpha is None:
+            histogram.alpha = 0.8
         # Set linewidth
-        if curve.linewidth is None:
-            curve.linewidth = 1.6
+        if histogram.linewidth is None:
+            histogram.linewidth = 1.6
 
-        self.plot_objects[key] = curve
+        self.plot_objects[key] = histogram
         self.add_order.append(key)
         if reference is True:
             self.set_reference(key)
@@ -267,20 +274,13 @@ class HistogramPlot(PlotBase):
         Parameters
         ----------
         key : str
-            unique identifier of histogram object
+            Unique identifier of histogram object
         """
         if self.reference_object is None:
             self.reference_object = [key]
-            logger.info("Using '%s' as reference histogram", key)
         else:
             self.reference_object.append(key)
-            logger.warning(
-                "You specified another curve %s as reference for ratio. "
-                "Adding it to reference histograms. "
-                "New list of reference histograms: %s",
-                key,
-                self.reference_object,
-            )
+        logger.debug("Adding '%s' to reference histogram(s)", key)
 
     def plot(self, **kwargs):
         """Plotting curves. This also generates the bins of the histograms that are
@@ -290,7 +290,7 @@ class HistogramPlot(PlotBase):
         Parameters
         ----------
         **kwargs: kwargs
-            kwargs passed to matplotlib.axes.Axes.hist()
+            Keyword arguments passed to matplotlib.axes.Axes.hist()
 
         Returns
         -------
@@ -302,6 +302,12 @@ class HistogramPlot(PlotBase):
         ValueError
             If specified bins type is not supported.
         """
+        if self.ylabel is not None:
+            if self.norm and "norm" not in self.ylabel.lower():
+                logger.warning(
+                    "You are plotting normalised distributions but 'norm' is not "
+                    "included in your y-label."
+                )
         plt_handles = []
 
         # Calculate bins of stacked histograms to ensure all histograms fit in plot
@@ -393,8 +399,7 @@ class HistogramPlot(PlotBase):
 
         Returns
         -------
-        Patch
-            matplotlib Patch object
+        Patch : matplotlib Patch object
 
         Raises
         ------
@@ -501,7 +506,8 @@ class HistogramPlot(PlotBase):
 
         Returns
         -------
-        bins : recalculated bins including only the discrete values
+        bins : numpy.ndarray
+            Recalculated bins including only the discrete values
 
         Raises
         ------
@@ -548,13 +554,13 @@ class HistogramPlot(PlotBase):
 
         Parameters
         ----------
-        histo : histogram class
+        histo : puma.histogram.Histogram
             Histogram we want to calculate the ratio for
 
         Returns
         -------
-        histogram class
-            Reference histogram
+        reference_histo_name : str, int
+            Identifier of the corresponding reference histogram
 
         Raises
         ------
@@ -678,7 +684,7 @@ class HistogramPlot(PlotBase):
                 self.bins[0] if self.xmin is None else self.xmin,
                 self.bins[-1] if self.xmax is None else self.xmax,
             )
-            self.set_logy()
+            self.set_log()
             self.set_y_lim()
             self.set_xlabel()
             self.set_tick_params()

@@ -1,0 +1,51 @@
+name: Docker build
+
+on: [push]
+        
+env:
+  GITLAB_CONTAINER_REGISTRY: gitlab-registry.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images
+
+jobs:
+  build_latest:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@master
+          
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to GitLab container registry
+        run: docker login gitlab-registry.cern.ch -u ${{ secrets.GITLAB_USERNAME }} -p ${{ secrets.GITLAB_TOKEN }}
+          
+      - name: Build and push slim image
+        run: |
+          docker build -f docker/Dockerfile --tag ${GITLAB_CONTAINER_REGISTRY}/puma:latest .
+          docker push ${GITLAB_CONTAINER_REGISTRY}/puma:latest
+
+      - name: Build and push dev image
+        run: |
+          docker build -f docker/Dockerfile_dev --tag ${GITLAB_CONTAINER_REGISTRY}/puma:latest-dev .
+          docker push ${GITLAB_CONTAINER_REGISTRY}/puma:latest-dev
+  
+  build_release:
+    # Build an extra image for tagged commits
+    runs-on: ubuntu-latest
+    if: startsWith(github.event.ref, 'refs/tags')
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@master
+          
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to GitLab container registry
+        run: docker login gitlab-registry.cern.ch -u ${{ secrets.GITLAB_USERNAME }} -p ${{ secrets.GITLAB_TOKEN }}
+
+      - name: Build and push release image
+        run: |
+          docker build -f docker/Dockerfile --tag ${GITLAB_CONTAINER_REGISTRY}/puma:${{  github.ref_name  }} .
+          docker push ${GITLAB_CONTAINER_REGISTRY}/puma:${{  github.ref_name  }}

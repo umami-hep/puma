@@ -1,0 +1,15 @@
+[
+    {
+        "name": "latest",
+        "version": "main",
+        "url":"https://umami-hep.github.io/puma/main/"
+    },
+    {
+        "version": "v0.1.1",
+        "url":"https://umami-hep.github.io/puma/v0.1.1/"
+    },
+    {
+        "version": "v0.1.0",
+        "url":"https://umami-hep.github.io/puma/v0.1.0/"
+    }
+]

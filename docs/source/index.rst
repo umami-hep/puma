@@ -9,6 +9,7 @@
 
    Quickstart <self>
    examples/index.rst
+   dev_guidelines/index.rst
 
 Indices and tables
 ==================

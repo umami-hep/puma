@@ -1,15 +1,19 @@
 #!/bin/bash
 
-# install requirements and puma
-pip install .
+# install requirements
+pip install -r requirements.txt
 
-# install requirements for sphinx
+# install docs requirements
 pip install -r docs/requirements.txt
 
+# add current working directory to PYTHONPATH such that package is found
+export PYTHONPATH=$PWD:$PYTHONPATH
+
 # build the documentation
-cd docs
-rm -rf _build _static _templates
-sphinx-build -b html source _build/html
+rm -rf docs/_*
+python docs/sphinx_build_multiversion.py
+# copy the redirect_index.html that redirects to the main/latest version
+cp docs/source/redirect_index.html docs/_build/html/index.html
 
 # we have to create an empty .nojekyll file in order to make the html theme work
-touch _build/html/.nojekyll
+touch docs/_build/html/.nojekyll

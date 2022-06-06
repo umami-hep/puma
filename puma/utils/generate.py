@@ -16,20 +16,20 @@ def get_dummy_multiclass_scores(
     Parameters
     ----------
     size : int, optional
-        size of dummy data. For each of the 3 classes, the same amount of is produces,
+        Size of dummy data. For each of the 3 classes, the same amount of is produces,
         by default 10_000
     bjets_mean : float, optional
-        mean value of the b-jets 3D gaussian, the more away from 0, the better the
+        Mean value of the b-jets 3D gaussian, the more away from 0, the better the
         b-tagging performance, by default 1.4
     seed : int, optional
-        random seed for number generation, by default 42
+        Random seed for number generation, by default 42
 
     Returns
     -------
     np.ndarray
-        output scores of the shape (size, 3)
+        Output scores of the shape (size, 3)
     np.ndarray
-        labels of shape (size,). The order of the output is light-jets, c-jets, b-jets
+        Labels of shape (size,). The order of the output is light-jets, c-jets, b-jets
 
     """
     size_class = int(size / 3)
@@ -60,19 +60,19 @@ def get_dummy_2_taggers(
     Parameters
     ----------
     size : int, optional
-        size of dummy data, by default 10_000
+        Size of dummy data, by default 10_000
     shuffle : bool, optional
-        if True shuffles the dummy data, by default True
+        If True shuffles the dummy data, by default True
     seed : int, optional
-        random seed for number generation (will count +10 for second tagger),
+        Random seed for number generation (will count +10 for second tagger),
         by default 42
     add_pt : bool, optional
-        specify if pt column should be added as well, by default False
+        Specify if pt column should be added as well, by default False
 
     Returns
     -------
-    pd.DataFrame
-        pandas DataFrame with columns
+    df_gen : pandas.DataFrame
+        Dataframe with columns
         [HadronConeExclTruthLabelID, rnnip_pu, rnnip_pc, rnnip_pb, dips_pu, dips_pc,
         dips_pb]
     """

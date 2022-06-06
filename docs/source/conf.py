@@ -12,6 +12,7 @@
 
 import os
 import sys
+import puma
 
 sys.path.insert(0, os.path.abspath("../../puma"))
 
@@ -24,7 +25,6 @@ author = "puma developers"
 
 # The full version, including alpha/beta/rc tags
 release = ""
-
 
 # -- General configuration ---------------------------------------------------
 
@@ -39,20 +39,20 @@ extensions = [
     "autoapi.extension",
 ]
 
-# Configuration of sphinx-autoapi extension
+# -- sphinx-autoapi extension -----------------------------------------------
 # https://sphinx-autoapi.readthedocs.io/en/latest/reference/config.html#
 autoapi_type = "python"
 autoapi_dirs = ["../../puma"]
 autoapi_python_use_implicit_namespaces = True
 autoapi_python_class_content = "both"
 
-# Add any paths that contain templates here, relative to this directory.
-templates_path = ["_templates"]
-
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+html_static_path = ["_static"]
+# Add any paths that contain templates here, relative to this directory.
+templates_path = ["_templates"]
 
 default_role = "code"
 
@@ -61,6 +61,13 @@ default_role = "code"
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
+json_url = "https://umami-hep.github.io/puma/main/_static/switcher.json"
+release = puma.__version__
+if "dev" in release:
+    version_match = "main"
+else:
+    version_match = f"v{release}"
+
 html_theme = "pydata_sphinx_theme"
 html_theme_options = {
     "icon_links": [
@@ -71,6 +78,11 @@ html_theme_options = {
             "type": "fontawesome",
         },
     ],
+    "switcher": {
+        "json_url": json_url,
+        "version_match": version_match,
+    },
+    "navbar_end": ["version-switcher", "navbar-icon-links"],
 }
 
 # The name of the Pygments (syntax highlighting) style to use.

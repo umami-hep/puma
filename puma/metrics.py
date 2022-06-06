@@ -16,11 +16,11 @@ def calc_eff(
     Parameters
     ----------
     sig_disc : np.ndarray
-        signal discriminant
+        Signal discriminant
     bkg_disc : np.ndarray
-        background discriminant
+        Background discriminant
     target_eff : float or list
-         WP which is used for discriminant calculation
+        Working point which is used for discriminant calculation
     return_cuts : bool
         Specifies if the cut values corresponding to the provided WPs are returned.
         If target_eff is a float, only one cut value will be returned. If target_eff
@@ -28,12 +28,12 @@ def calc_eff(
 
     Returns
     -------
-    float or np.ndarray
-        efficiency
-        if target_eff is a float, a float is returned if it's a list a np.ndarray
-    float or np.ndarray
-        cutvalue if return_cuts is True
-        if target_eff is a float, a float is returned if it's a list a np.ndarray
+    eff : float or np.ndarray
+        Efficiency.
+        If target_eff is a float, a float is returned if it's a list a np.ndarray
+    cutvalue : float or np.ndarray
+        Cutvalue if return_cuts is True.
+        If target_eff is a float, a float is returned if it's a list a np.ndarray
     """
     # TODO: with python 3.10 using type union operator
     # float | np.ndarray for both target_eff and the returned values
@@ -66,11 +66,11 @@ def calc_rej(
     Parameters
     ----------
     sig_disc : np.ndarray
-        signal discriminant
+        Signal discriminant
     bkg_disc : np.ndarray
-        background discriminant
+        Background discriminant
     target_eff : float or list
-         WP which is used for discriminant calculation
+        Working point which is used for discriminant calculation
     return_cuts : bool
         Specifies if the cut values corresponding to the provided WPs are returned.
         If target_eff is a float, only one cut value will be returned. If target_eff
@@ -78,12 +78,12 @@ def calc_rej(
 
     Returns
     -------
-    float or np.ndarray
-        rejection
-        if target_eff is a float, a float is returned if it's a list a np.ndarray
-    float or np.ndarray
-        cutvalue if return_cuts is True
-        if target_eff is a float, a float is returned if it's a list a np.ndarray
+    rej : float or np.ndarray
+        Rejection.
+        If target_eff is a float, a float is returned if it's a list a np.ndarray
+    cut_value : float or np.ndarray
+        Cutvalue if return_cuts is True.
+        If target_eff is a float, a float is returned if it's a list a np.ndarray
     """
     # TODO: with python 3.10 using type union operator
     # float | np.ndarray for both target_eff and the returned values
@@ -111,23 +111,23 @@ def eff_err(
     Parameters
     ----------
     arr : numpy.array
-        efficiency values
+        Efficiency values
     n_counts : int
-        number of used statistics to calculate efficiency
+        Number of used statistics to calculate efficiency
     suppress_zero_divison_error : bool
-        not raising Error for zero division
+        Not raising Error for zero division
     norm : bool, optional
-        if True, normed (relative) error is being calculated, by default False
+        If True, normed (relative) error is being calculated, by default False
 
     Returns
     -------
     numpy.array
-        efficiency uncertainties
+        Efficiency uncertainties
 
     Raises
     ------
     ValueError
-        if n_counts <=0
+        If n_counts <=0
 
     Notes
     -----
@@ -160,27 +160,27 @@ def rej_err(
     Parameters
     ----------
     arr : numpy.array
-        rejection values
+        Rejection values
     n_counts : int
-        number of used statistics to calculate rejection
+        Number of used statistics to calculate rejection
     norm : bool, optional
-        if True, normed (relative) error is being calculated, by default False
+        If True, normed (relative) error is being calculated, by default False
 
     Returns
     -------
     numpy.array
-        rejection uncertainties
+        Rejection uncertainties
 
     Raises
     ------
     ValueError
-        if n_counts <=0
+        If n_counts <=0
     ValueError
-        if any rejection value is 0
+        If any rejection value is 0
 
     Notes
     -----
-    special case of `eff_err()`
+    Special case of `eff_err()`
     """
     logger.debug("Calculating rejection error.")
     logger.debug("arr: %s", arr)

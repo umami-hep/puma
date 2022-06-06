@@ -213,6 +213,8 @@ class TestCase(unittest.TestCase):
 
         frac_plot.xlabel = "Test_x_label"
         frac_plot.ylabel = "Test_y_label"
+        frac_plot.logx = True
+        frac_plot.logy = True
 
         # Define a plot name
         plotname = "test_fraction_scan_no_params_given.png"

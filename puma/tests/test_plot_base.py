@@ -6,8 +6,8 @@ Unit test script for the functions in plot_base.py
 
 import unittest
 
-from puma.utils import logger, set_log_level
 from puma import PlotObject
+from puma.utils import logger, set_log_level
 
 set_log_level(logger, "DEBUG")
 

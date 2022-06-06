@@ -14,7 +14,7 @@ class Roc(PlotLineObject):
     ROC class storing info about curve and allows to calculate ratio w.r.t other roc.
     """
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         sig_eff: np.ndarray,
         bkg_rej: np.ndarray,
@@ -29,9 +29,9 @@ class Roc(PlotLineObject):
         Parameters
         ----------
         sig_eff : np.array
-            array of signal efficiencies
+            Array of signal efficiencies
         bkg_rej : np.array
-            array of background rejection
+            Array of background rejection
         n_test : int
             Number of events used to calculate the background efficiencies,
             by default None
@@ -41,14 +41,14 @@ class Roc(PlotLineObject):
             Rejection class, e.g. for b-tagging anc charm rejection "cjets",
             by default None
         key : str
-            identifier for roc curve e.g. tagger, by default None
+            Identifier for roc curve e.g. tagger, by default None
         **kwargs : kwargs
-            kwargs passed to `PlotLineObject`
+            Keyword arguments passed to `puma.PlotLineObject`
 
         Raises
         ------
         ValueError
-            if `sig_eff` and `bkg_rej` have a different shape
+            If `sig_eff` and `bkg_rej` have a different shape
         """
         super().__init__(**kwargs)
         if len(sig_eff) != len(bkg_rej):
@@ -69,7 +69,7 @@ class Roc(PlotLineObject):
         Parameters
         ----------
         norm : bool
-            if True calulate relative error, by default False
+            If True calulate relative error, by default False
         n_test : int
             Number of events used to calculate the background efficiencies,
             by default None
@@ -77,12 +77,12 @@ class Roc(PlotLineObject):
         Returns
         -------
         numpy.array
-            binomial error
+            Binomial error
 
         Raises
         ------
         ValueError
-            if no `n_test` was provided
+            If no `n_test` was provided
         """
         if n_test is None:
             n_test = self.n_test
@@ -96,20 +96,20 @@ class Roc(PlotLineObject):
         Parameters
         ----------
         roc_comp : roc class
-            second roc curve to calculate ratio with
+            Second roc curve to calculate ratio with
         inverse : bool
-            if False the ratio is calculated `this_roc / roc_comp`,
+            If False the ratio is calculated `this_roc / roc_comp`,
             if True the inverse is calculated
 
         Returns
         -------
         np.array
-            signal efficiency used for the ratio calculation which is the overlapping
+            Signal efficiency used for the ratio calculation which is the overlapping
             interval of the two roc curves
         np.array
-            ratio
+            Ratio
         np.array or None
-            ratio_err if `n_test` was provided to class
+            Ratio_err if `n_test` was provided to class
         """
         # if same objects return array with value 1
         if np.array_equal(
@@ -146,7 +146,7 @@ class Roc(PlotLineObject):
         Returns
         -------
         pchip
-            interpolation function
+            Interpolation function
         """
         return pchip(self.sig_eff, self.bkg_rej)
 
@@ -157,7 +157,7 @@ class Roc(PlotLineObject):
         Returns
         -------
         numpy.array
-            masked indices
+            Masked indices
         """
         # Mask the points where there was no change in the signal eff
         delta_x = np.concatenate((np.ones(1), np.diff(self.sig_eff)))
@@ -177,23 +177,23 @@ class Roc(PlotLineObject):
         Returns
         -------
         numpy.array
-            masked signal efficiency
+            Masked signal efficiency
         numpy.array
-            masked background rejection
+            Masked background rejection
         """
         return self.sig_eff[self.non_zero_mask], self.bkg_rej[self.non_zero_mask]
 
 
-class RocPlot(PlotBase):
-    """Roc plot class"""
+class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
+    """ROC plot class"""
 
     def __init__(self, **kwargs) -> None:
-        """roc plot properties
+        """ROC plot properties
 
         Parameters
         ----------
         **kwargs : kwargs
-            kwargs from `plot_base`
+            Keyword arguments from `puma.PlotObject`
         """
         super().__init__(**kwargs)
         self.test = ""
@@ -212,21 +212,21 @@ class RocPlot(PlotBase):
         self.legend_flavs = None
 
     def add_roc(self, roc_curve: object, key: str = None, reference: bool = False):
-        """Adding roc object to figure.
+        """Adding puma.Roc object to figure.
 
         Parameters
         ----------
-        roc_curve : roc class
-            roc curve
+        roc_curve : puma.Roc
+            ROC curve
         key : str, optional
-            unique identifier for roc, by default None
+            Unique identifier for roc_curve, by default None
         reference : bool, optional
-            if roc is used as reference for ratio calculation, by default False
+            If roc is used as reference for ratio calculation, by default False
 
         Raises
         ------
         KeyError
-            if unique identifier key is used twice
+            If unique identifier key is used twice
         """
         if key is None:
             key = len(self.rocs) + 1
@@ -287,14 +287,14 @@ class RocPlot(PlotBase):
         Parameters
         ----------
         key : str
-            unique identifier of roc object
+            Unique identifier of roc object
         rej_class : str
-            rejection class encoded in roc curve
+            Rejection class encoded in roc curve
 
         Raises
         ------
         ValueError
-            if more rejection classes are set than actual ratio panels available.
+            If more rejection classes are set than actual ratio panels available.
         """
         if self.reference_roc is None:
             self.reference_roc = {}
@@ -320,9 +320,9 @@ class RocPlot(PlotBase):
         Parameters
         ----------
         rej_class : str
-            rejection class
+            Rejection class
         label : str
-            label added in legend
+            Label added in legend
         """
         self.leg_rej_labels[rej_class] = label
 
@@ -332,9 +332,9 @@ class RocPlot(PlotBase):
         Parameters
         ----------
         ratio_panel : int
-            ratio panel either 1 or 2
+            Ratio panel either 1 or 2
         rej_class : str
-            rejeciton class associated to that panel
+            Rejeciton class associated to that panel
         label : str
             y-axis label of the ratio panel
 
@@ -356,9 +356,9 @@ class RocPlot(PlotBase):
         Raises
         ------
         ValueError
-            if number of reference rocs and ratio panels don't match
+            If number of reference rocs and ratio panels don't match
         ValueError
-            if no ratio classes are set
+            If no ratio classes are set
         """
         if len(self.reference_roc) != self.n_ratio_panels:
             raise ValueError(
@@ -386,7 +386,7 @@ class RocPlot(PlotBase):
         Returns
         -------
         float
-            min and max efficiency values
+            Min and max efficiency values
         """
 
         for elem in self.rocs.values():
@@ -403,7 +403,7 @@ class RocPlot(PlotBase):
         axis : plt.axis
             matplotlib axis object
         rej_class : str
-            rejection class
+            Rejection class
         """
         for key, elem in self.rocs.items():
             if elem.rej_class != rej_class:
@@ -436,12 +436,12 @@ class RocPlot(PlotBase):
         Parameters
         ----------
         handles : list
-            list of Line2D objects to extract info for legend
+            List of Line2D objects to extract info for legend
 
         Raises
         ------
         ValueError
-            if not 2 ratios requested
+            If not 2 ratios requested
         """
 
         if self.n_ratio_panels != 2:
@@ -509,7 +509,7 @@ class RocPlot(PlotBase):
         )
         self.add_ratios()
         self.set_title()
-        self.set_logy()
+        self.set_log()
         self.set_y_lim()
         self.set_xlabel()
         self.set_ylabel(self.axis_top)
@@ -556,7 +556,7 @@ class RocPlot(PlotBase):
         Parameters
         ----------
         **kwargs: kwargs
-            kwargs passed to plt.axis.plot
+            Keyword arguments passed to plt.axis.plot
 
         Returns
         -------

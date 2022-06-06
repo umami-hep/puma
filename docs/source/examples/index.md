@@ -46,21 +46,28 @@ discriminant using the raw output (i.e. `p_u`, `p_c` and `p_b`) of the tagger.
 
 ```py
 # define a small function to calculate discriminant
-def disc_fct(a: np.ndarray):
+def disc_fct(arr: np.ndarray, f_c: float = 0.018) -> np.ndarray:
     """Tagger discriminant
 
     Parameters
     ----------
-    a : numpy.ndarray
+    arr : numpy.ndarray
         array with with shape (, 3)
+    f_c : float, optional
+        f_c value in the discriminant (weight for c-jets rejection)
+
+    Returns
+    -------
+    np.ndarray
+        Array with the discriminant values inside.
     """
     # you can adapt this for your needs
-    return np.log(a[2] / (0.018 * a[1] + 0.982 * a[0]))
+    return np.log(arr[2] / (f_c * arr[1] + (1 - f_c) * arr[0]))
 
 
 # you can also use a lambda function
 # discs_rnnip = np.apply_along_axis(
-#     lambda a: np.log(a[2] / (0.018 * a[1] + 0.982 * a[0])),
+#     lambda a: np.log(a[2] / (0.018 * a[1] + (1 - 0.018) * a[0])),
 #     1,
 #     df[["rnnip_pu", "rnnip_pc", "rnnip_pb"]].values,
 # )
