@@ -2,7 +2,7 @@
 import numpy as np
 
 from puma.utils import logger
-from puma.utils.histogram import save_divide
+from puma.utils.histogram import hist_w_unc, save_divide
 
 
 def calc_eff(
@@ -195,3 +195,71 @@ def rej_err(
     if norm:
         return np.power(arr, 2) * eff_err(1 / arr, n_counts) / arr
     return np.power(arr, 2) * eff_err(1 / arr, n_counts)
+
+
+def calc_separation(
+    values_a: np.ndarray,
+    values_b: np.ndarray,
+    bins: int = 100,
+    bins_range: tuple = None,
+    return_hist: bool = False,
+) -> float:
+    """Calculates the separation of two distributions.
+
+    Parameters
+    ----------
+    values_a : np.ndarray
+        First distribution
+    values_b : np.ndarray
+        Second distribution
+    bins : int, optional
+        Number of bins used for the histograms (common binning over whole range if
+        `bins_range` is not defined), by default 100
+    bins_range : tuple, optional
+        Lower and upper limit for binning. If not provided, the whole range of the
+        joined distribution is used, by default None
+    return_hist : bool, optional
+        Option to also return the hist_a, hist_b and bin_edges arrays
+
+    Returns
+    -------
+    float
+        separation value
+    float
+        separation uncertainty
+    numpy.ndarray
+        Bins height of histogram a (only returned if `return_hist` is True)
+    numpy.ndarray
+        Bins height of histogram b (only returned if `return_hist` is True)
+    numpy.ndarray
+        Bin edges of the two histograms (only returned if `return_hist` is True)
+    """
+
+    _, bin_edges = np.histogram(
+        np.hstack([values_a, values_b]), bins=bins, range=bins_range
+    )
+
+    _, hist_a, unc_a, _ = hist_w_unc(values_a, bin_edges)
+    _, hist_b, unc_b, _ = hist_w_unc(values_b, bin_edges)
+
+    separation = 0.5 * np.sum(
+        save_divide(
+            numerator=(hist_a - hist_b) ** 2,
+            denominator=(hist_a + hist_b),
+            default=0,
+        )
+    )
+
+    # helper variable for error calculation below
+    ab_diff_over_sum = save_divide(hist_a - hist_b, hist_a + hist_b, default=0)
+
+    separation_uncertainty = 0.5 * np.sqrt(
+        np.sum(
+            (unc_a * (2 * ab_diff_over_sum - ab_diff_over_sum**2)) ** 2
+            + (unc_b * (-2 * ab_diff_over_sum - ab_diff_over_sum**2)) ** 2
+        )
+    )
+
+    if return_hist:
+        return separation, separation_uncertainty, hist_a, hist_b, bin_edges
+    return separation, separation_uncertainty
