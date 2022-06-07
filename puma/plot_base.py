@@ -327,7 +327,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         vlines_label_list: list = None,
         vlines_line_height_list: list = None,
         same_height: bool = False,
-        colour: str = "#920000",
+        colour: str = "#000000",
         fontsize: int = 10,
     ):  # pylint: disable=too-many-arguments
         """Drawing working points in plot
@@ -347,7 +347,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         same_height : bool, optional
             Working point lines on same height, by default False
         colour : str, optional
-            Colour of the vertical line, by default "#920000"
+            Colour of the vertical line, by default "#000000" (black)
         fontsize : int, optional
             Fontsize of the vertical line text. By default 10.
         """
