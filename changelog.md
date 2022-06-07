@@ -1,6 +1,7 @@
 # Changelog
 
 ### Latest
+- Adding `calc_separation()` to `puma.metrics`, which allows to calculate the separation between two distributions [#27](https://github.com/umami-hep/puma/pull/27)
 - Adding Zenodo link
 
 ### [v0.1.2]
