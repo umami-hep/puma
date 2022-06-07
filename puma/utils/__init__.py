@@ -121,13 +121,34 @@ def get_good_colours():
 
 global_config = {
     "flavour_categories": {
-        "bjets": {"colour": "#1f77b4", "legend_label": "$b$-jets"},
-        "cjets": {"colour": "#ff7f0e", "legend_label": "$c$-jets"},
-        "ujets": {"colour": "#2ca02c", "legend_label": "light-flavour jets"},
-        "taujets": {"colour": "#7c5295", "legend_label": "$\\tau$-jets"},
-        "singlebjets": {"colour": "#1f77b4", "legend_label": "$b$-jets"},
-        "bbjets": {"colour": "#012F51", "legend_label": "$bb$-jets"},
-        "singlecjets": {"colour": "#ff7f0e", "legend_label": "$c$-jets"},
+        "bjets": {
+            "colour": "#1f77b4",  # blue
+            "legend_label": "$b$-jets",
+        },
+        "cjets": {
+            "colour": "#ff7f0e",  # orange
+            "legend_label": "$c$-jets",
+        },
+        "ujets": {
+            "colour": "#2ca02c",  # green
+            "legend_label": "light-flavour jets",
+        },
+        "taujets": {
+            "colour": "#7c5295",  # purple
+            "legend_label": "$\\tau$-jets",
+        },
+        "singlebjets": {
+            "colour": "#1f77b4",  # blue (like b-jets)
+            "legend_label": "$b$-jets",
+        },
+        "bbjets": {
+            "colour": "#8E0024",  # dark red
+            "legend_label": "$bb$-jets",
+        },
+        "singlecjets": {
+            "colour": "#ff7f0e",  # orange (like c-jets)
+            "legend_label": "$c$-jets",
+        },
     },
     "hist_err_style": {
         "fill": False,
