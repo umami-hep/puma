@@ -420,3 +420,125 @@ class histogram_plot_TestCase(unittest.TestCase):
                 tol=1,
             )
         )
+
+    def test_ratio_group_options(self):
+        """Test different combinations of using ratio groups."""
+        hist_plot = HistogramPlot(
+            n_ratio_panels=1,
+            atlas_brand=None,
+            atlas_first_tag="",
+            atlas_second_tag=(
+                "Unit test plot to test the ratio_group argument of the "
+                "puma.Histogram class"
+            ),
+        )
+
+        rng = np.random.default_rng(seed=42)
+        # add two histograms with flavour=None but ratio_goup set
+        hist_plot.add(
+            Histogram(
+                rng.normal(0, 1, size=10_000),
+                ratio_group="ratio group 1",
+                label="Ratio group 1 (reference)",
+            ),
+            reference=True,
+        )
+        hist_plot.add(
+            Histogram(
+                rng.normal(0.5, 1, size=10_000),
+                ratio_group="ratio group 1",
+                label="Ratio group 1",
+            ),
+        )
+        # add two histograms with defining ratio group via flavour argument
+        hist_plot.add(
+            Histogram(
+                rng.normal(3, 1, size=10_000),
+                flavour="bjets",
+                label="(reference)",
+            ),
+            reference=True,
+        )
+        hist_plot.add(
+            Histogram(
+                rng.normal(3.5, 1, size=10_000),
+                flavour="bjets",
+                linestyle="--",
+            ),
+        )
+        hist_plot.draw()
+
+        plotname = "test_ratio_groups.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        # Uncomment line below to update expected image
+        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname}",
+                f"{self.expected_plots_dir}/{plotname}",
+                tol=1,
+            )
+        )
+
+    def test_flavoured_labels(self):
+        """Test different combinations of specifying the label when also specifying a
+        flavour for the histogram."""
+
+        rng = np.random.default_rng(seed=42)
+
+        hist_plot = HistogramPlot(
+            bins=100,
+            atlas_brand=None,
+            atlas_first_tag="",
+            atlas_second_tag=(
+                "Unit test plot to test the behaviour of \n"
+                "the legend labels for different combinations \n"
+                "of using the flavour label from the global \n"
+                "config and not doing so"
+            ),
+        )
+        # No flavour
+        hist_plot.add(
+            Histogram(rng.normal(0, 1, size=10_000), label="Unflavoured histogram")
+        )
+        # Flavour, but also label (using the default flavour label + the specified one)
+        hist_plot.add(
+            Histogram(
+                rng.normal(4, 1, size=10_000),
+                label="(flavoured, adding default flavour label '$b$-jets' to legend)",
+                flavour="bjets",
+            )
+        )
+        # Flavour + label (this time with suppressing the default flavour label)
+        hist_plot.add(
+            Histogram(
+                rng.normal(8, 1, size=10_000),
+                label="Flavoured histogram (default flavour label suppressed)",
+                flavour="bjets",
+                add_flavour_label=False,
+                linestyle="--",
+            )
+        )
+        # Flavoured, but using custom colour
+        hist_plot.add(
+            Histogram(
+                rng.normal(12, 1, size=10_000),
+                label="(flavoured, with custom colour)",
+                flavour="bjets",
+                linestyle="dotted",
+                colour="b",
+            )
+        )
+        hist_plot.draw()
+
+        plotname = "test_flavoured_labels.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        # Uncomment line below to update expected image
+        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname}",
+                f"{self.expected_plots_dir}/{plotname}",
+                tol=1,
+            )
+        )
