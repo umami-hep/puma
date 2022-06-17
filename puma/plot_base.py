@@ -138,6 +138,9 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
     atlas_brand : str, optional
         `brand` argument handed to atlasify. If you want to remove it just use an empty
         string or None, by default "ATLAS"
+    atlas_tag_outside : bool, optional
+        `outside` argument handed to atlasifty. Decides if the ATLAS logo is plotted
+        outside of the plot (on top), by default False
     plotting_done : bool
         Bool that indicates if plotting is done. Only then `atlasify()` can be called,
         by default False
@@ -186,6 +189,7 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
     atlas_vertical_offset: float = 7
     atlas_horizontal_offset: float = 8
     atlas_brand: str = "ATLAS"
+    atlas_tag_outside: bool = False
 
     plotting_done: bool = False
 
@@ -638,6 +642,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
                     indent=self.atlas_horizontal_offset,
                     enlarge=1,
                     brand="" if self.atlas_brand is None else self.atlas_brand,
+                    outside=self.atlas_tag_outside,
                 )
             else:
                 atlasify.atlasify(atlas=False, axes=self.axis_top, enlarge=1)
