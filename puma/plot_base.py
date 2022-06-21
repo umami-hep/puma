@@ -139,7 +139,7 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
         `brand` argument handed to atlasify. If you want to remove it just use an empty
         string or None, by default "ATLAS"
     atlas_tag_outside : bool, optional
-        `outside` argument handed to atlasifty. Decides if the ATLAS logo is plotted
+        `outside` argument handed to atlasify. Decides if the ATLAS logo is plotted
         outside of the plot (on top), by default False
     plotting_done : bool
         Bool that indicates if plotting is done. Only then `atlasify()` can be called,
