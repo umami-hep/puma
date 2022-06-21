@@ -259,7 +259,9 @@ class FractionScanPlot(PlotBase):
         self.set_xlabel()
         self.set_tick_params()
         self.set_ylabel(self.axis_top)
-        self.fig.tight_layout()
+
+        if not self.atlas_tag_outside:
+            self.fig.tight_layout()
 
         # Set grid if grid is true
         if self.grid:
