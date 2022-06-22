@@ -548,7 +548,8 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             if self.legend_flavs is not None:
                 self.legend_flavs.set_frame_on(False)
 
-        self.tight_layout()
+        if not self.atlas_tag_outside:
+            self.tight_layout()
 
     def plot_roc(self, **kwargs) -> mpl.lines.Line2D:
         """Plotting roc curves
