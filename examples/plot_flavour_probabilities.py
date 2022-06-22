@@ -16,7 +16,7 @@ plot_histo = HistogramPlot(
     figsize=(6, 4.5),
     atlas_first_tag="Simulation, $\\sqrt{s}=13$ TeV",
     atlas_second_tag="dummy sample, dummy jets",
-    atlas_brand=None,
+    atlas_brand=None,  # You can deactivate the ATLAS branding (e.g. for a thesis)
     draw_errors=False,
     # bins=np.linspace(0, 1, 30),  # you can also force a binning for the plot here
 )
@@ -26,6 +26,8 @@ u_jets = df.query("HadronConeExclTruthLabelID==0")
 c_jets = df.query("HadronConeExclTruthLabelID==4")
 b_jets = df.query("HadronConeExclTruthLabelID==5")
 
+# the "flavour" argument will add a "light-flavour jets" (or other) prefix to the label
+# + set the colour to the one that is defined in puma.utils.global_config
 plot_histo.add(Histogram(u_jets["dips_pb"], flavour="ujets"))
 plot_histo.add(Histogram(c_jets["dips_pb"], flavour="cjets"))
 plot_histo.add(Histogram(b_jets["dips_pb"], flavour="bjets"))
