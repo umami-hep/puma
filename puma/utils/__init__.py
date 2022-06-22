@@ -121,24 +121,78 @@ def get_good_colours():
 
 global_config = {
     "flavour_categories": {
-        "bjets": {"colour": "#1f77b4", "legend_label": "$b$-jets"},
-        "cjets": {"colour": "#ff7f0e", "legend_label": "$c$-jets"},
-        "ujets": {"colour": "#2ca02c", "legend_label": "light-flavour jets"},
-        "taujets": {"colour": "#7c5295", "legend_label": "$\\tau$-jets"},
-        "singlebjets": {"colour": "#1f77b4", "legend_label": "$b$-jets"},
-        "bbjets": {"colour": "#012F51", "legend_label": "$bb$-jets"},
-        "singlecjets": {"colour": "#ff7f0e", "legend_label": "$c$-jets"},
-        "ccjets": {"colour": "#ad4305", "legend_label": "$cc$-jets"},
-        "upjets": {"colour": "#9ed670", "legend_label": "$u$-jets"},
-        "djets": {"colour": "#274e13", "legend_label": "$d$-jets"},
-        "sjets": {"colour": "#00bfaf", "legend_label": "$s$-jets"},
-        "gluonjets": {"colour": "#7b4e24", "legend_label": "gluon-jets"},
-        "lquarkjets": {"colour": "#A05252", "legend_label": "light-fl. jets w/o gluons"},
-        "hadrcbjets": {"colour": "#264653" , "legend_label": "hadronic $b$-hadron decay"},
-        "lepcbjets": {"colour": "#190099", "legend_label": "leptonic $b$-hadron decay"},
-        "singleebdecay": {"colour": "#e9c46a", "legend_label": "$e$'s in $b$- or $c$-hadron decay"},
-        "singlemubdecay": {"colour": "#f4a261", "legend_label": "$\\mu$'s in $b$- or $c$-hadron decay"},
-        "singletaubdecay": {"colour": "#e76f51", "legend_label": "\u03C4's in $b$- or $c$-hadron decay"}, # \u03C4: unicode for small tau
+        "bjets": {
+            "colour": "#1f77b4",
+            "legend_label": "$b$-jets",
+        },
+        "cjets": {
+            "colour": "#ff7f0e",
+            "legend_label": "$c$-jets",
+        },
+        "ujets": {
+            "colour": "#2ca02c",
+            "legend_label": "light-flavour jets",
+        },
+        "taujets": {
+            "colour": "#7c5295",
+            "legend_label": "$\\tau$-jets",
+        },
+        "singlebjets": {
+            "colour": "#1f77b4",
+            "legend_label": "$b$-jets",
+        },
+        "bbjets": {
+            "colour": "#012F51",
+            "legend_label": "$bb$-jets",
+        },
+        "singlecjets": {
+            "colour": "#ff7f0e",
+            "legend_label": "$c$-jets",
+        },
+        "ccjets": {
+            "colour": "#ad4305",
+            "legend_label": "$cc$-jets",
+        },
+        "upjets": {
+            "colour": "#9ed670",
+            "legend_label": "$u$-jets",
+        },
+        "djets": {
+            "colour": "#274e13",
+            "legend_label": "$d$-jets",
+        },
+        "sjets": {
+            "colour": "#00bfaf",
+            "legend_label": "$s$-jets",
+        },
+        "gluonjets": {
+            "colour": "#7b4e24",
+            "legend_label": "gluon-jets",
+        },
+        "lquarkjets": {
+            "colour": "#A05252",
+            "legend_label": "light-fl. jets w/o gluons",
+        },
+        "hadrcbjets": {
+            "colour": "#264653",
+            "legend_label": "hadronic $b$-hadron decay",
+        },
+        "lepcbjets": {
+            "colour": "#190099",
+            "legend_label": "leptonic $b$-hadron decay",
+        },
+        "singleebdecay": {
+            "colour": "#e9c46a",
+            "legend_label": "$e$'s in $b$- or $c$-hadron decay",
+        },
+        "singlemubdecay": {
+            "colour": "#f4a261",
+            "legend_label": "$\\mu$'s in $b$- or $c$-hadron decay",
+        },
+        "singletaubdecay": {
+            "colour": "#e76f51",
+            "legend_label": "\u03C4's in $b$- or $c$-hadron decay",
+        },
     },
     "hist_err_style": {
         "fill": False,
