@@ -455,6 +455,7 @@ class histogram_plot_TestCase(unittest.TestCase):
             Histogram(
                 rng.normal(3, 1, size=10_000),
                 flavour="bjets",
+                ratio_group="Ratio group 2",
                 label="(reference)",
             ),
             reference=True,
@@ -463,6 +464,7 @@ class histogram_plot_TestCase(unittest.TestCase):
             Histogram(
                 rng.normal(3.5, 1, size=10_000),
                 flavour="bjets",
+                ratio_group="Ratio group 2",
                 linestyle="--",
             ),
         )
