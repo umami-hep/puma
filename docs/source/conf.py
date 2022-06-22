@@ -12,6 +12,7 @@
 
 import os
 import sys
+
 import puma
 
 sys.path.insert(0, os.path.abspath("../../puma"))
@@ -82,7 +83,7 @@ html_theme_options = {
         "json_url": json_url,
         "version_match": version_match,
     },
-    "navbar_end": ["version-switcher", "navbar-icon-links"],
+    "navbar_end": ["theme-switcher", "version-switcher", "navbar-icon-links"],
 }
 
 # The name of the Pygments (syntax highlighting) style to use.
