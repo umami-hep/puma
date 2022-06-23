@@ -1,9 +1,9 @@
 # Changelog
 
-### Latest
+### [v0.1.3]
 
+- Adding more flavours to the global config  [#73](https://github.com/umami-hep/puma/pull/73)
 - `ratio_group` in `puma.Histogram` objects can no longer be set via `flavour` argument [#74](https://github.com/umami-hep/puma/pull/74)
-
 - Adding example for `plt.show` replacement + adding theme switcher button to docs [#72](https://github.com/umami-hep/puma/pull/72)
 - Adding `atlas_tag_outside` and change default for `atlas_second_tag` [#71](https://github.com/umami-hep/puma/pull/71)
 - Change default *bb*-jets colour to dark red and vlines to black [#69](https://github.com/umami-hep/puma/pull/69)
