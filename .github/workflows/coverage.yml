@@ -14,11 +14,13 @@ jobs:
       - run: echo "The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
       - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
+      - run: echo "${{ github.event.pull_request.head.repo.fork }}"  # this is used further down to check if the PR is from a fork
       - run: pip install -e . # install in editable mode for coverage to work
       - run: pip install flake8 pytest pytest-cov
       - name: Create output for coverage comment
         run: pytest -v --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov=puma puma/tests/ | tee pytest-coverage.txt
       - name: Post coverage comment
+        if: "! github.event.pull_request.head.repo.fork "  # only run this if the pull request is not from a fork
         uses: MishaKav/pytest-coverage-comment@main
         with:
           pytest-coverage-path: ./pytest-coverage.txt
