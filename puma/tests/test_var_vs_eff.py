@@ -285,6 +285,7 @@ class var_vs_eff_output_TestCase(unittest.TestCase):
             working_point=0.5,
             disc_cut=None,
             fixed_eff_bin=True,
+            linestyle="dashed",
             label="better model (by construction better for $p_T$ > 110)",
         )
         plot_bkg_rej = VarVsEffPlot(
