@@ -19,6 +19,7 @@ jobs:
       - name: Create output for coverage comment
         run: pytest -v --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov=puma puma/tests/ | tee pytest-coverage.txt
       - name: Post coverage comment
+        if: "! github.event.pull_request.head.repo.fork "  # only run this if the pull request is not from a fork
         uses: MishaKav/pytest-coverage-comment@main
         with:
           pytest-coverage-path: ./pytest-coverage.txt
