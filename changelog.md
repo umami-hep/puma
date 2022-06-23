@@ -1,5 +1,8 @@
 # Changelog
 
+### latest
+- support linestyles for var vs eff plots [#75](https://github.com/umami-hep/puma/pull/75)
+
 ### [v0.1.3]
 
 - Adding more flavours to the global config  [#73](https://github.com/umami-hep/puma/pull/73)

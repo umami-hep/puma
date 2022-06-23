@@ -551,7 +551,7 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         for key in self.add_order:
             elem = self.plot_objects[key]
             y_value, y_error = elem.get(self.mode, inverse_cut=self.inverse_cut)
-            eb = self.axis_top.errorbar(
+            error_bar = self.axis_top.errorbar(
                 elem.x_bin_centres,
                 y_value,
                 xerr=elem.bin_widths,
@@ -564,7 +564,7 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                 **kwargs,
             )
             # set linestyle for errorbar
-            eb[-1][0].set_linestyle(elem.linestyle)
+            error_bar[-1][0].set_linestyle(elem.linestyle)
             down_variation = y_value - y_error
             up_variation = y_value + y_error
             down_variation = np.concatenate((down_variation[:1], down_variation[:]))
@@ -583,7 +583,11 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             )
             plt_handles.append(
                 mpl.lines.Line2D(
-                    [], [], color=elem.colour, label=elem.label, linestyle=elem.linestyle,
+                    [],
+                    [],
+                    color=elem.colour,
+                    label=elem.label,
+                    linestyle=elem.linestyle,
                 )
             )
         return plt_handles
@@ -605,7 +609,7 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                 mode=self.mode,
                 inverse_cut=self.inverse_cut,
             )
-            eb = self.axis_ratio_1.errorbar(
+            error_bar = self.axis_ratio_1.errorbar(
                 x_bin_centres,
                 ratio,
                 xerr=bin_widths,
@@ -616,7 +620,7 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                 linewidth=elem.linewidth,
             )
             # set linestyle for errorbar
-            eb[-1][0].set_linestyle(elem.linestyle)
+            error_bar[-1][0].set_linestyle(elem.linestyle)
             down_variation = ratio - ratio_err
             up_variation = ratio + ratio_err
             down_variation = np.concatenate((down_variation[:1], down_variation[:]))
