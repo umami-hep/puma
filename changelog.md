@@ -1,7 +1,7 @@
 # Changelog
 
 ### latest
-- support linestyles for var vs eff plots [#75](https://github.com/umami-hep/puma/pull/75)
+- support linestyles for var vs eff plots [#78](https://github.com/umami-hep/puma/pull/78)
 
 ### [v0.1.3]
 
