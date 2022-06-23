@@ -1,5 +1,11 @@
 name: Test and publish
-on: [push, pull_request]
+on:
+  pull_request:
+    branches:
+      - '*'
+  push:
+    branches:
+      - 'main'
 
 jobs:
   unit_tests:
