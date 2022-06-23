@@ -1,6 +1,9 @@
 name: Docker build
 
-on: [push]
+on:
+  push:
+    branches:
+      - 'main'
         
 env:
   GITLAB_CONTAINER_REGISTRY: gitlab-registry.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images
