@@ -1,13 +1,12 @@
 [
     {
-        "name": "dev",
-        "version": "improve-docs",
-        "url": "https://umami-hep.github.io/puma/main/"
-    },
-    {
         "name": "latest",
         "version": "main",
         "url": "https://umami-hep.github.io/puma/main/"
+    },
+    {
+        "version": "v0.1.3",
+        "url": "https://umami-hep.github.io/puma/v0.1.3/"
     },
     {
         "version": "v0.1.1",
