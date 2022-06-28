@@ -139,7 +139,7 @@ global_config = {
         },
         "singlebjets": {
             "colour": "#1f77b4",  # blue (like b-jets)
-            "legend_label": "single-$b$ jets",
+            "legend_label": "$b$-jets",
         },
         "bbjets": {
             "colour": "#8E0024",  # dark red
