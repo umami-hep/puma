@@ -2,16 +2,13 @@
 import matplotlib as mpl
 
 from puma.plot_base import PlotBase
-from puma.utils import get_good_pie_colours
+from puma.utils import get_good_pie_colours, logger
 
 
 class PiePlot(
     PlotBase
 ):  # pylint: disable=too-few-public-methods,too-many-instance-attributes
-    """
-    Histogram class storing info about histogram and allows to calculate ratio w.r.t
-    other histograms.
-    """
+    """Pie plot class"""
 
     def __init__(  # pylint: disable=too-many-arguments
         self,
@@ -19,17 +16,54 @@ class PiePlot(
         colours: list = None,
         colour_scheme: str = None,
         labels: list = None,
-        vertical_split: bool = True,
+        draw_legend: bool = True,
+        mpl_pie_kwargs: dict = None,
         **kwargs,
     ):
-        super().__init__(vertical_split=vertical_split, **kwargs)
+        """Initialise the pie plot
+
+        Parameters
+        ----------
+        fracs : 1D array like
+            The size of the wedges. Will be translated into the fractions automatically.
+            So they don't have to add up to 1 or 100. The fractional area of each
+            wedge is given by x/sum(x).
+        colours : list, optional
+            List of colours for the separate wedges. You have to specify as many
+            colours as you have wedges. Instead, you can also specify a colour scheme
+            with the `colour_scheme` argument, by default None
+        colour_scheme : str, optional
+            Name of the colour schemes as defined in puma.utils.get_good_pie_colours,
+            by default None
+        labels : list, optional
+            A sequence of strings providing the labels for each wedge, by default None
+        mpl_pie_kwargs : dict, optional
+            Keyword arguments that are handed to the matplotlib.pyplot.pie function.
+            All arguments are allowed, except [`x`, `labels`, `colors`], by default None
+        """
+        super().__init__(vertical_split=draw_legend, **kwargs)
         self.fracs = fracs
-        self.colours = (
-            colours
-            if colours is not None
-            else get_good_pie_colours(colour_scheme)[: len(fracs)]
-        )
+        self.draw_legend = draw_legend
+
+        # set colours
+        if colours is not None:
+            logger.info("Using specified colours list.")
+            self.colours = colours
+        else:
+            # Using one of the colour schemes defined in puma.utils.get_good_pie_colours
+            logger.info("Using specified colour scheme (%s).", colour_scheme)
+            self.colours = get_good_pie_colours(colour_scheme)[: len(fracs)]
+
         self.labels = labels if labels is not None else ["" for i in range(len(fracs))]
+
+        # Add some good defaults if not specified:
+        self.mpl_pie_kwargs = {
+            "autopct": "%1.1f%%",
+        }
+        # If mpl.pie kwargs were specified, overwrite the defaults
+        if mpl_pie_kwargs is not None:
+            for key, value in mpl_pie_kwargs.items():
+                self.mpl_pie_kwargs[key] = value
 
         self.initialise_figure()
         self.plot()
@@ -37,33 +71,38 @@ class PiePlot(
     def plot(
         self,
     ):
-        """
-        Plot the pie chart
-        """
+        """Plot the pie chart"""
 
         self.axis_top.pie(
             x=self.fracs,
-            labels=None,
+            labels=None if self.draw_legend else self.labels,
             colors=self.colours,
-            autopct="%1.1f%%",
+            **self.mpl_pie_kwargs,
         )
 
-        self.axis_leg.axis("off")
-
-        plt_handles = []
-
-        for pie_label, pie_colour in zip(self.labels, self.colours):
-            plt_handles.append(
-                mpl.patches.Patch(
-                    label=pie_label,
-                    color=pie_colour,
+        # If the legend should be drawn, get the handles and plot it on the right axis
+        if self.draw_legend:
+            plt_handles = []
+            for pie_label, pie_colour in zip(self.labels, self.colours):
+                plt_handles.append(
+                    mpl.patches.Patch(
+                        label=pie_label,
+                        color=pie_colour,
+                    )
                 )
-            )
+            self.axis_leg.axis("off")
+            self.make_legend(plt_handles, ax_mpl=self.axis_leg)
+        else:
+            self.axis_top.axis("equal")
 
         self.plotting_done = True
-        self.make_legend(plt_handles, ax_mpl=self.axis_leg)
-        self.set_title()
-        self.fig.tight_layout()
 
         if self.apply_atlas_style:
             self.atlasify()
+            # Remove the legend that is automatically created by atlasify
+            if not self.draw_legend:
+                self.axis_top.legend().remove()
+
+        self.set_title()
+        self.set_y_lim()
+        self.fig.tight_layout()
