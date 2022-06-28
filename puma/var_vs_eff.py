@@ -496,7 +496,6 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         # set linestyle
         if curve.linestyle is None:
             curve.linestyle = "-"
-
         # set colours
         if curve.colour is None:
             curve.colour = get_good_colours()[len(self.plot_objects) - 1]
@@ -552,7 +551,7 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         for key in self.add_order:
             elem = self.plot_objects[key]
             y_value, y_error = elem.get(self.mode, inverse_cut=self.inverse_cut)
-            self.axis_top.errorbar(
+            error_bar = self.axis_top.errorbar(
                 elem.x_bin_centres,
                 y_value,
                 xerr=elem.bin_widths,
@@ -564,6 +563,8 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                 linewidth=elem.linewidth,
                 **kwargs,
             )
+            # set linestyle for errorbar
+            error_bar[-1][0].set_linestyle(elem.linestyle)
             down_variation = y_value - y_error
             up_variation = y_value + y_error
             down_variation = np.concatenate((down_variation[:1], down_variation[:]))
@@ -578,10 +579,15 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                 zorder=1,
                 step="pre",
                 edgecolor="none",
+                linestyle=elem.linestyle,
             )
             plt_handles.append(
                 mpl.lines.Line2D(
-                    [], [], color=elem.colour, label=elem.label, linestyle="-"
+                    [],
+                    [],
+                    color=elem.colour,
+                    label=elem.label,
+                    linestyle=elem.linestyle,
                 )
             )
         return plt_handles
@@ -603,7 +609,7 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                 mode=self.mode,
                 inverse_cut=self.inverse_cut,
             )
-            self.axis_ratio_1.errorbar(
+            error_bar = self.axis_ratio_1.errorbar(
                 x_bin_centres,
                 ratio,
                 xerr=bin_widths,
@@ -613,6 +619,8 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                 alpha=elem.alpha,
                 linewidth=elem.linewidth,
             )
+            # set linestyle for errorbar
+            error_bar[-1][0].set_linestyle(elem.linestyle)
             down_variation = ratio - ratio_err
             up_variation = ratio + ratio_err
             down_variation = np.concatenate((down_variation[:1], down_variation[:]))
@@ -696,7 +704,8 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                 labelpad=labelpad,
             )
         self.make_legend(plt_handles, ax_mpl=self.axis_top)
-        self.tight_layout()
+        if not self.atlas_tag_outside:
+            self.tight_layout()
         self.plotting_done = True
         if self.apply_atlas_style is True:
             self.atlasify(use_tag=self.use_atlas_tag)

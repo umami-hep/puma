@@ -36,20 +36,20 @@ class Histogram(
             allows you to compare different groups of histograms within one plot.
             By default None
         flavour: str, optional
-            Jet flavour in case the histogram corresponds to one specific flavour. If
-            this is specified, the correct colour will be extracted from the global
-            config. Allowed values are the ones from the global config, i.e. "bjets",
-            "cjets", "ujets", "bbjets", ..., by default None
+            If set, the correct colour and a label prefix will be extracted from
+            `puma.utils.global_config` set for this histogram.
+            Allowed values are e.g. "bjets", "cjets", "ujets", "bbjets", ...
+            By default None
         add_flavour_label : bool, optional
             Set to False to suppress the automatic addition of the flavour label prefix
             in the label of the curve (i.e. "$b$-jets" in the case of b-jets).
-            This is ignored if `flavour` is not set. By default False
+            This is ignored if `flavour` is not set. By default True
         histtype: str, optional
             `histtype` parameter which is handed to matplotlib.hist() when plotting the
             histograms. Supported values are "bar", "barstacked", "step", "stepfilled".
             By default "step"
         **kwargs : kwargs
-            Keyword arguments passed to `PlotLineObject`
+            Keyword arguments passed to `puma.plot_base.PlotLineObject`
 
         Raises
         ------
@@ -87,13 +87,6 @@ class Histogram(
         )
         # If flavour was specified, extract configuration from global config
         if self.flavour is not None:
-            if self.ratio_group is None:
-                self.ratio_group = self.flavour
-                logger.info(
-                    "Setting ratio group of histogram to %s. If this is not what "
-                    "you intended, specify the 'ratio_group' argument.",
-                    self.ratio_group,
-                )
             if self.flavour in global_config["flavour_categories"]:
                 # Use globally defined flavour colour if not specified
                 if self.colour is None:
@@ -736,7 +729,9 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
 
         self.make_legend(plt_handles, ax_mpl=legend_axis)
         self.set_title()
-        self.fig.tight_layout()
+
+        if not self.atlas_tag_outside:
+            self.fig.tight_layout()
 
         if self.apply_atlas_style:
             self.atlasify()

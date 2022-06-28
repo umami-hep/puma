@@ -1,12 +1,14 @@
 name: Update TODO Issue
-on: [push]
+on:
+  push:
+    branches:
+      - 'main'
 
 jobs:
   update_issue:
     name: Update the TODO Issue
     runs-on: ubuntu-latest
     container: python:3.8-slim
-    if: github.ref == 'refs/heads/main'
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
