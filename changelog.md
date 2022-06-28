@@ -1,7 +1,9 @@
 # Changelog
 
 ### latest
-- support linestyles for var vs eff plots [#78](https://github.com/umami-hep/puma/pull/78)
+
+- Change default labels of `singlebjets` and `singlecjets` [#82](https://github.com/umami-hep/puma/pull/82)
+- Support linestyles for variable vs. efficiency plots [#78](https://github.com/umami-hep/puma/pull/78)
 
 ### [v0.1.3]
 

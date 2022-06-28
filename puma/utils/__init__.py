@@ -139,7 +139,7 @@ global_config = {
         },
         "singlebjets": {
             "colour": "#1f77b4",  # blue (like b-jets)
-            "legend_label": "$b$-jets",
+            "legend_label": "single-$b$ jets",
         },
         "bbjets": {
             "colour": "#8E0024",  # dark red
@@ -147,7 +147,7 @@ global_config = {
         },
         "singlecjets": {
             "colour": "#ff7f0e",  # orange (like c-jets)
-            "legend_label": "$c$-jets",
+            "legend_label": "single-$c$ jets",
         },
         "ccjets": {
             "colour": "#ad4305",
