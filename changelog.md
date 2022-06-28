@@ -2,6 +2,7 @@
 
 ### latest
 
+- Adding `puma.PiePlot` class. Pie chart plots with `puma.HistogramPlot` are no longer possible [#70](https://github.com/umami-hep/puma/pull/70)
 - Change default labels of `singlebjets` and `singlecjets` [#82](https://github.com/umami-hep/puma/pull/82)
 - Support linestyles for variable vs. efficiency plots [#78](https://github.com/umami-hep/puma/pull/78)
 
