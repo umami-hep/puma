@@ -8,25 +8,18 @@ import os
 import tempfile
 import unittest
 
-import numpy as np
 from matplotlib.testing.compare import compare_images
 
-from puma import Histogram, HistogramPlot
-from puma.utils import logger, set_log_level
+from puma import PiePlot
+from puma.utils import get_good_colours, logger, set_log_level
 
 set_log_level(logger, "DEBUG")
 
 
-class histogram_plot_TestCase(unittest.TestCase):
-    """Test class for puma.histogram_plot"""
+class pie_plot_TestCase(unittest.TestCase):
+    """Test class for puma.PiePlot"""
 
     def setUp(self):
-        np.random.seed(42)
-        n_random = 10_000
-        self.discrete_vals = [0, 4, 5, 15]
-        self.pie = Histogram(
-            np.random.choice(self.discrete_vals, size=n_random), label=f"N={n_random:_}"
-        )
 
         # Set up directories for comparison plots
         self.tmp_dir = tempfile.TemporaryDirectory()
@@ -35,56 +28,54 @@ class histogram_plot_TestCase(unittest.TestCase):
             os.path.dirname(__file__), "expected_plots"
         )
 
-    def test_invalid_bins_type(self):
-        """check if ValueError is raised when using invalid type in `bins` argument"""
-        hist_plot = HistogramPlot(bins=1.1, plot_pie=True)
-        hist_plot.add(self.pie, reference=True)
-        with self.assertRaises(ValueError):
-            hist_plot.plot_pie_chart()
-
-    def test_invalid_binwidth(self):
-        """check if ValueError is raised when using a bin width larger than 1"""
-        hist_plot = HistogramPlot(
-            bins=5, bins_range=(0, 16), discrete_vals=self.discrete_vals, plot_pie=True
+    def test_plot_pie_chart_default_style(self):
+        """check if pie chart is plotted correctly (using default style)"""
+        pie_plot = PiePlot(
+            wedge_sizes=[20, 40, 30, 10],
+            labels=["light-flavour jets", "c-jets", "b-jets", "tau-jets"],
         )
-        hist_plot.add(self.pie)
-        with self.assertRaises(ValueError):
-            hist_plot.plot_pie_chart()
-
-    def test_no_discrete_vals(self):
-        """check if ValueError is raised when no discrete values are provided"""
-        hist_plot = HistogramPlot(
-            bins=5, bins_range=(0, 16), plot_pie=True, vertical_split=True
-        )
-        hist_plot.add(self.pie)
-        with self.assertRaises(ValueError):
-            hist_plot.plot_pie_chart()
-
-    def test_no_vertical_split(self):
-        hist_plot = HistogramPlot(
-            bins=5, bins_range=(0, 16), discrete_vals=[0, 4, 5, 15], plot_pie=True
-        )
-        hist_plot.add(self.pie)
-        with self.assertRaises(ValueError):
-            hist_plot.plot_pie_chart()
-
-    def test_plot_pie_chart(self):
-        """check if plot chart is plotted correctly"""
-        hist_plot = HistogramPlot(
-            bins=16,
-            bins_range=(0, 16),
-            discrete_vals=[0, 4, 5, 15],
-            plot_pie=True,
-            pie_labels=["light-flavour jets", "c-jets", "b-jets", "tau-jets"],
-            vertical_split=True,
-            title="PartonTruthLabelID",
-        )
-        hist_plot.add(self.pie)
-        hist_plot.draw()
-        plotname = "test_pie_chart.png"
-        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        plotname = "test_pie_chart_default_style.png"
+        pie_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
-        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # pie_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname}",
+                f"{self.expected_plots_dir}/{plotname}",
+                tol=1,
+            )
+        )
+
+    def test_plot_pie_chart_custom_style(self):
+        """check if pie chart is plotted correctly (using default style)"""
+        pie_plot = PiePlot(
+            wedge_sizes=[20, 40, 30, 10],
+            labels=["light-flavour jets", "c-jets", "b-jets", "tau-jets"],
+            draw_legend=True,
+            colours=get_good_colours()[:4],
+            # have a look at the possible kwargs for matplotlib.pyplot.pie here:
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.pie.html
+            mpl_pie_kwargs={
+                "explode": [0, 0, 0, 0.1],
+                "shadow": False,
+                "startangle": 90,
+                "textprops": {"fontsize": 10},
+                "radius": 1,
+                "wedgeprops": dict(width=0.4, edgecolor="w"),
+                "pctdistance": 0.4,
+            },
+            # kwargs passed to puma.PlotObject
+            atlas_second_tag=(
+                "Unit test plot to test if the custom\nstyling of the pie plot"
+            ),
+            figsize=(5.5, 3.5),
+            y_scale=1.6,
+        )
+        plotname = "test_pie_chart_custom_style.png"
+        pie_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        # Uncomment line below to update expected image
+        pie_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
 
         self.assertIsNone(
             compare_images(
