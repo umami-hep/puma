@@ -49,7 +49,7 @@ class Histogram(
             histograms. Supported values are "bar", "barstacked", "step", "stepfilled".
             By default "step"
         **kwargs : kwargs
-            Keyword arguments passed to `puma.PlotLineObject`
+            Keyword arguments passed to `puma.plot_base.PlotLineObject`
 
         Raises
         ------
