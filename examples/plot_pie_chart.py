@@ -31,6 +31,7 @@ example_plot_2 = PiePlot(
     fracs=HadrTruthLabel_fracs,
     labels=HadrTruthLabel_labels,
     draw_legend=True,
+    colour_scheme="blue",
     # have a look at the possible kwargs for matplotlib.pyplot.pie here:
     # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.pie.html
     mpl_pie_kwargs={
