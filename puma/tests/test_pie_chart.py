@@ -11,7 +11,7 @@ import unittest
 import numpy as np
 from matplotlib.testing.compare import compare_images
 
-from puma import Histogram, HistogramPlot
+from puma import Histogram, HistogramPlot, PiePlot
 from puma.utils import logger, set_log_level
 
 set_log_level(logger, "DEBUG")
@@ -85,6 +85,25 @@ class histogram_plot_TestCase(unittest.TestCase):
         hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
         # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname}",
+                f"{self.expected_plots_dir}/{plotname}",
+                tol=1,
+            )
+        )
+
+    def test_plot_pie_chart_default_style(self):
+        """check if pie chart is plotted correctly (using default style)"""
+        pie_plot = PiePlot(
+            fracs=[20, 40, 30, 10],
+            labels=["light-flavour jets", "c-jets", "b-jets", "tau-jets"],
+        )
+        plotname = "test_pie_chart_default_style.png"
+        pie_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        # Uncomment line below to update expected image
+        # pie_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
 
         self.assertIsNone(
             compare_images(

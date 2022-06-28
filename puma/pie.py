@@ -64,6 +64,7 @@ class PiePlot(
         # Add some good defaults if not specified:
         self.mpl_pie_kwargs = {
             "autopct": "%1.1f%%",
+            "startangle": 90,
         }
         # If mpl.pie kwargs were specified, overwrite the defaults
         if mpl_pie_kwargs is not None:
