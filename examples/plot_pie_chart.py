@@ -1,3 +1,4 @@
+"""Example plotting script for the puma.PiePlot class"""
 from puma.pie import PiePlot
 
 HadrTruthLabel_fracs = [70, 10, 15, 5]

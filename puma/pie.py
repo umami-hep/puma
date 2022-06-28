@@ -43,6 +43,8 @@ class PiePlot(
         mpl_pie_kwargs : dict, optional
             Keyword arguments that are handed to the matplotlib.pyplot.pie function.
             All arguments are allowed, except [`x`, `labels`, `colors`], by default None
+        **kwargs : kwargs
+            Keyword arguments from `puma.PlotObject`
         """
         super().__init__(vertical_split=draw_legend, **kwargs)
         self.fracs = fracs
