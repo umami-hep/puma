@@ -6,7 +6,12 @@ HadrTruthLabel_fracs = [200_000, 34_000, 150_000, 5_000]
 HadrTruthLabel_labels = ["Light-flavour jets", "$c$-jets", "$b$-jets", "$\\tau$-jets"]
 
 # Basic example with default values only
-example_plot_1 = PiePlot(fracs=HadrTruthLabel_fracs, labels=HadrTruthLabel_labels)
+example_plot_1 = PiePlot(
+    fracs=HadrTruthLabel_fracs,
+    labels=HadrTruthLabel_labels,
+    figsize=(5.5, 3.5),
+    draw_legend=False,
+)
 example_plot_1.savefig("pie_example_1.png")
 
 

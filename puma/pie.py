@@ -16,7 +16,7 @@ class PiePlot(
         colours: list = None,
         colour_scheme: str = None,
         labels: list = None,
-        draw_legend: bool = True,
+        draw_legend: bool = False,
         mpl_pie_kwargs: dict = None,
         **kwargs,
     ):
@@ -38,7 +38,7 @@ class PiePlot(
         labels : list, optional
             A sequence of strings providing the labels for each wedge, by default None
         draw_legend : bool, optional
-            Bool to decide if a legend should be drawn on the right side of the plot.
+            If True, a legend will be drawn on the right side of the plot.
             If False, the labels will be drawn directly to the wedges. By default True
         mpl_pie_kwargs : dict, optional
             Keyword arguments that are handed to the matplotlib.pyplot.pie function.
