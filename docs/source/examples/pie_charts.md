@@ -11,5 +11,5 @@ Then we can start the actual plotting part:
 <img src=https://github.com/umami-hep/puma/raw/examples-material/pie_example_2.png width=500>
 
 ```py
-§§§examples/plot_pie_chart.py§§§
+§§§examples/plot_pie.py§§§
 ```
