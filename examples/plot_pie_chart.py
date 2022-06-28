@@ -2,7 +2,7 @@
 from puma.pie import PiePlot
 from puma.utils import global_config
 
-HadrTruthLabel_fracs = [70, 10, 15, 5]
+HadrTruthLabel_fracs = [200_000, 34_000, 150_000, 5_000]
 HadrTruthLabel_labels = ["Light-flavour jets", "$c$-jets", "$b$-jets", "$\\tau$-jets"]
 
 # Basic example with default values only
