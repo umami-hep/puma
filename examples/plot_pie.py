@@ -7,7 +7,7 @@ HadrTruthLabel_labels = ["Light-flavour jets", "$c$-jets", "$b$-jets", "$\\tau$-
 
 # Basic example with default values only
 example_plot_1 = PiePlot(
-    fracs=HadrTruthLabel_fracs,
+    wedge_sizes=HadrTruthLabel_fracs,
     labels=HadrTruthLabel_labels,
     figsize=(5.5, 3.5),
     draw_legend=False,
@@ -27,7 +27,7 @@ colours = [
 ]
 
 example_plot_2 = PiePlot(
-    fracs=HadrTruthLabel_fracs,
+    wedge_sizes=HadrTruthLabel_fracs,
     labels=HadrTruthLabel_labels,
     draw_legend=False,
     colours=colours,

@@ -12,7 +12,7 @@ class PiePlot(
 
     def __init__(  # pylint: disable=too-many-arguments
         self,
-        fracs,
+        wedge_sizes,
         colours: list = None,
         colour_scheme: str = None,
         labels: list = None,
@@ -24,7 +24,7 @@ class PiePlot(
 
         Parameters
         ----------
-        fracs : 1D array like
+        wedge_sizes : 1D array like
             The size of the wedges. Will be translated into the fractions automatically.
             So they don't have to add up to 1 or 100. The fractional area of each
             wedge is given by x/sum(x).
@@ -47,7 +47,7 @@ class PiePlot(
             Keyword arguments from `puma.PlotObject`
         """
         super().__init__(vertical_split=draw_legend, **kwargs)
-        self.fracs = fracs
+        self.wedge_sizes = wedge_sizes
         self.draw_legend = draw_legend
 
         # set colours
@@ -57,9 +57,11 @@ class PiePlot(
         else:
             # Using one of the colour schemes defined in puma.utils.get_good_pie_colours
             logger.info("Using specified colour scheme (%s).", colour_scheme)
-            self.colours = get_good_pie_colours(colour_scheme)[: len(fracs)]
+            self.colours = get_good_pie_colours(colour_scheme)[: len(wedge_sizes)]
 
-        self.labels = labels if labels is not None else ["" for i in range(len(fracs))]
+        self.labels = (
+            labels if labels is not None else ["" for i in range(len(wedge_sizes))]
+        )
 
         # Add some good defaults if not specified:
         self.mpl_pie_kwargs = {
@@ -80,7 +82,7 @@ class PiePlot(
         """Plot the pie chart"""
 
         self.axis_top.pie(
-            x=self.fracs,
+            x=self.wedge_sizes,
             labels=None if self.draw_legend else self.labels,
             colors=self.colours,
             **self.mpl_pie_kwargs,

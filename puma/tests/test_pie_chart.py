@@ -31,7 +31,7 @@ class pie_plot_TestCase(unittest.TestCase):
     def test_plot_pie_chart_default_style(self):
         """check if pie chart is plotted correctly (using default style)"""
         pie_plot = PiePlot(
-            fracs=[20, 40, 30, 10],
+            wedge_sizes=[20, 40, 30, 10],
             labels=["light-flavour jets", "c-jets", "b-jets", "tau-jets"],
         )
         plotname = "test_pie_chart_default_style.png"
