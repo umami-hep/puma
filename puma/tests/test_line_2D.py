@@ -11,7 +11,7 @@ import unittest
 import numpy as np
 from matplotlib.testing.compare import compare_images
 
-from puma.line_plot_2D import Line2D, Line2DPlot
+from puma import Line2D, Line2DPlot
 from puma.utils import logger, set_log_level
 
 set_log_level(logger, "DEBUG")
