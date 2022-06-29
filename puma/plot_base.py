@@ -404,17 +404,19 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         """
         self.axis_top.set_title(self.title if title is None else title, **kwargs)
 
-    def set_log(self, force: bool = False):
+    def set_log(self, force_x: bool = False, force_y: bool = False):
         """Set log scale of the axes. For the y-axis, only the main panel is
         set. For the x-axes (also from the ratio subpanels), all are changed.
 
         Parameters
         ----------
-        force : bool, optional
-            Forcing log even if class variable is False, by default False
+        force_x : bool, optional
+            Forcing log on x-axis even if `logx` attribute is False, by default False
+        force_y : bool, optional
+            Forcing log on y-axis even if `logy` attribute is False, by default False
         """
 
-        if self.logx or force:
+        if self.logx or force_x:
             if not self.logx:
                 logger.warning(
                     "Setting log of x-axis but `logx` flag was set to False."
@@ -427,7 +429,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
             if self.axis_ratio_2:
                 self.axis_ratio_2.set_xscale("log")
 
-        if self.logy or force:
+        if self.logy or force_y:
             if not self.logy:
                 logger.warning(
                     "Setting log of y-axis but `logy` flag was set to False."
