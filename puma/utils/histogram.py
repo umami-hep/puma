@@ -54,6 +54,7 @@ def hist_w_unc(
     bins,
     bins_range=None,
     normed: bool = True,
+    weights=None,
 ):
     """
     Computes histogram and the associated statistical uncertainty.
@@ -69,6 +70,12 @@ def hist_w_unc(
     normed : bool, optional
         If True (default) the calculated histogram is normalised to an integral
         of 1.
+    weights : np.ndarray, optional
+        Weights for the input data. Has to be an array of same length as the input
+        data with a weight for each entry. If not specified, weight 1 will be given
+        to each entry. The uncertainty of bins with weighted entries is
+        sqrt(sum_i{w_i^2}) where w_i are the weights of the entries in this bin.
+        By default None.
 
     Returns
     -------
@@ -89,7 +96,15 @@ def hist_w_unc(
     # Calculate the counts and the bin edges
     counts, bin_edges = np.histogram(arr, bins=bins, range=bins_range)
 
-    unc = save_divide(np.sqrt(counts), arr_length, 0) if normed else np.sqrt(counts)
+    if weights is None:
+        weights = np.ones(arr_length)
+
+    # calculate the uncertainty with sum of squared weights (per bin, so we use
+    # np.histogram again here)
+    unc = np.sqrt(np.histogram(arr, bins=bins, weights=weights**2)[0])
+    if normed:
+        unc = save_divide(unc, arr_length, 0)
+
     band = save_divide(counts, arr_length, 0) - unc if normed else counts - unc
     hist = save_divide(counts, arr_length, 0) if normed else counts
 
