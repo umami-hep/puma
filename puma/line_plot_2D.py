@@ -1,4 +1,4 @@
-"""Fraction scan plot functions."""
+"""Classes for 2D line plots."""
 import matplotlib as mpl
 import numpy as np
 
@@ -6,8 +6,8 @@ from puma.plot_base import PlotBase, PlotLineObject
 from puma.utils import get_good_colours, logger
 
 
-class FractionScan(PlotLineObject):  # pylint: disable=too-few-public-methods
-    """FractionScan class storing info about the fractions."""
+class Line2D(PlotLineObject):  # pylint: disable=too-few-public-methods
+    """Line2D class storing info about the x and y values and style."""
 
     def __init__(
         self,
@@ -15,14 +15,14 @@ class FractionScan(PlotLineObject):  # pylint: disable=too-few-public-methods
         y_values: np.ndarray,
         **kwargs,
     ) -> None:
-        """Initialise properties of fraction scan curve object.
+        """Initialise properties of Line2D object.
 
         Parameters
         ----------
         x_values : np.ndarray
-            x values of the fraction scan curve
+            x values of the curve
         y_values : np.ndarray
-            y values of the fraction scan curve
+            y values of the curve
         **kwargs : kwargs
             kwargs passed to `PlotLineObject`
 
@@ -81,7 +81,7 @@ class FractionScan(PlotLineObject):  # pylint: disable=too-few-public-methods
 
         else:
             raise ValueError(
-                "Invalid type of fraction scan input data. Allowed values are "
+                "Invalid type of input data. Allowed values are "
                 "numpy.ndarray, list, int, float"
             )
 
@@ -89,19 +89,19 @@ class FractionScan(PlotLineObject):  # pylint: disable=too-few-public-methods
         self.x_values = x_values
         self.y_values = y_values
 
-        # Set fraction scan attributes to None. Will be defined when plotting starts
+        # Set key to None. Will be defined when plotting starts
         self.key = None
 
 
-class FractionScanPlot(PlotBase):
-    """Fraction scan plot class"""
+class Line2DPlot(PlotBase):
+    """Line2DPlot plot class for basic x-y line plots."""
 
     def __init__(
         self,
         logy: bool = False,
         **kwargs,
     ) -> None:
-        """Fraction scan plot properties
+        """Plot properties
 
         Parameters
         ----------
@@ -128,14 +128,14 @@ class FractionScanPlot(PlotBase):
         key: str = None,
         is_marker: bool = False,
     ):
-        """Adding FractionScan object to figure.
+        """Adding `puma.Line2D` object to figure.
 
         Parameters
         ----------
-        curve : FractionScan
-            Fraction scan curve
+        curve : puma.line_plot_2D.Line2D
+            Line2D object
         key : str, optional
-            Unique identifier for FractionScan, by default None
+            Unique identifier for the curve, by default None
         is_marker : bool, optional
             Defines if this is a marker (True) or a line (False). By default False.
 
@@ -153,9 +153,9 @@ class FractionScanPlot(PlotBase):
         if key in self.plot_objects:
             raise KeyError(f"Duplicated key {key} already used for unique identifier.")
 
-        # Add key to FractionScan object
+        # Add key to Line2D object
         curve.key = key
-        logger.debug("Adding fraction scan of %s", key)
+        logger.debug("Adding Line2D object with key %s", key)
 
         # Set alpha
         if curve.alpha is None:
@@ -215,7 +215,6 @@ class FractionScanPlot(PlotBase):
         for key in self.add_order:
             elem = self.plot_objects[key]
 
-            # Plot fraction scan
             self.axis_top.plot(
                 elem.x_values,
                 elem.y_values,
@@ -247,7 +246,6 @@ class FractionScanPlot(PlotBase):
     def draw(self):
         """Draw figure."""
 
-        # Plot the fraction scans and markers
         plt_handles = self.plot()
 
         # Make the legend
