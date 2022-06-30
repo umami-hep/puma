@@ -246,8 +246,8 @@ class roc_output_TestCase(unittest.TestCase):
         # plot.savefig(f"{self.expected_plots_dir}/{plotname}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
                 f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{plotname}",
                 tol=1,
             )
         )
@@ -297,8 +297,8 @@ class roc_output_TestCase(unittest.TestCase):
         # plot.savefig(f"{self.expected_plots_dir}/{plotname}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
                 f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{plotname}",
                 tol=1,
             )
         )
@@ -365,8 +365,8 @@ class roc_output_TestCase(unittest.TestCase):
         # plot.savefig(f"{self.expected_plots_dir}/{plotname}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
                 f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{plotname}",
                 tol=1,
             )
         )
@@ -437,8 +437,8 @@ class roc_output_TestCase(unittest.TestCase):
         # plot.savefig(f"{self.expected_plots_dir}/{plotname}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
                 f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{plotname}",
                 tol=1,
             )
         )
