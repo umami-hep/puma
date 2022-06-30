@@ -149,13 +149,13 @@ class hist_w_unc_TestCase(unittest.TestCase):
         values = np.array([0, 1, 2, 2, 3])
         weights = np.array([1, -1, 3, -2, 1])
 
-        exp_hist = np.array([1, -1, 2])
+        hist_exp = np.array([1, -1, 2])
         # uncertainties are the sqrt(sum of squared weights)
-        exp_unc = np.sqrt(np.array([1, (-1) ** 2, 3**2 + (-2) ** 2 + 1]))
+        unc_exp = np.sqrt(np.array([1, (-1) ** 2, 3**2 + (-2) ** 2 + 1]))
 
         _, hist, unc, _ = hist_w_unc(values, weights=weights, bins=3, normed=False)
-        np.testing.assert_array_almost_equal(exp_hist, hist)
-        np.testing.assert_array_almost_equal(exp_unc, unc)
+        np.testing.assert_array_almost_equal(hist_exp, hist)
+        np.testing.assert_array_almost_equal(unc_exp, unc)
 
     # TODO: Add unit tests for hist_ratio
 
