@@ -428,9 +428,10 @@ class histogram_plot_TestCase(unittest.TestCase):
             atlas_brand=None,
             atlas_first_tag="",
             atlas_second_tag=(
-                "Unit test plot to test the ratio_group argument of the "
-                "puma.Histogram class"
+                "Unit test plot to test the ratio_group argument \n"
+                "of the puma.Histogram class"
             ),
+            figsize=(6, 5),
         )
 
         rng = np.random.default_rng(seed=42)
@@ -498,6 +499,7 @@ class histogram_plot_TestCase(unittest.TestCase):
                 "of using the flavour label from the global \n"
                 "config and not doing so"
             ),
+            figsize=(8, 6),
         )
         # No flavour
         hist_plot.add(

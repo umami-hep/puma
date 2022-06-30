@@ -447,9 +447,36 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         if self.n_ratio_panels != 2:
             raise ValueError("For a split legend you need 2 ratio panels.")
 
-        line_list_rej = []
+        # line_list_rej = []
+        # for elem in [self.ratio_axes[1], self.ratio_axes[2]]:
+        #     line_list_rej.append(
+        #         mpl.lines.Line2D(
+        #             [],
+        #             [],
+        #             color="k",
+        #             label=self.leg_rej_labels[elem],
+        #             linestyle=self.rej_class_ls[elem],
+        #         )
+        #     )
+
+        # self.legend_flavs = self.axis_top.legend(
+        #     handles=line_list_rej,
+        #     labels=[handle.get_label() for handle in line_list_rej],
+        #     loc="upper center",
+        #     fontsize=self.leg_fontsize,
+        #     ncol=self.leg_ncol,
+        # )
+
+        # # Add the second legend to plot
+        # self.axis_top.add_artist(self.legend_flavs)
+
+        # Get the labels for the legends
+        labels_list = []
+        lines_list = []
+
+        # Add linestyles of the two ratio classes to the legend
         for elem in [self.ratio_axes[1], self.ratio_axes[2]]:
-            line_list_rej.append(
+            lines_list.append(
                 mpl.lines.Line2D(
                     [],
                     [],
@@ -458,22 +485,20 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                     linestyle=self.rej_class_ls[elem],
                 )
             )
+            labels_list.append(self.leg_rej_labels[elem])
 
-        self.legend_flavs = self.axis_top.legend(
-            handles=line_list_rej,
-            labels=[handle.get_label() for handle in line_list_rej],
-            loc="upper center",
-            fontsize=self.leg_fontsize,
-            ncol=self.leg_ncol,
+        labels_list.append("")
+        lines_list.append(
+            mpl.lines.Line2D(
+                [],
+                [],
+                color="none",
+                label="Dummy",
+                linestyle="-",
+            )
         )
 
-        # Add the second legend to plot
-        self.axis_top.add_artist(self.legend_flavs)
-
-        # Get the labels for the legends
-        labels_list = []
-        lines_list = []
-
+        # Add the ROC curve labels themselves
         for line in handles:
             if line.get_label() not in labels_list:
                 labels_list.append(line.get_label())
