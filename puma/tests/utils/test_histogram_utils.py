@@ -29,5 +29,5 @@ class histogram_utils_TestCase(unittest.TestCase):
     # 2. hist_w_unc for weighted calculation
     # 3. hist_ratio
     # 4. Check what happens in hist_w_unc if `bins` (array with bin_edges) AND
-    #    `bins_range` is specified (in this case the range should be ignored, since
+    #    `bins_range` is specified (in this case bins_range should be ignored, since
     #    we just use the np.histogram function and hand the parameters to that function)
