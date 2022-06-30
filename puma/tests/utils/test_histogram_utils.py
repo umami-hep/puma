@@ -143,12 +143,21 @@ class hist_w_unc_TestCase(unittest.TestCase):
         np.testing.assert_array_almost_equal(bins_exp, bin_edges)
         np.testing.assert_array_almost_equal(hist_exp, hist)
 
-    # TODO: Add unit tests for:
-    # 3. hist_ratio
-    # 4. test negative weights
-    # 4. Check what happens in hist_w_unc if `bins` (array with bin_edges) AND
-    #    `bins_range` is specified (in this case bins_range should be ignored, since
-    #    we just use the np.histogram function and hand the parameters to that function)
+    def test_negative_weights(self):
+        """Test if negative weights are properly handled."""
+
+        values = np.array([0, 1, 2, 2, 3])
+        weights = np.array([1, -1, 3, -2, 1])
+
+        exp_hist = np.array([1, -1, 2])
+        # uncertainties are the sqrt(sum of squared weights)
+        exp_unc = np.sqrt(np.array([1, (-1) ** 2, 3**2 + (-2) ** 2 + 1]))
+
+        _, hist, unc, _ = hist_w_unc(values, weights=weights, bins=3, normed=False)
+        np.testing.assert_array_almost_equal(exp_hist, hist)
+        np.testing.assert_array_almost_equal(exp_unc, unc)
+
+    # TODO: Add unit tests for hist_ratio
 
 
 class save_divide_TestCase(unittest.TestCase):
