@@ -64,9 +64,9 @@ def hist_w_unc(
     arr : array_like
         Input data. The histogram is computed over the flattened array.
     bins : int or sequence of scalars or str
-        `bins` parameter from np.histogram
+        `bins` parameter from `np.histogram`
     bins_range : tuple, optional
-        `range` parameter from np.histogram. This is ignored if `bins` is array like,
+        `range` parameter from `np.histogram`. This is ignored if `bins` is array like,
         because then the entries of `bins` are used as bin edges.
     normed : bool, optional
         If True (default) the calculated histogram is normalised to an integral
