@@ -20,16 +20,35 @@ set_log_level(logger, "DEBUG")
 
 class hist_w_unc_TestCase(unittest.TestCase):
     def setUp(self):
-        self.bin_edges = np.array([0, 1, 2, 3, 4, 5])
-        self.input = np.array([1, 2, 3, 4, 5, 1, 2, 3])
-        self.hist_normed = np.array([0, 0.25, 0.25, 0.25, 0.25])
-        self.hist = np.array([0, 2, 2, 2, 2])
-        self.unc_normed = np.array([0, 0.1767767, 0.1767767, 0.1767767, 0.1767767])
-        self.unc = np.array([0.0, 1.4142136, 1.4142136, 1.4142136, 1.4142136])
-        self.band_normed = np.array([0, 0.0732233, 0.0732233, 0.0732233, 0.0732233])
-        self.band = np.array([0.0, 0.5857864, 0.5857864, 0.5857864, 0.5857864])
+        self.input = np.array([0, 1, 1, 3])
+        self.weights = np.array([1, 2, 1, 1])
+        self.n_bins = 3
+        self.bin_edges = np.array([0, 1, 2, 3])
+
+        self.hist = np.array([1, 2, 1])
+        self.unc = np.sqrt(np.array([1, 2, 1]))
+        self.band = self.hist - self.unc
+
+        self.hist_normed = np.array([1, 2, 1]) / len(self.input)
+        self.unc_normed = np.sqrt(np.array([1, 2, 1])) / len(self.input)
+        self.band_normed = self.hist_normed - self.unc_normed
+
+        # --- weighted cases ---
+        # 3 counts in second bin due to weights
+        self.hist_weighted_normed = np.array([1, 3, 1]) / len(self.input)
+        # use sqrt(sum of squared weights) for error calculation
+        self.unc_weighted_normed = np.sqrt(np.array([1, 2**2 + 1, 1])) / len(
+            self.input
+        )
+        self.band_weighted_normed = self.hist_weighted_normed - self.unc_weighted_normed
+
+        self.hist_weighted = np.array([1, 3, 1])
+        # use sqrt(sum of squared weights) for error calculation
+        self.unc_weighted = np.sqrt(np.array([1, 2**2 + 1, 1]))
+        self.band_weighted = self.hist_weighted - self.unc_weighted
 
     def test_hist_w_unc_zero_case(self):
+        """Test what happens if empty array is provided as input."""
         bins, hist, unc, band = hist_w_unc(
             arr=[],
             bins=[],
@@ -41,6 +60,7 @@ class hist_w_unc_TestCase(unittest.TestCase):
         np.testing.assert_almost_equal(band, [])
 
     def test_hist_w_unc_normed(self):
+        """Test normalised case."""
         bins, hist, unc, band = hist_w_unc(
             arr=self.input,
             bins=self.bin_edges,
@@ -52,6 +72,7 @@ class hist_w_unc_TestCase(unittest.TestCase):
         np.testing.assert_almost_equal(band, self.band_normed)
 
     def test_hist_w_unc_not_normed(self):
+        """Test not normalised case."""
         bins, hist, unc, band = hist_w_unc(
             arr=self.input,
             bins=self.bin_edges,
@@ -62,6 +83,72 @@ class hist_w_unc_TestCase(unittest.TestCase):
         np.testing.assert_almost_equal(hist, self.hist)
         np.testing.assert_almost_equal(unc, self.unc)
         np.testing.assert_almost_equal(band, self.band)
+
+    def test_histogram_weighted_normalised(self):
+        """Test weighted histogram (normalised)."""
+
+        bin_edges, hist, unc, band = hist_w_unc(
+            self.input, weights=self.weights, bins=self.n_bins, normed=True
+        )
+
+        np.testing.assert_array_almost_equal(self.bin_edges, bin_edges)
+        np.testing.assert_array_almost_equal(self.hist_weighted_normed, hist)
+        np.testing.assert_array_almost_equal(self.unc_weighted_normed, unc)
+        np.testing.assert_array_almost_equal(self.band_weighted_normed, band)
+
+    def test_histogram_weighted_not_normalised(self):
+        """Test weighted histogram (not normalised)."""
+
+        bin_edges, hist, unc, band = hist_w_unc(
+            self.input, weights=self.weights, bins=self.n_bins, normed=False
+        )
+
+        np.testing.assert_array_almost_equal(self.bin_edges, bin_edges)
+        np.testing.assert_array_almost_equal(self.hist_weighted, hist)
+        np.testing.assert_array_almost_equal(self.unc_weighted, unc)
+        np.testing.assert_array_almost_equal(self.band_weighted, band)
+
+    def test_range_argument_ignored(self):
+        """Test if the hist_range argument is ignored when bin_edges are provided."""
+
+        bins_range = (1, 2)
+
+        bin_edges, hist, _, _ = hist_w_unc(
+            self.input,
+            bins=self.bin_edges,
+            bins_range=bins_range,
+            normed=False,
+        )
+
+        # check if we end up with the same bin edges anyway
+        np.testing.assert_array_almost_equal(self.bin_edges, bin_edges)
+        np.testing.assert_array_almost_equal(self.hist, hist)
+
+    def test_range_argument(self):
+        """Test if the hist_range argument is used when bins is an integer."""
+
+        # we test with range from 0 to 2, with 3 bins -> [0, 0.66, 1.33, 2] exp. bins
+        bins_range = (0, 2)
+        bins_exp = np.array([0, 2 / 3, 1 + 1 / 3, 2])
+        hist_exp = np.array([1, 2, 0])
+
+        bin_edges, hist, _, _ = hist_w_unc(
+            self.input,
+            bins=self.n_bins,
+            bins_range=bins_range,
+            normed=False,
+        )
+
+        # check if we end up with the same bin edges anyway
+        np.testing.assert_array_almost_equal(bins_exp, bin_edges)
+        np.testing.assert_array_almost_equal(hist_exp, hist)
+
+    # TODO: Add unit tests for:
+    # 3. hist_ratio
+    # 4. test negative weights
+    # 4. Check what happens in hist_w_unc if `bins` (array with bin_edges) AND
+    #    `bins_range` is specified (in this case bins_range should be ignored, since
+    #    we just use the np.histogram function and hand the parameters to that function)
 
 
 class save_divide_TestCase(unittest.TestCase):
@@ -142,74 +229,3 @@ class hist_ratio_TestCase(unittest.TestCase):
                 numerator_unc=np.ones(3),
                 denominator_unc=np.ones(2),
             )
-
-
-class histogram_utils_TestCase(unittest.TestCase):
-    """Test class for the puma.utils.histogram functions."""
-
-    def test_histogram_unweighted_not_normalised(self):
-        """Test if unweighted histogram returns the expected counts (not normalised)."""
-
-        values = np.array([0, 1, 1, 3])
-        n_bins = 3
-
-        exp_bin_edges = np.array([0, 1, 2, 3])
-        exp_hist = np.array([1, 2, 1])
-        exp_unc = np.sqrt(np.array([1, 2, 1]))
-        exp_band = exp_hist - exp_unc
-
-        bin_edges, hist, unc, band = hist_w_unc(values, bins=n_bins, normed=False)
-
-        np.testing.assert_array_almost_equal(exp_bin_edges, bin_edges)
-        np.testing.assert_array_almost_equal(exp_hist, hist)
-        np.testing.assert_array_almost_equal(exp_unc, unc)
-        np.testing.assert_array_almost_equal(exp_band, band)
-
-    def test_histogram_unweighted_normalised(self):
-        """Test if unweighted histogram returns the expected counts (normalised)."""
-
-        values = np.array([0, 1, 1, 3])
-        n_bins = 3
-
-        exp_bin_edges = np.array([0, 1, 2, 3])
-        exp_hist = np.array([1, 2, 1]) / len(values)
-        exp_unc = np.sqrt(np.array([1, 2, 1])) / len(values)
-        exp_band = exp_hist - exp_unc
-
-        bin_edges, hist, unc, band = hist_w_unc(values, bins=n_bins, normed=True)
-
-        np.testing.assert_array_almost_equal(exp_bin_edges, bin_edges)
-        np.testing.assert_array_almost_equal(exp_hist, hist)
-        np.testing.assert_array_almost_equal(exp_unc, unc)
-        np.testing.assert_array_almost_equal(exp_band, band)
-
-    def test_histogram_weighted_normalised(self):
-        """Test if weighted histogram returns the expected counts (normalised)."""
-
-        values = np.array([0, 1, 1, 3])
-        weights = np.array([1, 2, 1, 1])
-        n_bins = 3
-
-        exp_bin_edges = np.array([0, 1, 2, 3])
-        # 3 counts in second bin due to weights
-        exp_hist = np.array([1, 3, 1]) / len(values)
-        exp_unc = np.sqrt(np.array([1, 2**2 + 1, 1])) / len(values)
-        exp_band = exp_hist - exp_unc
-
-        bin_edges, hist, unc, band = hist_w_unc(
-            values, weights=weights, bins=n_bins, normed=True
-        )
-
-        np.testing.assert_array_almost_equal(exp_bin_edges, bin_edges)
-        np.testing.assert_array_almost_equal(exp_hist, hist)
-        np.testing.assert_array_almost_equal(exp_unc, unc)
-        np.testing.assert_array_almost_equal(exp_band, band)
-
-    # TODO: Add unit tests for:
-    # 2. hist_w_unc for weighted calculation
-    # test range/bins cases
-    # 3. hist_ratio
-    # 4. test negative weights
-    # 4. Check what happens in hist_w_unc if `bins` (array with bin_edges) AND
-    #    `bins_range` is specified (in this case bins_range should be ignored, since
-    #    we just use the np.histogram function and hand the parameters to that function)
