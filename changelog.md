@@ -1,5 +1,9 @@
 # Changelog
 
+### [Latest]
+
+- Adding support for weighted histograms (`puma.Histogram` now has an optional argument `weights`) [#86](https://github.com/umami-hep/puma/pull/86)
+
 ### [v0.1.4]
 
 - Renamed the `puma.FractionScan` and `puma.FractionScanPlot` classes to more general `puma.Line2DPlot` and `pumal.Line2D` [#84](https://github.com/umami-hep/puma/pull/84)
