@@ -93,20 +93,23 @@ def hist_w_unc(
     """
     arr_length = len(arr)
 
-    # Calculate the counts and the bin edges
-    counts, bin_edges = np.histogram(arr, bins=bins, range=bins_range)
-
     if weights is None:
         weights = np.ones(arr_length)
 
+    # Calculate the counts and the bin edges
+    counts, bin_edges = np.histogram(arr, bins=bins, range=bins_range, weights=weights)
+
     # calculate the uncertainty with sum of squared weights (per bin, so we use
     # np.histogram again here)
-    unc = np.sqrt(np.histogram(arr, bins=bins, weights=weights**2)[0])
+    unc = np.sqrt(
+        np.histogram(arr, bins=bins, range=bins_range, weights=weights**2)[0]
+    )
     if normed:
+        counts = save_divide(counts, arr_length)
         unc = save_divide(unc, arr_length, 0)
 
-    band = save_divide(counts, arr_length, 0) - unc if normed else counts - unc
-    hist = save_divide(counts, arr_length, 0) if normed else counts
+    band = counts - unc
+    hist = counts
 
     return bin_edges, hist, unc, band
 
