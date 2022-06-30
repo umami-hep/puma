@@ -35,7 +35,8 @@ class Histogram(
         weights : np.ndarray, optional
             Weights for the input data. Has to be an array of same length as the input
             data with a weight for each entry. If not specified, weight 1 will be given
-            to each entry. By default None.
+            to each entry. The uncertainties are calculated as the square root of the
+            squared weights (for each bin separately). By default None.
         ratio_group : str, optional
             Name of the ratio group this histogram is compared with. The ratio group
             allows you to compare different groups of histograms within one plot.
