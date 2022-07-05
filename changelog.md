@@ -1,5 +1,7 @@
 # Changelog
 
+### [Latest]
+
 ### [v0.1.5]
 
 - Add `linewidth` and `alpha` to legend handles + set `alpha=1` by default (in `puma.Histogram`) [#92](https://github.com/umami-hep/puma/pull/92)
