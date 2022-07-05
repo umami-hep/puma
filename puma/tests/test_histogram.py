@@ -155,10 +155,11 @@ class histogram_plot_TestCase(unittest.TestCase):
             bins_range=(0, 4),
             atlas_brand="",
             atlas_first_tag="Simulation, $\\sqrt{s}=13$ TeV",
-            atlas_second_tag="",
+            atlas_second_tag="Second tag with additional\ndistance from first tag",
             figsize=(5, 4),
             ylabel="Number of jets",
             n_ratio_panels=1,
+            atlas_second_tag_distance=0.3,
         )
         hist_plot.add(self.hist_1, reference=True)
         hist_plot.draw()
