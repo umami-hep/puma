@@ -141,6 +141,9 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
     atlas_tag_outside : bool, optional
         `outside` argument handed to atlasify. Decides if the ATLAS logo is plotted
         outside of the plot (on top), by default False
+    atlas_second_tag_distance : float, optional
+        Distance between the `atlas_first_tag` and `atlas_second_tag` text in units
+        of line spacing, by default 0
     plotting_done : bool
         Bool that indicates if plotting is done. Only then `atlasify()` can be called,
         by default False
@@ -190,6 +193,7 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
     atlas_horizontal_offset: float = 8
     atlas_brand: str = "ATLAS"
     atlas_tag_outside: bool = False
+    atlas_second_tag_distance: float = 0
 
     plotting_done: bool = False
 
@@ -645,6 +649,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
                     enlarge=1,
                     brand="" if self.atlas_brand is None else self.atlas_brand,
                     outside=self.atlas_tag_outside,
+                    subtext_distance=self.atlas_second_tag_distance,
                 )
             else:
                 atlasify.atlasify(atlas=False, axes=self.axis_top, enlarge=1)
