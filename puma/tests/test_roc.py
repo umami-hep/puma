@@ -315,7 +315,6 @@ class roc_output_TestCase(unittest.TestCase):
                 "$\\sqrt{s}=13$ TeV, PFlow Jets,\n"
                 "$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
             ),
-            y_scale=1.5,
         )
 
         # Add four roc curves
@@ -384,7 +383,6 @@ class roc_output_TestCase(unittest.TestCase):
                 "$\\sqrt{s}=13$ TeV, PFlow Jets,\n"
                 "$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
             ),
-            y_scale=1.5,
         )
 
         # Add four roc curves
