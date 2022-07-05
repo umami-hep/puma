@@ -32,3 +32,14 @@ could also produce a `MC` vs `data` plot with the following example code:
 ```py
 §§§examples/plot_basic_histogram.py§§§
 ```
+
+## Example for weighted histograms
+
+`puma` also supports weighted histograms by specifying the optional argument `weights`.
+An example is given below:
+
+<img src=https://github.com/umami-hep/puma/raw/examples-material/histogram_weighted.png width=500>
+
+```py
+§§§examples/plot_weighted_histograms.py§§§
+```

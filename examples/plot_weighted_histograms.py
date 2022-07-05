@@ -24,4 +24,4 @@ hist_plot.add(
     )
 )
 hist_plot.draw()
-hist_plot.savefig("weighted_histograms.png")
+hist_plot.savefig("histogram_weighted.png")
