@@ -1,5 +1,9 @@
 # Changelog
 
+### [Latest]
+
+- Decreased default `figsize` for plots with zero or one ratio panels [#90](https://github.com/umami-hep/puma/pull/90)
+
 ### [v0.1.4]
 
 - Renamed the `puma.FractionScan` and `puma.FractionScanPlot` classes to more general `puma.Line2DPlot` and `pumal.Line2D` [#84](https://github.com/umami-hep/puma/pull/84)
