@@ -1,8 +1,9 @@
 # Changelog
 
-### [v0.1.4]
-
+### [Latest]
 - Decreased default `figsize` for plots with zero or one ratio panels [#90](https://github.com/umami-hep/puma/pull/90)
+
+### [v0.1.4]
 - Renamed the `puma.FractionScan` and `puma.FractionScanPlot` classes to more general `puma.Line2DPlot` and `pumal.Line2D` [#84](https://github.com/umami-hep/puma/pull/84)
 - Splitting `force` argument of `set_log()` method into `force_x` and `force_y` [#83](https://github.com/umami-hep/puma/pull/83)
 - Adding `puma.PiePlot` class. Pie chart plots with `puma.HistogramPlot` are no longer possible [#70](https://github.com/umami-hep/puma/pull/70)
