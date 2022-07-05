@@ -92,10 +92,8 @@ def hist_w_unc(
         lower uncertainty band location: hist - unc
         If normed is true (default), returns the normed values.
     """
-    arr_length = len(arr)
-
     if weights is None:
-        weights = np.ones(arr_length)
+        weights = np.ones(len(arr))
 
     # Calculate the counts and the bin edges
     counts, bin_edges = np.histogram(arr, bins=bins, range=bins_range, weights=weights)
@@ -106,8 +104,8 @@ def hist_w_unc(
         np.histogram(arr, bins=bins, range=bins_range, weights=weights**2)[0]
     )
     if normed:
-        counts = save_divide(counts, arr_length, 0)
-        unc = save_divide(unc, arr_length, 0)
+        counts = save_divide(counts, float(np.sum(weights)), 0)
+        unc = save_divide(unc, float(np.sum(weights)), 0)
 
     band = counts - unc
     hist = counts
