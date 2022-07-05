@@ -433,6 +433,7 @@ class histogram_plot_TestCase(unittest.TestCase):
                 "of the puma.Histogram class"
             ),
             figsize=(6, 5),
+            y_scale=1.5,
         )
 
         rng = np.random.default_rng(seed=42)
@@ -468,6 +469,8 @@ class histogram_plot_TestCase(unittest.TestCase):
                 flavour="bjets",
                 ratio_group="Ratio group 2",
                 linestyle="--",
+                linewidth=3,
+                alpha=0.3,
             ),
         )
         hist_plot.draw()
