@@ -263,7 +263,7 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             histogram.colour = get_good_colours()[len(self.plot_objects)]
         # Set alpha
         if histogram.alpha is None:
-            histogram.alpha = 0.8
+            histogram.alpha = 1
         # Set linewidth
         if histogram.linewidth is None:
             histogram.linewidth = 1.6
@@ -381,6 +381,8 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                     [],
                     color=elem.colour,
                     label=elem.label,
+                    alpha=elem.alpha,
+                    linewidth=elem.linewidth,
                     linestyle=elem.linestyle,
                 )
             )
