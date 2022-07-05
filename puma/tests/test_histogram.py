@@ -155,10 +155,11 @@ class histogram_plot_TestCase(unittest.TestCase):
             bins_range=(0, 4),
             atlas_brand="",
             atlas_first_tag="Simulation, $\\sqrt{s}=13$ TeV",
-            atlas_second_tag="",
+            atlas_second_tag="Second tag with additional\ndistance from first tag",
             figsize=(5, 4),
             ylabel="Number of jets",
             n_ratio_panels=1,
+            atlas_second_tag_distance=0.3,
         )
         hist_plot.add(self.hist_1, reference=True)
         hist_plot.draw()
@@ -428,9 +429,11 @@ class histogram_plot_TestCase(unittest.TestCase):
             atlas_brand=None,
             atlas_first_tag="",
             atlas_second_tag=(
-                "Unit test plot to test the ratio_group argument of the "
-                "puma.Histogram class"
+                "Unit test plot to test the ratio_group argument \n"
+                "of the puma.Histogram class"
             ),
+            figsize=(6, 5),
+            y_scale=1.5,
         )
 
         rng = np.random.default_rng(seed=42)
@@ -466,6 +469,8 @@ class histogram_plot_TestCase(unittest.TestCase):
                 flavour="bjets",
                 ratio_group="Ratio group 2",
                 linestyle="--",
+                linewidth=3,
+                alpha=0.3,
             ),
         )
         hist_plot.draw()
@@ -498,6 +503,7 @@ class histogram_plot_TestCase(unittest.TestCase):
                 "of using the flavour label from the global \n"
                 "config and not doing so"
             ),
+            figsize=(8, 6),
         )
         # No flavour
         hist_plot.add(

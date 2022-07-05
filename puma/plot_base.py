@@ -141,6 +141,9 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
     atlas_tag_outside : bool, optional
         `outside` argument handed to atlasify. Decides if the ATLAS logo is plotted
         outside of the plot (on top), by default False
+    atlas_second_tag_distance : float, optional
+        Distance between the `atlas_first_tag` and `atlas_second_tag` text in units
+        of line spacing, by default 0
     plotting_done : bool
         Bool that indicates if plotting is done. Only then `atlasify()` can be called,
         by default False
@@ -190,6 +193,7 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
     atlas_horizontal_offset: float = 8
     atlas_brand: str = "ATLAS"
     atlas_tag_outside: bool = False
+    atlas_second_tag_distance: float = 0
 
     plotting_done: bool = False
 
@@ -279,7 +283,9 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
                     "panels are created.",
                     self.n_ratio_panels,
                 )
-            self.fig = Figure(figsize=(8, 6) if self.figsize is None else self.figsize)
+            self.fig = Figure(
+                figsize=(6, 4.5) if self.figsize is None else self.figsize
+            )
             g_spec = gridspec.GridSpec(1, 11, figure=self.fig)
             self.axis_top = self.fig.add_subplot(g_spec[0, :9])
             self.axis_leg = self.fig.add_subplot(g_spec[0, 9:])
@@ -288,14 +294,14 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
             if self.n_ratio_panels == 0:
                 # no ratio panel
                 self.fig = Figure(
-                    figsize=(8, 6) if self.figsize is None else self.figsize
+                    figsize=(5, 3.5) if self.figsize is None else self.figsize
                 )
                 self.axis_top = self.fig.gca()
 
             elif self.n_ratio_panels == 1:
                 # 1 ratio panel
                 self.fig = Figure(
-                    figsize=(9.352, 6.616) if self.figsize is None else self.figsize
+                    figsize=(5, 4) if self.figsize is None else self.figsize
                 )
 
                 g_spec = gridspec.GridSpec(8, 1, figure=self.fig)
@@ -645,6 +651,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
                     enlarge=1,
                     brand="" if self.atlas_brand is None else self.atlas_brand,
                     outside=self.atlas_tag_outside,
+                    subtext_distance=self.atlas_second_tag_distance,
                 )
             else:
                 atlasify.atlasify(atlas=False, axes=self.axis_top, enlarge=1)

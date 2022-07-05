@@ -3,6 +3,8 @@
 ### [Latest]
 
 - Adding support for weighted histograms (`puma.Histogram` now has an optional argument `weights`) [#86](https://github.com/umami-hep/puma/pull/86)
+- Add `linewidth` and `alpha` to legend handles + set `alpha=1` by default (in `puma.Histogram`) [#92](https://github.com/umami-hep/puma/pull/92)
+- Decreased default `figsize` for plots with zero or one ratio panels [#90](https://github.com/umami-hep/puma/pull/90)
 
 ### [v0.1.4]
 

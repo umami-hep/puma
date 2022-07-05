@@ -302,6 +302,7 @@ class var_vs_eff_output_TestCase(unittest.TestCase):
             ),
             y_scale=1.5,
             n_ratio_panels=1,
+            figsize=(9, 6),
         )
         plot_bkg_rej.add(ref_light, reference=True)
         plot_bkg_rej.add(better_light)
@@ -359,6 +360,7 @@ class var_vs_eff_output_TestCase(unittest.TestCase):
             ),
             y_scale=1.5,
             n_ratio_panels=1,
+            figsize=(9, 6),
         )
         plot_bkg_rej.add(ref_light, reference=True)
         plot_bkg_rej.add(better_light)
