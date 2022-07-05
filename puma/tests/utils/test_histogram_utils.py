@@ -35,10 +35,10 @@ class hist_w_unc_TestCase(unittest.TestCase):
 
         # --- weighted cases ---
         # 3 counts in second bin due to weights
-        self.hist_weighted_normed = np.array([1, 3, 1]) / len(self.input)
+        self.hist_weighted_normed = np.array([1, 3, 1]) / np.sum(self.weights)
         # use sqrt(sum of squared weights) for error calculation
-        self.unc_weighted_normed = np.sqrt(np.array([1, 2**2 + 1, 1])) / len(
-            self.input
+        self.unc_weighted_normed = np.sqrt(np.array([1, 2**2 + 1, 1])) / np.sum(
+            self.weights
         )
         self.band_weighted_normed = self.hist_weighted_normed - self.unc_weighted_normed
 
