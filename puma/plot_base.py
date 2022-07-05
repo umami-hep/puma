@@ -309,7 +309,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
             elif self.n_ratio_panels == 2:
                 # 2 ratio panels
                 self.fig = Figure(
-                    figsize=(5.5, 5.5) if self.figsize is None else self.figsize
+                    figsize=(8, 8) if self.figsize is None else self.figsize
                 )
 
                 # Define the grid of the subplots
