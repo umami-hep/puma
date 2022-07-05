@@ -101,4 +101,4 @@ frac_plot.xlabel = "$c$-jets efficiency"
 
 # Draw and save the plot
 frac_plot.draw()
-frac_plot.savefig("FractionPlot_test.png")
+frac_plot.savefig("FractionScanPlot_test.png")
