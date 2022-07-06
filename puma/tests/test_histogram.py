@@ -203,6 +203,20 @@ class histogram_plot_TestCase(unittest.TestCase):
             )
         )
 
+        # Also save this plot with transparent background to test this feature
+        plotname_transparent = "test_histogram_ratio_value_transparent.png"
+        hist_plot.transparent = True
+        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname_transparent}")
+        # Uncomment line below to update expected image
+        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname_transparent}")
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname_transparent}",
+                f"{self.expected_plots_dir}/{plotname_transparent}",
+                tol=1,
+            )
+        )
+
     def test_output_empty_histogram_norm(self):
         hist_plot = HistogramPlot(
             norm=True,

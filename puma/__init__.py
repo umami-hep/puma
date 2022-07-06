@@ -3,7 +3,7 @@
 # flake8: noqa
 # pylint: skip-file
 
-__version__ = "0.1.4dev"
+__version__ = "0.1.5dev"
 
 from puma.histogram import Histogram, HistogramPlot
 from puma.line_plot_2d import Line2D, Line2DPlot
