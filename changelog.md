@@ -2,7 +2,7 @@
 
 ### [Latest]
 
-- Adding `h5py` to the Docker images
+- Adding `h5py` to the Docker images [#97](https://github.com/umami-hep/puma/pull/97)
 - Adding `transparent` attribute to `PlotObject` class. This allows to specify transparent background when initialising the plot [#96](https://github.com/umami-hep/puma/pull/96)
 
 ### [v0.1.5]
