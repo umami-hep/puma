@@ -3,6 +3,7 @@
 ### [Latest]
 
 - Adding support for weighted histograms (`puma.Histogram` now has an optional argument `weights`) [#86](https://github.com/umami-hep/puma/pull/86)
+- Adding `h5py` to the Docker images [#97](https://github.com/umami-hep/puma/pull/97)
 - Adding `transparent` attribute to `PlotObject` class. This allows to specify transparent background when initialising the plot [#96](https://github.com/umami-hep/puma/pull/96)
 
 ### [v0.1.5]
