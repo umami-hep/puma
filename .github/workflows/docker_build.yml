@@ -1,6 +1,14 @@
 name: Docker build
 
-on: [push]
+on:
+  pull_request:
+    branches:
+      - '*'
+  push:
+    branches:
+      - 'main'
+    tags:
+      - '*'
         
 env:
   GITLAB_CONTAINER_REGISTRY: gitlab-registry.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images
@@ -20,15 +28,21 @@ jobs:
       - name: Login to GitLab container registry
         run: docker login gitlab-registry.cern.ch -u ${{ secrets.GITLAB_USERNAME }} -p ${{ secrets.GITLAB_TOKEN }}
           
-      - name: Build and push slim image
-        run: |
-          docker build -f docker/Dockerfile --tag ${GITLAB_CONTAINER_REGISTRY}/puma:latest .
-          docker push ${GITLAB_CONTAINER_REGISTRY}/puma:latest
+      - name: Build slim image
+        run: docker build -f docker/Dockerfile --tag ${GITLAB_CONTAINER_REGISTRY}/puma:latest .
 
-      - name: Build and push dev image
-        run: |
-          docker build -f docker/Dockerfile_dev --tag ${GITLAB_CONTAINER_REGISTRY}/puma:latest-dev .
-          docker push ${GITLAB_CONTAINER_REGISTRY}/puma:latest-dev
+      # Push this image if this is on the main branch
+      - name: Push slim image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: docker push ${GITLAB_CONTAINER_REGISTRY}/puma:latest
+
+      - name: Build dev image
+        run: docker build -f docker/Dockerfile_dev --tag ${GITLAB_CONTAINER_REGISTRY}/puma:latest-dev .
+
+      # Push this image if this is on the main branch
+      - name: Push dev image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: docker push ${GITLAB_CONTAINER_REGISTRY}/puma:latest-dev
   
   build_release:
     # Build an extra image for tagged commits
