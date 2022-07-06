@@ -195,7 +195,6 @@ class histogram_plot_TestCase(unittest.TestCase):
         hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
         # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
-
         self.assertIsNone(
             compare_images(
                 f"{self.actual_plots_dir}/{plotname}",
