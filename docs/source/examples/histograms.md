@@ -20,7 +20,7 @@ The following examples use the dummy data which is described [here](./dummy_data
 §§§examples/plot_flavour_probabilities.py§§§
 ```
 
-## Example for basic untypical histogram
+## More general example
 
 In most cases you probably want to plot histograms with the different flavours
 like in the examples above.
@@ -33,7 +33,7 @@ could also produce a `MC` vs `data` plot with the following example code:
 §§§examples/plot_basic_histogram.py§§§
 ```
 
-## Example for weighted histograms
+## Weighted histograms
 
 `puma` also supports weighted histograms by specifying the optional argument `weights`.
 An example is given below:
