@@ -111,7 +111,9 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
     figsize : (float, float), optional
         Tuple of figure size `(width, height)` in inches, by default (8, 6)
     dpi : int, optional
-        dpi used for plotting, by default 400
+        DPI used for plotting, by default 400
+    transparent : bool, optional
+        Specify if the background of the plot should be transparent, by default False
     grid : bool, optional
         Set the grid for the plots.
     leg_fontsize : int, optional
@@ -175,6 +177,7 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
 
     figsize: tuple = None
     dpi: int = 400
+    transparent: bool = False
 
     grid: bool = True
 
@@ -578,7 +581,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
     def savefig(
         self,
         plot_name: str,
-        transparent: bool = False,
+        transparent: bool = None,
         dpi: int = None,
         **kwargs,
     ):
@@ -589,7 +592,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         plot_name : str
             File name of the plot
         transparent : bool, optional
-            If plot transparent, by default False
+            Specify if plot background is transparent, by default False
         dpi : int, optional
             DPI for plotting, by default 400
         **kwargs : kwargs
@@ -598,7 +601,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         logger.debug("Saving plot to %s", plot_name)
         self.fig.savefig(
             plot_name,
-            transparent=transparent,
+            transparent=self.transparent if transparent is None else transparent,
             dpi=self.dpi if dpi is None else dpi,
             **kwargs,
         )
