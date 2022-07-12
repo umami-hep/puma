@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Fixing bug where code crashed when histograms with discrete values + ratio panel were drawn [#99](https://github.com/umami-hep/puma/pull/99)
 - Adding `h5py` to the Docker images [#97](https://github.com/umami-hep/puma/pull/97)
 - Adding `transparent` attribute to `PlotObject` class. This allows to specify transparent background when initialising the plot [#96](https://github.com/umami-hep/puma/pull/96)
 
