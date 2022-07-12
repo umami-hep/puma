@@ -188,6 +188,8 @@ class histogram_plot_TestCase(unittest.TestCase):
             ylabel="Number of counts in specified bins",
             n_ratio_panels=1,
         )
+        # the entry "1" in `values_1` will be hidden in the histogram since it is not
+        # included in the `discrete_vals` list
         values1 = np.array([0, 1, 5, 7])
         values2 = np.array([0, 5, 5, 7])
         hist_plot.add(Histogram(values1), reference=True)
