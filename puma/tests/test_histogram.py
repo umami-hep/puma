@@ -177,6 +177,37 @@ class histogram_plot_TestCase(unittest.TestCase):
             )
         )
 
+    def test_discrete_values(self):
+        """check if discrete values are working properly"""
+        hist_plot = HistogramPlot(
+            bins=np.linspace(0, 10, 100),
+            discrete_vals=[0, 5, 7, 9],
+            atlas_first_tag="Simulation, $\\sqrt{s}=13$ TeV",
+            figsize=(5, 4),
+            xlabel="Discrete values",
+            ylabel="Number of counts in specified bins",
+            n_ratio_panels=1,
+        )
+        # the entry "1" in `values_1` will be hidden in the histogram since it is not
+        # included in the `discrete_vals` list
+        values1 = np.array([0, 1, 5, 7])
+        values2 = np.array([0, 5, 5, 7])
+        hist_plot.add(Histogram(values1), reference=True)
+        hist_plot.add(Histogram(values2, linestyle="--"))
+        hist_plot.draw()
+
+        plotname = "test_histogram_discrete_values.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        # Uncomment line below to update expected image
+        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname}",
+                f"{self.expected_plots_dir}/{plotname}",
+                tol=1,
+            )
+        )
+
     def test_output_ratio(self):
         """check with a plot if the ratio is the expected value"""
         hist_plot = HistogramPlot(

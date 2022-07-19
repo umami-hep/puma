@@ -443,6 +443,13 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                 for i in range(len(elem.bin_edges) - 1):
                     # Only keep this bin edge if one of the discrete
                     # values is withing this and the next bin edge
+                    # TODO: This has to be improved.
+                    # The current implementation
+                    #       a)  requires to specify a range which includes all the
+                    #           specified value --> this could be done automatically?
+                    #       b)  crashes if the specified range ends at a value which
+                    #           is equal to a value in self.discrete_vals (since we
+                    #           do not accept "<=" in the last bin)
                     for discrete_val in self.discrete_vals:
                         if elem.bin_edges[i] <= discrete_val < elem.bin_edges[i + 1]:
                             indice.append(i)
@@ -452,6 +459,7 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                 bins = np.linspace(
                     0, len(self.discrete_vals), len(self.discrete_vals) + 1
                 )
+                elem.bin_edges = bins
                 self.axis_top.set_xticks(bins[:-1] + 0.5)
                 self.axis_top.set_xticklabels(self.discrete_vals, rotation=33)
             else:
