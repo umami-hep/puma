@@ -3,17 +3,12 @@
 Unit test script for the functions in utils/histogram.py
 """
 
-# import os
-# import tempfile
 import unittest
 
 import numpy as np
 
-# from puma import Histogram, HistogramPlot
 from puma.utils import logger, set_log_level
 from puma.utils.histogram import hist_ratio, hist_w_unc, save_divide
-
-# from puma.utils.histogram import hist_ratio, hist_w_unc
 
 set_log_level(logger, "DEBUG")
 
