@@ -104,8 +104,9 @@ def hist_w_unc(
         np.histogram(arr, bins=bins, range=bins_range, weights=weights**2)[0]
     )
     if normed:
-        counts = save_divide(counts, float(np.sum(weights)), 0)
-        unc = save_divide(unc, float(np.sum(weights)), 0)
+        sum_of_weights = float(np.sum(weights))
+        counts = save_divide(counts, sum_of_weights, 0)
+        unc = save_divide(unc, sum_of_weights, 0)
 
     band = counts - unc
     hist = counts
