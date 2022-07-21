@@ -26,6 +26,8 @@ jobs:
           pytest-coverage-path: ./pytest-coverage.txt
           junitxml-path: ./pytest.xml
           create-new-comment: false
+      - name: Install git
+        run: apt update && apt install -y git
       - name: Report coverage with Codecov
         uses: codecov/codecov-action@v3
         with:
