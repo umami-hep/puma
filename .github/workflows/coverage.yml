@@ -28,7 +28,7 @@ jobs:
           create-new-comment: false
       - name: Upload to codecov.io
         run: |
-          apt update && apt install -y curl
+          apt update && apt install -y curl git
           curl -Os https://uploader.codecov.io/latest/linux/codecov 
           chmod +x codecov 
           ./codecov
