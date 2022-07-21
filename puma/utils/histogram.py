@@ -54,6 +54,7 @@ def hist_w_unc(
     bins,
     bins_range=None,
     normed: bool = True,
+    weights=None,
 ):
     """
     Computes histogram and the associated statistical uncertainty.
@@ -63,12 +64,19 @@ def hist_w_unc(
     arr : array_like
         Input data. The histogram is computed over the flattened array.
     bins : int or sequence of scalars or str
-        bins parameter from np.histogram
+        `bins` parameter from `np.histogram`
     bins_range : tuple, optional
-        range parameter from np.histogram
+        `range` parameter from `np.histogram`. This is ignored if `bins` is array like,
+        because then the entries of `bins` are used as bin edges.
     normed : bool, optional
         If True (default) the calculated histogram is normalised to an integral
         of 1.
+    weights : np.ndarray, optional
+        Weights for the input data. Has to be an array of same length as the input
+        data with a weight for each entry. If not specified, weight 1 will be given
+        to each entry. The uncertainty of bins with weighted entries is
+        sqrt(sum_i{w_i^2}) where w_i are the weights of the entries in this bin.
+        By default None.
 
     Returns
     -------
@@ -84,14 +92,24 @@ def hist_w_unc(
         lower uncertainty band location: hist - unc
         If normed is true (default), returns the normed values.
     """
-    arr_length = len(arr)
+    if weights is None:
+        weights = np.ones(len(arr))
 
     # Calculate the counts and the bin edges
-    counts, bin_edges = np.histogram(arr, bins=bins, range=bins_range)
+    counts, bin_edges = np.histogram(arr, bins=bins, range=bins_range, weights=weights)
 
-    unc = save_divide(np.sqrt(counts), arr_length, 0) if normed else np.sqrt(counts)
-    band = save_divide(counts, arr_length, 0) - unc if normed else counts - unc
-    hist = save_divide(counts, arr_length, 0) if normed else counts
+    # calculate the uncertainty with sum of squared weights (per bin, so we use
+    # np.histogram again here)
+    unc = np.sqrt(
+        np.histogram(arr, bins=bins, range=bins_range, weights=weights**2)[0]
+    )
+    if normed:
+        sum_of_weights = float(np.sum(weights))
+        counts = save_divide(counts, sum_of_weights, 0)
+        unc = save_divide(unc, sum_of_weights, 0)
+
+    band = counts - unc
+    hist = counts
 
     return bin_edges, hist, unc, band
 

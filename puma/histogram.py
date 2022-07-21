@@ -19,6 +19,7 @@ class Histogram(
     def __init__(  # pylint: disable=too-many-arguments
         self,
         values: np.ndarray,
+        weights: np.ndarray = None,
         ratio_group: str = None,
         flavour: str = None,
         add_flavour_label: bool = True,
@@ -31,6 +32,11 @@ class Histogram(
         ----------
         values : np.ndarray
             Input data for the histogram
+        weights : np.ndarray, optional
+            Weights for the input data. Has to be an array of same length as the input
+            data with a weight for each entry. If not specified, weight 1 will be given
+            to each entry. The uncertainties are calculated as the square root of the
+            squared weights (for each bin separately). By default None.
         ratio_group : str, optional
             Name of the ratio group this histogram is compared with. The ratio group
             allows you to compare different groups of histograms within one plot.
@@ -55,6 +61,8 @@ class Histogram(
         ------
         ValueError
             If input data is not of type np.ndarray or list
+        ValueError
+            If weights are specified but have different length as the input values
         """
         super().__init__(**kwargs)
 
@@ -67,8 +75,12 @@ class Histogram(
                 "Invalid type of histogram input data. Allowed values are "
                 "numpy.ndarray, list, pandas.core.series.Series"
             )
+        if weights is not None:
+            if len(values) != len(weights):
+                raise ValueError("`values` and `weights` are not of same length.")
 
         self.values = values
+        self.weights = weights
         self.ratio_group = ratio_group
         self.flavour = flavour
         self.add_flavour_label = add_flavour_label
@@ -342,6 +354,7 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
 
             elem.bin_edges, elem.hist, elem.unc, elem.band = hist_w_unc(
                 elem.values,
+                weights=elem.weights,
                 bins=self.bins,
                 bins_range=self.bins_range,
                 normed=self.norm,

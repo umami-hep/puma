@@ -595,3 +595,42 @@ class histogram_plot_TestCase(unittest.TestCase):
                 tol=1,
             )
         )
+
+    def test_weights(self):
+        """Output plot with weights"""
+        values = np.array([])
+        values = np.array([0, 1, 2, 2, 3])
+        weights = np.array([1, -1, 3, -2, 1])
+        hist_exp = np.array([1, -1, 2])
+        unc_exp = np.sqrt(np.array([1, (-1) ** 2, 3**2 + (-2) ** 2 + 1]))
+
+        hist_plot = HistogramPlot(
+            bins=3,
+            figsize=(6, 5),
+            atlas_first_tag=None,
+            atlas_second_tag=(
+                "Test plot for the behaviour of weights \n(both positive and negative)"
+                f"\nExpected bin counts: {hist_exp}"
+                f"\nExpected bin uncertainties: {unc_exp}"
+            ),
+            norm=False,
+        )
+        hist_plot.add(
+            Histogram(
+                values,
+                weights=weights,
+            )
+        )
+        hist_plot.draw()
+
+        plotname = "test_histogram_weights.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        # Uncomment line below to update expected image
+        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname}",
+                f"{self.expected_plots_dir}/{plotname}",
+                tol=1,
+            )
+        )
