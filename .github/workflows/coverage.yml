@@ -26,9 +26,7 @@ jobs:
           pytest-coverage-path: ./pytest-coverage.txt
           junitxml-path: ./pytest.xml
           create-new-comment: false
-      - name: Upload to codecov.io
-        run: |
-          apt update && apt install -y curl git
-          curl -Os https://uploader.codecov.io/latest/linux/codecov 
-          chmod +x codecov 
-          ./codecov
+      - name: Report coverage with Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./pytest.xml
