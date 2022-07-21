@@ -4,7 +4,10 @@ on:
     branches:
       - '*'
 jobs:
-  unit_tests:
+  post_unit_test_coverage:
+    # note: this is basically the unit test job, but since we pipe the output in a
+    # .txt file, this job will not fail even if tests fail --> that's why we keep this
+    # job separate from the actual testing job
     name: Check coverage
     runs-on: ubuntu-latest
     container: python:3.8-slim
