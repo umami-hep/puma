@@ -22,7 +22,14 @@ jobs:
       - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
       - run: pip install -e . # install in editable mode
       - run: pip install pytest
-      - run: pytest -v puma/tests/
+      - name: Run tests
+        run: pytest -v --junitxml=pytest_report.xml --cov-report=term-missing:skip-covered --cov=puma puma/tests/
+      - name: Install git
+        run: apt update && apt install -y git
+      - name: Report coverage with Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./pytest_report.xml
   example_tests:
     name: Example tests
     runs-on: ubuntu-latest
