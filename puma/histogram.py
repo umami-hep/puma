@@ -143,16 +143,15 @@ class Histogram(
         ValueError
             If bin_edges attribute is not set for one of the two histograms
         """
-        if self.bin_edges is None or other.bin_edges is None:
+        if (
+            self.bin_edges is None
+            or other.bin_edges is None
+            or self.hist is None
+            or other.hist is None
+        ):
             raise ValueError(
-                "Can't divide histograms since bin edges are not available "
+                "Can't divide histograms since bin edges and counts are not available "
                 "for both histogram. Bins are filled when they are plotted."
-            )
-
-        if self.hist is None or other.hist is None:
-            raise ValueError(
-                "Can't divide histograms since bin counts are not available for both"
-                "histograms. Bins are filled when they are plotted."
             )
 
         if not np.all(self.bin_edges == other.bin_edges):
