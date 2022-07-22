@@ -26,10 +26,16 @@ jobs:
         run: pytest -v --junitxml=coverage.xml --cov-report=term-missing:skip-covered --cov=puma puma/tests/
       - name: Install git
         run: apt update && apt install -y git
-      - name: Report coverage with Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          files: ./coverage.xml
+      # - name: Report coverage with Codecov
+      #   uses: codecov/codecov-action@v3
+      #   with:
+      #     files: ./coverage.xml
+      - name: Upload to codecov.io
+        run: |
+        apt update && apt install -y curl git
+        curl -Os https://uploader.codecov.io/latest/linux/codecov 
+        chmod +x codecov 
+        ./codecov
   example_tests:
     name: Example tests
     runs-on: ubuntu-latest
