@@ -155,16 +155,48 @@ class histogram_plot_TestCase(unittest.TestCase):
             bins_range=(0, 4),
             atlas_brand="",
             atlas_first_tag="Simulation, $\\sqrt{s}=13$ TeV",
-            atlas_second_tag="",
+            atlas_second_tag="Second tag with additional\ndistance from first tag",
             figsize=(5, 4),
             ylabel="Number of jets",
             n_ratio_panels=1,
+            atlas_second_tag_distance=0.3,
         )
         hist_plot.add(self.hist_1, reference=True)
         hist_plot.draw()
         hist_plot.add_bin_width_to_ylabel()
 
         plotname = "test_histogram_custom_range.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        # Uncomment line below to update expected image
+        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname}",
+                f"{self.expected_plots_dir}/{plotname}",
+                tol=1,
+            )
+        )
+
+    def test_discrete_values(self):
+        """check if discrete values are working properly"""
+        hist_plot = HistogramPlot(
+            bins=np.linspace(0, 10, 100),
+            discrete_vals=[0, 5, 7, 9],
+            atlas_first_tag="Simulation, $\\sqrt{s}=13$ TeV",
+            figsize=(5, 4),
+            xlabel="Discrete values",
+            ylabel="Number of counts in specified bins",
+            n_ratio_panels=1,
+        )
+        # the entry "1" in `values_1` will be hidden in the histogram since it is not
+        # included in the `discrete_vals` list
+        values1 = np.array([0, 1, 5, 7])
+        values2 = np.array([0, 5, 5, 7])
+        hist_plot.add(Histogram(values1), reference=True)
+        hist_plot.add(Histogram(values2, linestyle="--"))
+        hist_plot.draw()
+
+        plotname = "test_histogram_discrete_values.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
         # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
@@ -198,6 +230,20 @@ class histogram_plot_TestCase(unittest.TestCase):
             compare_images(
                 f"{self.actual_plots_dir}/{plotname}",
                 f"{self.expected_plots_dir}/{plotname}",
+                tol=1,
+            )
+        )
+
+        # Also save this plot with transparent background to test this feature
+        plotname_transparent = "test_histogram_ratio_value_transparent.png"
+        hist_plot.transparent = True
+        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname_transparent}")
+        # Uncomment line below to update expected image
+        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname_transparent}")
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname_transparent}",
+                f"{self.expected_plots_dir}/{plotname_transparent}",
                 tol=1,
             )
         )
@@ -305,7 +351,7 @@ class histogram_plot_TestCase(unittest.TestCase):
             bins_range=(0, 4),
             atlas_brand="",
             atlas_first_tag="Simulation, $\\sqrt{s}=13$ TeV",
-            atlas_second_tag="",
+            atlas_tag_outside=True,
             figsize=(5, 4),
             ylabel="Number of jets",
             n_ratio_panels=1,
@@ -410,6 +456,174 @@ class histogram_plot_TestCase(unittest.TestCase):
         hist_plot.draw()
 
         plotname = "test_draw_vlines_histogram_custom_yheight.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        # Uncomment line below to update expected image
+        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname}",
+                f"{self.expected_plots_dir}/{plotname}",
+                tol=1,
+            )
+        )
+
+    def test_ratio_group_options(self):
+        """Test different combinations of using ratio groups."""
+        hist_plot = HistogramPlot(
+            n_ratio_panels=1,
+            atlas_brand=None,
+            atlas_first_tag="",
+            atlas_second_tag=(
+                "Unit test plot to test the ratio_group argument \n"
+                "of the puma.Histogram class"
+            ),
+            figsize=(6, 5),
+            y_scale=1.5,
+        )
+
+        rng = np.random.default_rng(seed=42)
+        # add two histograms with flavour=None but ratio_goup set
+        hist_plot.add(
+            Histogram(
+                rng.normal(0, 1, size=10_000),
+                ratio_group="ratio group 1",
+                label="Ratio group 1 (reference)",
+            ),
+            reference=True,
+        )
+        hist_plot.add(
+            Histogram(
+                rng.normal(0.5, 1, size=10_000),
+                ratio_group="ratio group 1",
+                label="Ratio group 1",
+            ),
+        )
+        # add two histograms with defining ratio group via flavour argument
+        hist_plot.add(
+            Histogram(
+                rng.normal(3, 1, size=10_000),
+                flavour="bjets",
+                ratio_group="Ratio group 2",
+                label="(reference)",
+            ),
+            reference=True,
+        )
+        hist_plot.add(
+            Histogram(
+                rng.normal(3.5, 1, size=10_000),
+                flavour="bjets",
+                ratio_group="Ratio group 2",
+                linestyle="--",
+                linewidth=3,
+                alpha=0.3,
+            ),
+        )
+        hist_plot.draw()
+
+        plotname = "test_ratio_groups.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        # Uncomment line below to update expected image
+        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname}",
+                f"{self.expected_plots_dir}/{plotname}",
+                tol=1,
+            )
+        )
+
+    def test_flavoured_labels(self):
+        """Test different combinations of specifying the label when also specifying a
+        flavour for the histogram."""
+
+        rng = np.random.default_rng(seed=42)
+
+        hist_plot = HistogramPlot(
+            bins=100,
+            atlas_brand=None,
+            atlas_first_tag="",
+            atlas_second_tag=(
+                "Unit test plot to test the behaviour of \n"
+                "the legend labels for different combinations \n"
+                "of using the flavour label from the global \n"
+                "config and not doing so"
+            ),
+            figsize=(8, 6),
+        )
+        # No flavour
+        hist_plot.add(
+            Histogram(rng.normal(0, 1, size=10_000), label="Unflavoured histogram")
+        )
+        # Flavour, but also label (using the default flavour label + the specified one)
+        hist_plot.add(
+            Histogram(
+                rng.normal(4, 1, size=10_000),
+                label="(flavoured, adding default flavour label '$b$-jets' to legend)",
+                flavour="bjets",
+            )
+        )
+        # Flavour + label (this time with suppressing the default flavour label)
+        hist_plot.add(
+            Histogram(
+                rng.normal(8, 1, size=10_000),
+                label="Flavoured histogram (default flavour label suppressed)",
+                flavour="bjets",
+                add_flavour_label=False,
+                linestyle="--",
+            )
+        )
+        # Flavoured, but using custom colour
+        hist_plot.add(
+            Histogram(
+                rng.normal(12, 1, size=10_000),
+                label="(flavoured, with custom colour)",
+                flavour="bjets",
+                linestyle="dotted",
+                colour="b",
+            )
+        )
+        hist_plot.draw()
+
+        plotname = "test_flavoured_labels.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        # Uncomment line below to update expected image
+        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname}",
+                f"{self.expected_plots_dir}/{plotname}",
+                tol=1,
+            )
+        )
+
+    def test_weights(self):
+        """Output plot with weights"""
+        values = np.array([])
+        values = np.array([0, 1, 2, 2, 3])
+        weights = np.array([1, -1, 3, -2, 1])
+        hist_exp = np.array([1, -1, 2])
+        unc_exp = np.sqrt(np.array([1, (-1) ** 2, 3**2 + (-2) ** 2 + 1]))
+
+        hist_plot = HistogramPlot(
+            bins=3,
+            figsize=(6, 5),
+            atlas_first_tag=None,
+            atlas_second_tag=(
+                "Test plot for the behaviour of weights \n(both positive and negative)"
+                f"\nExpected bin counts: {hist_exp}"
+                f"\nExpected bin uncertainties: {unc_exp}"
+            ),
+            norm=False,
+        )
+        hist_plot.add(
+            Histogram(
+                values,
+                weights=weights,
+            )
+        )
+        hist_plot.draw()
+
+        plotname = "test_histogram_weights.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
         # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")

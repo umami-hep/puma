@@ -3,7 +3,9 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Umami docs](https://img.shields.io/badge/info-documentation-informational)](https://umami-hep.github.io/puma/)
 [![PyPI version](https://badge.fury.io/py/puma-hep.svg)](https://badge.fury.io/py/puma-hep)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6607414.svg)](https://doi.org/10.5281/zenodo.6607414)
 
+[![codecov](https://codecov.io/gh/umami-hep/puma/branch/main/graph/badge.svg)](https://codecov.io/gh/umami-hep/puma)
 ![Testing workflow](https://github.com/umami-hep/puma/actions/workflows/testing.yml/badge.svg)
 ![Linting workflow](https://github.com/umami-hep/puma/actions/workflows/linting.yml/badge.svg)
 ![Pages workflow](https://github.com/umami-hep/puma/actions/workflows/pages.yml/badge.svg)

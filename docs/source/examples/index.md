@@ -114,3 +114,30 @@ n_test = 10_000
 with h5py.File("results-rej_per_eff-1_new.h5", "r") as h5_file:
     n_test = h5_file.attrs["N_test"]
 ```
+
+## Showing the plot in pop-up window
+
+`puma` does *not* use the `matplotlib.pyplot` module, but instead uses the `matplotlib.figure`
+API in order to avoid global states within `matplotlib` that could affect subsequent plots.
+
+It is recommended to just save the plot via the `savefig` method and then view it with
+a local pdf/png viewer. If you are working on a cluster, you can also mount the directory
+you are working on to your local machine, which allows you to use your locally installed pdf viewer.
+
+However, if you want to have a pop-up window when running a python script with a `puma`
+plot, you can try the following workaround using the `PIL` package.
+
+```py
+from puma import Histogram, HistogramPlot
+import numpy as np  # used here for random numbers
+from PIL import Image  # used for the pop-up window
+
+my_hist = HistogramPlot()
+my_hist.add(Histogram(np.random.normal(size=10_000)))
+my_hist.draw()
+my_hist.savefig("my_hist.png")
+
+# show the image
+img = Image.open("my_hist.png")
+img.show()
+```

@@ -59,7 +59,7 @@ class PlotLineObject:  # pylint: disable=too-many-instance-attributes
 # TODO: enable `kw_only` when switching to Python 3.10
 # @dataclass(kw_only=True)
 @dataclass
-class PlotObject:
+class PlotObject:  # pylint: disable=too-many-instance-attributes
     """Data base class defining properties of a plot object.
 
     Parameters
@@ -111,7 +111,9 @@ class PlotObject:
     figsize : (float, float), optional
         Tuple of figure size `(width, height)` in inches, by default (8, 6)
     dpi : int, optional
-        dpi used for plotting, by default 400
+        DPI used for plotting, by default 400
+    transparent : bool, optional
+        Specify if the background of the plot should be transparent, by default False
     grid : bool, optional
         Set the grid for the plots.
     leg_fontsize : int, optional
@@ -138,6 +140,12 @@ class PlotObject:
     atlas_brand : str, optional
         `brand` argument handed to atlasify. If you want to remove it just use an empty
         string or None, by default "ATLAS"
+    atlas_tag_outside : bool, optional
+        `outside` argument handed to atlasify. Decides if the ATLAS logo is plotted
+        outside of the plot (on top), by default False
+    atlas_second_tag_distance : float, optional
+        Distance between the `atlas_first_tag` and `atlas_second_tag` text in units
+        of line spacing, by default 0
     plotting_done : bool
         Bool that indicates if plotting is done. Only then `atlasify()` can be called,
         by default False
@@ -169,6 +177,7 @@ class PlotObject:
 
     figsize: tuple = None
     dpi: int = 400
+    transparent: bool = False
 
     grid: bool = True
 
@@ -181,11 +190,13 @@ class PlotObject:
     apply_atlas_style: bool = True
     use_atlas_tag: bool = True
     atlas_first_tag: str = "Simulation Internal"
-    atlas_second_tag: str = ""
+    atlas_second_tag: str = None
     atlas_fontsize: int = None
     atlas_vertical_offset: float = 7
     atlas_horizontal_offset: float = 8
     atlas_brand: str = "ATLAS"
+    atlas_tag_outside: bool = False
+    atlas_second_tag_distance: float = 0
 
     plotting_done: bool = False
 
@@ -235,7 +246,7 @@ class PlotObject:
             )
 
 
-class PlotBase(PlotObject):
+class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
     """Base class for plotting"""
 
     def __init__(self, **kwargs) -> None:
@@ -268,14 +279,16 @@ class PlotBase(PlotObject):
 
         if self.vertical_split:
             # split figure vertically instead of horizonally
-            if self.n_ratio_panels <= 1:
+            if self.n_ratio_panels >= 1:
                 logger.warning(
-                    "You set the number of ratio panels to %i"
+                    "You set the number of ratio panels to %i "
                     "but also set the vertical splitting to True. Therefore no ratio"
                     "panels are created.",
                     self.n_ratio_panels,
                 )
-            self.fig = Figure(figsize=(8, 6) if self.figsize is None else self.figsize)
+            self.fig = Figure(
+                figsize=(6, 4.5) if self.figsize is None else self.figsize
+            )
             g_spec = gridspec.GridSpec(1, 11, figure=self.fig)
             self.axis_top = self.fig.add_subplot(g_spec[0, :9])
             self.axis_leg = self.fig.add_subplot(g_spec[0, 9:])
@@ -284,14 +297,14 @@ class PlotBase(PlotObject):
             if self.n_ratio_panels == 0:
                 # no ratio panel
                 self.fig = Figure(
-                    figsize=(8, 6) if self.figsize is None else self.figsize
+                    figsize=(5, 3.5) if self.figsize is None else self.figsize
                 )
                 self.axis_top = self.fig.gca()
 
             elif self.n_ratio_panels == 1:
                 # 1 ratio panel
                 self.fig = Figure(
-                    figsize=(9.352, 6.616) if self.figsize is None else self.figsize
+                    figsize=(5, 4) if self.figsize is None else self.figsize
                 )
 
                 g_spec = gridspec.GridSpec(8, 1, figure=self.fig)
@@ -327,9 +340,9 @@ class PlotBase(PlotObject):
         vlines_label_list: list = None,
         vlines_line_height_list: list = None,
         same_height: bool = False,
-        colour: str = "#920000",
+        colour: str = "#000000",
         fontsize: int = 10,
-    ):
+    ):  # pylint: disable=too-many-arguments
         """Drawing working points in plot
 
         Parameters
@@ -347,7 +360,7 @@ class PlotBase(PlotObject):
         same_height : bool, optional
             Working point lines on same height, by default False
         colour : str, optional
-            Colour of the vertical line, by default "#920000"
+            Colour of the vertical line, by default "#000000" (black)
         fontsize : int, optional
             Fontsize of the vertical line text. By default 10.
         """
@@ -400,17 +413,19 @@ class PlotBase(PlotObject):
         """
         self.axis_top.set_title(self.title if title is None else title, **kwargs)
 
-    def set_log(self, force: bool = False):
+    def set_log(self, force_x: bool = False, force_y: bool = False):
         """Set log scale of the axes. For the y-axis, only the main panel is
         set. For the x-axes (also from the ratio subpanels), all are changed.
 
         Parameters
         ----------
-        force : bool, optional
-            Forcing log even if class variable is False, by default False
+        force_x : bool, optional
+            Forcing log on x-axis even if `logx` attribute is False, by default False
+        force_y : bool, optional
+            Forcing log on y-axis even if `logy` attribute is False, by default False
         """
 
-        if self.logx or force:
+        if self.logx or force_x:
             if not self.logx:
                 logger.warning(
                     "Setting log of x-axis but `logx` flag was set to False."
@@ -423,7 +438,7 @@ class PlotBase(PlotObject):
             if self.axis_ratio_2:
                 self.axis_ratio_2.set_xscale("log")
 
-        if self.logy or force:
+        if self.logy or force_y:
             if not self.logy:
                 logger.warning(
                     "Setting log of y-axis but `logy` flag was set to False."
@@ -566,7 +581,7 @@ class PlotBase(PlotObject):
     def savefig(
         self,
         plot_name: str,
-        transparent: bool = False,
+        transparent: bool = None,
         dpi: int = None,
         **kwargs,
     ):
@@ -577,7 +592,7 @@ class PlotBase(PlotObject):
         plot_name : str
             File name of the plot
         transparent : bool, optional
-            If plot transparent, by default False
+            Specify if plot background is transparent, by default False
         dpi : int, optional
             DPI for plotting, by default 400
         **kwargs : kwargs
@@ -586,7 +601,7 @@ class PlotBase(PlotObject):
         logger.debug("Saving plot to %s", plot_name)
         self.fig.savefig(
             plot_name,
-            transparent=transparent,
+            transparent=self.transparent if transparent is None else transparent,
             dpi=self.dpi if dpi is None else dpi,
             **kwargs,
         )
@@ -638,6 +653,8 @@ class PlotBase(PlotObject):
                     indent=self.atlas_horizontal_offset,
                     enlarge=1,
                     brand="" if self.atlas_brand is None else self.atlas_brand,
+                    outside=self.atlas_tag_outside,
+                    subtext_distance=self.atlas_second_tag_distance,
                 )
             else:
                 atlasify.atlasify(atlas=False, axes=self.axis_top, enlarge=1)
@@ -718,7 +735,8 @@ class PlotBase(PlotObject):
         self.set_xlabel()
         self.set_ylabel(self.axis_top)
         self.set_tick_params()
-        self.fig.tight_layout()
+        if not self.atlas_tag_outside:
+            self.fig.tight_layout()
         self.plotting_done = True
         if self.apply_atlas_style:
             self.atlasify()

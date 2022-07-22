@@ -4,20 +4,25 @@ import numpy as np
 import pandas as pd
 
 from puma.plot_base import PlotBase, PlotLineObject
-from puma.utils import get_good_colours, get_good_pie_colours, global_config, logger
+from puma.utils import get_good_colours, global_config, logger
 from puma.utils.histogram import hist_ratio, hist_w_unc
 
 
-class Histogram(PlotLineObject):
+class Histogram(
+    PlotLineObject
+):  # pylint: disable=too-few-public-methods,too-many-instance-attributes
     """
     Histogram class storing info about histogram and allows to calculate ratio w.r.t
     other histograms.
     """
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         values: np.ndarray,
+        weights: np.ndarray = None,
+        ratio_group: str = None,
         flavour: str = None,
+        add_flavour_label: bool = True,
         histtype: str = "step",
         **kwargs,
     ) -> None:
@@ -27,22 +32,37 @@ class Histogram(PlotLineObject):
         ----------
         values : np.ndarray
             Input data for the histogram
+        weights : np.ndarray, optional
+            Weights for the input data. Has to be an array of same length as the input
+            data with a weight for each entry. If not specified, weight 1 will be given
+            to each entry. The uncertainties are calculated as the square root of the
+            squared weights (for each bin separately). By default None.
+        ratio_group : str, optional
+            Name of the ratio group this histogram is compared with. The ratio group
+            allows you to compare different groups of histograms within one plot.
+            By default None
         flavour: str, optional
-            Jet flavour in case the histogram corresponds to one specific flavour. If
-            this is specified, the correct colour will be extracted from the global
-            config. Allowed values are the ones from the global config, i.e. "bjets",
-            "cjets", "ujets", "bbjets", ..., by default None
+            If set, the correct colour and a label prefix will be extracted from
+            `puma.utils.global_config` set for this histogram.
+            Allowed values are e.g. "bjets", "cjets", "ujets", "bbjets", ...
+            By default None
+        add_flavour_label : bool, optional
+            Set to False to suppress the automatic addition of the flavour label prefix
+            in the label of the curve (i.e. "$b$-jets" in the case of b-jets).
+            This is ignored if `flavour` is not set. By default True
         histtype: str, optional
             `histtype` parameter which is handed to matplotlib.hist() when plotting the
             histograms. Supported values are "bar", "barstacked", "step", "stepfilled".
             By default "step"
         **kwargs : kwargs
-            Keyword arguments passed to `PlotLineObject`
+            Keyword arguments passed to `puma.plot_base.PlotLineObject`
 
         Raises
         ------
         ValueError
             If input data is not of type np.ndarray or list
+        ValueError
+            If weights are specified but have different length as the input values
         """
         super().__init__(**kwargs)
 
@@ -55,9 +75,15 @@ class Histogram(PlotLineObject):
                 "Invalid type of histogram input data. Allowed values are "
                 "numpy.ndarray, list, pandas.core.series.Series"
             )
+        if weights is not None:
+            if len(values) != len(weights):
+                raise ValueError("`values` and `weights` are not of same length.")
 
         self.values = values
+        self.weights = weights
+        self.ratio_group = ratio_group
         self.flavour = flavour
+        self.add_flavour_label = add_flavour_label
         self.histtype = histtype
 
         # Set histogram attributes to None. They will be defined when the histograms
@@ -68,24 +94,31 @@ class Histogram(PlotLineObject):
         self.band = None
         self.key = None
 
-        self.label_addition = (
+        label = (
             kwargs["label"] if "label" in kwargs and kwargs["label"] is not None else ""
         )
         # If flavour was specified, extract configuration from global config
         if self.flavour is not None:
-            # Use globally defined flavour colour if not specified
-            if self.colour is None:
-                self.colour = global_config["flavour_categories"][self.flavour][
-                    "colour"
-                ]
-                logger.debug("Histogram colour was set to %s", self.colour)
-            # Use globally defined flavour label if not specified
-            if self.label is None:
-                global_flavour_label = global_config["flavour_categories"][
-                    self.flavour
-                ]["legend_label"]
-                self.label = f"{global_flavour_label} {self.label_addition}"
+            if self.flavour in global_config["flavour_categories"]:
+                # Use globally defined flavour colour if not specified
+                if self.colour is None:
+                    self.colour = global_config["flavour_categories"][self.flavour][
+                        "colour"
+                    ]
+                    logger.debug("Histogram colour was set to %s", self.colour)
+                # Add globally defined flavour label if not suppressed
+                if self.add_flavour_label:
+                    global_flavour_label = global_config["flavour_categories"][
+                        self.flavour
+                    ]["legend_label"]
+                    self.label = f"{global_flavour_label} {label}"
+                else:
+                    self.label = label
                 logger.debug("Histogram label was set to %s", {self.label})
+            else:
+                logger.warning(
+                    "The flavour '%s' was not found in the global config.", self.flavour
+                )
 
     def divide(self, other):
         """Calculate ratio between two class objects.
@@ -141,17 +174,14 @@ class Histogram(PlotLineObject):
         return (ratio, ratio_unc)
 
 
-class HistogramPlot(PlotBase):
+class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
     """Histogram plot class"""
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         bins=40,
         bins_range: tuple = None,
         discrete_vals: list = None,
-        plot_pie: bool = False,
-        pie_colours: list = None,
-        pie_labels: list = None,
         norm: bool = True,
         logy: bool = False,
         bin_width_in_ylabel: bool = False,
@@ -173,16 +203,8 @@ class HistogramPlot(PlotBase):
             By default None
         discrete_vals : list, optional
             List of values if a variable only has discrete values. If discrete_vals is
-            specified only the bins containing these values are plotted. If a pie chart
-            is plotted, discrete_vals is obligatory. By default None.
-        plot_pie : bool, optional
-            Set to True if you would like to plot a pie chart instead of a histogram
-        pie_colours : list or str, optional
-            List of colours used for a pie chart or string providing the colour scheme.
-            Possible colour schemes are 'red', 'blue', 'green' or 'yellow',
-            by default None
-        pie_labels : list, optional
-            List of labels used for a pie chart, by default None
+            specified only the bins containing these values are plotted.
+            By default None.
         norm : bool, optional
             Specify if the histograms are normalised, this means that histograms are
             divided by the total numer of counts. Therefore, the sum of the bin counts
@@ -207,9 +229,6 @@ class HistogramPlot(PlotBase):
         self.bins = bins
         self.bins_range = bins_range
         self.discrete_vals = discrete_vals
-        self.plot_pie = plot_pie
-        self.pie_colours = pie_colours
-        self.pie_labels = pie_labels
         self.bin_width_in_ylabel = bin_width_in_ylabel
         self.norm = norm
         self.plot_objects = {}
@@ -256,7 +275,7 @@ class HistogramPlot(PlotBase):
             histogram.colour = get_good_colours()[len(self.plot_objects)]
         # Set alpha
         if histogram.alpha is None:
-            histogram.alpha = 0.8
+            histogram.alpha = 1
         # Set linewidth
         if histogram.linewidth is None:
             histogram.linewidth = 1.6
@@ -335,6 +354,7 @@ class HistogramPlot(PlotBase):
 
             elem.bin_edges, elem.hist, elem.unc, elem.band = hist_w_unc(
                 elem.values,
+                weights=elem.weights,
                 bins=self.bins,
                 bins_range=self.bins_range,
                 normed=self.norm,
@@ -374,6 +394,8 @@ class HistogramPlot(PlotBase):
                     [],
                     color=elem.colour,
                     label=elem.label,
+                    alpha=elem.alpha,
+                    linewidth=elem.linewidth,
                     linestyle=elem.linestyle,
                 )
             )
@@ -387,108 +409,6 @@ class HistogramPlot(PlotBase):
 
         if self.discrete_vals is not None:
             self.bins = bins
-
-        self.plotting_done = True
-        return plt_handles
-
-    def plot_pie_chart(self):
-        """Plotting Pie chart. Only variables with defined discrete values
-        can be plotted. Only non-zero values are plotted.
-
-        Returns
-        -------
-        Patch : matplotlib Patch object
-
-        Raises
-        ------
-        ValueError
-            If plot_pie is set to True but not the vertical_split
-        ValueError
-            If no discrete values of the variable are provided
-        ValueError
-            If specified bins type is not supported.
-        """
-        if self.vertical_split is False:
-            raise ValueError(
-                'To plot a pie chart "vertical_split" must be set to True.'
-            )
-
-        if self.discrete_vals is None:
-            raise ValueError("To plot a donut diagram define discrete values")
-
-        # Calculate bins of stacked histograms to ensure all histograms fit in plot
-        if isinstance(self.bins, (np.ndarray, list)):
-            logger.debug("Using bin edges defined in plot instance.")
-            if self.bins_range is not None:
-                logger.warning(
-                    "You defined a range for the histogram, but also an array with "
-                    "the bin edges. The range will be ignored."
-                )
-        elif isinstance(self.bins, int):
-            logger.debug("Calculating bin edges of %i equal-width bins", self.bins)
-            _, self.bins = np.histogram(
-                np.hstack([elem.values for elem in self.plot_objects.values()]),
-                bins=self.bins,
-                range=self.bins_range,
-            )
-        else:
-            raise ValueError(
-                "Unsupported type for bins. Supported types: int, numpy.array, list"
-            )
-
-        if len(self.plot_objects) > 1:
-            logger.warning(
-                "More than one histogram object was added but a pie chart should "
-                "plotted. Only the first object is plotted. If you would like to "
-                "plot multiple pie charts, create separate histogram_plot objects."
-            )
-
-        plt_handles = []
-        elem = list(self.plot_objects.values())[0]
-
-        elem.bin_edges, elem.hist, elem.unc, elem.band = hist_w_unc(
-            elem.values,
-            bins=self.bins,
-            bins_range=self.bins_range,
-            normed=self.norm,
-        )
-
-        # recalculated bins are not needed for pie charts
-        _ = self.get_discrete_values(elem)
-
-        indice = [i for i in range(len(elem.hist)) if elem.hist[i] != 0]
-        elem.hist = elem.hist[indice]
-        self.discrete_vals = np.array(self.discrete_vals)[indice]
-        self.pie_labels = np.array(self.pie_labels)[indice]
-        if not isinstance(self.pie_colours, list):
-            self.pie_colours = get_good_pie_colours(colour_scheme=self.pie_colours)
-
-        # make sure to have enough colours to represent every discrete value.
-        # If the number of values is larger than the number of colours,
-        # the same colours are repeated.
-        if len(elem.hist) > len(self.pie_colours):
-            logger.warning(
-                "The number of non-zero histogram entries is larger than the "
-                "number of available colours for the pie chart. Colours will be"
-                "repeated."
-            )
-
-        self.pie_colours = (
-            self.pie_colours * (len(elem.hist) // len(self.pie_colours) + 1)
-        )[: len(elem.hist)]
-
-        self.axis_top.pie(
-            x=elem.hist, labels=None, colors=self.pie_colours, autopct="%1.1f%%"
-        )
-
-        self.axis_leg.axis("off")
-
-        for pie_label, pie_colour in zip(self.pie_labels, self.pie_colours):
-            plt_handles.append(
-                mpl.patches.Patch(
-                    label=pie_label, linestyle=elem.linestyle, color=pie_colour
-                )
-            )
 
         self.plotting_done = True
         return plt_handles
@@ -523,6 +443,13 @@ class HistogramPlot(PlotBase):
                 for i in range(len(elem.bin_edges) - 1):
                     # Only keep this bin edge if one of the discrete
                     # values is withing this and the next bin edge
+                    # TODO: This has to be improved.
+                    # The current implementation
+                    #       a)  requires to specify a range which includes all the
+                    #           specified value --> this could be done automatically?
+                    #       b)  crashes if the specified range ends at a value which
+                    #           is equal to a value in self.discrete_vals (since we
+                    #           do not accept "<=" in the last bin)
                     for discrete_val in self.discrete_vals:
                         if elem.bin_edges[i] <= discrete_val < elem.bin_edges[i + 1]:
                             indice.append(i)
@@ -532,6 +459,7 @@ class HistogramPlot(PlotBase):
                 bins = np.linspace(
                     0, len(self.discrete_vals), len(self.discrete_vals) + 1
                 )
+                elem.bin_edges = bins
                 self.axis_top.set_xticks(bins[:-1] + 0.5)
                 self.axis_top.set_xticklabels(self.discrete_vals, rotation=33)
             else:
@@ -571,8 +499,8 @@ class HistogramPlot(PlotBase):
 
         for key in self.reference_object:
             reference_candidate = self.plot_objects[key]
-            if histo.flavour is not None:
-                if histo.flavour == reference_candidate.flavour:
+            if histo.ratio_group is not None:
+                if histo.ratio_group == reference_candidate.ratio_group:
                     matches += 1
                     reference_histo = reference_candidate
             else:
@@ -580,7 +508,10 @@ class HistogramPlot(PlotBase):
                 reference_histo = reference_candidate
 
         if matches != 1:
-            raise ValueError("Found more than one matching reference candidate.")
+            raise ValueError(
+                f"Found {matches} matching reference candidates, but only one match "
+                "is allowed."
+            )
 
         logger.debug(
             "Reference histogram for '%s' is '%s'", histo.key, reference_histo.key
@@ -669,43 +600,39 @@ class HistogramPlot(PlotBase):
             ticks and tick labels, by default "ratio"
 
         """
-        if self.plot_pie:
-            plt_handles = self.plot_pie_chart()
-        else:
-            plt_handles = self.plot()
+        plt_handles = self.plot()
 
-        if not self.plot_pie:
-            if self.n_ratio_panels > 0:
-                self.plot_ratios()
+        if self.n_ratio_panels > 0:
+            self.plot_ratios()
 
-            self.set_xlim(
-                self.bins[0] if self.xmin is None else self.xmin,
-                self.bins[-1] if self.xmax is None else self.xmax,
+        self.set_xlim(
+            self.bins[0] if self.xmin is None else self.xmin,
+            self.bins[-1] if self.xmax is None else self.xmax,
+        )
+        self.set_log()
+        self.set_y_lim()
+        self.set_xlabel()
+        self.set_tick_params()
+        self.set_ylabel(self.axis_top)
+
+        if self.n_ratio_panels > 0:
+            self.set_ylabel(
+                self.axis_ratio_1,
+                self.ylabel_ratio_1,
+                align_right=False,
+                labelpad=labelpad,
             )
-            self.set_log()
-            self.set_y_lim()
-            self.set_xlabel()
-            self.set_tick_params()
-            self.set_ylabel(self.axis_top)
 
-            if self.n_ratio_panels > 0:
-                self.set_ylabel(
-                    self.axis_ratio_1,
-                    self.ylabel_ratio_1,
-                    align_right=False,
-                    labelpad=labelpad,
-                )
+        if self.bin_width_in_ylabel is True:
+            self.add_bin_width_to_ylabel()
 
-            if self.bin_width_in_ylabel is True:
-                self.add_bin_width_to_ylabel()
-
-            legend_axis = self.axis_top
-        else:
-            legend_axis = self.axis_leg
+        legend_axis = self.axis_top
 
         self.make_legend(plt_handles, ax_mpl=legend_axis)
         self.set_title()
-        self.fig.tight_layout()
+
+        if not self.atlas_tag_outside:
+            self.fig.tight_layout()
 
         if self.apply_atlas_style:
             self.atlasify()

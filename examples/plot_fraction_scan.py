@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from puma import FractionScan, FractionScanPlot
+from puma import Line2D, Line2DPlot
 from puma.metrics import calc_eff
 from puma.utils import get_dummy_2_taggers, logger
 
@@ -63,12 +63,12 @@ MARKER_Y = eff_results[30, 1]
 # You can give several plotting options to the plot itself
 
 # Now init a fraction scan plot
-frac_plot = FractionScanPlot()
+frac_plot = Line2DPlot()
 
 # Add our x- and y values as a new line
 # The colour and linestyle are optional here
 frac_plot.add(
-    FractionScan(
+    Line2D(
         x_values=x_values,
         y_values=y_values,
         label="Tagger 1",
@@ -83,7 +83,7 @@ frac_plot.add(
 # given values are the default values.
 # The is_marker bool tells the plot that this is a marker and not a line
 frac_plot.add(
-    FractionScan(
+    Line2D(
         x_values=MARKER_X,
         y_values=MARKER_Y,
         colour="r",

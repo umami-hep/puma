@@ -11,19 +11,19 @@ import unittest
 import numpy as np
 from matplotlib.testing.compare import compare_images
 
-from puma.fraction_scan import FractionScan, FractionScanPlot
+from puma import Line2D, Line2DPlot
 from puma.utils import logger, set_log_level
 
 set_log_level(logger, "DEBUG")
 
 
-class FractionScanTestCase(unittest.TestCase):
+class Line2DTestCase(unittest.TestCase):
     """Test class for the puma.fraction_scan functions."""
 
     def test_wrong_inputs_xvalues(self):
-        """test if providing wrong input type to FractionScan raises ValueError"""
+        """test if providing wrong input type to Line2D raises ValueError"""
         with self.assertRaises(ValueError):
-            FractionScan(
+            Line2D(
                 x_values="Test",
                 y_values=int(5),
             )
@@ -31,7 +31,7 @@ class FractionScanTestCase(unittest.TestCase):
     def test_differnt_input_types(self):
         """test if providing different input types raises ValueError"""
         with self.assertRaises(ValueError):
-            FractionScan(
+            Line2D(
                 x_values=[1, 2, 3],
                 y_values=np.array([1, 2, 3]),
             )
@@ -39,13 +39,13 @@ class FractionScanTestCase(unittest.TestCase):
     def test_empty_input(self):
         """test if ValueError is raised when one of the input values is zero"""
         with self.assertRaises(ValueError):
-            FractionScan(
+            Line2D(
                 x_values=[],
                 y_values=[1, 2],
             )
 
         with self.assertRaises(ValueError):
-            FractionScan(
+            Line2D(
                 x_values=[1, 2],
                 y_values=[],
             )
@@ -53,14 +53,14 @@ class FractionScanTestCase(unittest.TestCase):
     def test_different_input_shapes(self):
         """test if ValueError is raised when different lengths given"""
         with self.assertRaises(ValueError):
-            FractionScan(
+            Line2D(
                 x_values=[1, 2, 3],
                 y_values=[1, 2],
             )
 
 
 class TestCase(unittest.TestCase):
-    """Test class for puma.FractionScanPlot"""
+    """Test class for puma.Line2DPlot"""
 
     def setUp(self):
         """Set up values needed."""
@@ -80,13 +80,13 @@ class TestCase(unittest.TestCase):
             os.path.dirname(__file__), "expected_plots"
         )
 
-    def test_FractionScanPlot(self):
-        """Test the basic functions of FractionScanPlot"""
-        frac_plot = FractionScanPlot(**{"n_ratio_panels": 0})
+    def test_Line2DPlot(self):
+        """Test the basic functions of Line2DPlot"""
+        frac_plot = Line2DPlot(**{"n_ratio_panels": 0})
 
         # Add line
         frac_plot.add(
-            FractionScan(
+            Line2D(
                 x_values=self.x_values,
                 y_values=self.y_values,
                 label="Tagger 1",
@@ -97,7 +97,7 @@ class TestCase(unittest.TestCase):
 
         # Add marker
         frac_plot.add(
-            FractionScan(
+            Line2D(
                 x_values=self.marker_x,
                 y_values=self.marker_y,
                 colour="r",
@@ -131,13 +131,13 @@ class TestCase(unittest.TestCase):
             )
         )
 
-    def test_FractionScanPlot_grid_off(self):
-        """Test the basic functions of FractionScanPlot"""
-        frac_plot = FractionScanPlot(**{"n_ratio_panels": 0}, grid=False)
+    def test_Line2DPlot_grid_off(self):
+        """Test the basic functions of Line2DPlot"""
+        frac_plot = Line2DPlot(**{"n_ratio_panels": 0}, grid=False)
 
         # Add line
         frac_plot.add(
-            FractionScan(
+            Line2D(
                 x_values=self.x_values,
                 y_values=self.y_values,
                 label="Tagger 1",
@@ -148,7 +148,7 @@ class TestCase(unittest.TestCase):
 
         # Add marker
         frac_plot.add(
-            FractionScan(
+            Line2D(
                 x_values=self.marker_x,
                 y_values=self.marker_y,
                 colour="r",
@@ -182,13 +182,13 @@ class TestCase(unittest.TestCase):
             )
         )
 
-    def test_FractionScanPlot_no_param_set(self):
-        """Test the basic functions of FractionScanPlot"""
-        frac_plot = FractionScanPlot(**{"n_ratio_panels": 0})
+    def test_Line2DPlot_no_param_set(self):
+        """Test the basic functions of Line2DPlot"""
+        frac_plot = Line2DPlot(**{"n_ratio_panels": 0})
 
         # Add line
         frac_plot.add(
-            FractionScan(
+            Line2D(
                 x_values=self.x_values,
                 y_values=self.y_values,
                 label="Tagger 1",
@@ -199,7 +199,7 @@ class TestCase(unittest.TestCase):
 
         # Add marker
         frac_plot.add(
-            FractionScan(
+            Line2D(
                 x_values=self.marker_x,
                 y_values=self.marker_y,
                 colour=None,
@@ -235,13 +235,13 @@ class TestCase(unittest.TestCase):
             )
         )
 
-    def test_FractionScanPlot_double_key(self):
-        """Test the basic functions of FractionScanPlot"""
-        frac_plot = FractionScanPlot(**{"n_ratio_panels": 0})
+    def test_Line2DPlot_double_key(self):
+        """Test the basic functions of Line2DPlot"""
+        frac_plot = Line2DPlot(**{"n_ratio_panels": 0})
 
         # Add line
         frac_plot.add(
-            FractionScan(
+            Line2D(
                 x_values=self.x_values,
                 y_values=self.y_values,
                 label="Tagger 1",
@@ -254,7 +254,7 @@ class TestCase(unittest.TestCase):
         with self.assertRaises(KeyError):
             # Add marker
             frac_plot.add(
-                FractionScan(
+                Line2D(
                     x_values=self.marker_x,
                     y_values=self.marker_y,
                     colour="r",

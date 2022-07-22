@@ -285,6 +285,7 @@ class var_vs_eff_output_TestCase(unittest.TestCase):
             working_point=0.5,
             disc_cut=None,
             fixed_eff_bin=True,
+            linestyle="dashed",
             label="better model (by construction better for $p_T$ > 110)",
         )
         plot_bkg_rej = VarVsEffPlot(
@@ -301,6 +302,7 @@ class var_vs_eff_output_TestCase(unittest.TestCase):
             ),
             y_scale=1.5,
             n_ratio_panels=1,
+            figsize=(9, 6),
         )
         plot_bkg_rej.add(ref_light, reference=True)
         plot_bkg_rej.add(better_light)
@@ -358,6 +360,7 @@ class var_vs_eff_output_TestCase(unittest.TestCase):
             ),
             y_scale=1.5,
             n_ratio_panels=1,
+            figsize=(9, 6),
         )
         plot_bkg_rej.add(ref_light, reference=True)
         plot_bkg_rej.add(better_light)
