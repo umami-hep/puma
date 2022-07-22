@@ -41,7 +41,12 @@ class get_dummy_2_taggers_TestCase(unittest.TestCase):
         # returns 3 classes with the same amount of stats per class
         self.assertEqual(len(df_gen), 9)
 
-    def test_range(self):
+    def test_columns(self):
         """Check correct amount of columns."""
         df_gen = get_dummy_2_taggers()
         self.assertEqual(len(df_gen.columns.values), 7)
+
+    def test_columns_pt(self):
+        """Check correct amount of columns when using pt as well."""
+        df_gen = get_dummy_2_taggers(add_pt=True)
+        self.assertEqual(len(df_gen.columns.values), 8)
