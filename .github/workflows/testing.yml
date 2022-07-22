@@ -28,12 +28,6 @@ jobs:
         run: apt update && apt install -y git
       - name: Report coverage with Codecov
         uses: codecov/codecov-action@v3
-      # - name: Report coverage with Codecov
-      #   run: |
-      #     apt update && apt install -y git curl
-      #     curl -Os https://uploader.codecov.io/latest/linux/codecov 
-      #     chmod +x codecov 
-      #     ./codecov
   example_tests:
     name: Example tests
     runs-on: ubuntu-latest
