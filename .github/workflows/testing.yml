@@ -32,10 +32,10 @@ jobs:
       #     files: ./coverage.xml
       - name: Upload to codecov.io
         run: |
-        apt update && apt install -y curl git
-        curl -Os https://uploader.codecov.io/latest/linux/codecov 
-        chmod +x codecov 
-        ./codecov
+          apt update && apt install -y git curl
+          curl -Os https://uploader.codecov.io/latest/linux/codecov 
+          chmod +x codecov 
+          ./codecov
   example_tests:
     name: Example tests
     runs-on: ubuntu-latest
