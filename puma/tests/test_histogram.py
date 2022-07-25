@@ -10,6 +10,7 @@ import unittest
 
 import numpy as np
 from matplotlib.testing.compare import compare_images
+from testfixtures import LogCapture
 
 from puma import Histogram, HistogramPlot
 from puma.utils import logger, set_log_level
@@ -102,6 +103,19 @@ class histogram_TestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             hist_1.divide(hist_2)
 
+    def test_multiple_references_wrong_flavour(self):
+        """Tests if warning is raised with wrong flavour."""
+        dummy_array = np.array([1, 1, 2, 3, 2, 3])
+        with LogCapture("puma") as log:
+            Histogram(dummy_array, flavour="dummy")
+            log.check(
+                (
+                    "puma",
+                    "WARNING",
+                    "The flavour 'dummy' was not found in the global config.",
+                )
+            )
+
 
 class histogram_plot_TestCase(unittest.TestCase):
     """Test class for puma.histogram_plot"""
@@ -164,15 +178,6 @@ class histogram_plot_TestCase(unittest.TestCase):
         """Tests if error is raised if more than 1 ratio panel is requested."""
         with self.assertRaises(ValueError):
             HistogramPlot(n_ratio_panels=2)
-
-    def test_multiple_references_wrong_flavour(self):
-        """Tests if warning is raised with wrong flavour."""
-        hist_plot = HistogramPlot(n_ratio_panels=1)
-        dummy_array = np.array([1, 1, 2, 3, 2, 3])
-        hist_plot.add(Histogram(dummy_array, flavour="dummy"), reference=True)
-        hist_plot.add(Histogram(dummy_array, flavour="dummy"))
-        hist_plot.plot()
-        hist_plot.plot_ratios()
 
     def test_custom_range(self):
         """check if
