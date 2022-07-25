@@ -5,7 +5,7 @@ from scipy.special import softmax
 
 
 def get_dummy_multiclass_scores(
-    size: int = 10_000,
+    size: int = 9_999,
     bjets_mean: float = 1.4,
     seed: int = 42,
 ):
@@ -16,8 +16,9 @@ def get_dummy_multiclass_scores(
     Parameters
     ----------
     size : int, optional
-        Size of dummy data. For each of the 3 classes, the same amount of is produces,
-        by default 10_000
+        Size of dummy data. For each of the 3 classes, the same amount is produced,
+        if size cannot be divided by 3, next smaller number is taken,
+        by default 9_999
     bjets_mean : float, optional
         Mean value of the b-jets 3D gaussian, the more away from 0, the better the
         b-tagging performance, by default 1.4
@@ -47,7 +48,7 @@ def get_dummy_multiclass_scores(
 
 
 def get_dummy_2_taggers(
-    size: int = 10_000,
+    size: int = 9_999,
     shuffle: bool = True,
     seed: int = 42,
     add_pt: bool = False,
@@ -60,7 +61,7 @@ def get_dummy_2_taggers(
     Parameters
     ----------
     size : int, optional
-        Size of dummy data, by default 10_000
+        Size of dummy data, by default 9_999
     shuffle : bool, optional
         If True shuffles the dummy data, by default True
     seed : int, optional

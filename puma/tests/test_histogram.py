@@ -10,6 +10,7 @@ import unittest
 
 import numpy as np
 from matplotlib.testing.compare import compare_images
+from testfixtures import LogCapture
 
 from puma import Histogram, HistogramPlot
 from puma.utils import logger, set_log_level
@@ -86,6 +87,35 @@ class histogram_TestCase(unittest.TestCase):
         np.testing.assert_almost_equal(expected_ratio, hist_1.divide(hist_2)[0])
         np.testing.assert_almost_equal(expected_ratio_unc, hist_1.divide(hist_2)[1])
 
+    def test_divide_wrong_bin_edges(self):
+        """test if error is raised if bin edges don't match."""
+        hist_1 = Histogram([1, 1, 1, 2, 2])
+        hist_2 = Histogram([1, 2, 2, 2])
+        bins = np.array([1, 2, 3])
+        hist_plot = HistogramPlot(bins=bins, norm=False)
+        hist_plot.add(hist_1)
+        hist_plot.add(hist_2)
+        hist_plot.plot()
+        # Since plotting is done with the matplotlib step function, the first bin is
+        # duplicated in the ratio calculation (the first one is so to say not plotted)
+        # Therefore, we also use duplicated bins here
+        hist_2.bin_edges = np.array([1, 2])
+        with self.assertRaises(ValueError):
+            hist_1.divide(hist_2)
+
+    def test_multiple_references_wrong_flavour(self):
+        """Tests if warning is raised with wrong flavour."""
+        dummy_array = np.array([1, 1, 2, 3, 2, 3])
+        with LogCapture("puma") as log:
+            Histogram(dummy_array, flavour="dummy")
+            log.check(
+                (
+                    "puma",
+                    "WARNING",
+                    "The flavour 'dummy' was not found in the global config.",
+                )
+            )
+
 
 class histogram_plot_TestCase(unittest.TestCase):
     """Test class for puma.histogram_plot"""
@@ -143,6 +173,11 @@ class histogram_plot_TestCase(unittest.TestCase):
         hist_plot.plot()
         with self.assertRaises(ValueError):
             hist_plot.plot_ratios()
+
+    def test_two_ratio_panels(self):
+        """Tests if error is raised if more than 1 ratio panel is requested."""
+        with self.assertRaises(ValueError):
+            HistogramPlot(n_ratio_panels=2)
 
     def test_custom_range(self):
         """check if
@@ -634,3 +669,14 @@ class histogram_plot_TestCase(unittest.TestCase):
                 tol=1,
             )
         )
+
+    def test_weights_wrong_shape(self):
+        """Check if ValueError is raised if wieghts has"""
+        values = np.array([0, 1, 2, 2, 3])
+        weights = np.array([1, -1])
+
+        with self.assertRaises(ValueError):
+            Histogram(
+                values,
+                weights=weights,
+            )
