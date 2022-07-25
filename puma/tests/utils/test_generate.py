@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Unit test script for the functions in utils/histogram.py
+Unit test script for the functions in utils/generate.py
 """
 
 import unittest
