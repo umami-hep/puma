@@ -77,8 +77,10 @@ logger.info("Plotting ROC curves.")
 plot_roc = RocPlot(
     n_ratio_panels=2,
     ylabel="Background rejection",
-    xlabel="$b$-jets efficiency",
+    xlabel="$b$-jet efficiency",
     atlas_second_tag="$\\sqrt{s}=13$ TeV, dummy jets \ndummy sample, $f_{c}=0.018$",
+    figsize=(6.5, 6),
+    y_scale=1.4,
 )
 plot_roc.add_roc(
     Roc(
@@ -123,13 +125,13 @@ plot_roc.add_roc(
     ),
 )
 # setting which flavour rejection ratio is drawn in which ratio panel
-plot_roc.set_ratio_class(1, "ujets", label="Light-flavour jets ratio")
-plot_roc.set_ratio_class(2, "cjets", label="$c$-jets ratio")
+plot_roc.set_ratio_class(1, "ujets", label="Light-jet ratio")
+plot_roc.set_ratio_class(2, "cjets", label="$c$-jet ratio")
 # if you want to swap the ratios just uncomment the following 2 lines
 # plot_roc.set_ratio_class(2, "ujets", label="light-flavour jets ratio")
 # plot_roc.set_ratio_class(1, "cjets", label="c-jets ratio")
-plot_roc.set_leg_rej_labels("ujets", "Light-flavour jets rejection")
-plot_roc.set_leg_rej_labels("cjets", "$c$-jets rejection")
+plot_roc.set_leg_rej_labels("ujets", "Light-jet rejection")
+plot_roc.set_leg_rej_labels("cjets", "$c$-jet rejection")
 
 
 plot_roc.draw()
