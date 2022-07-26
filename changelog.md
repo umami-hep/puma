@@ -2,6 +2,9 @@
 
 ### [Latest]
 
+
+### [v0.1.6]
+
 - Adding support for weighted histograms (`puma.Histogram` now has an optional argument `weights`) [#86](https://github.com/umami-hep/puma/pull/86)
 - Fixing bug where code crashed when histograms with discrete values + ratio panel were drawn [#99](https://github.com/umami-hep/puma/pull/99)
 - Adding `h5py` to the Docker images [#97](https://github.com/umami-hep/puma/pull/97)
