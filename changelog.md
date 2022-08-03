@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Adding new option to place rejection label legend in ROC plots [#109](https://github.com/umami-hep/puma/pull/109)
 
 ### [v0.1.6]
 
