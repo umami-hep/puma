@@ -112,12 +112,18 @@ def get_good_pie_colours(colour_scheme=None):
 def get_good_colours(colour_scheme=None):
     """List of colours adequate for plotting
 
+    Parameters
+    ----------
+    colour_scheme : string, optional
+        colour scheme for line plots, by default None
+
     Returns
     -------
     list
         list with colours
     """
     # TODO change in python 3.10 -> case syntax
+    # TODO needs improvements
     if colour_scheme is None:
         return [
             "#AA3377",
