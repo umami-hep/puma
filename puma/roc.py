@@ -440,13 +440,18 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             Defines where to place the legend for rejection class. Accepts all options
             from `matplotlib.axes.Axes.legend` as well as the option `ratio_legend`,
             which adds the legend into the ratio panels
+
+         Raises
+        ------
+        ValueError
+            If not 2 ratios requested
         """
         if self.n_ratio_panels != 2:
             raise ValueError("For a rejection class legend you need 2 ratio panels.")
 
         self.leg_rej_loc = option
 
-    def make_split_legend(self, handles, legend_in_ratio_panels: bool = False):
+    def make_split_legend(self, handles):
         """Draw legend for the case of 2 ratios, splitting up legend into models and
         rejection class.
 
