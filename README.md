@@ -19,8 +19,7 @@ The Python package `puma` provides a plotting API for commonly used plots in fla
 
 ## Installation
 
-The `puma` package is currently under construction. It can be installed from PyPI or
-using the latest code from this repository.
+`puma` can be installed from PyPI or using the latest code from this repository.
 
 ### Install latest release from PyPI
 
