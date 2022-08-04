@@ -5,6 +5,7 @@
 
 import numpy as np
 import pandas as pd
+from palettable.colorbrewer.qualitative import Dark2_8
 from scipy.special import softmax
 
 from puma.utils.generate import get_dummy_2_taggers, get_dummy_multiclass_scores
@@ -108,15 +109,33 @@ def get_good_pie_colours(colour_scheme=None):
     )
 
 
-def get_good_colours():
+def get_good_colours(colour_scheme=None):
     """List of colours adequate for plotting
+
+    Parameters
+    ----------
+    colour_scheme : string, optional
+        colour scheme for line plots, by default None
 
     Returns
     -------
     list
         list with colours
     """
-    return ["#AA3377", "#228833", "#4477AA", "#CCBB44", "#EE6677", "#BBBBBB"]
+    # TODO change in python 3.10 -> case syntax
+    # TODO needs improvements
+    if colour_scheme is None:
+        return [
+            "#AA3377",
+            "#228833",
+            "#4477AA",
+            "#CCBB44",
+            "#EE6677",
+            "#BBBBBB",
+        ] + Dark2_8.mpl_colors
+
+    elif colour_scheme == "Dark2_8":
+        return Dark2_8.mpl_colors
 
 
 global_config = {

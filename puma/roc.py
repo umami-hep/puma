@@ -210,6 +210,7 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         # solid line and densed dotted dashed
         self.default_linestyles = ["-", (0, (3, 1, 1, 1))]
         self.legend_flavs = None
+        self.leg_rej_loc = "lower left"
 
     def add_roc(self, roc_curve: object, key: str = None, reference: bool = False):
         """Adding puma.Roc object to figure.
@@ -429,6 +430,27 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                     zorder=1,
                 )
 
+    def set_leg_rej_loc(self, option: str):
+        """Set the position of the rejection class legend. Only if 2 ratio panels are
+        defined.
+
+        Parameters
+        ----------
+        option : str
+            Defines where to place the legend for rejection class. Accepts all options
+            from `matplotlib.axes.Axes.legend` as well as the option `ratio_legend`,
+            which adds the legend into the ratio panels
+
+         Raises
+        ------
+        ValueError
+            If not 2 ratios requested
+        """
+        if self.n_ratio_panels != 2:
+            raise ValueError("For a rejection class legend you need 2 ratio panels.")
+
+        self.leg_rej_loc = option
+
     def make_split_legend(self, handles):
         """Draw legend for the case of 2 ratios, splitting up legend into models and
         rejection class.
@@ -447,28 +469,56 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         if self.n_ratio_panels != 2:
             raise ValueError("For a split legend you need 2 ratio panels.")
 
-        line_list_rej = []
-        for elem in [self.ratio_axes[1], self.ratio_axes[2]]:
-            line_list_rej.append(
-                mpl.lines.Line2D(
-                    [],
-                    [],
-                    color="k",
-                    label=self.leg_rej_labels[elem],
-                    linestyle=self.rej_class_ls[elem],
+        if self.leg_rej_loc == "ratio_legend":
+            legend_line = mpl.lines.Line2D(
+                [],
+                [],
+                color="k",
+                label=self.leg_rej_labels[self.ratio_axes[1]],
+                linestyle=self.rej_class_ls[self.ratio_axes[1]],
+            )
+            self.axis_ratio_1.legend(
+                handles=[legend_line],
+                labels=[legend_line.get_label()],
+                loc="upper right",
+                fontsize=self.leg_fontsize,
+            )
+            legend_line = mpl.lines.Line2D(
+                [],
+                [],
+                color="k",
+                label=self.leg_rej_labels[self.ratio_axes[2]],
+                linestyle=self.rej_class_ls[self.ratio_axes[2]],
+            )
+            self.axis_ratio_2.legend(
+                handles=[legend_line],
+                labels=[legend_line.get_label()],
+                loc="upper right",
+                fontsize=self.leg_fontsize,
+            )
+        else:
+            line_list_rej = []
+            for elem in [self.ratio_axes[1], self.ratio_axes[2]]:
+                line_list_rej.append(
+                    mpl.lines.Line2D(
+                        [],
+                        [],
+                        color="k",
+                        label=self.leg_rej_labels[elem],
+                        linestyle=self.rej_class_ls[elem],
+                    )
                 )
+
+            self.legend_flavs = self.axis_top.legend(
+                handles=line_list_rej,
+                labels=[handle.get_label() for handle in line_list_rej],
+                loc=self.leg_rej_loc,
+                fontsize=self.leg_fontsize,
+                ncol=self.leg_ncol,
             )
 
-        self.legend_flavs = self.axis_top.legend(
-            handles=line_list_rej,
-            labels=[handle.get_label() for handle in line_list_rej],
-            loc="upper center",
-            fontsize=self.leg_fontsize,
-            ncol=self.leg_ncol,
-        )
-
-        # Add the second legend to plot
-        self.axis_top.add_artist(self.legend_flavs)
+            # Add the second legend to plot
+            self.axis_top.add_artist(self.legend_flavs)
 
         # Get the labels for the legends
         labels_list = []

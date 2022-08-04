@@ -203,6 +203,21 @@ class roc_output_TestCase(unittest.TestCase):
         # sig efficiency with different start
         self.sig_eff_short = np.linspace(0.5, 1, 100)
 
+    def test_set_leg_rej_loc_1_ratio(self):
+        """Test set_leg_rej_loc with one ratio panel."""
+        plot = RocPlot(
+            n_ratio_panels=1,
+        )
+        with self.assertRaises(ValueError):
+            plot.set_leg_rej_loc("upper center")
+
+    def test_set_leg_rej_loc_2_ratio(self):
+        """Test set_leg_rej_loc with one ratio panel."""
+        plot = RocPlot(
+            n_ratio_panels=2,
+        )
+        plot.set_leg_rej_loc("upper center")
+
     def test_output_two_curves_one_ratio(self):
         """Test with two curves of same flavour, one ratio panel"""
         plot = RocPlot(
@@ -362,6 +377,78 @@ class roc_output_TestCase(unittest.TestCase):
         plot.draw()
 
         plotname = "test_roc_four_curves_2_ratio.png"
+        plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        # Uncomment line below to update expected image
+        # plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname}",
+                f"{self.expected_plots_dir}/{plotname}",
+                tol=1,
+            )
+        )
+
+    def test_output_ratio_legend_four_curves_two_ratio(self):
+        """
+        Test with two curves for each flavour, two ratio panels, using ratio legend.
+        """
+        plot = RocPlot(
+            n_ratio_panels=2,
+            ylabel="Background rejection",
+            xlabel="$b$-jets efficiency",
+            atlas_second_tag=(
+                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n"
+                "$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
+            ),
+        )
+
+        # Add four roc curves
+        plot.add_roc(
+            Roc(
+                self.sig_eff,
+                self.u_rej_1,
+                rej_class="ujets",
+                label="reference curve",
+            ),
+            reference=True,
+        )
+        plot.add_roc(
+            Roc(
+                self.sig_eff,
+                self.u_rej_2,
+                rej_class="ujets",
+                label="second curve",
+            )
+        )
+        plot.add_roc(
+            Roc(
+                self.sig_eff,
+                self.c_rej_1,
+                rej_class="cjets",
+                label="reference curve",
+            ),
+            reference=True,
+        )
+        plot.add_roc(
+            Roc(
+                self.sig_eff,
+                self.c_rej_2,
+                rej_class="cjets",
+                label="second curve",
+            )
+        )
+
+        plot.set_ratio_class(1, "ujets", label="Light-flavour jets ratio")
+        plot.set_ratio_class(2, "cjets", label="$c$-jets ratio")
+        plot.set_leg_rej_labels("ujets", "Light-flavour jets rejection")
+        plot.set_leg_rej_labels("cjets", "$c$-jets rejection")
+
+        plot.set_leg_rej_loc("ratio_legend")
+
+        # Draw the figure
+        plot.draw()
+
+        plotname = "test_output_ratio_legend_four_curves_two_ratio.png"
         plot.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
         # plot.savefig(f"{self.expected_plots_dir}/{plotname}")
