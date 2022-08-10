@@ -2,21 +2,23 @@
 
 ### [Latest]
 
+### [v0.1.7] (10.08.2022)
+
 - Adding new option to place rejection label legend in ROC plots [#109](https://github.com/umami-hep/puma/pull/109)
 
-### [v0.1.6]
+### [v0.1.6] (26.07.2022)
 
 - Adding support for weighted histograms (`puma.Histogram` now has an optional argument `weights`) [#86](https://github.com/umami-hep/puma/pull/86)
 - Fixing bug where code crashed when histograms with discrete values + ratio panel were drawn [#99](https://github.com/umami-hep/puma/pull/99)
 - Adding `h5py` to the Docker images [#97](https://github.com/umami-hep/puma/pull/97)
 - Adding `transparent` attribute to `PlotObject` class. This allows to specify transparent background when initialising the plot [#96](https://github.com/umami-hep/puma/pull/96)
 
-### [v0.1.5]
+### [v0.1.5] (05.07.2022)
 
 - Add `linewidth` and `alpha` to legend handles + set `alpha=1` by default (in `puma.Histogram`) [#92](https://github.com/umami-hep/puma/pull/92)
 - Decreased default `figsize` for plots with zero or one ratio panels [#90](https://github.com/umami-hep/puma/pull/90)
 
-### [v0.1.4]
+### [v0.1.4] (30.06.2022)
 
 - Renamed the `puma.FractionScan` and `puma.FractionScanPlot` classes to more general `puma.Line2DPlot` and `pumal.Line2D` [#84](https://github.com/umami-hep/puma/pull/84)
 - Splitting `force` argument of `set_log()` method into `force_x` and `force_y` [#83](https://github.com/umami-hep/puma/pull/83)
@@ -24,7 +26,7 @@
 - Change default labels of `singlebjets` and `singlecjets` [#82](https://github.com/umami-hep/puma/pull/82)
 - Support linestyles for variable vs. efficiency plots [#78](https://github.com/umami-hep/puma/pull/78)
 
-### [v0.1.3]
+### [v0.1.3] (23.06.2022)
 
 - Adding more flavours to the global config  [#73](https://github.com/umami-hep/puma/pull/73)
 - `ratio_group` in `puma.Histogram` objects can no longer be set via `flavour` argument [#74](https://github.com/umami-hep/puma/pull/74)
@@ -35,12 +37,12 @@
 - Adding `calc_separation()` to `puma.metrics`, which allows to calculate the separation between two distributions [#27](https://github.com/umami-hep/puma/pull/27)
 - Adding Zenodo link
 
-### [v0.1.2]
+### [v0.1.2] (02.06.2022)
 
 - Adding automated coverage comment for pull request [#58](https://github.com/umami-hep/puma/pull/58)
 - Fix that colour and legend label can be individually modified in case of flavoured histogram [#57](https://github.com/umami-hep/puma/pull/57)
 
-### [v0.1.1]
+### [v0.1.1] (30.05.2022)
 
 - Adding documentation for updating the version switcher in the docs [#49](https://github.com/umami-hep/puma/pull/49)
 - Adding version support in docs [#42](https://github.com/umami-hep/puma/pull/42)[#45](https://github.com/umami-hep/puma/pull/45)
@@ -52,7 +54,7 @@
 - Remove warning when adding more than one reference histogram is case is allowed [#32](https://github.com/umami-hep/puma/pull/32)
 - Update documentation [#24](https://github.com/umami-hep/puma/pull/24)
 
-### [v0.1.0]
+### [v0.1.0] (16.05.2022)
 
 - Set default number of ratio panels to 0 [#17](https://github.com/umami-hep/puma/pull/17)
 - Adding uncertainties to Roc main plots and improving dummy data generator [#14](https://github.com/umami-hep/puma/pull/14)
