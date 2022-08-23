@@ -698,15 +698,17 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         if labels is None:
             # remove the handles which have label=None
             handles = [handle for handle in handles if handle.get_label() is not None]
-        ax_mpl.legend(
-            handles=handles,
-            labels=[handle.get_label() for handle in handles]
-            if labels is None
-            else labels,
-            loc=self.leg_loc,
-            fontsize=self.leg_fontsize,
-            ncol=self.leg_ncol,
-            **kwargs,
+        ax_mpl.add_artist(
+            ax_mpl.legend(
+                handles=handles,
+                labels=[handle.get_label() for handle in handles]
+                if labels is None
+                else labels,
+                loc=self.leg_loc,
+                fontsize=self.leg_fontsize,
+                ncol=self.leg_ncol,
+                **kwargs,
+            )
         )
 
     def make_linestyle_legend(
