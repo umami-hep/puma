@@ -715,11 +715,10 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         self,
         linestyles: list,
         labels: list,
-        mpl_leg_kwargs=None,
         loc: str = None,
         bbox_to_anchor: tuple = None,
-        axis=None,
-    ):
+        axis_for_legend=None,
+    ):  # pylint: disable=too-many-arguments
         """Create a legend to indicate what different linestyles correspond to.
 
         Parameters
@@ -729,36 +728,31 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         labels : list
             List of the corresponding labels. Has to be in the same order as the
             linestyles
-        mpl_leg_kwargs : dict, optional
-            Dict with keyword arguments passed to the matplotlib.legend, by default None
         loc : str, optional
             Location of the legend (matplotlib supported locations), by default None
         bbox_to_anchor : tuple, optional
             Allows to specify the precise position of this legend. Either a 2-tuple
             (x, y) or a 4-tuple (x, y, width, height), by default None
-        axis : matplotlib.Axes.axis, optional
+        axis_for_legend : matplotlib.Axes.axis, optional
             Axis on which to draw the legend, by default None
         """
 
-        if axis is None:
-            axis = self.axis_top
-
-        if mpl_leg_kwargs is None:
-            mpl_leg_kwargs = {}
+        if axis_for_legend is None:
+            axis_for_legend = self.axis_top
 
         lines_list = []
-        for ls, label in zip(linestyles, labels):
+        for linestyle, label in zip(linestyles, labels):
             lines_list.append(
                 mpl.lines.Line2D(
                     [],
                     [],
                     color="k",
                     label=label,
-                    linestyle=ls,
+                    linestyle=linestyle,
                 )
             )
 
-        linestyle_legend = axis.legend(
+        linestyle_legend = axis_for_legend.legend(
             handles=lines_list,
             labels=[handle.get_label() for handle in lines_list],
             loc=loc if loc is not None else self.leg_linestyle_loc,
@@ -766,7 +760,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
             bbox_to_anchor=bbox_to_anchor,
             frameon=False,
         )
-        axis.add_artist(linestyle_legend)
+        axis_for_legend.add_artist(linestyle_legend)
 
     def set_ratio_label(self, ratio_panel: int, label: str):
         """Associate the rejection class to a ratio panel
