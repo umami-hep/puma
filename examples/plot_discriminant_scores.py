@@ -76,8 +76,8 @@ for tagger, linestyle in zip(taggers, linestyles):
         reference=True if tagger == "dips" else False,
     )
 
+plot_histo.draw()
 plot_histo.make_linestyle_legend(
     linestyles=["solid", "dashed"], labels=["DIPS", "RNNIP"], bbox_to_anchor=(0.55, 1)
 )
-plot_histo.draw()
 plot_histo.savefig("histogram_discriminant.png", transparent=False)
