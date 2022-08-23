@@ -53,7 +53,7 @@ for tagger, linestyle in zip(taggers, linestyles):
             ratio_group="ujets",
             linestyle=linestyle,
         ),
-        reference=True if tagger == "dips" else False,
+        reference=tagger == "dips",
     )
     plot_histo.add(
         Histogram(
@@ -63,7 +63,7 @@ for tagger, linestyle in zip(taggers, linestyles):
             ratio_group="cjets",
             linestyle=linestyle,
         ),
-        reference=True if tagger == "dips" else False,
+        reference=tagger == "dips",
     )
     plot_histo.add(
         Histogram(
@@ -73,7 +73,7 @@ for tagger, linestyle in zip(taggers, linestyles):
             ratio_group="bjets",
             linestyle=linestyle,
         ),
-        reference=True if tagger == "dips" else False,
+        reference=tagger == "dips",
     )
 
 plot_histo.draw()
