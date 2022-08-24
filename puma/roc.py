@@ -557,7 +557,8 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             xmin if self.xmin is None else self.xmin,
             xmax if self.xmax is None else self.xmax,
         )
-        self.add_ratios()
+        if self.n_ratio_panels > 0:
+            self.add_ratios()
         self.set_title()
         self.set_log()
         self.set_y_lim()
