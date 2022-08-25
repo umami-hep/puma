@@ -1,6 +1,8 @@
 # Changelog
 
 ### [Latest]
+- Lines with `label=None` (which is the default) will not appear in the legend anymore [#113](https://github.com/umami-hep/puma/pull/113)
+- Adding the method `make_linestyle_legend()` which allows to specify an additional legend for linestyles [#113](https://github.com/umami-hep/puma/pull/113)
 
 ### [v0.1.7] (10.08.2022)
 
