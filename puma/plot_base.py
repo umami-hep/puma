@@ -3,8 +3,7 @@
 from dataclasses import dataclass
 
 import atlasify
-import matplotlib as mpl
-from matplotlib import axis, gridspec
+from matplotlib import axis, gridspec, lines
 from matplotlib.figure import Figure
 
 from puma.utils import logger, set_xaxis_ticklabels_invisible
@@ -743,7 +742,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         lines_list = []
         for linestyle, label in zip(linestyles, labels):
             lines_list.append(
-                mpl.lines.Line2D(
+                lines.Line2D(
                     [],
                     [],
                     color="k",

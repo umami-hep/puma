@@ -48,6 +48,10 @@ for tagger, linestyle in zip(taggers, linestyles):
     plot_histo.add(
         Histogram(
             df[is_light][f"disc_{tagger}"],
+            # Only specify the label for the case of the "DIPS" light-jets, since we
+            # want to hide the legend entry for "RNNIP" light-jets as it has the same
+            # linecolour. Instead, we specify a "linestyle legend" further down in the
+            # script
             label="Light-flavour jets" if tagger == "dips" else None,
             colour=flav_cat["ujets"]["colour"],
             ratio_group="ujets",
@@ -77,6 +81,9 @@ for tagger, linestyle in zip(taggers, linestyles):
     )
 
 plot_histo.draw()
+# The lines below create a legend for the linestyles (i.e. solid lines -> DIPS, dashed
+# lines -> RNNIP here). The "bbox_to_anchor" argument specifies where to place the
+# linestyle legend
 plot_histo.make_linestyle_legend(
     linestyles=["solid", "dashed"], labels=["DIPS", "RNNIP"], bbox_to_anchor=(0.55, 1)
 )
