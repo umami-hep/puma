@@ -218,6 +218,53 @@ class roc_output_TestCase(unittest.TestCase):
         )
         plot.set_leg_rej_loc("upper center")
 
+    def test_output_two_curves_no_ratio(self):
+        """Test with two curves of same flavour, without ratio panel"""
+        plot = RocPlot(
+            n_ratio_panels=0,
+            ylabel="Light-jet rejection",
+            xlabel="$b$-jet efficiency",
+            atlas_second_tag=(
+                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n"
+                "$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
+            ),
+            y_scale=1.5,
+        )
+
+        # Add two roc curves
+        plot.add_roc(
+            Roc(
+                self.sig_eff,
+                self.u_rej_1,
+                rej_class="ujets",
+                label="reference curve",
+            ),
+            reference=True,
+        )
+        plot.add_roc(
+            Roc(
+                self.sig_eff,
+                self.u_rej_2,
+                rej_class="ujets",
+                label="second curve",
+            )
+        )
+
+        # Draw the figure
+        plot.draw()
+
+        plotname = "test_roc_two_curves_no_ratio.png"
+        plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        # Uncomment line below to update expected image
+        # plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname}",
+                f"{self.expected_plots_dir}/{plotname}",
+                tol=1,
+            )
+        )
+
     def test_output_two_curves_one_ratio(self):
         """Test with two curves of same flavour, one ratio panel"""
         plot = RocPlot(
