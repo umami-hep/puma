@@ -78,7 +78,7 @@ class Linestyles_TestCase(unittest.TestCase):
         plotname = "test_linestyles.png"
         test_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
-        test_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # test_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
         self.assertIsNone(
             compare_images(
                 f"{self.actual_plots_dir}/{plotname}",
