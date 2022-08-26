@@ -138,6 +138,70 @@ def get_good_colours(colour_scheme=None):
         return Dark2_8.mpl_colors
 
 
+def get_good_linestyles(names=None):
+    """Returns a list of good linestyles
+
+    Parameters
+    ----------
+    names : list or str, optional
+        List or string of the name(s) of the linestyle(s) you want to retrieve, e.g.
+        "densely dotted" or ["solid", "dashdot", "densely dashed"], by default None
+
+    Returns
+    -------
+    list
+        List of good linestyles. Either the specified selection or the whole list in
+        the predefined order.
+
+    Raises
+    ------
+    ValueError
+        If `names` is not a str or list.
+    """
+    linestyle_tuples = {
+        "solid": "solid",
+        "densely dashed": (0, (5, 1)),
+        "densely dotted": (0, (1, 1)),
+        "densely dashdotted": (0, (3, 1, 1, 1)),
+        "densely dashdotdotted": (0, (3, 1, 1, 1, 1, 1)),
+        "dotted": (0, (1, 1)),
+        "dashed": (0, (5, 5)),
+        "dashdot": "dashdot",
+        "loosely dashed": (0, (5, 10)),
+        "loosely dotted": (0, (1, 10)),
+        "loosely dashdotted": (0, (3, 10, 1, 10)),
+        "loosely dashdotdotted": (0, (3, 10, 1, 10, 1, 10)),
+        "dashdotted": (0, (3, 5, 1, 5)),
+        "dashdotdotted": (0, (3, 5, 1, 5, 1, 5)),
+    }
+
+    default_order = [
+        "solid",
+        "densely dotted",
+        "densely dashed",
+        "densely dashdotted",
+        "densely dashdotdotted",
+        "dotted",
+        "dashed",
+        "dashdot",
+        "loosely dotted",
+        "loosely dashed",
+        "loosely dashdotted",
+        "loosely dashdotdotted",
+        "dashdotted",
+        "dashdotdotted",
+    ]
+    if names is None:
+        names = default_order
+    elif isinstance(names, str):
+        return linestyle_tuples[names]
+    elif not isinstance(names, list):
+        raise ValueError(
+            "Invalid type of `names`, has to be a list of strings or a sting."
+        )
+    return [linestyle_tuples[name] for name in names]
+
+
 global_config = {
     "flavour_categories": {
         "bjets": {
