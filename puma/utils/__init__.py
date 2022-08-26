@@ -152,6 +152,11 @@ def get_good_linestyles(names=None):
     list
         List of good linestyles. Either the specified selection or the whole list in
         the predefined order.
+
+    Raises
+    ------
+    ValueError
+        If `names` is not a str or list.
     """
     linestyle_tuples = {
         "solid": "solid",
@@ -190,6 +195,10 @@ def get_good_linestyles(names=None):
         names = default_order
     elif isinstance(names, str):
         return linestyle_tuples[names]
+    elif not isinstance(names, list):
+        raise ValueError(
+            "Invalid type of `names`, has to be a list of strings or a sting."
+        )
     return [linestyle_tuples[name] for name in names]
 
 

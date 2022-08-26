@@ -27,6 +27,11 @@ class Linestyles_TestCase(unittest.TestCase):
             os.path.dirname(__file__), "expected_plots"
         )
 
+    def test_raise_value_error(self):
+        """Test if ValueError is raised for wrong argument type."""
+        with self.assertRaises(ValueError):
+            get_good_linestyles(4)
+
     def test_get_good_linestyles(self):
         """Test if the default linestyles obtained are the correct ones."""
 
