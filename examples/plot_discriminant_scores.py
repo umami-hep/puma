@@ -3,7 +3,7 @@
 import numpy as np
 
 from puma import Histogram, HistogramPlot
-from puma.utils import get_dummy_2_taggers, global_config
+from puma.utils import get_dummy_2_taggers, get_good_linestyles, global_config
 
 # The line below generates dummy data which is similar to a NN output
 df = get_dummy_2_taggers()
@@ -24,7 +24,7 @@ is_b = df["HadronConeExclTruthLabelID"] == 5
 
 flav_cat = global_config["flavour_categories"]
 taggers = ["dips", "rnnip"]
-linestyles = ["solid", (0, (1, 1))]
+linestyles = get_good_linestyles()[:2]
 
 # Initialise histogram plot
 plot_histo = HistogramPlot(
@@ -35,7 +35,7 @@ plot_histo = HistogramPlot(
     logy=False,
     leg_ncol=1,
     figsize=(5.5, 4.5),
-    bins=np.linspace(-10, 10, 30),
+    bins=np.linspace(-10, 10, 50),
     y_scale=1.5,
     ymax_ratio_1=1.5,
     ymin_ratio_1=0.5,
@@ -85,6 +85,6 @@ plot_histo.draw()
 # lines -> RNNIP here). The "bbox_to_anchor" argument specifies where to place the
 # linestyle legend
 plot_histo.make_linestyle_legend(
-    linestyles=["solid", "dashed"], labels=["DIPS", "RNNIP"], bbox_to_anchor=(0.55, 1)
+    linestyles=linestyles, labels=["DIPS", "RNNIP"], bbox_to_anchor=(0.55, 1)
 )
 plot_histo.savefig("histogram_discriminant.png", transparent=False)
