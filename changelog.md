@@ -3,11 +3,11 @@
 ### [Latest]
 - Adding support for ROC plots without ratio panels (was not possible until now) [#114](https://github.com/umami-hep/puma/pull/114)
 - Lines with `label=None` (which is the default) will not appear in the legend anymore [#113](https://github.com/umami-hep/puma/pull/113)
+- Adding new function `puma.utils.get_good_linestyles()` for easier linestyle management [#116](https://github.com/umami-hep/puma/pull/116)
 - Adding the method `make_linestyle_legend()` which allows to specify an additional legend for linestyles [#113](https://github.com/umami-hep/puma/pull/113)
 
 ### [v0.1.7] (10.08.2022)
 
-- Adding new function `puma.utils.get_good_linestyles()` for easier linestyle management [#116](https://github.com/umami-hep/puma/pull/116)
 - Adding new option to place rejection label legend in ROC plots [#109](https://github.com/umami-hep/puma/pull/109)
 
 ### [v0.1.6] (26.07.2022)
