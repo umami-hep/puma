@@ -138,18 +138,20 @@ def get_good_colours(colour_scheme=None):
         return Dark2_8.mpl_colors
 
 
-def get_good_linestyles(names: list = None):
+def get_good_linestyles(names=None):
     """Returns a list of good linestyles
 
     Parameters
     ----------
-    names : list, optional
-        List of the names of the linestyles you want to retrieve.
+    names : list or str, optional
+        List or string of the name(s) of the linestyle(s) you want to retrieve, e.g.
+        "densely dotted" or ["solid", "dashdot", "densely dashed"], by default None
 
     Returns
     -------
     list
-        List of good linestyles
+        List of good linestyles. Either the specified selection or the whole list in
+        the predefined order.
     """
     linestyle_tuples = {
         "solid": "solid",
