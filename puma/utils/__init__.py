@@ -138,6 +138,59 @@ def get_good_colours(colour_scheme=None):
         return Dark2_8.mpl_colors
 
 
+def get_good_linestyles(names: list = None):
+    """Returns a list of good linestyles
+
+    Parameters
+    ----------
+    names : list, optional
+        List of the names of the linestyles you want to retrieve.
+
+    Returns
+    -------
+    list
+        List of good linestyles
+    """
+    linestyle_tuples = {
+        "solid": "solid",
+        "densely dashed": (0, (5, 1)),
+        "densely dotted": (0, (1, 1)),
+        "densely dashdotted": (0, (3, 1, 1, 1)),
+        "densely dashdotdotted": (0, (3, 1, 1, 1, 1, 1)),
+        "dotted": (0, (1, 1)),
+        "dashed": (0, (5, 5)),
+        "dashdot": "dashdot",
+        "loosely dashed": (0, (5, 10)),
+        "loosely dotted": (0, (1, 10)),
+        "loosely dashdotted": (0, (3, 10, 1, 10)),
+        "loosely dashdotdotted": (0, (3, 10, 1, 10, 1, 10)),
+        "dashdotted": (0, (3, 5, 1, 5)),
+        "dashdotdotted": (0, (3, 5, 1, 5, 1, 5)),
+    }
+
+    default_order = [
+        "solid",
+        "densely dotted",
+        "densely dashed",
+        "densely dashdotted",
+        "densely dashdotdotted",
+        "dotted",
+        "dashed",
+        "dashdot",
+        "loosely dotted",
+        "loosely dashed",
+        "loosely dashdotted",
+        "loosely dashdotdotted",
+        "dashdotted",
+        "dashdotdotted",
+    ]
+    if names is None:
+        names = default_order
+    elif isinstance(names, str):
+        return linestyle_tuples[names]
+    return [linestyle_tuples[name] for name in names]
+
+
 global_config = {
     "flavour_categories": {
         "bjets": {
