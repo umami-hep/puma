@@ -2,9 +2,11 @@
 
 ### [Latest]
 
+- Adding example for `puma.Line2DPlot` to the docs [#117](https://github.com/umami-hep/puma/pull/117)
+- Adding new function `puma.utils.get_good_linestyles()` for easier linestyle management [#116](https://github.com/umami-hep/puma/pull/116)
+
 ### [v0.1.7] (10.08.2022)
 
-- Adding new function `puma.utils.get_good_linestyles()` for easier linestyle management [#116](https://github.com/umami-hep/puma/pull/116)
 - Adding new option to place rejection label legend in ROC plots [#109](https://github.com/umami-hep/puma/pull/109)
 
 ### [v0.1.6] (26.07.2022)
