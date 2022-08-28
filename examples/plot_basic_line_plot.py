@@ -11,7 +11,7 @@ validation_loss = np.exp(-epochs) + np.random.normal(0, 0.03, size=len(epochs)) 
 line_plot = Line2DPlot(
     xlabel="Epoch",
     ylabel="Loss",
-    atlas_second_tag="This is an example for a basic line plot",
+    atlas_second_tag="This is an example of a basic line plot",
 )
 
 # Add and draw the lines
