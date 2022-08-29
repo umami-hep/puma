@@ -13,6 +13,7 @@ can be used as a starting point for your plotting scripts.
    var_vs_eff.md
    fraction_scan.md
    pie_charts.md
+   line_plots.md
    
 
 .. include:: index.md

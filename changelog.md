@@ -6,6 +6,9 @@
 - Adding new function `puma.utils.get_good_linestyles()` for easier linestyle management [#116](https://github.com/umami-hep/puma/pull/116)
 - Adding the method `make_linestyle_legend()` which allows to specify an additional legend for linestyles [#113](https://github.com/umami-hep/puma/pull/113)
 
+- Adding example for `puma.Line2DPlot` to the docs [#117](https://github.com/umami-hep/puma/pull/117)
+- Adding new function `puma.utils.get_good_linestyles()` for easier linestyle management [#116](https://github.com/umami-hep/puma/pull/116)
+
 ### [v0.1.7] (10.08.2022)
 
 - Adding new option to place rejection label legend in ROC plots [#109](https://github.com/umami-hep/puma/pull/109)
