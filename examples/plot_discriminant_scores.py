@@ -3,7 +3,7 @@
 import numpy as np
 
 from puma import Histogram, HistogramPlot
-from puma.utils import get_dummy_2_taggers, global_config
+from puma.utils import get_dummy_2_taggers, get_good_linestyles, global_config
 
 # The line below generates dummy data which is similar to a NN output
 df = get_dummy_2_taggers()
@@ -23,57 +23,19 @@ is_c = df["HadronConeExclTruthLabelID"] == 4
 is_b = df["HadronConeExclTruthLabelID"] == 5
 
 flav_cat = global_config["flavour_categories"]
-
-hist_dips_light = Histogram(
-    df[is_light]["disc_dips"],
-    label="Light-flavour jets DIPS",
-    colour=flav_cat["ujets"]["colour"],
-    ratio_group="ujets",
-)
-hist_dips_c = Histogram(
-    df[is_c]["disc_dips"],
-    label="$c$-jets DIPS",
-    colour=flav_cat["cjets"]["colour"],
-    ratio_group="cjets",
-)
-hist_dips_b = Histogram(
-    df[is_b]["disc_dips"],
-    label="$b$-jets DIPS",
-    colour=flav_cat["bjets"]["colour"],
-    ratio_group="bjets",
-)
-hist_rnnip_light = Histogram(
-    df[is_light]["disc_rnnip"],
-    label="Light-flavour jets RNNIP",
-    colour=flav_cat["ujets"]["colour"],
-    linestyle="dashed",
-    ratio_group="ujets",
-)
-hist_rnnip_c = Histogram(
-    df[is_c]["disc_rnnip"],
-    label="$c$-jets RNNIP",
-    colour=flav_cat["cjets"]["colour"],
-    linestyle="dashed",
-    ratio_group="cjets",
-)
-hist_rnnip_b = Histogram(
-    df[is_b]["disc_rnnip"],
-    label="$b$-jets RNNIP",
-    colour=flav_cat["bjets"]["colour"],
-    linestyle="dashed",
-    ratio_group="bjets",
-)
+taggers = ["dips", "rnnip"]
+linestyles = get_good_linestyles()[:2]
 
 # Initialise histogram plot
 plot_histo = HistogramPlot(
     n_ratio_panels=1,
     ylabel="Normalised number of jets",
     ylabel_ratio_1="Ratio to DIPS",
-    xlabel="$b$-jets discriminant",
+    xlabel="$b$-jet discriminant",
     logy=False,
-    leg_ncol=2,
-    figsize=(6.8, 5),
-    bins=np.linspace(-10, 10, 30),
+    leg_ncol=1,
+    figsize=(5.5, 4.5),
+    bins=np.linspace(-10, 10, 50),
     y_scale=1.5,
     ymax_ratio_1=1.5,
     ymin_ratio_1=0.5,
@@ -81,12 +43,48 @@ plot_histo = HistogramPlot(
 )
 
 # Add the histograms
-plot_histo.add(hist_dips_light, reference=True)
-plot_histo.add(hist_dips_c, reference=True)
-plot_histo.add(hist_dips_b, reference=True)
-plot_histo.add(hist_rnnip_light)
-plot_histo.add(hist_rnnip_c)
-plot_histo.add(hist_rnnip_b)
+for tagger, linestyle in zip(taggers, linestyles):
+
+    plot_histo.add(
+        Histogram(
+            df[is_light][f"disc_{tagger}"],
+            # Only specify the label for the case of the "DIPS" light-jets, since we
+            # want to hide the legend entry for "RNNIP" light-jets as it has the same
+            # linecolour. Instead, we specify a "linestyle legend" further down in the
+            # script
+            label="Light-flavour jets" if tagger == "dips" else None,
+            colour=flav_cat["ujets"]["colour"],
+            ratio_group="ujets",
+            linestyle=linestyle,
+        ),
+        reference=tagger == "dips",
+    )
+    plot_histo.add(
+        Histogram(
+            df[is_c][f"disc_{tagger}"],
+            label="$c$-jets" if tagger == "dips" else None,
+            colour=flav_cat["cjets"]["colour"],
+            ratio_group="cjets",
+            linestyle=linestyle,
+        ),
+        reference=tagger == "dips",
+    )
+    plot_histo.add(
+        Histogram(
+            df[is_b][f"disc_{tagger}"],
+            label="$b$-jets" if tagger == "dips" else None,
+            colour=flav_cat["bjets"]["colour"],
+            ratio_group="bjets",
+            linestyle=linestyle,
+        ),
+        reference=tagger == "dips",
+    )
 
 plot_histo.draw()
+# The lines below create a legend for the linestyles (i.e. solid lines -> DIPS, dashed
+# lines -> RNNIP here). The "bbox_to_anchor" argument specifies where to place the
+# linestyle legend
+plot_histo.make_linestyle_legend(
+    linestyles=linestyles, labels=["DIPS", "RNNIP"], bbox_to_anchor=(0.55, 1)
+)
 plot_histo.savefig("histogram_discriminant.png", transparent=False)
