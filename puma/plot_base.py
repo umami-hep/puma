@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 
 import atlasify
-from matplotlib import axis, gridspec
+from matplotlib import axis, gridspec, lines
 from matplotlib.figure import Figure
 
 from puma.utils import logger, set_xaxis_ticklabels_invisible
@@ -122,6 +122,8 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
         Position of the legend in the plot, by default "upper right"
     leg_ncol : int, optional
         Number of legend columns, by default 1
+    leg_linestyle_loc : str, optional
+        Position of the linestyle legend in the plot, by default "upper center"
     apply_atlas_style : bool, optional
         Apply ATLAS style for matplotlib, by default True
     use_atlas_tag : bool, optional
@@ -184,6 +186,7 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
     # legend settings
     leg_fontsize: int = None
     leg_loc: str = "upper right"
+    leg_linestyle_loc: str = "upper center"
     leg_ncol: int = 1
 
     # defining ATLAS style and tags
@@ -691,16 +694,72 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         **kwargs : kwargs
             Keyword arguments which can be passed to matplotlib axis
         """
-        ax_mpl.legend(
-            handles=handles,
-            labels=[handle.get_label() for handle in handles]
-            if labels is None
-            else labels,
-            loc=self.leg_loc,
-            fontsize=self.leg_fontsize,
-            ncol=self.leg_ncol,
-            **kwargs,
+        if labels is None:
+            # remove the handles which have label=None
+            handles = [handle for handle in handles if handle.get_label() is not None]
+        ax_mpl.add_artist(
+            ax_mpl.legend(
+                handles=handles,
+                labels=[handle.get_label() for handle in handles]
+                if labels is None
+                else labels,
+                loc=self.leg_loc,
+                fontsize=self.leg_fontsize,
+                ncol=self.leg_ncol,
+                **kwargs,
+            )
         )
+
+    def make_linestyle_legend(
+        self,
+        linestyles: list,
+        labels: list,
+        loc: str = None,
+        bbox_to_anchor: tuple = None,
+        axis_for_legend=None,
+    ):  # pylint: disable=too-many-arguments
+        """Create a legend to indicate what different linestyles correspond to.
+
+        Parameters
+        ----------
+        linestyles : list
+            List of the linestyles to draw in the legend
+        labels : list
+            List of the corresponding labels. Has to be in the same order as the
+            linestyles
+        loc : str, optional
+            Location of the legend (matplotlib supported locations), by default None
+        bbox_to_anchor : tuple, optional
+            Allows to specify the precise position of this legend. Either a 2-tuple
+            (x, y) or a 4-tuple (x, y, width, height), by default None
+        axis_for_legend : matplotlib.Axes.axis, optional
+            Axis on which to draw the legend, by default None
+        """
+
+        if axis_for_legend is None:
+            axis_for_legend = self.axis_top
+
+        lines_list = []
+        for linestyle, label in zip(linestyles, labels):
+            lines_list.append(
+                lines.Line2D(
+                    [],
+                    [],
+                    color="k",
+                    label=label,
+                    linestyle=linestyle,
+                )
+            )
+
+        linestyle_legend = axis_for_legend.legend(
+            handles=lines_list,
+            labels=[handle.get_label() for handle in lines_list],
+            loc=loc if loc is not None else self.leg_linestyle_loc,
+            fontsize=self.leg_fontsize,
+            bbox_to_anchor=bbox_to_anchor,
+            frameon=False,
+        )
+        axis_for_legend.add_artist(linestyle_legend)
 
     def set_ratio_label(self, ratio_panel: int, label: str):
         """Associate the rejection class to a ratio panel

@@ -13,9 +13,11 @@ from matplotlib.testing.compare import compare_images
 from testfixtures import LogCapture
 
 from puma import Histogram, HistogramPlot
-from puma.utils import logger, set_log_level
+from puma.utils import global_config, logger, set_log_level
 
 set_log_level(logger, "DEBUG")
+
+flav_cat = global_config["flavour_categories"]
 
 
 class histogram_TestCase(unittest.TestCase):
@@ -502,7 +504,7 @@ class histogram_plot_TestCase(unittest.TestCase):
             )
         )
 
-    def test_ratio_group_options(self):
+    def test_ratio_group_argument(self):
         """Test different combinations of using ratio groups."""
         hist_plot = HistogramPlot(
             n_ratio_panels=1,
@@ -510,7 +512,9 @@ class histogram_plot_TestCase(unittest.TestCase):
             atlas_first_tag="",
             atlas_second_tag=(
                 "Unit test plot to test the ratio_group argument \n"
-                "of the puma.Histogram class"
+                "of the puma.Histogram class.\n"
+                "Also testing the linestyle legend which is\n"
+                "placed here at (0.25, 0.75)."
             ),
             figsize=(6, 5),
             y_scale=1.5,
@@ -522,31 +526,32 @@ class histogram_plot_TestCase(unittest.TestCase):
             Histogram(
                 rng.normal(0, 1, size=10_000),
                 ratio_group="ratio group 1",
-                label="Ratio group 1 (reference)",
+                colour=flav_cat["ujets"]["colour"],
+                label=flav_cat["ujets"]["legend_label"],
             ),
             reference=True,
         )
         hist_plot.add(
             Histogram(
                 rng.normal(0.5, 1, size=10_000),
+                colour=flav_cat["ujets"]["colour"],
                 ratio_group="ratio group 1",
-                label="Ratio group 1",
+                linestyle="--",
             ),
         )
-        # add two histograms with defining ratio group via flavour argument
         hist_plot.add(
             Histogram(
                 rng.normal(3, 1, size=10_000),
-                flavour="bjets",
+                label=flav_cat["bjets"]["legend_label"],
+                colour=flav_cat["bjets"]["colour"],
                 ratio_group="Ratio group 2",
-                label="(reference)",
             ),
             reference=True,
         )
         hist_plot.add(
             Histogram(
                 rng.normal(3.5, 1, size=10_000),
-                flavour="bjets",
+                colour=flav_cat["bjets"]["colour"],
                 ratio_group="Ratio group 2",
                 linestyle="--",
                 linewidth=3,
@@ -554,6 +559,13 @@ class histogram_plot_TestCase(unittest.TestCase):
             ),
         )
         hist_plot.draw()
+
+        hist_plot.make_linestyle_legend(
+            labels=["Reference", "Shifted"],
+            linestyles=["solid", "dashed"],
+            bbox_to_anchor=(0.25, 0.75),
+            loc="upper right",
+        )
 
         plotname = "test_ratio_groups.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
