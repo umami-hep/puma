@@ -49,8 +49,8 @@ class Line2D(PlotLineObject):  # pylint: disable=too-few-public-methods
 
             if type(x_values) != type(y_values):  # pylint: disable=C0123
                 raise ValueError(
-                    "Invalid types of input given! Both must be either "
-                    "numpy.ndarray, list or int! \n"
+                    "Invalid types of input given! Both must be one of the following: "
+                    "numpy.ndarray, list, int, float, pandas.Series \n"
                     f"You specified: x_values: {type(x_values)} , "
                     f"y_values: {type(y_values)}"
                 )
