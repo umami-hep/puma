@@ -45,6 +45,6 @@ example_plot_2 = PiePlot(
     # kwargs passed to puma.PlotObject
     atlas_second_tag="Dummy flavour fractions",
     figsize=(5.5, 3.5),
-    y_scale=1.5,
+    y_scale=1.3,
 )
 example_plot_2.savefig("pie_example_2.png")

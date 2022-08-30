@@ -1,13 +1,13 @@
 # Changelog
 
 ### [Latest]
+
+- Fix `set_ylim` in `puma.PlotBase` such that y-limits are correctly modified in cases with a y-offset [#119](https://github.com/umami-hep/puma/pull/119)
+- Adding example for `puma.Line2DPlot` to the docs [#117](https://github.com/umami-hep/puma/pull/117)
 - Adding support for ROC plots without ratio panels (was not possible until now) [#114](https://github.com/umami-hep/puma/pull/114)
 - Lines with `label=None` (which is the default) will not appear in the legend anymore [#113](https://github.com/umami-hep/puma/pull/113)
 - Adding new function `puma.utils.get_good_linestyles()` for easier linestyle management [#116](https://github.com/umami-hep/puma/pull/116)
 - Adding the method `make_linestyle_legend()` which allows to specify an additional legend for linestyles [#113](https://github.com/umami-hep/puma/pull/113)
-
-- Adding example for `puma.Line2DPlot` to the docs [#117](https://github.com/umami-hep/puma/pull/117)
-- Adding new function `puma.utils.get_good_linestyles()` for easier linestyle management [#116](https://github.com/umami-hep/puma/pull/116)
 
 ### [v0.1.7] (10.08.2022)
 

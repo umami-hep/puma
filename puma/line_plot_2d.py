@@ -1,6 +1,7 @@
 """Classes for 2D line plots."""
 import matplotlib as mpl
 import numpy as np
+import pandas as pd
 
 from puma.plot_base import PlotBase, PlotLineObject
 from puma.utils import get_good_colours, logger
@@ -44,12 +45,12 @@ class Line2D(PlotLineObject):  # pylint: disable=too-few-public-methods
         super().__init__(**kwargs)
 
         # Check input dtype
-        if isinstance(x_values, (np.ndarray, list, int, float)):
+        if isinstance(x_values, (np.ndarray, list, int, float, pd.Series)):
 
             if type(x_values) != type(y_values):  # pylint: disable=C0123
                 raise ValueError(
-                    "Invalid types of input given! Both must be either "
-                    "numpy.ndarray, list or int! \n"
+                    "Invalid types of input given! Both must be one of the following: "
+                    "numpy.ndarray, list, int, float, pandas.Series \n"
                     f"You specified: x_values: {type(x_values)} , "
                     f"y_values: {type(y_values)}"
                 )
