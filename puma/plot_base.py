@@ -456,7 +456,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         ymin, ymax = self.axis_top.get_ylim()
         self.axis_top.set_ylim(
             ymin if self.ymin is None else self.ymin,
-            ymax * self.y_scale if self.ymax is None else self.ymax,
+            ymin + (ymax - ymin) * self.y_scale if self.ymax is None else self.ymax,
         )
 
         if self.axis_ratio_1:

@@ -70,7 +70,7 @@ class pie_plot_TestCase(unittest.TestCase):
                 "Unit test plot to test if the custom\nstyling of the pie plot"
             ),
             figsize=(5.5, 3.5),
-            y_scale=1.6,
+            y_scale=1.3,
         )
         plotname = "test_pie_chart_custom_style.png"
         pie_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
