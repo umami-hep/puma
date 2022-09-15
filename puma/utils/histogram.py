@@ -108,23 +108,26 @@ def hist_w_unc(  # pylint: disable=too-many-arguments
     )
 
     if underoverflow:
+        # add two dummy bins (from outermost bins to +-infinity)
         bins_with_overunderflow = np.hstack(
             [np.array([-np.inf]), bin_edges, np.array([np.inf])]
         )
+        # recalculate the histogram with this adjusted binning
         counts, _ = np.histogram(arr, bins=bins_with_overunderflow, weights=weights)
-        counts[1] += counts[0]
-        counts[-2] += counts[-1]
-        counts = counts[1:-1]
+        counts[1] += counts[0]  # add underflow values to underflow bin
+        counts[-2] += counts[-1]  # add overflow values to overflow bin
+        counts = counts[1:-1]  # remove dummy bins
 
+        # calculate the sum of squared weights
         sum_squared_weights = np.histogram(
             arr, bins=bins_with_overunderflow, weights=weights**2
         )[0]
-
+        # add sum of squared weights from under/overflow values to under/overflow bin
         sum_squared_weights[1] += sum_squared_weights[0]
         sum_squared_weights[-2] += sum_squared_weights[-1]
-        sum_squared_weights = sum_squared_weights[1:-1]
+        sum_squared_weights = sum_squared_weights[1:-1] # remove dummy bins
 
-        unc = np.sqrt(sum_squared_weights)
+        unc = np.sqrt(sum_squared_weights)  # uncertainty is sqrt(sum_squared_weights)
 
     if normed:
         sum_of_weights = float(np.sum(weights))
