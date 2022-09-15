@@ -125,7 +125,7 @@ def hist_w_unc(  # pylint: disable=too-many-arguments
         # add sum of squared weights from under/overflow values to under/overflow bin
         sum_squared_weights[1] += sum_squared_weights[0]
         sum_squared_weights[-2] += sum_squared_weights[-1]
-        sum_squared_weights = sum_squared_weights[1:-1] # remove dummy bins
+        sum_squared_weights = sum_squared_weights[1:-1]  # remove dummy bins
 
         unc = np.sqrt(sum_squared_weights)  # uncertainty is sqrt(sum_squared_weights)
 
