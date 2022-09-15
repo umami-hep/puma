@@ -184,6 +184,7 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         norm: bool = True,
         logy: bool = False,
         bin_width_in_ylabel: bool = False,
+        underoverflow: bool = False,
         **kwargs,
     ) -> None:
         """histogram plot properties
@@ -213,6 +214,8 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             Set log scale on y-axis, by default False.
         bin_width_in_ylabel : bool, optional
             Specify if the bin width should be added to the ylabel, by default False
+        underoverflow : bool, optional
+            Option to include under- and overflow values in outermost bins.
         **kwargs : kwargs
             Keyword arguments from `puma.PlotObject`
 
@@ -230,6 +233,7 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         self.discrete_vals = discrete_vals
         self.bin_width_in_ylabel = bin_width_in_ylabel
         self.norm = norm
+        self.underoverflow = underoverflow
         self.plot_objects = {}
         self.add_order = []
         self.ratios_objects = {}
@@ -357,6 +361,7 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                 bins=self.bins,
                 bins_range=self.bins_range,
                 normed=self.norm,
+                underoverflow=self.underoverflow,
             )
 
             if self.discrete_vals is not None:

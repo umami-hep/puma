@@ -54,7 +54,8 @@ def hist_w_unc(
     bins,
     bins_range=None,
     normed: bool = True,
-    weights=None,
+    weights: np.ndarray = None,
+    underoverflow: bool = False,
 ):
     """
     Computes histogram and the associated statistical uncertainty.
@@ -77,6 +78,8 @@ def hist_w_unc(
         to each entry. The uncertainty of bins with weighted entries is
         sqrt(sum_i{w_i^2}) where w_i are the weights of the entries in this bin.
         By default None.
+    underoverflow : bool, optional
+        Option to include under- and overflow values in outermost bins.
 
     Returns
     -------
@@ -97,6 +100,14 @@ def hist_w_unc(
 
     # Calculate the counts and the bin edges
     counts, bin_edges = np.histogram(arr, bins=bins, range=bins_range, weights=weights)
+    if underoverflow:
+        bins_with_overunderflow = np.hstack(
+            [np.array([-np.inf]), bin_edges, np.array([np.inf])]
+        )
+        counts, _ = np.histogram(arr, bins=bins_with_overunderflow, weights=weights)
+        counts[1] += counts[0]
+        counts[-2] += counts[-1]
+        counts = counts[1:-1]
 
     # calculate the uncertainty with sum of squared weights (per bin, so we use
     # np.histogram again here)
