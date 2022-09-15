@@ -116,12 +116,14 @@ def hist_w_unc(  # pylint: disable=too-many-arguments
         counts[-2] += counts[-1]
         counts = counts[1:-1]
 
-        sum_squared_weights = np.histogram(arr, bins=bins_with_overunderflow, weights=weights**2)[0]
+        sum_squared_weights = np.histogram(
+            arr, bins=bins_with_overunderflow, weights=weights**2
+        )[0]
 
         sum_squared_weights[1] += sum_squared_weights[0]
         sum_squared_weights[-2] += sum_squared_weights[-1]
         sum_squared_weights = sum_squared_weights[1:-1]
-        
+
         unc = np.sqrt(sum_squared_weights)
 
     if normed:
