@@ -42,6 +42,27 @@ class hist_w_unc_TestCase(unittest.TestCase):
         self.unc_weighted = np.sqrt(np.array([1, 2**2 + 1, 1]))
         self.band_weighted = self.hist_weighted - self.unc_weighted
 
+    def test_under_overflow_values(self):
+        """Test behaviour for under- and overflow values"""
+
+        values_with_inf = np.array([-1, 1, 2, 100, np.inf])
+
+        with self.subTest("Under/overflow values without under/overflow bins."):
+            bins, hist, unc, band = hist_w_unc(
+                values_with_inf, bins=5, bins_range=(0, 5)
+            )
+            np.testing.assert_almost_equal(bins, np.linspace(0, 5, 6))
+            # in this case only 40% of the values are shown in the plot
+            np.testing.assert_almost_equal(hist, np.array([0, 0.2, 0.2, 0, 0]))
+
+        with self.subTest("Under/overflow values with under/overflow bins."):
+            bins, hist, unc, band = hist_w_unc(
+                values_with_inf, bins=5, bins_range=(0, 5), underoverflow=True
+            )
+            np.testing.assert_almost_equal(bins, np.linspace(0, 5, 6))
+            # in this case only 40% of the values are shown in the plot
+            np.testing.assert_almost_equal(hist, np.array([0.2, 0.2, 0.2, 0, 0.4]))
+
     def test_hist_w_unc_zero_case(self):
         """Test what happens if empty array is provided as input."""
         bins, hist, unc, band = hist_w_unc(
