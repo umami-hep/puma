@@ -154,7 +154,7 @@ class hist_w_unc_TestCase(unittest.TestCase):
         np.testing.assert_array_almost_equal(unc_exp, unc)
 
     def test_inf_treatment(self):
-        """Test if the warning for number of inf values is raised in hist_w_unc"""
+        """Test if infinity values are treated as expected."""
 
         values_with_infs = np.array([1, 2, 3, -np.inf, +np.inf, +np.inf])
 
