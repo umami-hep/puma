@@ -81,9 +81,6 @@ else:
 
 html_theme = "pydata_sphinx_theme"
 html_theme_options = {
-    "logo": {
-        "text": "puma documentation",
-    },
     "icon_links": [
         {
             "name": "GitHub",
