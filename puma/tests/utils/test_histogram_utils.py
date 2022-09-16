@@ -60,7 +60,6 @@ class hist_w_unc_TestCase(unittest.TestCase):
                 values_with_inf, bins=5, bins_range=(0, 5), underoverflow=True
             )
             np.testing.assert_almost_equal(bins, np.linspace(0, 5, 6))
-            # in this case only 40% of the values are shown in the plot
             np.testing.assert_almost_equal(hist, np.array([0.2, 0.2, 0.2, 0, 0.4]))
 
     def test_hist_w_unc_zero_case(self):
