@@ -12,6 +12,9 @@
 
 import os
 import sys
+from subprocess import check_output
+
+import requests
 
 import puma
 
@@ -64,7 +67,17 @@ default_role = "code"
 #
 json_url = "https://umami-hep.github.io/puma/main/_static/switcher.json"
 release = puma.__version__
-if "dev" in release:
+
+# get git hash we are currently on (when building the docs)
+current_sha = check_output(["git", "rev-parse", "HEAD"]).decode("ascii").split("\n")[0]
+# get git hash of latest commit on main branch
+commits = requests.get(
+    "https://api.github.com/repos/umami-hep/puma/commits/changelog-to-docs"
+)
+latest_commit_sha = commits.json()["sha"]
+# print(current_sha)
+# print(latest_commit_sha)
+if current_sha == latest_commit_sha:
     version_match = "main"
 else:
     version_match = f"v{release}"
