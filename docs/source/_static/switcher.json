@@ -1,7 +1,7 @@
 [
     {
         "name": "latest",
-        "version": "main",
+        "version": "changelog-to-docs",
         "url": "https://umami-hep.github.io/puma/main/"
     },
     {
