@@ -10,6 +10,8 @@
    Quickstart <self>
    examples/index.rst
    dev_guidelines/index.rst
+   .. include:: ../../changelog.md
+      :parser: myst_parser.sphinx_
 
 Indices and tables
 ==================
