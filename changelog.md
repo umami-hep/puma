@@ -3,6 +3,8 @@
 ### [Latest]
 - Fix handling of nan values in histograms [#125](https://github.com/umami-hep/puma/pull/125)
 
+- Adding support for under- and overflow bins in `puma.HistogramPlot` [#124](https://github.com/umami-hep/puma/pull/124)
+
 ### [v0.1.8] (2022/08/30)
 
 - Fix `set_ylim` in `puma.PlotBase` such that y-limits are correctly modified in cases with a y-offset [#119](https://github.com/umami-hep/puma/pull/119)

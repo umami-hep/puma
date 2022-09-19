@@ -692,3 +692,44 @@ class histogram_plot_TestCase(unittest.TestCase):
                 values,
                 weights=weights,
             )
+
+    def test_underoverflow_bin(self):
+        """Test if under/overflow bins work as expected"""
+        vals = [-1, 1, 2, 3, 6]
+        vals_with_inf = [-1, 1, 2, 6, np.inf]
+
+        hist_plot = HistogramPlot(bins=5, bins_range=(0, 5))
+        hist_plot.atlas_second_tag = "This plot does not have under/overflow bins"
+        hist_plot.add(Histogram(vals, colour="b"))
+        hist_plot.add(Histogram(vals_with_inf, colour="r", linestyle="dotted"))
+        hist_plot.draw()
+
+        plotname = "test_histogram_without_underoverflow_bins.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        # Uncomment line below to update expected image
+        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname}",
+                f"{self.expected_plots_dir}/{plotname}",
+                tol=1,
+            )
+        )
+
+        hist_plot = HistogramPlot(bins=5, bins_range=(0, 5), underoverflow=True)
+        hist_plot.atlas_second_tag = "This plot has under/overflow bins"
+        hist_plot.add(Histogram(vals, colour="b"))
+        hist_plot.add(Histogram(vals_with_inf, colour="r", linestyle="dotted"))
+        hist_plot.draw()
+
+        plotname = "test_histogram_with_underoverflow_bins.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        # Uncomment line below to update expected image
+        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname}",
+                f"{self.expected_plots_dir}/{plotname}",
+                tol=1,
+            )
+        )
