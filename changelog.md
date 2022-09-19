@@ -1,6 +1,7 @@
 # Changelog
 
 ### [Latest]
+- Fix handling of nan values in histograms [#125](https://github.com/umami-hep/puma/pull/125)
 
 - Adding support for under- and overflow bins in `puma.HistogramPlot` [#124](https://github.com/umami-hep/puma/pull/124)
 

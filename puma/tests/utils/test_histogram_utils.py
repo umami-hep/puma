@@ -6,6 +6,7 @@ Unit test script for the functions in utils/histogram.py
 import unittest
 
 import numpy as np
+from testfixtures import LogCapture
 
 from puma.utils import logger, set_log_level
 from puma.utils.histogram import hist_ratio, hist_w_unc, save_divide
@@ -171,6 +172,44 @@ class hist_w_unc_TestCase(unittest.TestCase):
         _, hist, unc, _ = hist_w_unc(values, weights=weights, bins=3, normed=False)
         np.testing.assert_array_almost_equal(hist_exp, hist)
         np.testing.assert_array_almost_equal(unc_exp, unc)
+
+    def test_inf_treatment(self):
+        """Test if infinity values are treated as expected."""
+
+        values_with_infs = np.array([1, 2, 3, -np.inf, +np.inf, +np.inf])
+
+        with self.subTest(
+            "Test if the warning for number of inf values is raised in hist_w_unc"
+        ):
+            with LogCapture("puma") as log:
+                _ = hist_w_unc(values_with_infs, bins=np.linspace(0, 3, 3))
+                log.check(
+                    (
+                        "puma",
+                        "WARNING",
+                        "Histogram values contain 3 +-inf values!",
+                    )
+                )
+        with self.subTest(
+            "Test if error is raised if inf values are in input but no range is defined"
+        ):
+            with self.assertRaises(ValueError):
+                hist_w_unc(values_with_infs, bins=10)
+
+    def test_nan_check(self):
+        """Test if the warning with number of nan values is raised in hist_w_unc"""
+
+        values_with_nans = np.array([1, 2, 3, np.nan, np.nan])
+
+        with LogCapture("puma") as log:
+            _ = hist_w_unc(values_with_nans, bins=4)
+            log.check(
+                (
+                    "puma",
+                    "WARNING",
+                    "Histogram values contain 2 nan values!",
+                )
+            )
 
     # TODO: Add unit tests for hist_ratio
 
