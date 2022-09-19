@@ -51,7 +51,7 @@ def save_divide(
     return ratio
 
 
-def hist_w_unc(  # pylint: disable=too-many-arguments
+def hist_w_unc(  # pylint: disable=too-many-arguments,too-many-locals
     arr,
     bins,
     bins_range=None,
