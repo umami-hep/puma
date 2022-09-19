@@ -43,3 +43,17 @@ An example is given below:
 ```py
 §§§examples/plot_weighted_histograms.py§§§
 ```
+
+## Underflow/overflow bins
+
+Underflow and overflow bins are disabled by default, but can be activated using the
+`underoverflow` attribute of `puma.HistogramPlot`.
+Below an example of the same Gaussian distribution plotted with and without
+underflow/overflow bins.
+
+<img src=https://github.com/umami-hep/puma/raw/examples-material/hist_without_underoverflow.png width=500>
+<img src=https://github.com/umami-hep/puma/raw/examples-material/hist_with_underoverflow.png width=500>
+
+```py
+§§§examples/plot_histogram_underoverflow.py§§§
+```
