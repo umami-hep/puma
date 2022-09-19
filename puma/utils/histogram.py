@@ -1,6 +1,8 @@
 """Helper function for histogram handling."""
 import numpy as np
 
+from puma.utils import logger
+
 
 def save_divide(
     numerator,
@@ -94,6 +96,19 @@ def hist_w_unc(
     """
     if weights is None:
         weights = np.ones(len(arr))
+
+    # Check if there are nan values in the input values
+    nan_mask = np.isnan(arr)
+    if np.sum(nan_mask) > 0:
+        logger.warning("Histogram values contain %i nan values!", np.sum(nan_mask))
+        # Remove nan values
+        arr = arr[~nan_mask]
+        weights = weights[~nan_mask]
+
+    # Check if there are inf values in the input values
+    inf_mask = np.isinf(arr)
+    if np.sum(inf_mask) > 0:
+        logger.warning("Histogram values contain %i +-inf values!", np.sum(inf_mask))
 
     # Calculate the counts and the bin edges
     counts, bin_edges = np.histogram(arr, bins=bins, range=bins_range, weights=weights)
