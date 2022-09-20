@@ -81,6 +81,12 @@ else:
 
 html_theme = "pydata_sphinx_theme"
 html_theme_options = {
+    "external_links": [
+        {
+            "url": "https://github.com/umami-hep/puma/blob/main/changelog.md",
+            "name": "Changelog",
+        },
+    ],
     "logo": {
         "text": "puma documentation",
     },
