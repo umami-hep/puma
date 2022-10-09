@@ -76,7 +76,7 @@ commits = requests.get("https://api.github.com/repos/umami-hep/puma/commits/main
 latest_commit_hash = commits.json()["sha"]
 
 if current_hash == latest_commit_hash:
-    version_match = "main"
+    version_match = "latest"
 else:
     version_match = f"v{release}"
 
