@@ -36,6 +36,7 @@ release = ""
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "sphinx.ext.napoleon",  # add support for numpy-style docstrings
     "myst_parser",  # to include markdown files in the documentation
     "autoapi.extension",  # generates the API section of our documentation
     "sphinx_copybutton",  # adds a copy-button to each code cell
