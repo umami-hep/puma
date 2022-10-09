@@ -46,6 +46,7 @@ extensions = [
 # https://sphinx-autoapi.readthedocs.io/en/latest/reference/config.html#
 autoapi_type = "python"
 autoapi_dirs = ["../../puma"]
+autoapi_ignore = ["*test*"]
 autoapi_python_use_implicit_namespaces = True
 autoapi_python_class_content = "both"
 
