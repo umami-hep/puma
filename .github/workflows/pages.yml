@@ -11,8 +11,6 @@ jobs:
   build-sphinx-docs:
     runs-on: ubuntu-latest
     container: python:3.8
-    env:
-      PY_COLORS: "1"
     steps:
       - name: Checkout
         uses: actions/checkout@master
