@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Unit test script for the functions in histogram.py
+Unit test script for the functions in line_plot_2d.py
 """
 
 import os
@@ -18,7 +18,7 @@ set_log_level(logger, "DEBUG")
 
 
 class Line2DTestCase(unittest.TestCase):
-    """Test class for the puma.fraction_scan functions."""
+    """Test class for the puma.line_plot_2d functions."""
 
     def test_wrong_inputs_xvalues(self):
         """test if providing wrong input type to Line2D raises ValueError"""
@@ -113,7 +113,7 @@ class TestCase(unittest.TestCase):
         frac_plot.ylabel = "Test_y_label"
 
         # Define a plot name
-        plotname = "test_fraction_scan_all_params_given.png"
+        plotname = "test_line2d_all_params_given.png"
 
         # Draw and save the plot
         frac_plot.draw()
@@ -164,7 +164,7 @@ class TestCase(unittest.TestCase):
         frac_plot.ylabel = "Test_y_label"
 
         # Define a plot name
-        plotname = "test_fraction_scan_grid_off.png"
+        plotname = "test_line2d_grid_off.png"
 
         # Draw and save the plot
         frac_plot.draw()
@@ -217,7 +217,7 @@ class TestCase(unittest.TestCase):
         frac_plot.logy = True
 
         # Define a plot name
-        plotname = "test_fraction_scan_no_params_given.png"
+        plotname = "test_line2d_no_params_given.png"
 
         # Draw and save the plot
         frac_plot.draw()
