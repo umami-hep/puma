@@ -7,13 +7,14 @@ can be used as a starting point for your plotting scripts.
 .. toctree::
    :maxdepth: 2
    
-   .. mdinclude:: dummy_data.md
-   .. mdinclude:: histograms.md
-   .. mdinclude:: rocs.md
-   .. mdinclude:: var_vs_eff.md
-   .. mdinclude:: fraction_scan.md
-   .. mdinclude:: pie_charts.md
-   .. mdinclude:: line_plots.md
+   dummy_data.md
+   histograms.md
+   rocs.md
+   var_vs_eff.md
+   fraction_scan.md
+   pie_charts.md
+   line_plots.md
    
 
-.. mdinclude:: index.md
+.. include:: index.md
+   :parser: myst_parser.sphinx_
