@@ -38,9 +38,10 @@ release = ""
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.doctest",
-    "myst_parser",
+    "myst_parser",  # to include markdown files in the documentation
     "sphinx.ext.napoleon",
-    "autoapi.extension",
+    "autoapi.extension",  # generates the API section of our documentation
+    "sphinx_copybutton",  # adds a copy-button to each code cell
 ]
 
 # -- sphinx-autoapi extension -----------------------------------------------
@@ -103,6 +104,9 @@ html_theme_options = {
         "version_match": version_match,
     },
     "navbar_end": ["theme-switcher", "version-switcher", "navbar-icon-links"],
+}
+html_context = {
+    "default_mode": "light",  # default for light/dark theme
 }
 
 # The name of the Pygments (syntax highlighting) style to use.
