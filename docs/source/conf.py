@@ -37,7 +37,7 @@ release = ""
 # ones.
 extensions = [
     "sphinx.ext.napoleon",  # add support for numpy-style docstrings
-    "myst_parser",  # to include markdown files in the documentation
+    "sphinx_mdinclude",  # to include markdown files in the documentation
     "autoapi.extension",  # generates the API section of our documentation
     "sphinx_copybutton",  # adds a copy-button to each code cell
 ]

@@ -1,6 +1,5 @@
 .. include README.md as the home site
-.. include:: ../../README.md
-   :parser: myst_parser.sphinx_
+.. mdinclude:: ../../README.md
 
 .. table of contents on the left side of the website
 .. toctree::
