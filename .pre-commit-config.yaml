@@ -14,7 +14,7 @@ repos:
         language: system
         entry: black
         types: [python]
-        args: ["--experimental-string-processing"]
+        args: ["--preview"]
       - id: flake8
         name: flake8
         stages: [commit]
