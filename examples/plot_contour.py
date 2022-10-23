@@ -3,7 +3,6 @@
 import numpy as np
 
 from puma import ContourPlot
-from puma.utils import get_good_colours
 from puma.utils import global_config
 
 rng = np.random.default_rng(seed=42)
