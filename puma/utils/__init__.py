@@ -5,6 +5,7 @@
 
 import numpy as np
 import pandas as pd
+from matplotlib.colors import ListedColormap, to_rgba
 from palettable.colorbrewer.qualitative import Dark2_8
 from scipy.special import softmax
 
@@ -284,3 +285,27 @@ global_config = {
         "edgecolor": "#666666",
     },
 }
+
+
+def get_single_colour_cmap(colour, n=256):
+    """Helper function to get a colour map that only changes in alpha, not the colour
+    itself
+
+    Parameters
+    ----------
+    colour : str
+        hex representation of the colour
+    n : int, optional
+        Number of colour steps, by default 256
+
+    Returns
+    -------
+    cmap
+        matplotlib colourmap object
+    """
+
+    cmap_colours = np.zeros((n, 4))
+    cmap_colours[:, :] = to_rgba(colour)
+    cmap_colours[:, 3] = np.linspace(0, 1, n)
+
+    return ListedColormap(cmap_colours)
