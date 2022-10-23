@@ -13,29 +13,22 @@ class ContourPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
 
     def __init__(
         self,
-        xlabel,
-        ylabel,
-        x_range,
-        y_range,
-        left=0.2,
-        width=0.55,
-        height=0.55,
-        bottom=0.2,
-        spacing=0.005,
-        width_hist=0.2,
-        figsize=(5, 5),
-        bins=20,
-        bins2d=20,
+        x_range: tuple,
+        y_range: tuple,
+        left: float = 0.2,
+        width: float = 0.55,
+        height: float = 0.55,
+        bottom: float = 0.2,
+        spacing: float = 0.005,
+        width_hist: float = 0.2,
+        bins: int = 20,
+        bins2d: int = 20,
         **kwargs,
     ):  # pylint: disable=too-many-arguments,too-many-locals
         """Sets up the figure and axes
 
         Parameters
         ----------
-        xlabel : str
-            x-label
-        ylabel : str
-            y-label
         x_range : tuple
             x-range
         y_range : tuple
@@ -52,8 +45,6 @@ class ContourPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             Spacing between main figure and the histogram panels, by default 0.005
         width_hist : float, optional
             Width of the histogram panels, by default 0.2
-        figsize : tuple, optional
-            Figsize, by default (5, 5)
         bins : int, optional
             Number of bins along the x/y projections, by default 20
         bins2d : int, optional
@@ -63,27 +54,23 @@ class ContourPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
 
         super().__init__(**kwargs)
 
+        self.x_range = x_range
+        self.y_range = y_range
+        self.bins = bins
+        self.bins2d = bins2d
+
+        # initialise figure and add axes (main plot + x/y projection axes)
+        self.fig = Figure(figsize=self.figsize)
         # rect: [left, bottom, width, height] of the "box"
         rect_scatter = [left, bottom, width, height]
         rect_histy = [left + width + spacing, bottom, width_hist, height]
         rect_histx = [left, bottom + height + spacing, width, 0.2]
-
-        self.fig = Figure(figsize=figsize)
-
         self.ax_contour = self.fig.add_axes(rect_scatter)
-        self.ax_contour.set_xlabel(xlabel)
-        self.ax_contour.set_ylabel(ylabel)
-
         self.ax_histx = self.fig.add_axes(rect_histx, sharex=self.ax_contour)
         self.ax_histy = self.fig.add_axes(rect_histy, sharey=self.ax_contour)
         self.ax_histx.axis("off")
         self.ax_histy.axis("off")
         self.handles = []
-
-        self.bins = bins
-        self.bins2d = bins2d
-        self.x_range = x_range
-        self.y_range = y_range
 
     def add(
         self,
@@ -179,6 +166,8 @@ class ContourPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
 
     def draw(self):
         """Draw the lines"""
+        self.ax_contour.set_xlabel(self.xlabel)
+        self.ax_contour.set_ylabel(self.ylabel)
         self.ax_contour.grid(which="major")
         self.ax_contour.add_artist(
             self.ax_contour.legend(

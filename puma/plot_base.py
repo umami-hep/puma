@@ -491,7 +491,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         ax_mpl : matplotlib.axes.Axes
             matplotlib axis object
         label : str, optional
-            x-axis label, by default None
+            y-axis label, by default None
         align_right : bool, optional
             Alignment of y-axis label, by default True
         **kwargs, kwargs
