@@ -50,6 +50,8 @@ class ContourPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         bins2d : int, optional
             Number of bins in the 2D plane. Choosing 10 will result in 10x10=100 bins.
             By default 20
+        **kwargs : kwargs
+            Keyword arguments from `puma.PlotObject`
         """
 
         super().__init__(**kwargs)
@@ -116,23 +118,22 @@ class ContourPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         x_values_mesh, y_values_mesh = np.meshgrid(
             binsx2d[:-1] + bin_width_x / 2, binsy2d[:-1] + bin_width_y / 2
         )
-        if style == "contour":
-            self.ax_contour.contour(
-                x_values_mesh,
-                y_values_mesh,
-                hist2d.T,
-                cmap=cmap if cmap is not None else get_single_colour_cmap(colour),
-                levels=np.linspace(
-                    hist2d.min() + 1e-5 * (hist2d.max() - hist2d.min()),
-                    hist2d.max(),
-                    10,
-                ),
-                linewidths=1.4,
-            )
-        elif style == "scatter":
-            self.ax_contour.scatter(x_values, y_values, color=colour)
-        else:
-            raise ValueError("'style' has to be either 'contour' or 'scatter'")
+        self.ax_contour.contour(
+            x_values_mesh,
+            y_values_mesh,
+            hist2d.T,
+            cmap=cmap if cmap is not None else get_single_colour_cmap(colour),
+            levels=np.linspace(
+                hist2d.min() + 1e-5 * (hist2d.max() - hist2d.min()),
+                hist2d.max(),
+                10,
+            ),
+            linewidths=1.4,
+        )
+        # this could be easily extended to have an option "style" which also allows
+        # scatter plots (but the tend to get messy with many data points)
+        # elif style == "scatter":
+        #     self.ax_contour.scatter(x_values, y_values, color=colour)
         histx, bin_edges_x = np.histogram(
             x_values, bins=self.bins, range=self.x_range, density=True
         )
