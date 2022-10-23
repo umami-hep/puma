@@ -5,6 +5,7 @@
 
 __version__ = "0.1.8"
 
+from puma.contour import ContourPlot
 from puma.histogram import Histogram, HistogramPlot
 from puma.line_plot_2d import Line2D, Line2DPlot
 from puma.pie import PiePlot

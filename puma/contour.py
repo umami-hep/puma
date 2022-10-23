@@ -4,7 +4,7 @@ from atlasify import atlasify
 from matplotlib import lines
 from matplotlib.figure import Figure
 
-from puma import PlotBase
+from puma.plot_base import PlotBase
 from puma.utils import get_single_colour_cmap, logger
 
 

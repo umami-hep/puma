@@ -1,6 +1,7 @@
 # Changelog
 
 ### [Latest]
+- Adding new type of plot `puma.ContourPlot`: 2D contour plot with histogram projections onto the x/y axes [#132](https://github.com/umami-hep/puma/pull/132)
 - Fix handling of nan values in histograms [#125](https://github.com/umami-hep/puma/pull/125)
 - Adding support for under- and overflow bins in `puma.HistogramPlot` [#124](https://github.com/umami-hep/puma/pull/124)
 - (Documentation) Adding copy-button to code cells in documentation [#131](https://github.com/umami-hep/puma/pull/131)
