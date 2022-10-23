@@ -8,7 +8,7 @@ from puma.plot_base import PlotBase
 from puma.utils import get_single_colour_cmap, logger
 
 
-class ContourPlot(PlotBase): # pylint: disable=too-many-instance-attributes
+class ContourPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
     """2D contour plot that projects the variables onto the axes with histograms"""
 
     def __init__(
@@ -27,7 +27,7 @@ class ContourPlot(PlotBase): # pylint: disable=too-many-instance-attributes
         bins=20,
         bins2d=20,
         **kwargs,
-    ): # pylint: disable=too-many-arguments,too-many-locals
+    ):  # pylint: disable=too-many-arguments,too-many-locals
         """Sets up the figure and axes
 
         Parameters
@@ -93,7 +93,7 @@ class ContourPlot(PlotBase): # pylint: disable=too-many-instance-attributes
         colour="b",
         cmap=None,
         style="contour",
-    ): # pylint: disable=too-many-arguments,too-many-locals
+    ):  # pylint: disable=too-many-arguments,too-many-locals
         """Add another dataset to the contour plot
 
         Parameters
