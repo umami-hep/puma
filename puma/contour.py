@@ -81,7 +81,6 @@ class ContourPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         label=None,
         colour="b",
         cmap=None,
-        style="contour",
     ):  # pylint: disable=too-many-arguments,too-many-locals
         """Add another dataset to the contour plot
 
@@ -97,8 +96,6 @@ class ContourPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             Colour for the projection histograms, by default "b"
         cmap : colourmap, optional
             Matplotlib colourmap, by default None
-        style : str, optional
-            Style of the 2d plot, either "contour" or "scatter". By default "contour"
         """
         # https://matplotlib.org/stable/gallery/lines_bars_and_markers/scatter_hist.html
         self.ax_histy.tick_params(axis="y", labelleft=False)
