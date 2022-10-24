@@ -142,3 +142,6 @@ dmypy.json
 
 # package specific excludes
 examples/*.png
+
+# user specific files
+*user*
