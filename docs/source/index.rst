@@ -10,7 +10,6 @@
    Quickstart <self>
    examples/index.rst
    dev_guidelines/index.rst
-   ../../changelog.md
 
 Indices and tables
 ==================

@@ -62,7 +62,6 @@ def main():
     # copy the latest conf.py, since we want to use that configuration for all the
     # docs versions that are built
     copy("docs/source/conf.py", "./conf_latest.py")
-    copy("changelog.md", "docs/source/changelog.md")
 
     # build docs for main branch no matter what versions are present in the switcher
     # (this is kind of a safety measure to make sure the main branch docs are built

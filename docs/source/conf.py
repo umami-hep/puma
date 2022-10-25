@@ -36,17 +36,17 @@ release = ""
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "sphinx.ext.autodoc",
-    "sphinx.ext.doctest",
-    "myst_parser",
-    "sphinx.ext.napoleon",
-    "autoapi.extension",
+    "sphinx.ext.napoleon",  # add support for numpy-style docstrings
+    "myst_parser",  # to include markdown files in the documentation
+    "autoapi.extension",  # generates the API section of our documentation
+    "sphinx_copybutton",  # adds a copy-button to each code cell
 ]
 
 # -- sphinx-autoapi extension -----------------------------------------------
 # https://sphinx-autoapi.readthedocs.io/en/latest/reference/config.html#
 autoapi_type = "python"
 autoapi_dirs = ["../../puma"]
+autoapi_ignore = ["*test*"]
 autoapi_python_use_implicit_namespaces = True
 autoapi_python_class_content = "both"
 
@@ -75,12 +75,18 @@ commits = requests.get("https://api.github.com/repos/umami-hep/puma/commits/main
 latest_commit_hash = commits.json()["sha"]
 
 if current_hash == latest_commit_hash:
-    version_match = "main"
+    version_match = "latest"
 else:
     version_match = f"v{release}"
 
 html_theme = "pydata_sphinx_theme"
 html_theme_options = {
+    "external_links": [
+        {
+            "url": "https://github.com/umami-hep/puma/blob/main/changelog.md",
+            "name": "Changelog",
+        },
+    ],
     "logo": {
         "text": "puma documentation",
     },
@@ -97,6 +103,9 @@ html_theme_options = {
         "version_match": version_match,
     },
     "navbar_end": ["theme-switcher", "version-switcher", "navbar-icon-links"],
+}
+html_context = {
+    "default_mode": "light",  # default for light/dark theme
 }
 
 # The name of the Pygments (syntax highlighting) style to use.
