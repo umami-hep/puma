@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# pylint: disable=no-self-use
 
 """
 Unit test script for the functions in metrics.py
@@ -14,7 +15,7 @@ from puma.utils import logger, set_log_level
 set_log_level(logger, "DEBUG")
 
 
-class separation_TestCase(unittest.TestCase):
+class SeparationTestCase(unittest.TestCase):
     """Test class for the puma.metrics.calc_separation."""
 
     def setUp(self):
@@ -66,7 +67,7 @@ class separation_TestCase(unittest.TestCase):
         values_a = np.array([0, 1])
         values_b = np.array([1, 2])
 
-        _, _, hist_a, hist_b, bin_edges = calc_separation(
+        _, _, hist_a, _, bin_edges = calc_separation(
             values_a,
             values_b,
             bins=4,
@@ -78,7 +79,7 @@ class separation_TestCase(unittest.TestCase):
         np.testing.assert_array_equal(np.array([0, 1, 2, 3, 4]), bin_edges)
 
 
-class calc_eff_and_rej_TestCase(unittest.TestCase):
+class CalcEffAndRejTestCase(unittest.TestCase):
     """Test class for the puma.metrics functions."""
 
     def setUp(self):
@@ -133,15 +134,15 @@ class calc_eff_and_rej_TestCase(unittest.TestCase):
         np.testing.assert_array_almost_equal(bkg_rej, 1 / np.array([0.02367, 0.00144]))
 
 
-class eff_err_TestCase(unittest.TestCase):
+class EffErrTestCase(unittest.TestCase):
     """Test class for the puma.metrics functions."""
 
-    def test_zero_N_case(self):
+    def test_zero_n_case(self):
         """Test eff_err function."""
         with self.assertRaises(ValueError):
             eff_err(0, 0)
 
-    def test_negative_N_case(self):
+    def test_negative_n_case(self):
         """Test eff_err function."""
         with self.assertRaises(ValueError):
             eff_err(0, -1)
@@ -157,18 +158,18 @@ class eff_err_TestCase(unittest.TestCase):
         np.testing.assert_array_almost_equal(eff_err(x_eff, 100), error_eff)
 
 
-class rej_err_TestCase(unittest.TestCase):
+class RejErrTestCase(unittest.TestCase):
     """Test class for the puma.metrics functions."""
 
     def setUp(self):
         self.array = np.array([[1, 2, 3], [4, 5, 6]])
 
-    def test_zero_N_case(self):
+    def test_zero_n_case(self):
         """Test rej_err function."""
         with self.assertRaises(ValueError):
             rej_err(0, 0)
 
-    def test_negative_N_case(self):
+    def test_negative_n_case(self):
         """Test rej_err function."""
         with self.assertRaises(ValueError):
             rej_err(0, -1)

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# pylint: disable=no-self-use
 
 """
 Unit test script for the functions in var_vs_eff.py
@@ -17,11 +18,11 @@ from puma.utils.logging import logger, set_log_level
 set_log_level(logger, "DEBUG")
 
 
-class var_vs_eff_TestCase(unittest.TestCase):
+class VarVsEffTestCase(unittest.TestCase):
     """Test class for the puma.var_vs_eff functions."""
 
     def setUp(self):
-        self.wp = 0.77
+        self.working_point = 0.77
         self.disc_sig = np.linspace(-6, +6, 100)
         self.x_var_sig = np.exp(-self.disc_sig) * 10e3
         self.disc_bkg = np.linspace(-5.5, +6.6, 120)
@@ -102,12 +103,12 @@ class var_vs_eff_TestCase(unittest.TestCase):
             disc_sig=self.x_var_sig,
             x_var_bkg=self.disc_bkg,
             disc_bkg=self.x_var_bkg,
-            working_point=self.wp,
+            working_point=self.working_point,
             fixed_eff_bin=True,
             bins=n_bins,
         )
         np.testing.assert_array_almost_equal(
-            var_plot.sig_eff[0], [self.wp] * n_bins, decimal=2
+            var_plot.sig_eff[0], [self.working_point] * n_bins, decimal=2
         )
 
     def test_var_vs_eff_fixed_eff_sig_rej(self):
@@ -118,12 +119,12 @@ class var_vs_eff_TestCase(unittest.TestCase):
             disc_sig=self.x_var_sig,
             x_var_bkg=self.disc_bkg,
             disc_bkg=self.x_var_bkg,
-            working_point=self.wp,
+            working_point=self.working_point,
             fixed_eff_bin=True,
             bins=n_bins,
         )
         np.testing.assert_array_almost_equal(
-            var_plot.sig_rej[0], [1 / self.wp] * n_bins, decimal=2
+            var_plot.sig_rej[0], [1 / self.working_point] * n_bins, decimal=2
         )
 
     def test_var_vs_eff_one_bin(self):
@@ -134,7 +135,7 @@ class var_vs_eff_TestCase(unittest.TestCase):
             disc_sig=self.x_var_sig,
             x_var_bkg=self.disc_bkg,
             disc_bkg=self.x_var_bkg,
-            working_point=self.wp,
+            working_point=self.working_point,
             fixed_eff_bin=True,
             bins=n_bins,
         )
@@ -143,7 +144,7 @@ class var_vs_eff_TestCase(unittest.TestCase):
             disc_sig=self.x_var_sig,
             x_var_bkg=self.disc_bkg,
             disc_bkg=self.x_var_bkg,
-            working_point=self.wp,
+            working_point=self.working_point,
             bins=n_bins,
         )
         var_plot_list = VarVsEff(
@@ -171,7 +172,7 @@ class var_vs_eff_TestCase(unittest.TestCase):
             disc_sig=self.x_var_sig,
             x_var_bkg=self.disc_bkg,
             disc_bkg=self.x_var_bkg,
-            working_point=self.wp,
+            working_point=self.working_point,
             fixed_eff_bin=True,
             bins=n_bins,
         )
@@ -187,12 +188,12 @@ class var_vs_eff_TestCase(unittest.TestCase):
             disc_sig=self.x_var_sig,
             x_var_bkg=self.disc_bkg,
             disc_bkg=self.x_var_bkg,
-            working_point=self.wp,
+            working_point=self.working_point,
             fixed_eff_bin=True,
             bins=n_bins,
         )
         with self.assertRaises(ValueError):
-            var_plot.divide(var_plot, mode="test")[0], np.ones(1)
+            var_plot.divide(var_plot, mode="test")
 
     def test_var_vs_eff_divide_different_binning(self):
         """Test var_vs_eff divide."""
@@ -201,7 +202,7 @@ class var_vs_eff_TestCase(unittest.TestCase):
             disc_sig=self.x_var_sig,
             x_var_bkg=self.disc_bkg,
             disc_bkg=self.x_var_bkg,
-            working_point=self.wp,
+            working_point=self.working_point,
             fixed_eff_bin=True,
             bins=1,
         )
@@ -210,7 +211,7 @@ class var_vs_eff_TestCase(unittest.TestCase):
             disc_sig=self.x_var_sig,
             x_var_bkg=self.disc_bkg,
             disc_bkg=self.x_var_bkg,
-            working_point=self.wp,
+            working_point=self.working_point,
             fixed_eff_bin=True,
             bins=2,
         )
@@ -218,12 +219,14 @@ class var_vs_eff_TestCase(unittest.TestCase):
             var_plot.divide(var_plot_comp, mode="sig_eff")
 
 
-class var_vs_eff_output_TestCase(unittest.TestCase):
+class VarVsEffOutputTestCase(
+    unittest.TestCase
+):  # pylint:disable=too-many-instance-attributes
     """Test class for the puma.var_vs_eff_plot output"""
 
     def setUp(self):
         # Set up temp directory for comparison plots
-        self.tmp_dir = tempfile.TemporaryDirectory()
+        self.tmp_dir = tempfile.TemporaryDirectory()  # pylint:disable=R1732
         self.actual_plots_dir = f"{self.tmp_dir.name}/"
         self.expected_plots_dir = os.path.join(
             os.path.dirname(__file__), "expected_plots"
@@ -264,6 +267,7 @@ class var_vs_eff_output_TestCase(unittest.TestCase):
         self.bins = [20, 30, 40, 60, 85, 110, 140, 175, 250]
 
     def test_output_plot_fixed_eff_bin_bkg_rejection(self):
+        """Test output plot with fixed eff per bin - bkg rejection."""
         # define the curves
         ref_light = VarVsEff(
             x_var_sig=self.x_var_sig_1,
@@ -323,6 +327,7 @@ class var_vs_eff_output_TestCase(unittest.TestCase):
         )
 
     def test_output_plot_fixed_eff_bin_bkg_efficiency(self):
+        """Test output plot with fixed eff per bin."""
         # define the curves
         ref_light = VarVsEff(
             x_var_sig=self.x_var_sig_1,

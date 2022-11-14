@@ -13,7 +13,9 @@ from puma.utils.generate import get_dummy_2_taggers, get_dummy_multiclass_scores
 set_log_level(logger, "DEBUG")
 
 
-class get_dummy_multiclass_scores_TestCase(unittest.TestCase):
+class GetDummyMulticlassScoresTestCase(unittest.TestCase):
+    """Tes case fot get_dummy_multiclass_scores function."""
+
     def test_size(self):
         """Check that correct size is returned."""
         output, labels = get_dummy_multiclass_scores(size=10)
@@ -33,7 +35,9 @@ class get_dummy_multiclass_scores_TestCase(unittest.TestCase):
             self.assertGreaterEqual(np.min(output), 0)
 
 
-class get_dummy_2_taggers_TestCase(unittest.TestCase):
+class GetDummy2TaggersTestCase(unittest.TestCase):
+    """Tes case fot get_dummy_2_taggers function."""
+
     def test_size(self):
         """Check that correct size is returned."""
         df_gen = get_dummy_2_taggers(size=10)
