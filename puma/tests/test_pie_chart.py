@@ -16,13 +16,13 @@ from puma.utils import get_good_colours, logger, set_log_level
 set_log_level(logger, "DEBUG")
 
 
-class pie_plot_TestCase(unittest.TestCase):
+class PiePlotTestCase(unittest.TestCase):
     """Test class for puma.PiePlot"""
 
     def setUp(self):
 
         # Set up directories for comparison plots
-        self.tmp_dir = tempfile.TemporaryDirectory()
+        self.tmp_dir = tempfile.TemporaryDirectory()  # pylint: disable=R1732
         self.actual_plots_dir = f"{self.tmp_dir.name}/"
         self.expected_plots_dir = os.path.join(
             os.path.dirname(__file__), "expected_plots"

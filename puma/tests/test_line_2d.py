@@ -59,7 +59,7 @@ class Line2DTestCase(unittest.TestCase):
             )
 
 
-class TestCase(unittest.TestCase):
+class Line2DPlotTestCase(unittest.TestCase):
     """Test class for puma.Line2DPlot"""
 
     def setUp(self):
@@ -80,7 +80,7 @@ class TestCase(unittest.TestCase):
             os.path.dirname(__file__), "expected_plots"
         )
 
-    def test_Line2DPlot(self):
+    def test_basic(self):
         """Test the basic functions of Line2DPlot"""
         frac_plot = Line2DPlot(**{"n_ratio_panels": 0})
 
@@ -131,7 +131,7 @@ class TestCase(unittest.TestCase):
             )
         )
 
-    def test_Line2DPlot_grid_off(self):
+    def test_grid_off(self):
         """Test the basic functions of Line2DPlot"""
         frac_plot = Line2DPlot(**{"n_ratio_panels": 0}, grid=False)
 
@@ -182,7 +182,7 @@ class TestCase(unittest.TestCase):
             )
         )
 
-    def test_Line2DPlot_no_param_set(self):
+    def test_no_param_set(self):
         """Test the basic functions of Line2DPlot"""
         frac_plot = Line2DPlot(**{"n_ratio_panels": 0})
 
@@ -235,7 +235,7 @@ class TestCase(unittest.TestCase):
             )
         )
 
-    def test_Line2DPlot_double_key(self):
+    def test_double_key(self):
         """Test the basic functions of Line2DPlot"""
         frac_plot = Line2DPlot(**{"n_ratio_panels": 0})
 

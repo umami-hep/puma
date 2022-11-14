@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# pylint: disable=no-self-use
 
 """
 Unit test script for the functions in roc.py
@@ -17,7 +18,7 @@ from puma.utils.logging import logger, set_log_level
 set_log_level(logger, "DEBUG")
 
 
-class roc_TestCase(unittest.TestCase):
+class RocTestCase(unittest.TestCase):
     """Test class for the puma.roc functions."""
 
     def setUp(self):
@@ -109,7 +110,7 @@ class roc_TestCase(unittest.TestCase):
         )
 
 
-class roc_mask_TestCase(unittest.TestCase):
+class RocMaskTestCase(unittest.TestCase):
     """Test class for the puma.roc non_zero_mask function."""
 
     def setUp(self):
@@ -181,12 +182,14 @@ class roc_mask_TestCase(unittest.TestCase):
         )
 
 
-class roc_output_TestCase(unittest.TestCase):
+class RocOutputTestCase(
+    unittest.TestCase
+):  # pylint: disable=too-many-instance-attributes
     """Test class for the puma.roc_plot function."""
 
     def setUp(self):
         # Set up temp directory for comparison plots
-        self.tmp_dir = tempfile.TemporaryDirectory()
+        self.tmp_dir = tempfile.TemporaryDirectory()  # pylint: disable=R1732
         self.actual_plots_dir = f"{self.tmp_dir.name}/"
         self.expected_plots_dir = os.path.join(
             os.path.dirname(__file__), "expected_plots"

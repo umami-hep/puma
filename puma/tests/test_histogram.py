@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# pylint: disable=no-self-use
 
 """
 Unit test script for the functions in histogram.py
@@ -20,7 +21,7 @@ set_log_level(logger, "DEBUG")
 flav_cat = global_config["flavour_categories"]
 
 
-class histogram_TestCase(unittest.TestCase):
+class HistogramTestCase(unittest.TestCase):
     """Test class for the puma.histogram functions."""
 
     def test_empty_histogram(self):
@@ -119,7 +120,9 @@ class histogram_TestCase(unittest.TestCase):
             )
 
 
-class histogram_plot_TestCase(unittest.TestCase):
+class HistogramPlotTestCase(
+    unittest.TestCase
+):  # pylint: disable=too-many-public-methods
     """Test class for puma.histogram_plot"""
 
     def setUp(self):
@@ -134,7 +137,7 @@ class histogram_plot_TestCase(unittest.TestCase):
         )
 
         # Set up directories for comparison plots
-        self.tmp_dir = tempfile.TemporaryDirectory()
+        self.tmp_dir = tempfile.TemporaryDirectory()  # pylint: disable=R1732
         self.actual_plots_dir = f"{self.tmp_dir.name}/"
         self.expected_plots_dir = os.path.join(
             os.path.dirname(__file__), "expected_plots"
@@ -286,6 +289,7 @@ class histogram_plot_TestCase(unittest.TestCase):
         )
 
     def test_output_empty_histogram_norm(self):
+        """Test empty normed histogram."""
         hist_plot = HistogramPlot(
             norm=True,
             figsize=(6.5, 5),
@@ -353,20 +357,22 @@ class histogram_plot_TestCase(unittest.TestCase):
         )
         np.random.seed(42)
         n_random = 10_000
-        x1 = np.concatenate(
+        arr_1 = np.concatenate(
             (
                 np.random.uniform(-2, 0, n_random),
                 np.random.uniform(0.5, 0.99, int(0.5 * n_random)),
             )
         )
-        x2 = np.random.uniform(0, 2, n_random)
-        x3 = np.random.uniform(-1, 1, n_random)
+        arr_2 = np.random.uniform(0, 2, n_random)
+        arr_3 = np.random.uniform(-1, 1, n_random)
         hist_plot.add(
-            Histogram(x1, label="uniform [-2, 0] and uniform [0.5, 1] \n(reference)"),
+            Histogram(
+                arr_1, label="uniform [-2, 0] and uniform [0.5, 1] \n(reference)"
+            ),
             reference=True,
         )
-        hist_plot.add(Histogram(x2, label="uniform [0, 2]"))
-        hist_plot.add(Histogram(x3, label="uniform [-1, 1]"))
+        hist_plot.add(Histogram(arr_2, label="uniform [0, 2]"))
+        hist_plot.add(Histogram(arr_3, label="uniform [-1, 1]"))
         hist_plot.draw()
 
         plotname = "test_histogram_different_ranges.png"

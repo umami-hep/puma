@@ -16,12 +16,12 @@ from puma.utils import get_good_linestyles, logger, set_log_level
 set_log_level(logger, "DEBUG")
 
 
-class Linestyles_TestCase(unittest.TestCase):
+class LinestylesTestCase(unittest.TestCase):
     """Test class for the linestyle management of puma."""
 
     def setUp(self):
         # Set up directories for comparison plots
-        self.tmp_dir = tempfile.TemporaryDirectory()
+        self.tmp_dir = tempfile.TemporaryDirectory()  # pylint: disable=R1732
         self.actual_plots_dir = f"{self.tmp_dir.name}/"
         self.expected_plots_dir = os.path.join(
             os.path.dirname(__file__), "expected_plots"
