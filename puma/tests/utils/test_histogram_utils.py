@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# pylint: disable=no-self-use
 """
 Unit test script for the functions in utils/histogram.py
 """
@@ -14,7 +15,11 @@ from puma.utils.histogram import hist_ratio, hist_w_unc, save_divide
 set_log_level(logger, "DEBUG")
 
 
-class hist_w_unc_TestCase(unittest.TestCase):
+class HistWUncTestCase(
+    unittest.TestCase
+):  # pylint: disable=too-many-instance-attributes
+    """Test case for hist_w_unc function."""
+
     def setUp(self):
         self.input = np.array([0, 1, 1, 3])
         self.weights = np.array([1, 2, 1, 1])
@@ -49,15 +54,13 @@ class hist_w_unc_TestCase(unittest.TestCase):
         values_with_inf = np.array([-1, 1, 2, 100, np.inf])
 
         with self.subTest("Under/overflow values without under/overflow bins."):
-            bins, hist, unc, band = hist_w_unc(
-                values_with_inf, bins=5, bins_range=(0, 5)
-            )
+            bins, hist, _, _ = hist_w_unc(values_with_inf, bins=5, bins_range=(0, 5))
             np.testing.assert_almost_equal(bins, np.linspace(0, 5, 6))
             # in this case only 40% of the values are shown in the plot
             np.testing.assert_almost_equal(hist, np.array([0, 0.2, 0.2, 0, 0]))
 
         with self.subTest("Under/overflow values with under/overflow bins."):
-            bins, hist, unc, band = hist_w_unc(
+            bins, hist, _, _ = hist_w_unc(
                 values_with_inf, bins=5, bins_range=(0, 5), underoverflow=True
             )
             np.testing.assert_almost_equal(bins, np.linspace(0, 5, 6))
@@ -214,29 +217,38 @@ class hist_w_unc_TestCase(unittest.TestCase):
     # TODO: Add unit tests for hist_ratio
 
 
-class save_divide_TestCase(unittest.TestCase):
+class SaveDivideTestCase(unittest.TestCase):
+    """Test case for save_divide function."""
+
     def test_zero_case(self):
+        """Test zero case."""
         steps = save_divide(np.zeros(2), np.zeros(2))
         np.testing.assert_equal(steps, np.ones(2))
 
     def test_ones_case(self):
+        """Test where all inputs are 1s."""
         steps = save_divide(np.ones(2), np.ones(2))
         np.testing.assert_equal(steps, np.ones(2))
 
     def test_half_case(self):
+        """Test scenario where result is 1/2."""
         steps = save_divide(np.ones(2), 2 * np.ones(2))
         np.testing.assert_equal(steps, 0.5 * np.ones(2))
 
     def test_denominator_float(self):
+        """Test scenario where denominator is a float."""
         steps = save_divide(np.ones(2), 2)
         np.testing.assert_equal(steps, 0.5 * np.ones(2))
 
     def test_numerator_float(self):
+        """Test scenario where numerator is a float."""
         steps = save_divide(1, np.ones(2) * 2)
         np.testing.assert_equal(steps, 0.5 * np.ones(2))
 
 
-class hist_ratio_TestCase(unittest.TestCase):
+class HistRatioTestCase(unittest.TestCase):
+    """Test case for hist_ratio function."""
+
     def setUp(self):
         self.numerator = np.array([5, 3, 2, 5, 6, 2])
         self.denominator = np.array([3, 6, 2, 7, 10, 12])
@@ -256,6 +268,7 @@ class hist_ratio_TestCase(unittest.TestCase):
         )
 
     def test_hist_ratio(self):
+        """Test if ratio is correctly calculated."""
         step, step_unc = hist_ratio(
             numerator=self.numerator,
             denominator=self.denominator,
@@ -266,7 +279,8 @@ class hist_ratio_TestCase(unittest.TestCase):
         np.testing.assert_almost_equal(step, self.step)
         np.testing.assert_almost_equal(step_unc, self.step_unc)
 
-    def test_hist_not_same_length_nominator_denominator(self):
+    def test_hist_not_same_length_numerator_denominator(self):
+        """Test case where denominator and numerator have not the same length."""
         with self.assertRaises(AssertionError):
             _, _ = hist_ratio(
                 numerator=np.ones(2),
@@ -275,7 +289,8 @@ class hist_ratio_TestCase(unittest.TestCase):
                 denominator_unc=np.ones(3),
             )
 
-    def test_hist_not_same_length_nomiantor_and_unc(self):
+    def test_hist_not_same_length_numerator_and_unc(self):
+        """Test case where numerator and uncertainty have not the same length."""
         with self.assertRaises(AssertionError):
             _, _ = hist_ratio(
                 numerator=np.ones(3),
@@ -285,6 +300,7 @@ class hist_ratio_TestCase(unittest.TestCase):
             )
 
     def test_hist_not_same_length_denomiantor_and_unc(self):
+        """Test case where denominator and uncertainty have not the same length."""
         with self.assertRaises(AssertionError):
             _, _ = hist_ratio(
                 numerator=np.ones(3),

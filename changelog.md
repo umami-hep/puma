@@ -1,6 +1,7 @@
 # Changelog
 
 ### [Latest]
+- Running pylint also for tests [#133](https://github.com/umami-hep/puma/pull/133)
 - Fix handling of nan values in histograms [#125](https://github.com/umami-hep/puma/pull/125)
 - Adding support for under- and overflow bins in `puma.HistogramPlot` [#124](https://github.com/umami-hep/puma/pull/124)
 - (Documentation) Adding copy-button to code cells in documentation [#131](https://github.com/umami-hep/puma/pull/131)

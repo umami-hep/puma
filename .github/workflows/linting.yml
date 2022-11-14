@@ -24,8 +24,8 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-      - name: Install pylint
-        run: pip install pylint==2.12.2
+      - name: Install requirements
+        run: pip install -r requirements.txt
       - run: pip install .
       - run: pylint -j2 ./puma
       - run: pylint -j2 ./examples/*.py
