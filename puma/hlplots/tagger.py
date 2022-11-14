@@ -1,7 +1,10 @@
 import h5py
-from umami.metrics import get_score
+import numpy as np
 
 from puma.metrics import calc_rej
+from puma.utils.histogram import save_divide
+
+# from umami.metrics import get_score
 
 # from puma.utils import global_config, logger
 
@@ -19,7 +22,15 @@ def decorate_df(df, result_file, model_name):
 class Tagger:
     """Class storing tagger results."""
 
-    def __init__(self, model_name: str = None) -> None:
+    def __init__(self, model_name: str) -> None:
+        """Init Tagger class.
+
+        Parameters
+        ----------
+        model_name : str
+            Name of the model, also correspondinng to the pre-fix of the tagger
+            variables.
+        """
         self.model_name = model_name
         self.label = None
         self.f_c = None
@@ -36,13 +47,14 @@ class Tagger:
     def calc_discs(self, df):
         """Calculate b-tagging discriminant."""
         # fixing here only 1 fc value
-        frac_dict = {"cjets": self.f_c, "ujets": 1 - self.f_c}
-        # TODO: change to puma only functions
-        self.discs = get_score(
-            df[[self.model_name + fl for fl in self.flvs]].values,
-            class_labels=self.class_labels,
-            frac_dict=frac_dict,
-            main_class="bjets",
+        # frac_dict = {"cjets": self.f_c, "ujets": 1 - self.f_c}
+        arr = df[[self.model_name + fl for fl in self.flvs]].values
+        self.discs = np.log(
+            save_divide(
+                arr[:, 2],
+                self.f_c * arr[:, 1] + (1 - self.f_c) * arr[:, 0],
+                default=np.infty,
+            )
         )
 
     def calc_rej(self, sig_eff, is_b, is_light, is_c):
