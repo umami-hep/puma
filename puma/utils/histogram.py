@@ -1,7 +1,7 @@
 """Helper function for histogram handling."""
 import numpy as np
 
-from puma.utils import logger
+from puma.utils.logging import logger
 
 
 def save_divide(
