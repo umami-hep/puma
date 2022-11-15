@@ -1,4 +1,4 @@
-import h5py
+# import h5py
 import numpy as np
 
 from puma.metrics import calc_rej
@@ -11,18 +11,10 @@ from puma.utils.histogram import save_divide
 # TODO: for now lots of things are hard coded, e.g. the 70% WP
 
 
-def decorate_df(df, result_file, model_name):
-    with h5py.File(result_file, "r") as file:
-        net_probs = file["probs"][: len(df)]
-        df[f"{model_name}_pu"] = net_probs[:, 0]
-        df[f"{model_name}_pc"] = net_probs[:, 1]
-        df[f"{model_name}_pb"] = net_probs[:, 2]
-
-
 class Tagger:
     """Class storing tagger results."""
 
-    def __init__(self, model_name: str) -> None:
+    def __init__(self, model_name: str, template: dict = None) -> None:
         """Init Tagger class.
 
         Parameters
@@ -33,16 +25,23 @@ class Tagger:
         """
         self.model_name = model_name
         self.label = None
+        self.c_tagging = False
         self.f_c = None
+
         self.discs = None
+
         self.ujets_rej = None
         self.cjets_rej = None
+
         self.reference = False
-        self.flvs = ["_pu", "_pc", "_pb"]
-        self.class_labels = ["ujets", "cjets", "bjets"]
+
         self.disc_cut = None
         self.working_point = None
         self.colour = None
+
+        self.is_b = None
+        self.is_light = None
+        self.is_c = None
 
     def calc_discs(self, df):
         """Calculate b-tagging discriminant."""
@@ -57,19 +56,54 @@ class Tagger:
             )
         )
 
-    def calc_rej(self, sig_eff, is_b, is_light, is_c):
+    def calc_rej(self, sig_eff):
         """Calculate c and ligth rejection.
 
         Parameters
         ----------
         sig_eff : array
             signal efficiency
-        is_b : bool array
-            array of bool values indicating if b jet
-        is_light : bool array
-            array of bool values indicating if light jet
-        is_c : bool array
-            array of bool values indicating if c jet
         """
-        self.ujets_rej = calc_rej(self.discs[is_b], self.discs[is_light], sig_eff)
-        self.cjets_rej = calc_rej(self.discs[is_b], self.discs[is_c], sig_eff)
+        self.ujets_rej = calc_rej(
+            self.discs[self.is_b],
+            self.discs[self.is_light],
+            sig_eff,
+        )
+        self.cjets_rej = calc_rej(
+            self.discs[self.is_b],
+            self.discs[self.is_c],
+            sig_eff,
+        )
+
+    @property
+    def n_jets_light(self):
+        """Retrieve number of light jets.
+
+        Returns
+        -------
+        int
+            number of light jets
+        """
+        return int(np.sum(self.is_light))
+
+    @property
+    def n_jets_c(self):
+        """Retrieve number of c jets.
+
+        Returns
+        -------
+        int
+            number of c jets
+        """
+        return int(np.sum(self.is_c))
+
+    @property
+    def n_jets_b(self):
+        """Retrieve number of b jets.
+
+        Returns
+        -------
+        int
+            number of b jets
+        """
+        return int(np.sum(self.is_b))

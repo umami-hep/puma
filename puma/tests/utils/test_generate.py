@@ -14,7 +14,7 @@ set_log_level(logger, "DEBUG")
 
 
 class GetDummyMulticlassScoresTestCase(unittest.TestCase):
-    """Tes case fot get_dummy_multiclass_scores function."""
+    """Tes case for get_dummy_multiclass_scores function."""
 
     def test_size(self):
         """Check that correct size is returned."""
@@ -36,7 +36,7 @@ class GetDummyMulticlassScoresTestCase(unittest.TestCase):
 
 
 class GetDummy2TaggersTestCase(unittest.TestCase):
-    """Tes case fot get_dummy_2_taggers function."""
+    """Tes case for get_dummy_2_taggers function."""
 
     def test_size(self):
         """Check that correct size is returned."""
