@@ -1,17 +1,11 @@
+"""Tagger module for high level API."""
 # import h5py
 import numpy as np
 
 from puma.metrics import calc_rej
-from puma.utils.histogram import save_divide
-
-# from umami.metrics import get_score
-
-# from puma.utils import global_config, logger
-
-# TODO: for now lots of things are hard coded, e.g. the 70% WP
 
 
-class Tagger:
+class Tagger:  # pylint: disable=too-many-instance-attributes
     """Class storing tagger results."""
 
     def __init__(self, model_name: str, template: dict = None) -> None:
@@ -22,56 +16,59 @@ class Tagger:
         model_name : str
             Name of the model, also correspondinng to the pre-fix of the tagger
             variables.
+        template : dict
+            Template dictionary which keys are directly set as class variables
+
+        Raises
+        ------
+        KeyError
+            If template contains keys which are not a class attribute.
         """
         self.model_name = model_name
         self.label = None
-        self.c_tagging = False
-        self.f_c = None
+        self.reference = False
+
+        self.colour = None
 
         self.discs = None
 
-        self.ujets_rej = None
-        self.cjets_rej = None
-
-        self.reference = False
-
         self.disc_cut = None
         self.working_point = None
-        self.colour = None
 
         self.is_b = None
         self.is_light = None
         self.is_c = None
 
-    def calc_discs(self, df):
-        """Calculate b-tagging discriminant."""
-        # fixing here only 1 fc value
-        # frac_dict = {"cjets": self.f_c, "ujets": 1 - self.f_c}
-        arr = df[[self.model_name + fl for fl in self.flvs]].values
-        self.discs = np.log(
-            save_divide(
-                arr[:, 2],
-                self.f_c * arr[:, 1] + (1 - self.f_c) * arr[:, 0],
-                default=np.infty,
-            )
-        )
+        self.ujets_rej = None
+        self.cjets_rej = None
+
+        if template is not None:
+            for key, val in template.items():
+                if hasattr(self, key):
+                    setattr(self, key, val)
+                else:
+                    raise KeyError(f"`{key}` is not an attribute of the Tagger class.")
 
     def calc_rej(self, sig_eff):
-        """Calculate c and ligth rejection.
+        """Calculate c and light rejection.
 
         Parameters
         ----------
         sig_eff : array
             signal efficiency
         """
+        if self.discs is None:
+            raise ValueError(
+                "You need to first specify discs to calculate the rejection."
+            )
         self.ujets_rej = calc_rej(
-            self.discs[self.is_b],
-            self.discs[self.is_light],
+            self.discs[self.is_b],  # pylint: disable=unsubscriptable-object
+            self.discs[self.is_light],  # pylint: disable=unsubscriptable-object
             sig_eff,
         )
         self.cjets_rej = calc_rej(
-            self.discs[self.is_b],
-            self.discs[self.is_c],
+            self.discs[self.is_b],  # pylint: disable=unsubscriptable-object
+            self.discs[self.is_c],  # pylint: disable=unsubscriptable-object
             sig_eff,
         )
 
