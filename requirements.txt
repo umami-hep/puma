@@ -16,5 +16,6 @@ pytest-cov==3.0.0
 pytest-randomly==3.11.0
 pytest==7.0.1
 scipy==1.8.0
+tables==3.7.0
 testfixtures==7.0.0
 palettable==3.3.0
