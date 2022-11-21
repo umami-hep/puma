@@ -75,7 +75,7 @@ def get_dummy_2_taggers(
     df_gen : pandas.DataFrame
         Dataframe with columns
         [HadronConeExclTruthLabelID, rnnip_pu, rnnip_pc, rnnip_pb, dips_pu, dips_pc,
-        dips_pb]
+        dips_pb] if `add_pt` is True also pt is added
     """
     output_rnnip, labels = get_dummy_multiclass_scores(
         bjets_mean=0.9, size=size, seed=seed

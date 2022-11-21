@@ -267,7 +267,7 @@ class VarVsEff(PlotLineObject):  # pylint: disable=too-many-instance-attributes
         """
         logger.debug("Calculating signal efficiency.")
         eff = list(map(self.efficiency, self.disc_binned_sig, self.disc_cut))
-        logger.debug("Retrieved signal efficiencies: %.2f", eff)
+        logger.debug("Retrieved signal efficiencies: %s", eff)
         return np.array(eff)[:, 0], np.array(eff)[:, 1]
 
     @property
@@ -315,7 +315,7 @@ class VarVsEff(PlotLineObject):  # pylint: disable=too-many-instance-attributes
         """
         logger.debug("Calculating background rejection.")
         rej = list(map(self.rejection, self.disc_binned_bkg, self.disc_cut))
-        logger.debug("Retrieved background rejections: %.1f", rej)
+        logger.debug("Retrieved background rejections: %s", rej)
         return np.array(rej)[:, 0], np.array(rej)[:, 1]
 
     def __eq__(self, other):
