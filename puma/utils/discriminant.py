@@ -67,7 +67,8 @@ def calc_disc(
     discs = np.log(
         save_divide(
             numerator,
-            denominator,
+            # adding here a very small number to avoid infinities
+            denominator + 1e-10,
             default=np.infty,
         )
     )
@@ -108,7 +109,7 @@ def calc_disc_b(
     return np.log(
         save_divide(
             arr_pb,
-            fc_par * arr_pc + (1 - fc_par) * arr_pu,
+            fc_par * arr_pc + (1 - fc_par) * arr_pu + 1e-10,
             default=np.infty,
         )
     )
@@ -147,7 +148,7 @@ def calc_disc_c(
     return np.log(
         save_divide(
             arr_pc,
-            fb_par * arr_pb + (1 - fb_par) * arr_pu,
+            fb_par * arr_pb + (1 - fb_par) * arr_pu + 1e-10,
             default=np.infty,
         )
     )
