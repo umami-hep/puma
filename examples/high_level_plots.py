@@ -53,14 +53,14 @@ results.atlas_second_tag = (
 
 # tagger discriminant plots
 logger.info("Plotting tagger discriminant plots.")
-results.plot_discs("plots/dummy_disc.png")
+results.plot_discs("dummy_disc.png")
 
 
 logger.info("Plotting ROC curves.")
 # ROC curves as a function of the b-jet efficiency
-results.plot_rocs("plots/roc_test.png")
+results.plot_rocs("roc_test.png")
 # ROC curves as a function of the c-jet efficiency
-results.plot_rocs("plots/roc_test_c.png", signal_class="cjets")
+results.plot_rocs("roc_test_c.png", signal_class="cjets")
 
 
 logger.info("Plotting efficiency/rejection vs pT curves.")
@@ -72,7 +72,7 @@ results.atlas_second_tag = "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$\n70% WP
 # or alternatively also pass the argument `working_point` to the plot_var_perf function.
 # to specify the `disc_cut` per tagger is also possible.
 results.plot_var_perf(
-    plot_name="plots/dummy_tagger",
+    plot_name="dummy_tagger",
     working_point=0.7,
     bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
     fixed_eff_bin=False,
@@ -82,7 +82,7 @@ results.atlas_second_tag = (
     "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$\n70% WP per bin"
 )
 results.plot_var_perf(
-    plot_name="plots/dummy_tagger_fixed_per_bin",
+    plot_name="dummy_tagger_fixed_per_bin",
     bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
     fixed_eff_bin=True,
     working_point=0.7,
