@@ -57,7 +57,7 @@ class TaggerBase:  # pylint: disable=too-many-instance-attributes
         """
         # list tagger variables
         tagger_vars = [f"{self.model_name}_{flv}" for flv in self.flvs]
-        # TODO: change to cae syntax in python 3.10
+        # TODO: change to case syntax in python 3.10
         if source_type == "data_frame":
             logger.debug("Retrieving tagger `%s` from data frame.", self.model_name)
             self.scores = source[tagger_vars].values
