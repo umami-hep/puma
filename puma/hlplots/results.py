@@ -57,7 +57,9 @@ class Results(ResultsBase):
         super().__init__()
         self.atlas_second_tag = None
 
-    def plot_rocs(self, plot_name, signal_class: str = "bjets", args_roc_plot: dict = None):
+    def plot_rocs(
+        self, plot_name: str, signal_class: str = "bjets", args_roc_plot: dict = None
+    ):
         """Plots rocs
 
         Parameters
@@ -91,8 +93,6 @@ class Results(ResultsBase):
                 else tagger.calc_disc_c()
             )
             signal_selection = tagger.is_b if signal_class == "bjets" else tagger.is_c
-            # print("discs", discs)
-            # print(signal_selection)
             bkg_selection = tagger.is_c if signal_class == "bjets" else tagger.is_b
             light_rej = calc_rej(
                 discs[signal_selection],
