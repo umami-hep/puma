@@ -24,6 +24,11 @@ def calc_disc(
     np.ndarray
         discriminant values
 
+    Raises
+    ------
+    ValueError
+        if scores and shapes have different shapes
+
     Examples
     --------
     The `flv_map` can e.g. look like this together with the `flvs`
@@ -80,6 +85,8 @@ def calc_disc_b(
         c prediction scores
     arr_pb : np.ndarray
         b prediction scores
+    fc_par : float
+        fc parameter for b-jet discriminant
 
     Returns
     -------
@@ -110,6 +117,8 @@ def calc_disc_c(
         c prediction scores
     arr_pb : np.ndarray
         b prediction scores
+    fb_par : float
+        fb parameter for c-jet discriminant
 
     Returns
     -------

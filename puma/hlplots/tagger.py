@@ -50,8 +50,11 @@ class TaggerBase:  # pylint: disable=too-many-instance-attributes
         key : str, optional
             Key within h5 file, needs to be provided when using the `source_type`
             `data_frame_path` or `numpy_structured`, by default None
+        Raises
+        ------
+        ValueError
+            if source_type is wrongly specified
         """
-
         # list tagger variables
         tagger_vars = [f"{self.model_name}_{flv}" for flv in self.flvs]
         # TODO: change to cae syntax in python 3.10
@@ -145,11 +148,6 @@ class Tagger(TaggerBase):
             variables.
         template : dict
             Template dictionary which keys are directly set as class variables
-
-        Raises
-        ------
-        KeyError
-            If template contains keys which are not a class attribute.
         """
         super().__init__(model_name)
         self.colour = None

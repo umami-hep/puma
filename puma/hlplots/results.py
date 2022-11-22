@@ -62,7 +62,7 @@ class Results(ResultsBase):
 
         Parameters
         ----------
-        plot_roc : puma.RocPlot
+        plot_name : puma.RocPlot
             roc plot object
         signal_class : str, optional
             signal class to plot Roc with, wither `bjets` or `cjets`, by default `bjets`
@@ -158,6 +158,8 @@ class Results(ResultsBase):
             _description_, by default "$p_{T}$ [GeV]"
         signal_class : str, optional
             takes either `bjets` or `cjets` as signal class, by default "bjets"
+        **kwargs : kwargs
+            key word arguments for `puma.VarVsEff`
         """
         # define the curves
         plot_light_rej = VarVsEffPlot(
@@ -254,20 +256,28 @@ class Results(ResultsBase):
 
     def plot_discs(
         self,
-        plot_name,
-        exclude_tagger=None,
-        xlabel=r"$D_{b}$",
-        signal_class="bjets",
+        plot_name: str,
+        exclude_tagger: list = None,
+        xlabel: str = r"$D_{b}$",
+        signal_class: str = "bjets",
         **kwargs,
     ):
         """Plots discriminant
 
+
         Parameters
         ----------
-        plot_roc : puma.RocPlot
-            roc plot object
+        plot_name : _type_
+            Name of the plot.
+        exclude_tagger : list, optional
+            List of taggers to be excluded from this plot, by default None
+        xlabel : str, optional
+            x-axis label, by default "$D_{b}$"
+        signal_class : str, optional
+            Signal class which can be either "bjets" or "cjets", by default "bjets"
+        **kwargs : kwargs
+            key word arguments for `puma.HistogramPlot`
         """
-
         flav_cat = global_config["flavour_categories"]
         line_styles = get_good_linestyles()
 
