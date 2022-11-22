@@ -34,7 +34,7 @@ class ResultsBase:
         self.model_names.append(tagger.model_name)
         self.taggers.append(tagger)
 
-    def get(self, model_name):
+    def get(self, model_name: str):
         """Retrieve tagger info.
 
         Parameters
