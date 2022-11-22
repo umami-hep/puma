@@ -5,7 +5,9 @@ from puma.utils.histogram import save_divide
 
 
 def calc_disc(
-    scores: np.ndarray, flvs: list = None, flv_map: dict = None
+    scores: np.ndarray,
+    flvs: list = None,
+    flv_map: dict = None,
 ) -> np.ndarray:
     """Calculate arbitrary flavour tagging score.
 
@@ -73,7 +75,10 @@ def calc_disc(
 
 
 def calc_disc_b(
-    arr_pu: np.ndarray, arr_pc: np.ndarray, arr_pb: np.ndarray, fc_par: float
+    arr_pu: np.ndarray,
+    arr_pc: np.ndarray,
+    arr_pb: np.ndarray,
+    fc_par: float,
 ) -> np.ndarray:
     """Calculate b-tagging discriminant with one fc parameter.
 
@@ -110,7 +115,10 @@ def calc_disc_b(
 
 
 def calc_disc_c(
-    arr_pu: np.ndarray, arr_pc: np.ndarray, arr_pb: np.ndarray, fb_par: float
+    arr_pu: np.ndarray,
+    arr_pc: np.ndarray,
+    arr_pb: np.ndarray,
+    fb_par: float,
 ) -> np.ndarray:
     """Calculate c-tagging discriminant with one fb parameter.
 
