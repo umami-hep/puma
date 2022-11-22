@@ -92,6 +92,11 @@ def calc_disc_b(
     -------
     np.ndarray
         b-tagging discriminant
+
+    Raises
+    ------
+    ValueError
+        if inputs has not the same length
     """
     if len(arr_pu) != len(arr_pc) or len(arr_pu) != len(arr_pb):
         raise ValueError("arr_pu, arr_pc and arr_pb don't have the same length.")
@@ -124,6 +129,10 @@ def calc_disc_c(
     -------
     np.ndarray
         b-tagging discriminant
+    Raises
+    ------
+    ValueError
+        if inputs has not the same length
     """
     if len(arr_pu) != len(arr_pc) or len(arr_pu) != len(arr_pb):
         raise ValueError("arr_pu, arr_pc and arr_pb don't have the same length.")
