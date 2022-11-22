@@ -57,7 +57,7 @@ class Results(ResultsBase):
         super().__init__()
         self.atlas_second_tag = None
 
-    def plot_rocs(self, plot_name, signal_class="bjets", args_roc_plot=None):
+    def plot_rocs(self, plot_name, signal_class: str = "bjets", args_roc_plot: dict = None):
         """Plots rocs
 
         Parameters
