@@ -8,6 +8,7 @@ def calc_disc(
     scores: np.ndarray,
     flvs: list = None,
     flv_map: dict = None,
+    epsilon: float = 1e-10,
 ) -> np.ndarray:
     """Calculate arbitrary flavour tagging score.
 
@@ -20,6 +21,9 @@ def calc_disc(
     flv_map : dict, optional
         flavour map containing signal and background mapping from `flv` and their
         fractions, by default None
+    epsilon : float, optional
+        adds a small epsilon to the numerator and denominator to avoid infinities,
+        by default 1e-10
 
     Returns
     -------
@@ -66,9 +70,8 @@ def calc_disc(
         )
     discs = np.log(
         save_divide(
-            numerator,
-            # adding here a very small number to avoid infinities
-            denominator + 1e-10,
+            numerator + epsilon,
+            denominator + epsilon,
             default=np.infty,
         )
     )
@@ -80,6 +83,7 @@ def calc_disc_b(
     arr_pc: np.ndarray,
     arr_pb: np.ndarray,
     fc_par: float,
+    epsilon: float = 1e-10,
 ) -> np.ndarray:
     """Calculate b-tagging discriminant with one fc parameter.
 
@@ -93,6 +97,9 @@ def calc_disc_b(
         b prediction scores
     fc_par : float
         fc parameter for b-jet discriminant
+    epsilon : float, optional
+        adds a small epsilon to the numerator and denominator to avoid infinities,
+        by default 1e-10
 
     Returns
     -------
@@ -108,8 +115,8 @@ def calc_disc_b(
         raise ValueError("arr_pu, arr_pc and arr_pb don't have the same length.")
     return np.log(
         save_divide(
-            arr_pb,
-            fc_par * arr_pc + (1 - fc_par) * arr_pu + 1e-10,
+            arr_pb + epsilon,
+            fc_par * arr_pc + (1 - fc_par) * arr_pu + epsilon,
             default=np.infty,
         )
     )
@@ -120,6 +127,7 @@ def calc_disc_c(
     arr_pc: np.ndarray,
     arr_pb: np.ndarray,
     fb_par: float,
+    epsilon: float = 1e-10,
 ) -> np.ndarray:
     """Calculate c-tagging discriminant with one fb parameter.
 
@@ -133,6 +141,9 @@ def calc_disc_c(
         b prediction scores
     fb_par : float
         fb parameter for c-jet discriminant
+    epsilon : float, optional
+        adds a small epsilon to the numerator and denominator to avoid infinities,
+        by default 1e-10
 
     Returns
     -------
@@ -147,8 +158,8 @@ def calc_disc_c(
         raise ValueError("arr_pu, arr_pc and arr_pb don't have the same length.")
     return np.log(
         save_divide(
-            arr_pc,
-            fb_par * arr_pb + (1 - fb_par) * arr_pu + 1e-10,
+            arr_pc + epsilon,
+            fb_par * arr_pb + (1 - fb_par) * arr_pu + epsilon,
             default=np.infty,
         )
     )
