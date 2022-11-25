@@ -20,7 +20,7 @@ class Results:
         Parameters
         ----------
         tagger : puma.hlplots.Tagger
-            class containing tagger info
+            Instance of the puma.hlplots.Tagger class, containing tagger information.
 
         Raises
         ------

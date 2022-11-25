@@ -14,7 +14,7 @@ set_log_level(logger, "DEBUG")
 
 
 class DiscTestCase(unittest.TestCase):
-    """Tes case for calc_discs function."""
+    """Test case for calc_discs function."""
 
     def test_wrong_shape(self):
         """Check case if input has wrong shape."""
@@ -35,7 +35,7 @@ class DiscTestCase(unittest.TestCase):
 
 
 class BTaggingDiscTestCase(unittest.TestCase):
-    """Tes case for calc_disc_b function."""
+    """Test case for calc_disc_b function."""
 
     def test_wrong_length(self):
         """Check all input arrays have same size."""
@@ -54,7 +54,7 @@ class BTaggingDiscTestCase(unittest.TestCase):
 
 
 class CTaggingDiscTestCase(unittest.TestCase):
-    """Tes case for calc_disc_c function."""
+    """Test case for calc_disc_c function."""
 
     def test_wrong_length(self):
         """Check all input arrays have same size."""
