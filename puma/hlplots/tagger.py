@@ -7,10 +7,10 @@ from numpy.lib.recfunctions import structured_to_unstructured
 from puma.utils import calc_disc, logger
 
 
-class TaggerBase:  # pylint: disable=too-many-instance-attributes
-    """Base class handling tagger results."""
+class Tagger:  # pylint: disable=too-many-instance-attributes
+    """Class storing tagger results."""
 
-    def __init__(self, model_name: str) -> None:
+    def __init__(self, model_name: str, template: dict = None) -> None:
         """Init Tagger class.
 
         Parameters
@@ -18,7 +18,10 @@ class TaggerBase:  # pylint: disable=too-many-instance-attributes
         model_name : str
             Name of the model, also correspondinng to the pre-fix of the tagger
             variables.
+        template : dict
+            Template dictionary which keys are directly set as class variables
         """
+
         self.model_name = model_name
         self.label = None
         self.reference = False
@@ -30,6 +33,15 @@ class TaggerBase:  # pylint: disable=too-many-instance-attributes
         self.is_b = None
         self.is_light = None
         self.is_c = None
+
+        self.colour = None
+
+        self.disc_cut = None
+        self.working_point = None
+        self.f_c = None
+        self.f_b = None
+
+        self._init_from_template(template)
 
     def extract_tagger_scores(
         self, source: object, source_type: str = "data_frame", key: str = None
@@ -133,31 +145,6 @@ class TaggerBase:  # pylint: disable=too-many-instance-attributes
             number of b jets
         """
         return int(np.sum(self.is_b))
-
-
-class Tagger(TaggerBase):
-    """Class storing tagger results."""
-
-    def __init__(self, model_name: str, template: dict = None) -> None:
-        """Init Tagger class.
-
-        Parameters
-        ----------
-        model_name : str
-            Name of the model, also correspondinng to the pre-fix of the tagger
-            variables.
-        template : dict
-            Template dictionary which keys are directly set as class variables
-        """
-        super().__init__(model_name)
-        self.colour = None
-
-        self.disc_cut = None
-        self.working_point = None
-        self.f_c = None
-        self.f_b = None
-
-        self._init_from_template(template)
 
     def calc_disc_b(self) -> np.ndarray:
         """Calculate b-tagging discriminant

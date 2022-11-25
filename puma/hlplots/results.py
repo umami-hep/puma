@@ -4,10 +4,11 @@ from puma.metrics import calc_rej
 from puma.utils import get_good_linestyles, global_config, logger
 
 
-class ResultsBase:
-    """Base class handling plotting of tagger results."""
+class Results:
+    """Stores all results of the different taggers."""
 
     def __init__(self) -> None:
+        self.atlas_second_tag = None
         self.taggers = []
         self.model_names = []
         # defining target efficiency
@@ -18,7 +19,7 @@ class ResultsBase:
 
         Parameters
         ----------
-        tagger : Tagger
+        tagger : puma.hlplots.Tagger
             class containing tagger info
 
         Raises
@@ -48,14 +49,6 @@ class ResultsBase:
             Tagger class with info about tagger
         """
         return self.taggers[self.model_names.index(model_name)]
-
-
-class Results(ResultsBase):
-    """Stores all results of the different taggers."""
-
-    def __init__(self) -> None:
-        super().__init__()
-        self.atlas_second_tag = None
 
     def plot_rocs(
         self, plot_name: str, signal_class: str = "bjets", args_roc_plot: dict = None

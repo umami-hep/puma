@@ -2,5 +2,5 @@
 # flake8: noqa
 # pylint: skip-file
 
-from puma.hlplots.results import Results, ResultsBase
-from puma.hlplots.tagger import Tagger, TaggerBase
+from puma.hlplots.results import Results
+from puma.hlplots.tagger import Tagger

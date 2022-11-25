@@ -13,37 +13,37 @@ import numpy as np
 import pandas as pd
 from testfixtures import LogCapture
 
-from puma.hlplots import Tagger, TaggerBase
+from puma.hlplots import Tagger
 from puma.utils import logger, set_log_level
 
 set_log_level(logger, "DEBUG")
 
 
-class TaggerBaseTestCase(unittest.TestCase):
-    """Test class for the TaggerBase class."""
+class TaggerBasisTestCase(unittest.TestCase):
+    """Test class for the Tagger class."""
 
     def test_empty_string_tagger_name(self):
         """Test empty string as model name."""
-        tagger = TaggerBase("")
+        tagger = Tagger("")
         self.assertEqual(tagger.model_name, "")
 
     def test_wrong_template(self):
         """Test wrong template."""
         template_wrong = {"test": 1}
-        tagger = TaggerBase("dummy")
+        tagger = Tagger("dummy")
         with self.assertRaises(KeyError):
             tagger._init_from_template(template=template_wrong)  # pylint: disable=W0212
 
     def test_label_template(self):
         """Test template with label."""
         template_label = {"label": 1.5}
-        tagger = TaggerBase("dummy")
+        tagger = Tagger("dummy")
         tagger._init_from_template(template=template_label)  # pylint: disable=W0212
         self.assertEqual(tagger.label, 1.5)
 
     def test_none_template(self):
         """Test None template."""
-        tagger = TaggerBase("dummy")
+        tagger = Tagger("dummy")
         with LogCapture("puma") as log:
             tagger._init_from_template(template=None)  # pylint: disable=W0212
             log.check(
@@ -57,7 +57,7 @@ class TaggerBaseTestCase(unittest.TestCase):
 
     def test_n_jets(self):
         """Test if number of n_jets correctly calculated."""
-        tagger = TaggerBase("dummy")
+        tagger = Tagger("dummy")
         tagger.is_light = np.concatenate([np.ones(80), np.zeros(5), np.zeros(15)])
         tagger.is_c = np.concatenate([np.zeros(80), np.ones(5), np.zeros(15)])
         tagger.is_b = np.concatenate([np.zeros(80), np.zeros(5), np.ones(15)])
@@ -69,7 +69,7 @@ class TaggerBaseTestCase(unittest.TestCase):
             self.assertEqual(tagger.n_jets_b, 15)
 
 
-class TaggerBaseScoreExtractionTestCase(unittest.TestCase):
+class TaggerScoreExtractionTestCase(unittest.TestCase):
     """Test extract_tagger_scores function in Tagger class."""
 
     def setUp(self) -> None:
