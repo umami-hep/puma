@@ -17,7 +17,7 @@ def calc_disc(
     scores : np.ndarray
         tagger scores in the shape (n_jets, n_flavours)
     flvs : list, optional
-        , by default None
+        List of flavours corresponding to the order in the scores array, by default None
     flv_map : dict, optional
         flavour map containing signal and background mapping from `flv` and their
         fractions, by default None
