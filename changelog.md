@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+### [v0.1.9] (2022/11/30)
+
 - Adding boosted categories for Xbb to utils [!138](https://github.com/umami-hep/puma/pull/138)
 - Running pylint also for tests [#133](https://github.com/umami-hep/puma/pull/133)
 - Fix handling of nan values in histograms [#125](https://github.com/umami-hep/puma/pull/125)
