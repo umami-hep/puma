@@ -276,6 +276,22 @@ global_config = {
             "colour": "#e76f51",
             "legend_label": "\u03C4's in $b$- or $c$-hadron decay",
         },
+        "Hbb": {
+            "colour": "#1f77b4",  # blue
+            "legend_label": "$Hbb$-jets",
+        },
+        "Hcc": {
+            "colour": "#B45F06",  # Tenne (dark orange)
+            "legend_label": "$Hcc$-jets",
+        },
+        "top": {
+            "colour": "#A300A3",  # dark magenta
+            "legend_label": "$Top$-jets",
+        },
+        "dijets": {
+            "colour": "#38761D",  # Bilbao (dark green)
+            "legend_label": "light-dijets",
+        },
     },
     "hist_err_style": {
         "fill": False,

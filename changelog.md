@@ -1,6 +1,8 @@
 # Changelog
 
 ### [Latest]
+
+- Adding boosted categories for Xbb to utils [!138](https://github.com/umami-hep/puma/pull/138)
 - Running pylint also for tests [#133](https://github.com/umami-hep/puma/pull/133)
 - Fix handling of nan values in histograms [#125](https://github.com/umami-hep/puma/pull/125)
 - Adding support for under- and overflow bins in `puma.HistogramPlot` [#124](https://github.com/umami-hep/puma/pull/124)
