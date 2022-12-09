@@ -1,6 +1,7 @@
 # Changelog
 
 ### [Latest]
+- Adding new high level API [#128](https://github.com/umami-hep/puma/pull/128)
 - Running pylint also for tests [#133](https://github.com/umami-hep/puma/pull/133)
 - Fix handling of nan values in histograms [#125](https://github.com/umami-hep/puma/pull/125)
 - Adding support for under- and overflow bins in `puma.HistogramPlot` [#124](https://github.com/umami-hep/puma/pull/124)
