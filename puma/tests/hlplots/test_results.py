@@ -158,6 +158,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
             plot_name = f"{tmp_file}/dummy_plot"
             results.plot_var_perf(
                 plot_name=plot_name,
+                h_line=self.dummy_tagger_1.working_point,
                 signal_class="cjets",
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
             )

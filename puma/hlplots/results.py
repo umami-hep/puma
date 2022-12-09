@@ -51,7 +51,10 @@ class Results:
         return self.taggers[self.model_names.index(model_name)]
 
     def plot_rocs(
-        self, plot_name: str, signal_class: str = "bjets", args_roc_plot: dict = None
+        self,
+        plot_name: str,
+        signal_class: str = "bjets",
+        args_roc_plot: dict = None,
     ):
         """Plots rocs
 
@@ -138,7 +141,12 @@ class Results:
         plot_roc.savefig(plot_name)
 
     def plot_var_perf(
-        self, plot_name: str, xlabel=r"$p_{T}$ [GeV]", signal_class="bjets", **kwargs
+        self,
+        plot_name: str,
+        xlabel: str = r"$p_{T}$ [GeV]",
+        signal_class: str = "bjets",
+        h_line: float = None,
+        **kwargs,
     ):
         """Variable vs efficiency/rejection plot.
 
@@ -150,6 +158,8 @@ class Results:
             _description_, by default "$p_{T}$ [GeV]"
         signal_class : str, optional
             takes either `bjets` or `cjets` as signal class, by default "bjets"
+        h_line : float, optional
+            draws a horizonatal line in the signal efficiency plot
         **kwargs : kwargs
             key word arguments for `puma.VarVsEff`
         """
@@ -249,7 +259,8 @@ class Results:
 
         plot_b_eff.draw()
         # Drawing a hline indicating inclusive efficiency
-        plot_b_eff.draw_hline(0.7)
+        if h_line:
+            plot_b_eff.draw_hline(h_line)
         plot_b_eff.savefig(
             f"{plot_name}_pt_b_eff.png" if is_b_sig else f"{plot_name}_pt_c_eff.png"
         )

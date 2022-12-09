@@ -85,6 +85,7 @@ results.plot_var_perf(
     bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
     fixed_eff_bin=True,
     working_point=0.7,
+    h_line=0.7,
     disc_cut=None,
 )
 
