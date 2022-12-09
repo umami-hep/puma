@@ -139,9 +139,7 @@ dmypy.json
 # VSCode config files
 .vscode
 
-
 # package specific excludes
 examples/*.png
-
 # user specific files
 *user*
