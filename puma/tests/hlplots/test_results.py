@@ -2,6 +2,7 @@
 """
 Unit test script for the functions in hlplots/tagger.py
 """
+# pytest: disable=no-self-use
 import tempfile
 import unittest
 from pathlib import Path
@@ -41,7 +42,9 @@ class ResultsTestCase(unittest.TestCase):
         results = Results()
         results.add(dummy_tagger_1)
         results.add(dummy_tagger_2)
-        self.assertEqual(results.model_names, ["dummy", "dummy_2"])
+        self.assertEqual(
+            results._model_names, ["dummy", "dummy_2"]  # pylint: disable=W0212
+        )
 
     def test_get_taggers(self):
         """Test empty string as model name."""
@@ -70,7 +73,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
         dummy_tagger_1.label = "dummy tagger"
         self.dummy_tagger_1 = dummy_tagger_1
 
-    def assertIsFile(self, path):  # pylint: disable=invalid-name
+    def assertIsFile(self, path):  # pylint: disable=invalid-name,no-self-use
         """Check for file to exist.
         Taken from https://stackoverflow.com/a/59198749/10896585
         """

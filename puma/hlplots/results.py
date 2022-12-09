@@ -9,8 +9,8 @@ class Results:
 
     def __init__(self) -> None:
         self.atlas_second_tag = None
-        self.taggers = []
-        self.model_names = []
+        self._taggers = []
+        self._model_names = []
         # defining target efficiency
         self.sig_eff = None
 
@@ -27,13 +27,13 @@ class Results:
         KeyError
             if model name duplicated
         """
-        if tagger.model_name in self.model_names:
+        if tagger.model_name in self._model_names:
             raise KeyError(
                 f"You are adding the model {tagger.model_name} but it was already "
                 "added."
             )
-        self.model_names.append(tagger.model_name)
-        self.taggers.append(tagger)
+        self._model_names.append(tagger.model_name)
+        self._taggers.append(tagger)
 
     def get(self, model_name: str):
         """Retrieve tagger info.
@@ -48,7 +48,7 @@ class Results:
         Tagger
             Tagger class with info about tagger
         """
-        return self.taggers[self.model_names.index(model_name)]
+        return self._taggers[self._model_names.index(model_name)]
 
     def plot_rocs(
         self,
@@ -85,7 +85,7 @@ class Results:
             roc_plot_args.update(args_roc_plot)
         plot_roc = RocPlot(**roc_plot_args)
 
-        for tagger in self.taggers:
+        for tagger in self._taggers:
             discs = tagger.calc_disc_b() if is_b_sig else tagger.calc_disc_c()
             signal_selection = tagger.is_b if is_b_sig else tagger.is_c
             bkg_selection = tagger.is_c if is_b_sig else tagger.is_b
@@ -140,7 +140,7 @@ class Results:
         plot_roc.draw()
         plot_roc.savefig(plot_name)
 
-    def plot_var_perf(
+    def plot_var_perf(  # pylint: disable=too-many-locals
         self,
         plot_name: str,
         xlabel: str = r"$p_{T}$ [GeV]",
@@ -195,7 +195,7 @@ class Results:
         )
         disc_cut_in_kwargs = "disc_cut" in kwargs
         working_point_in_kwargs = "working_point" in kwargs
-        for tagger in self.taggers:
+        for tagger in self._taggers:
             if not disc_cut_in_kwargs:
                 kwargs["disc_cut"] = tagger.disc_cut
             if not working_point_in_kwargs:
@@ -312,7 +312,7 @@ class Results:
         )
         tag_i = 0
         tag_labels = []
-        for tagger in self.taggers:
+        for tagger in self._taggers:
             if exclude_tagger is not None and tagger.model_name in exclude_tagger:
                 continue
             discs = tagger.calc_disc_b() if is_b_sig else tagger.calc_disc_c()

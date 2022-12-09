@@ -28,7 +28,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
 
         self.scores = None
         self.perf_var = None
-        self.flvs = ["pu", "pc", "pb"]
+        self.output_nodes = ["pu", "pc", "pb"]
 
         self.is_b = None
         self.is_light = None
@@ -68,7 +68,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
             if source_type is wrongly specified
         """
         # list tagger variables
-        tagger_vars = [f"{self.model_name}_{flv}" for flv in self.flvs]
+        tagger_vars = [f"{self.model_name}_{flv}" for flv in self.output_nodes]
         # TODO: change to case syntax in python 3.10
         if source_type == "data_frame":
             logger.debug("Retrieving tagger `%s` from data frame.", self.model_name)
@@ -169,7 +169,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         }
         return calc_disc(
             scores=self.scores,
-            flvs=self.flvs,
+            flvs=self.output_nodes,
             flv_map=flv_map,
         )
 
@@ -196,6 +196,6 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         }
         return calc_disc(
             scores=self.scores,
-            flvs=self.flvs,
+            flvs=self.output_nodes,
             flv_map=flv_map,
         )
