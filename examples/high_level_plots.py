@@ -16,6 +16,9 @@ df.query("pt < 250e3", inplace=True)
 
 logger.info("Start plotting")
 
+# WARNING: if you use 2 different data frames you need to specify the `is_light`,
+# `is_c` and `is_b` for each data frame separately and thus you cannot use these
+# args for each tagger the same applies to the `perf_var`
 tagger_args = {
     "perf_var": df["pt"] / 1e3,
     "is_light": df["HadronConeExclTruthLabelID"] == 0,
