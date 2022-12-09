@@ -66,6 +66,11 @@ class Results:
             signal class to plot Roc with, wither `bjets` or `cjets`, by default `bjets`
         args_roc_plot: dict, optional
             key word arguments being passed to `RocPlot`
+
+        Raises
+        ------
+        ValueError
+            if specified signal class is invalid
         """
         if signal_class not in ["bjets", "cjets"]:
             raise ValueError(
@@ -162,6 +167,11 @@ class Results:
             draws a horizonatal line in the signal efficiency plot
         **kwargs : kwargs
             key word arguments for `puma.VarVsEff`
+
+        Raises
+        ------
+        ValueError
+            if specified signal class is invalid
         """
         if signal_class not in ["bjets", "cjets"]:
             raise ValueError(
@@ -288,6 +298,11 @@ class Results:
             Signal class which can be either "bjets" or "cjets", by default "bjets"
         **kwargs : kwargs
             key word arguments for `puma.HistogramPlot`
+
+        Raises
+        ------
+        ValueError
+            if specified signal class is invalid
         """
         if signal_class not in ["bjets", "cjets"]:
             raise ValueError(
