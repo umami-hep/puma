@@ -50,7 +50,7 @@ results.add(rnnip)
 
 results.sig_eff = np.linspace(0.6, 0.95, 20)
 results.atlas_second_tag = (
-    "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$, $20<p_{T}<250$ GeV"
+    "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$, $20$ GeV $< p_{T} <250$ GeV"
 )
 
 # tagger discriminant plots
