@@ -54,7 +54,7 @@ and similar for the _c_-tagging performance
 
 
 ## Performance vs a variable
-In this case we plot the performance as a function of the jet pT with the same syntax as above
+In this case we plot the performance as a function of the jet pT with the same syntax as above for an inclusive working point of 70%
 ```py
 §§§examples/high_level_plots.py:69:82§§§
 ```
@@ -62,7 +62,7 @@ In this case we plot the performance as a function of the jet pT with the same s
 <img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_pt_c_rej.png width=500>
 <img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_pt_light_rej.png width=500>
 
-and similar for the _c_-tagging performance
+and similar for a fixed b-efficiency per bin.
 ```py
 §§§examples/high_level_plots.py:84:94§§§
 ```
@@ -70,3 +70,6 @@ and similar for the _c_-tagging performance
 <img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_fixed_per_bin_pt_b_eff.png width=500>
 <img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_fixed_per_bin_pt_c_rej.png width=500>
 <img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_fixed_per_bin_pt_light_rej.png width=500>
+
+
+Similar to above you can also do these plots for _c_-tagging by changing the `signal_class` to `cjets`.
