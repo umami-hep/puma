@@ -186,7 +186,7 @@ class VarVsEff(PlotLineObject):  # pylint: disable=too-many-instance-attributes
         cut values from the working point.
         """
         logger.debug("Calculate discriminant cut.")
-        if isinstance(self.disc_cut, float):
+        if isinstance(self.disc_cut, (float, int)):
             self.disc_cut = [self.disc_cut] * self.n_bins
         elif isinstance(self.disc_cut, (list, np.ndarray)):
             self.disc_cut = self.disc_cut

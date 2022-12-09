@@ -4,8 +4,7 @@
 # import h5py
 import numpy as np
 
-from puma.hlplots.results import Results
-from puma.hlplots.tagger import Tagger
+from puma.hlplots import Results, Tagger
 from puma.utils import get_dummy_2_taggers, logger
 
 # The line below generates dummy data which is similar to a NN output
@@ -88,3 +87,10 @@ results.plot_var_perf(
     working_point=0.7,
     disc_cut=None,
 )
+
+logger.info("Plotting discriminants.")
+results.atlas_second_tag = "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$"
+# b-jet discriminant
+results.plot_discs(plot_name="dummy_tagger_disc")
+# c-jet discriminant
+results.plot_discs(plot_name="dummy_tagger_disc", signal_class="cjets")

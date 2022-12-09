@@ -64,12 +64,15 @@ class Results:
         args_roc_plot: dict, optional
             key word arguments being passed to `RocPlot`
         """
+        if signal_class not in ["bjets", "cjets"]:
+            raise ValueError(
+                "So far only `bjets` and `cjets` are supported as signal class."
+            )
+        is_b_sig = signal_class == "bjets"
         roc_plot_args = {
             "n_ratio_panels": 2,
             "ylabel": "Background rejection",
-            "xlabel": "$b$-jet efficiency"
-            if signal_class == "bjets"
-            else "$c$-jet efficiency",
+            "xlabel": "$b$-jet efficiency" if is_b_sig else "$c$-jet efficiency",
             "atlas_second_tag": self.atlas_second_tag,
             "figsize": (6.5, 6),
             "y_scale": 1.4,
@@ -80,13 +83,9 @@ class Results:
         plot_roc = RocPlot(**roc_plot_args)
 
         for tagger in self.taggers:
-            discs = (
-                tagger.calc_disc_b()
-                if signal_class == "bjets"
-                else tagger.calc_disc_c()
-            )
-            signal_selection = tagger.is_b if signal_class == "bjets" else tagger.is_c
-            bkg_selection = tagger.is_c if signal_class == "bjets" else tagger.is_b
+            discs = tagger.calc_disc_b() if is_b_sig else tagger.calc_disc_c()
+            signal_selection = tagger.is_b if is_b_sig else tagger.is_c
+            bkg_selection = tagger.is_c if is_b_sig else tagger.is_b
             light_rej = calc_rej(
                 discs[signal_selection],
                 discs[tagger.is_light],
@@ -127,12 +126,12 @@ class Results:
         plot_roc.set_ratio_class(
             2,
             "cjets",
-            label="$c$-jet ratio" if signal_class == "bjets" else "$b$-jet ratio",
+            label="$c$-jet ratio" if is_b_sig else "$b$-jet ratio",
         )
         plot_roc.set_leg_rej_labels("ujets", "Light-jet rejection")
         plot_roc.set_leg_rej_labels(
             "cjets",
-            "$c$-jet rejection" if signal_class == "bjets" else "$b$-jet rejection",
+            "$c$-jet rejection" if is_b_sig else "$b$-jet rejection",
         )
 
         plot_roc.draw()
@@ -154,6 +153,11 @@ class Results:
         **kwargs : kwargs
             key word arguments for `puma.VarVsEff`
         """
+        if signal_class not in ["bjets", "cjets"]:
+            raise ValueError(
+                "So far only `bjets` and `cjets` are supported as signal class."
+            )
+        is_b_sig = signal_class == "bjets"
         # define the curves
         plot_light_rej = VarVsEffPlot(
             mode="bkg_rej",
@@ -165,7 +169,7 @@ class Results:
         )
         plot_c_rej = VarVsEffPlot(
             mode="bkg_rej",
-            ylabel=r"$c$-jets rejection",
+            ylabel=r"$c$-jets rejection" if is_b_sig else r"$b$-jets rejection",
             xlabel=xlabel,
             logy=False,
             atlas_second_tag=self.atlas_second_tag,
@@ -173,7 +177,7 @@ class Results:
         )
         plot_b_eff = VarVsEffPlot(
             mode="sig_eff",
-            ylabel="$b$-jets efficiency",
+            ylabel="$b$-jets efficiency" if is_b_sig else "$c$-jets efficiency",
             xlabel=xlabel,
             logy=False,
             atlas_second_tag=self.atlas_second_tag,
@@ -187,16 +191,15 @@ class Results:
             if not working_point_in_kwargs:
                 kwargs["working_point"] = tagger.working_point
 
-            discs = (
-                tagger.calc_disc_b()
-                if signal_class == "bjets"
-                else tagger.calc_disc_c()
-            )
-            # TODO: add switch everywhere for c-jets as signal_class as well
+            discs = tagger.calc_disc_b() if is_b_sig else tagger.calc_disc_c()
+            # Switch signal and background if signal_class is not b_jets and using
+            # c-jets as signal_class
+            is_signal = tagger.is_b if is_b_sig else tagger.is_c
+            is_bkg = tagger.is_c if is_b_sig else tagger.is_b
             plot_light_rej.add(
                 VarVsEff(
-                    x_var_sig=tagger.perf_var[tagger.is_b],
-                    disc_sig=discs[tagger.is_b],
+                    x_var_sig=tagger.perf_var[is_signal],
+                    disc_sig=discs[is_signal],
                     x_var_bkg=tagger.perf_var[tagger.is_light],
                     disc_bkg=discs[tagger.is_light],
                     label=tagger.label,
@@ -207,10 +210,10 @@ class Results:
             )
             plot_c_rej.add(
                 VarVsEff(
-                    x_var_sig=tagger.perf_var[tagger.is_b],
-                    disc_sig=discs[tagger.is_b],
-                    x_var_bkg=tagger.perf_var[tagger.is_c],
-                    disc_bkg=discs[tagger.is_c],
+                    x_var_sig=tagger.perf_var[is_signal],
+                    disc_sig=discs[is_signal],
+                    x_var_bkg=tagger.perf_var[is_bkg],
+                    disc_bkg=discs[is_bkg],
                     label=tagger.label,
                     colour=tagger.colour,
                     **kwargs,
@@ -219,8 +222,8 @@ class Results:
             )
             plot_b_eff.add(
                 VarVsEff(
-                    x_var_sig=tagger.perf_var[tagger.is_b],
-                    disc_sig=discs[tagger.is_b],
+                    x_var_sig=tagger.perf_var[is_signal],
+                    disc_sig=discs[is_signal],
                     x_var_bkg=tagger.perf_var[tagger.is_light],
                     disc_bkg=discs[tagger.is_light],
                     label=tagger.label,
@@ -240,18 +243,22 @@ class Results:
         plot_light_rej.savefig(f"{plot_name}_pt_light_rej.png")
 
         plot_c_rej.draw()
-        plot_c_rej.savefig(f"{plot_name}_pt_c_rej.png")
+        plot_c_rej.savefig(
+            f"{plot_name}_pt_c_rej.png" if is_b_sig else f"{plot_name}_pt_b_rej.png"
+        )
 
         plot_b_eff.draw()
         # Drawing a hline indicating inclusive efficiency
         plot_b_eff.draw_hline(0.7)
-        plot_b_eff.savefig(f"{plot_name}_pt_b_eff.png")
+        plot_b_eff.savefig(
+            f"{plot_name}_pt_b_eff.png" if is_b_sig else f"{plot_name}_pt_c_eff.png"
+        )
 
     def plot_discs(
         self,
         plot_name: str,
         exclude_tagger: list = None,
-        xlabel: str = r"$D_{b}$",
+        xlabel: str = None,
         signal_class: str = "bjets",
         **kwargs,
     ):
@@ -271,6 +278,16 @@ class Results:
         **kwargs : kwargs
             key word arguments for `puma.HistogramPlot`
         """
+        if signal_class not in ["bjets", "cjets"]:
+            raise ValueError(
+                "So far only `bjets` and `cjets` are supported as signal class."
+            )
+        is_b_sig = signal_class == "bjets"
+        if is_b_sig and xlabel is None:
+            xlabel = r"$D_{b}$"
+        elif not is_b_sig and xlabel is None:
+            xlabel = r"$D_{c}$"
+
         flav_cat = global_config["flavour_categories"]
         line_styles = get_good_linestyles()
 
@@ -287,11 +304,7 @@ class Results:
         for tagger in self.taggers:
             if exclude_tagger is not None and tagger.model_name in exclude_tagger:
                 continue
-            discs = (
-                tagger.calc_disc_b()
-                if signal_class == "bjets"
-                else tagger.calc_disc_c()
-            )
+            discs = tagger.calc_disc_b() if is_b_sig else tagger.calc_disc_c()
             tagger_output_plot.add(
                 Histogram(
                     discs[tagger.is_light],
