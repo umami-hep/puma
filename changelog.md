@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+- Adding new high level API [#128](https://github.com/umami-hep/puma/pull/128)
+
 ### [v0.1.9] (2022/11/30)
 
 - Adding boosted categories for Xbb to utils [!138](https://github.com/umami-hep/puma/pull/138)

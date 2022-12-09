@@ -6,7 +6,7 @@ can be used as a starting point for your plotting scripts.
 
 .. toctree::
    :maxdepth: 2
-   
+
    dummy_data.md
    histograms.md
    rocs.md
@@ -14,7 +14,8 @@ can be used as a starting point for your plotting scripts.
    fraction_scan.md
    pie_charts.md
    line_plots.md
-   
+   high_level_api.md
+
 
 .. include:: index.md
    :parser: myst_parser.sphinx_
