@@ -1,6 +1,6 @@
 # Changelog
 
-### [Latest]
+### [v0.2.0] (2022/12/09)
 
 - Adding new high level API [#128](https://github.com/umami-hep/puma/pull/128)
 
