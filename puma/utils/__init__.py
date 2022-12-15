@@ -291,7 +291,7 @@ global_config = {
         },
         "dijets": {
             "colour": "#38761D",  # Bilbao (dark green)
-            "legend_label": "light-dijets",
+            "legend_label": "QCD-jets",
         },
     },
     "hist_err_style": {
