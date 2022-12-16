@@ -1,5 +1,7 @@
 # Changelog
 
+### [Latest]
+
 ### [v0.2.1] (2022/12/15)
 
 - Change legend label of `dijets` [#146](https://github.com/umami-hep/puma/pull/146)
