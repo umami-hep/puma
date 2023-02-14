@@ -99,6 +99,7 @@ class Line2DPlot(PlotBase):
     def __init__(
         self,
         logy: bool = False,
+        grid: bool = True,
         **kwargs,
     ) -> None:
         """Plot properties
@@ -111,7 +112,7 @@ class Line2DPlot(PlotBase):
             Keyword arguments from `puma.PlotObject`
         """
 
-        super().__init__(**kwargs)
+        super().__init__(grid=grid, **kwargs)
 
         # Set inputs as attributes
         self.logy = logy
@@ -257,10 +258,6 @@ class Line2DPlot(PlotBase):
         self.set_xlabel()
         self.set_tick_params()
         self.set_ylabel(self.axis_top)
-
-        # Set grid if grid is true
-        if self.grid:
-            self.axis_top.grid()
 
         # Apply atlas style if defined
         if self.apply_atlas_style:

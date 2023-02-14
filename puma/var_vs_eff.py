@@ -433,7 +433,7 @@ class VarVsEff(PlotLineObject):  # pylint: disable=too-many-instance-attributes
 class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
     """var_vs_eff plot class"""
 
-    def __init__(self, mode, **kwargs) -> None:
+    def __init__(self, mode, grid: bool = False, **kwargs) -> None:
         """var_vs_eff plot properties
 
         Parameters
@@ -449,7 +449,7 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         ValueError
             If incompatible mode given or more than 1 ratio panel requested
         """
-        super().__init__(**kwargs)
+        super().__init__(grid=grid, **kwargs)
         mode_options = ["sig_eff", "bkg_eff", "sig_rej", "bkg_rej"]
         if mode not in mode_options:
             raise ValueError(
@@ -467,7 +467,6 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         self.inverse_cut = False
         if self.n_ratio_panels > 1:
             raise ValueError("Not more than one ratio panel supported.")
-        self.grid = None
         self.initialise_figure()
 
     def add(self, curve: object, key: str = None, reference: bool = False):

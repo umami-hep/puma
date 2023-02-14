@@ -185,6 +185,7 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         logy: bool = False,
         bin_width_in_ylabel: bool = False,
         underoverflow: bool = False,
+        grid: bool = False,
         **kwargs,
     ) -> None:
         """histogram plot properties
@@ -226,7 +227,7 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         """
         # TODO: use union operator `|` for multiple types of `bins` in python 3.10
 
-        super().__init__(**kwargs)
+        super().__init__(grid=grid, **kwargs)
         self.logy = logy
         self.bins = bins
         self.bins_range = bins_range
@@ -239,7 +240,7 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         self.ratios_objects = {}
         self.ratio_axes = {}
         self.reference_object = None
-        self.grid = None
+
         if self.n_ratio_panels > 1:
             raise ValueError("Not more than one ratio panel supported.")
         self.initialise_figure()
