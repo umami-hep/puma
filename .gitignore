@@ -23,6 +23,7 @@ parts/
 sdist/
 var/
 plots/
+tests/
 wheels/
 pip-wheel-metadata/
 share/python-wheels/

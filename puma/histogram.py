@@ -239,6 +239,7 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         self.ratios_objects = {}
         self.ratio_axes = {}
         self.reference_object = None
+        self.grid = None
         if self.n_ratio_panels > 1:
             raise ValueError("Not more than one ratio panel supported.")
         self.initialise_figure(sub_plot_index=6)
