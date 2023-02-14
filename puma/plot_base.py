@@ -267,27 +267,19 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         self.axis_leg = None
         self.fig = None
 
-    def initialise_figure(self, sub_plot_index: int = 5):
+    def initialise_figure(self):
         """
         Initialising matplotlib.figure.Figure for different scenarios depending on how
         many ratio panels are requested.
-
-        Parameters
-        ----------
-        sub_plot_index : int, optional
-            Indicates for the scenario with one ratio how large the upper and lower
-            panels are, by default 5
         """
         # TODO: switch to cases syntax in python 3.10
 
         if self.vertical_split:  # split figure vertically instead of horizonally
             if self.n_ratio_panels >= 1:
                 logger.warning(
-                    (
-                        "You set the number of ratio panels to %i but also set the"
-                        " vertical splitting to True. Therefore no ratiopanels are"
-                        " created."
-                    ),
+                    "You set the number of ratio panels to %i but also set the"
+                    " vertical splitting to True. Therefore no ratiopanels are"
+                    " created.",
                     self.n_ratio_panels,
                 )
             self.fig = Figure(
@@ -316,12 +308,12 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
                 for i in range(1, self.n_ratio_panels + 1):
                     start = int((top_height + ratio_height * (i - 1)) * 10)
                     stop = int(start + ratio_height * 10)
-                    ax = self.fig.add_subplot(
+                    axis = self.fig.add_subplot(
                         g_spec[start:stop, 0], sharex=self.axis_top
                     )
                     if i < self.n_ratio_panels:
-                        set_xaxis_ticklabels_invisible(ax)
-                    setattr(self, f"axis_ratio_{i}", ax)
+                        set_xaxis_ticklabels_invisible(axis)
+                    setattr(self, f"axis_ratio_{i}", axis)
 
         if self.grid:
             self.axis_top.grid(lw=0.3)
