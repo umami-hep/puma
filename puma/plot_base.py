@@ -280,8 +280,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         """
         # TODO: switch to cases syntax in python 3.10
 
-        if self.vertical_split:
-            # split figure vertically instead of horizonally
+        if self.vertical_split: # split figure vertically instead of horizonally
             if self.n_ratio_panels >= 1:
                 logger.warning(
                     "You set the number of ratio panels to %i "
@@ -297,18 +296,30 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
             self.axis_leg = self.fig.add_subplot(g_spec[0, 9:])
 
         else:
-            if self.n_ratio_panels == 0:
-                # no ratio panel
-                self.fig = Figure(
-                    figsize=(5, 3.5) if self.figsize is None else self.figsize
-                )
-                self.axis_top = self.fig.gca()
+            # you must use increments of 0.1 for the deminsions
+            width = 5.0
+            top_height = 2.7
+            ratio_height = 1.2
+            height = top_height + self.n_ratio_panels * ratio_height
+            figsize = (width, height) if self.figsize is None else self.figsize
+            self.fig = Figure(figsize=figsize, layout="constrained")
 
-            elif self.n_ratio_panels == 1:
-                # 1 ratio panel
-                self.fig = Figure(
-                    figsize=(5, 4) if self.figsize is None else self.figsize
-                )
+            if self.n_ratio_panels == 0:
+                self.axis_top = self.fig.gca()
+            elif self.n_ratio_panels > 0:
+                g_spec_height = (top_height + ratio_height * self.n_ratio_panels) * 10
+                g_spec = gridspec.GridSpec(int(g_spec_height), 1, figure=self.fig)
+                self.axis_top = self.fig.add_subplot(g_spec[: int(top_height * 10), 0])
+                set_xaxis_ticklabels_invisible(self.axis_top)
+                for i in range(1, self.n_ratio_panels + 1):
+                    start = int((top_height + ratio_height * (i - 1)) * 10)
+                    stop = int(start + ratio_height * 10)
+                    ax = self.fig.add_subplot(
+                        g_spec[start:stop, 0], sharex=self.axis_top
+                    )
+                    if i < self.n_ratio_panels:
+                        set_xaxis_ticklabels_invisible(ax)
+                    setattr(self, f"axis_ratio_{i}", ax)
 
         if self.grid:
             self.axis_top.grid(lw=0.3)
@@ -494,6 +505,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
             **label_options,
             **kwargs,
         )
+        self.fig.align_labels()
 
     def set_xlabel(self, label: str = None, **kwargs):
         """Set x-axis label.
