@@ -312,7 +312,7 @@ class Results:
             n_ratio_panels=0,
             xlabel=xlabel,
             ylabel="Normalised number of jets",
-            figsize=(7.0, 3.5),
+            figsize=(7.0, 4.5),
             logy=True,
             atlas_second_tag=self.atlas_second_tag,
             **kwargs,
