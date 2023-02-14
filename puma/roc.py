@@ -6,7 +6,7 @@ from scipy.interpolate import pchip
 
 from puma.metrics import rej_err
 from puma.plot_base import PlotBase, PlotLineObject
-from puma.utils import get_good_colours, logger
+from puma.utils import get_good_colours, get_good_linestyles, global_config, logger
 
 
 class Roc(PlotLineObject):
@@ -206,9 +206,7 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         self.reference_roc = None
         self.initialise_figure()
         self.eff_min, self.eff_max = (1, 0)
-        # setting default linestyles if no linestyles provided
-        # solid line and densed dotted dashed
-        self.default_linestyles = ["-", (0, (3, 1, 1, 1))]
+        self.default_linestyles = get_good_linestyles()
         self.legend_flavs = None
         self.leg_rej_loc = "lower left"
 
