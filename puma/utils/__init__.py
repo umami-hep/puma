@@ -215,7 +215,7 @@ global_config = {
         },
         "ujets": {
             "colour": "#2ca02c",  # green
-            "legend_label": "light-flavour jets",
+            "legend_label": "Light-jets",
         },
         "taujets": {
             "colour": "#7c5295",  # purple

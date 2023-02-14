@@ -313,20 +313,8 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             )
             self.reference_roc[rej_class] = key
 
-    def set_leg_rej_labels(self, rej_class: str, label: str):
-        """Set legend label for rejection class
-
-        Parameters
-        ----------
-        rej_class : str
-            Rejection class
-        label : str
-            Label added in legend
-        """
-        self.leg_rej_labels[rej_class] = label
-
-    def set_ratio_class(self, ratio_panel: int, rej_class: str, label: str):
-        """Associate the rejection class to a ratio panel
+    def set_ratio_class(self, ratio_panel: int, rej_class: str):
+        """Associate the rejection class to a ratio panel adn set the legend label
 
         Parameters
         ----------
@@ -334,8 +322,6 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             Ratio panel either 1 or 2
         rej_class : str
             Rejeciton class associated to that panel
-        label : str
-            y-axis label of the ratio panel
 
         Raises
         ------
@@ -347,7 +333,10 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                 "Requested ratio panels and given ratio_panel do not match."
             )
         self.ratio_axes[ratio_panel] = rej_class
-        self.set_ratio_label(ratio_panel, label)
+        label = global_config["flavour_categories"][rej_class]["legend_label"]
+        label = label.replace("jets", "jet")
+        self.set_ratio_label(ratio_panel, f"{label} ratio")
+        self.leg_rej_labels[rej_class] = f"{label} rejection"
 
     def add_ratios(self):
         """Calculating ratios.
