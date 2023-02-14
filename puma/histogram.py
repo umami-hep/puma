@@ -635,8 +635,5 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         self.make_legend(plt_handles, ax_mpl=legend_axis)
         self.set_title()
 
-        if not self.atlas_tag_outside:
-            self.fig.tight_layout()
-
         if self.apply_atlas_style:
             self.atlasify()

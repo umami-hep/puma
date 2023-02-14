@@ -609,16 +609,6 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
             **kwargs,
         )
 
-    def tight_layout(self, **kwargs):
-        """abstract function of matplotlib.figure.Figure.tight_layout
-
-        Parameters
-        ----------
-        **kwargs: kwargs
-            Keyword arguments from `matplotlib.figure.Figure.tight_layout()`
-        """
-        self.fig.tight_layout(**kwargs)
-
     def atlasify(self, use_tag: bool = True, force: bool = False):
         """Apply ATLAS style to all axes using the atlasify package
 
@@ -794,8 +784,6 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         self.set_xlabel()
         self.set_ylabel(self.axis_top)
         self.set_tick_params()
-        if not self.atlas_tag_outside:
-            self.fig.tight_layout()
         self.plotting_done = True
         if self.apply_atlas_style:
             self.atlasify()

@@ -259,9 +259,6 @@ class Line2DPlot(PlotBase):
         self.set_tick_params()
         self.set_ylabel(self.axis_top)
 
-        if not self.atlas_tag_outside:
-            self.fig.tight_layout()
-
         # Set grid if grid is true
         if self.grid:
             self.axis_top.grid()

@@ -704,8 +704,6 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                 labelpad=labelpad,
             )
         self.make_legend(plt_handles, ax_mpl=self.axis_top)
-        if not self.atlas_tag_outside:
-            self.tight_layout()
         self.plotting_done = True
         if self.apply_atlas_style is True:
             self.atlasify(use_tag=self.use_atlas_tag)
