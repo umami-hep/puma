@@ -9,7 +9,7 @@ on:
 jobs:
   linter:
     runs-on: ubuntu-latest
-    container: python:3.8-slim
+    container: python:3.8-alpine3.15
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -20,7 +20,7 @@ jobs:
       - run: flake8 .
   pylint:
     runs-on: ubuntu-latest
-    container: python:3.8-slim
+    container: python:3.8-alpine3.15
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -31,7 +31,7 @@ jobs:
       - run: pylint -j2 ./examples/*.py
   darglint:
     runs-on: ubuntu-latest
-    container: python:3.8-slim
+    container: python:3.8-alpine3.15
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -40,7 +40,7 @@ jobs:
       - run: darglint .
   black:
     runs-on: ubuntu-latest
-    container: python:3.8-slim
+    container: python:3.8-alpine3.15
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
