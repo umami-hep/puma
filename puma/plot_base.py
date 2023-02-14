@@ -280,12 +280,14 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         """
         # TODO: switch to cases syntax in python 3.10
 
-        if self.vertical_split: # split figure vertically instead of horizonally
+        if self.vertical_split:  # split figure vertically instead of horizonally
             if self.n_ratio_panels >= 1:
                 logger.warning(
-                    "You set the number of ratio panels to %i "
-                    "but also set the vertical splitting to True. Therefore no ratio"
-                    "panels are created.",
+                    (
+                        "You set the number of ratio panels to %i but also set the"
+                        " vertical splitting to True. Therefore no ratiopanels are"
+                        " created."
+                    ),
                     self.n_ratio_panels,
                 )
             self.fig = Figure(
@@ -378,9 +380,11 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
             self.axis_top.text(
                 x=vline - 0.005,
                 y=ytext + 0.005,
-                s=f"{int(vline * 100)}%"
-                if vlines_label_list is None
-                else f"{vlines_label_list[vline_counter]}",
+                s=(
+                    f"{int(vline * 100)}%"
+                    if vlines_label_list is None
+                    else f"{vlines_label_list[vline_counter]}"
+                ),
                 transform=self.axis_top.get_xaxis_text1_transform(0)[0],
                 fontsize=fontsize,
             )
@@ -682,9 +686,11 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         ax_mpl.add_artist(
             ax_mpl.legend(
                 handles=handles,
-                labels=[handle.get_label() for handle in handles]
-                if labels is None
-                else labels,
+                labels=(
+                    [handle.get_label() for handle in handles]
+                    if labels is None
+                    else labels
+                ),
                 loc=self.leg_loc,
                 fontsize=self.leg_fontsize,
                 ncol=self.leg_ncol,

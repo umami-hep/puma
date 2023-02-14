@@ -526,8 +526,10 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             self.reference_object = key
         else:
             logger.warning(
-                "You specified a second curve %s as reference for ratio. "
-                "Using it as new reference instead of %s.",
+                (
+                    "You specified a second curve %s as reference for ratio. "
+                    "Using it as new reference instead of %s."
+                ),
                 key,
                 self.reference_object,
             )
@@ -604,7 +606,12 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             raise ValueError("Please specify a reference curve.")
         for key in self.add_order:
             elem = self.plot_objects[key]
-            (ratio, ratio_err, x_bin_centres, bin_widths,) = elem.divide(
+            (
+                ratio,
+                ratio_err,
+                x_bin_centres,
+                bin_widths,
+            ) = elem.divide(
                 self.plot_objects[self.reference_object],
                 mode=self.mode,
                 inverse_cut=self.inverse_cut,

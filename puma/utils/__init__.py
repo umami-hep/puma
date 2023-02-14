@@ -275,7 +275,7 @@ global_config = {
         },
         "singletaubdecay": {
             "colour": "#e76f51",
-            "legend_label": "\u03C4's in $b$- or $c$-hadron decay",
+            "legend_label": "$\\tau$'s in $b$- or $c$-hadron decay",
         },
         "Hbb": {
             "colour": "#1f77b4",  # blue

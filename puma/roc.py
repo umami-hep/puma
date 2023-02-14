@@ -247,8 +247,10 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             and roc_curve.linestyle is not None
         ):
             logger.warning(
-                "You specified a different linestyle for the same rejection class "
-                "%s. Will keep the linestyle defined first.",
+                (
+                    "You specified a different linestyle for the same rejection class "
+                    "%s. Will keep the linestyle defined first."
+                ),
                 roc_curve.rej_class,
             )
         if roc_curve.linestyle is None:
@@ -266,9 +268,11 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             and roc_curve.colour is not None
         ):
             logger.warning(
-                "You specified a different colour for the same label"
-                " %s. This will lead to a mismatch in the line colours"
-                " and the legend.",
+                (
+                    "You specified a different colour for the same label"
+                    " %s. This will lead to a mismatch in the line colours"
+                    " and the legend."
+                ),
                 roc_curve.label,
             )
         if roc_curve.colour is None:
@@ -306,8 +310,10 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             self.reference_roc[rej_class] = key
         else:
             logger.warning(
-                "You specified a second roc curve %s as reference for ratio. "
-                "Using it as new reference instead of %s.",
+                (
+                    "You specified a second roc curve %s as reference for ratio. "
+                    "Using it as new reference instead of %s."
+                ),
                 key,
                 self.reference_roc[rej_class],
             )

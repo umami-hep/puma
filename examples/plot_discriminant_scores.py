@@ -44,7 +44,6 @@ plot_histo = HistogramPlot(
 
 # Add the histograms
 for tagger, linestyle in zip(taggers, linestyles):
-
     plot_histo.add(
         Histogram(
             df[is_light][f"disc_{tagger}"],

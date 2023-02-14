@@ -6,10 +6,10 @@ This script is used to install the package and all its dependencies. Run
 to install the package.
 """
 
-from setuptools import setup
-
 # read the contents of the README.md file
 from pathlib import Path
+
+from setuptools import setup
 
 this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()

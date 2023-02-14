@@ -308,7 +308,7 @@ class Results:
         line_styles = get_good_linestyles()
 
         tagger_output_plot = HistogramPlot(
-            bins=50, 
+            bins=50,
             n_ratio_panels=0,
             xlabel=xlabel,
             ylabel="Normalised number of jets",
