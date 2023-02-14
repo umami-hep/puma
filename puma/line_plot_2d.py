@@ -120,7 +120,7 @@ class Line2DPlot(PlotBase):
         self.plot_objects = {}
         self.add_order = []
 
-        self.initialise_figure(sub_plot_index=6)
+        self.initialise_figure()
 
     def add(
         self,

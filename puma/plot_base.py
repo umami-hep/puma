@@ -292,7 +292,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         else:
             # you must use increments of 0.1 for the deminsions
             width = 5.0
-            top_height = 2.7
+            top_height = 2.7 if self.n_ratio_panels else 3.5
             ratio_height = 1.2
             height = top_height + self.n_ratio_panels * ratio_height
             figsize = (width, height) if self.figsize is None else self.figsize

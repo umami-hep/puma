@@ -467,7 +467,8 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         self.inverse_cut = False
         if self.n_ratio_panels > 1:
             raise ValueError("Not more than one ratio panel supported.")
-        self.initialise_figure(sub_plot_index=6)
+        self.grid = None
+        self.initialise_figure()
 
     def add(self, curve: object, key: str = None, reference: bool = False):
         """Adding var_vs_eff object to figure.
