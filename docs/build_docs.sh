@@ -11,6 +11,7 @@ export PYTHONPATH=$PWD:$PYTHONPATH
 
 # build the documentation
 rm -rf docs/_*
+git rev-parse --abbrev-ref HEAD
 python docs/sphinx_build_multiversion.py
 # copy the redirect_index.html that redirects to the main/latest version
 cp docs/source/redirect_index.html docs/_build/html/index.html
