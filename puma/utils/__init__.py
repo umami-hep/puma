@@ -161,9 +161,9 @@ def get_good_linestyles(names=None):
     """
     linestyle_tuples = {
         "solid": "solid",
+        "densely dashdotted": (0, (3, 1, 1, 1)),
         "densely dashed": (0, (5, 2)),
         "densely dotted": (0, (1, 1)),
-        "densely dashdotted": (0, (3, 1, 1, 1)),
         "densely dashdotdotted": (0, (3, 1, 1, 1, 1, 1)),
         "dashed": (0, (5, 5)),
         "dotted": (0, (2, 2)),
@@ -185,8 +185,8 @@ def get_good_linestyles(names=None):
         "dashed",
         "dotted",
         "dashdot",
-        "loosely dotted",
         "loosely dashed",
+        "loosely dotted",
         "loosely dashdotted",
         "loosely dashdotdotted",
         "dashdotted",
