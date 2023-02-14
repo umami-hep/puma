@@ -308,12 +308,12 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
                 for i in range(1, self.n_ratio_panels + 1):
                     start = int((top_height + ratio_height * (i - 1)) * 10)
                     stop = int(start + ratio_height * 10)
-                    axis = self.fig.add_subplot(
+                    sub_axis = self.fig.add_subplot(
                         g_spec[start:stop, 0], sharex=self.axis_top
                     )
                     if i < self.n_ratio_panels:
-                        set_xaxis_ticklabels_invisible(axis)
-                    setattr(self, f"axis_ratio_{i}", axis)
+                        set_xaxis_ticklabels_invisible(sub_axis)
+                    setattr(self, f"axis_ratio_{i}", sub_axis)
 
         if self.grid:
             self.axis_top.grid(lw=0.3)
