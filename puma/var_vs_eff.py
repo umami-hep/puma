@@ -637,11 +637,6 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                 edgecolor="none",
             )
 
-    def set_grid(self):
-        """Set gtid lines."""
-        self.axis_top.grid()
-        self.axis_ratio_1.grid()
-
     def set_inverse_cut(self, inverse_cut=True):
         """Invert the discriminant cut, which will yield the efficiency or rejection
         of the jets not passing the working point.

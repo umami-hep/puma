@@ -310,32 +310,12 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
                     figsize=(5, 4) if self.figsize is None else self.figsize
                 )
 
-                g_spec = gridspec.GridSpec(8, 1, figure=self.fig)
-                self.axis_top = self.fig.add_subplot(g_spec[:sub_plot_index, 0])
-                self.axis_ratio_1 = self.fig.add_subplot(
-                    g_spec[sub_plot_index:, 0], sharex=self.axis_top
-                )
-
-            elif self.n_ratio_panels == 2:
-                # 2 ratio panels
-                self.fig = Figure(
-                    figsize=(8, 8) if self.figsize is None else self.figsize
-                )
-
-                # Define the grid of the subplots
-                g_spec = gridspec.GridSpec(11, 1, figure=self.fig)
-                self.axis_top = self.fig.add_subplot(g_spec[:5, 0])
-                self.axis_ratio_1 = self.fig.add_subplot(
-                    g_spec[5:8, 0], sharex=self.axis_top
-                )
-                self.axis_ratio_2 = self.fig.add_subplot(
-                    g_spec[8:, 0], sharex=self.axis_top
-                )
-
-            if self.n_ratio_panels >= 1:
-                set_xaxis_ticklabels_invisible(self.axis_top)
-            if self.n_ratio_panels >= 2:
-                set_xaxis_ticklabels_invisible(self.axis_ratio_1)
+        if self.grid:
+            self.axis_top.grid(lw=0.3)
+            if self.axis_ratio_1:
+                self.axis_ratio_1.grid(lw=0.3)
+            if self.axis_ratio_2:
+                self.axis_ratio_2.grid(lw=0.3)
 
     def draw_vlines(
         self,

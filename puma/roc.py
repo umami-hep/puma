@@ -372,14 +372,8 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             )
         self.plot_ratios(axis=self.axis_ratio_1, rej_class=self.ratio_axes[1])
 
-        if self.grid:
-            self.axis_ratio_1.grid()
-
         if self.n_ratio_panels == 2:
             self.plot_ratios(axis=self.axis_ratio_2, rej_class=self.ratio_axes[2])
-
-            if self.grid:
-                self.axis_ratio_2.grid()
 
     def get_xlim_auto(self):
         """Returns min and max efficiency values
@@ -564,8 +558,6 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         self.set_y_lim()
         self.set_xlabel()
         self.set_ylabel(self.axis_top)
-        if self.grid:
-            self.axis_top.grid()
 
         if self.n_ratio_panels > 0:
             self.set_ylabel(
