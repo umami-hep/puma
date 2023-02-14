@@ -11,7 +11,7 @@ This script has to be executed in the root of the repository!
 import json
 import os
 from shutil import copy
-from subprocess import run, CalledProcessError
+from subprocess import run
 
 
 def build_docs_version(version):
@@ -56,13 +56,9 @@ def main():
     # get currently active branch
     command = "git rev-parse --abbrev-ref HEAD".split()
 
-    try:
-        initial_branch = (
-            run(command, capture_output=True, check=True).stdout.strip().decode("utf-8")
-        )
-
-    except CalledProcessError as e:
-        print("Exception on process, rc=", e.returncode, "output=", e.output)
+    initial_branch = (
+        run(command, capture_output=True, check=True).stdout.strip().decode("utf-8")
+    )
 
     # copy the latest conf.py, since we want to use that configuration for all the
     # docs versions that are built
