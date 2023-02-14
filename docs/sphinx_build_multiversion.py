@@ -55,7 +55,6 @@ def main():
 
     # get currently active branch
     command = "git rev-parse --abbrev-ref HEAD".split()
-
     initial_branch = (
         run(command, capture_output=True, check=True).stdout.strip().decode("utf-8")
     )
