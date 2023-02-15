@@ -13,7 +13,7 @@ jobs:
   unit_tests:
     name: Unit tests
     runs-on: ubuntu-latest
-    container: python:3.8-slim
+    container: python:3.8.15-slim
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -31,7 +31,7 @@ jobs:
   example_tests:
     name: Example tests
     runs-on: ubuntu-latest
-    container: python:3.8-slim
+    container: python:3.8.15-slim
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
