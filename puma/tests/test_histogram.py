@@ -126,7 +126,6 @@ class HistogramPlotTestCase(
     """Test class for puma.histogram_plot"""
 
     def setUp(self):
-
         np.random.seed(42)
         n_random = 10_000
         self.hist_1 = Histogram(

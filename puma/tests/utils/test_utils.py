@@ -38,15 +38,15 @@ class LinestylesTestCase(unittest.TestCase):
         with self.subTest("Testing default linestyles"):
             expected_linestyles = [
                 "solid",
-                (0, (1, 1)),
-                (0, (5, 1)),
                 (0, (3, 1, 1, 1)),
-                (0, (3, 1, 1, 1, 1, 1)),
+                (0, (5, 2)),
                 (0, (1, 1)),
+                (0, (3, 1, 1, 1, 1, 1)),
                 (0, (5, 5)),
+                (0, (2, 2)),
                 "dashdot",
-                (0, (1, 10)),
                 (0, (5, 10)),
+                (0, (1, 10)),
                 (0, (3, 10, 1, 10)),
                 (0, (3, 10, 1, 10, 1, 10)),
                 (0, (3, 5, 1, 5)),
@@ -57,12 +57,12 @@ class LinestylesTestCase(unittest.TestCase):
 
         with self.subTest("Test specifying list of names"):
             linestyle_names = ["densely dashed", "dashdotted"]
-            expected_linestyles = [(0, (5, 1)), (0, (3, 5, 1, 5))]
+            expected_linestyles = [(0, (5, 2)), (0, (3, 5, 1, 5))]
             actual_linestyles = get_good_linestyles(linestyle_names)
             self.assertListEqual(expected_linestyles, actual_linestyles)
 
         with self.subTest("Test case of only one name given (not list)"):
-            expected_linestyle = (0, (5, 1))
+            expected_linestyle = (0, (5, 2))
             actual_linestyle = get_good_linestyles("densely dashed")
             self.assertTupleEqual(expected_linestyle, actual_linestyle)
 

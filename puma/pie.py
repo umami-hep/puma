@@ -113,4 +113,3 @@ class PiePlot(
 
         self.set_title()
         self.set_y_lim()
-        self.fig.tight_layout()

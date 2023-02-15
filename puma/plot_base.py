@@ -267,26 +267,19 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         self.axis_leg = None
         self.fig = None
 
-    def initialise_figure(self, sub_plot_index: int = 5):
+    def initialise_figure(self):
         """
         Initialising matplotlib.figure.Figure for different scenarios depending on how
         many ratio panels are requested.
-
-        Parameters
-        ----------
-        sub_plot_index : int, optional
-            Indicates for the scenario with one ratio how large the upper and lower
-            panels are, by default 5
         """
         # TODO: switch to cases syntax in python 3.10
 
-        if self.vertical_split:
-            # split figure vertically instead of horizonally
+        if self.vertical_split:  # split figure vertically instead of horizonally
             if self.n_ratio_panels >= 1:
                 logger.warning(
-                    "You set the number of ratio panels to %i "
-                    "but also set the vertical splitting to True. Therefore no ratio"
-                    "panels are created.",
+                    "You set the number of ratio panels to %i but also set the"
+                    " vertical splitting to True. Therefore no ratiopanels are"
+                    " created.",
                     self.n_ratio_panels,
                 )
             self.fig = Figure(
@@ -297,45 +290,37 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
             self.axis_leg = self.fig.add_subplot(g_spec[0, 9:])
 
         else:
+            # you must use increments of 0.1 for the deminsions
+            width = 5.0
+            top_height = 2.7 if self.n_ratio_panels else 3.5
+            ratio_height = 1.2
+            height = top_height + self.n_ratio_panels * ratio_height
+            figsize = (width, height) if self.figsize is None else self.figsize
+            self.fig = Figure(figsize=figsize, layout="constrained")
+
             if self.n_ratio_panels == 0:
-                # no ratio panel
-                self.fig = Figure(
-                    figsize=(5, 3.5) if self.figsize is None else self.figsize
-                )
                 self.axis_top = self.fig.gca()
-
-            elif self.n_ratio_panels == 1:
-                # 1 ratio panel
-                self.fig = Figure(
-                    figsize=(5, 4) if self.figsize is None else self.figsize
-                )
-
-                g_spec = gridspec.GridSpec(8, 1, figure=self.fig)
-                self.axis_top = self.fig.add_subplot(g_spec[:sub_plot_index, 0])
-                self.axis_ratio_1 = self.fig.add_subplot(
-                    g_spec[sub_plot_index:, 0], sharex=self.axis_top
-                )
-
-            elif self.n_ratio_panels == 2:
-                # 2 ratio panels
-                self.fig = Figure(
-                    figsize=(8, 8) if self.figsize is None else self.figsize
-                )
-
-                # Define the grid of the subplots
-                g_spec = gridspec.GridSpec(11, 1, figure=self.fig)
-                self.axis_top = self.fig.add_subplot(g_spec[:5, 0])
-                self.axis_ratio_1 = self.fig.add_subplot(
-                    g_spec[5:8, 0], sharex=self.axis_top
-                )
-                self.axis_ratio_2 = self.fig.add_subplot(
-                    g_spec[8:, 0], sharex=self.axis_top
-                )
-
-            if self.n_ratio_panels >= 1:
+            elif self.n_ratio_panels > 0:
+                g_spec_height = (top_height + ratio_height * self.n_ratio_panels) * 10
+                g_spec = gridspec.GridSpec(int(g_spec_height), 1, figure=self.fig)
+                self.axis_top = self.fig.add_subplot(g_spec[: int(top_height * 10), 0])
                 set_xaxis_ticklabels_invisible(self.axis_top)
-            if self.n_ratio_panels >= 2:
-                set_xaxis_ticklabels_invisible(self.axis_ratio_1)
+                for i in range(1, self.n_ratio_panels + 1):
+                    start = int((top_height + ratio_height * (i - 1)) * 10)
+                    stop = int(start + ratio_height * 10)
+                    sub_axis = self.fig.add_subplot(
+                        g_spec[start:stop, 0], sharex=self.axis_top
+                    )
+                    if i < self.n_ratio_panels:
+                        set_xaxis_ticklabels_invisible(sub_axis)
+                    setattr(self, f"axis_ratio_{i}", sub_axis)
+
+        if self.grid:
+            self.axis_top.grid(lw=0.3)
+            if self.axis_ratio_1:
+                self.axis_ratio_1.grid(lw=0.3)
+            if self.axis_ratio_2:
+                self.axis_ratio_2.grid(lw=0.3)
 
     def draw_vlines(
         self,
@@ -387,9 +372,11 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
             self.axis_top.text(
                 x=vline - 0.005,
                 y=ytext + 0.005,
-                s=f"{int(vline * 100)}%"
-                if vlines_label_list is None
-                else f"{vlines_label_list[vline_counter]}",
+                s=(
+                    f"{int(vline * 100)}%"
+                    if vlines_label_list is None
+                    else f"{vlines_label_list[vline_counter]}"
+                ),
                 transform=self.axis_top.get_xaxis_text1_transform(0)[0],
                 fontsize=fontsize,
             )
@@ -514,6 +501,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
             **label_options,
             **kwargs,
         )
+        self.fig.align_labels()
 
     def set_xlabel(self, label: str = None, **kwargs):
         """Set x-axis label.
@@ -609,16 +597,6 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
             **kwargs,
         )
 
-    def tight_layout(self, **kwargs):
-        """abstract function of matplotlib.figure.Figure.tight_layout
-
-        Parameters
-        ----------
-        **kwargs: kwargs
-            Keyword arguments from `matplotlib.figure.Figure.tight_layout()`
-        """
-        self.fig.tight_layout(**kwargs)
-
     def atlasify(self, use_tag: bool = True, force: bool = False):
         """Apply ATLAS style to all axes using the atlasify package
 
@@ -700,9 +678,11 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         ax_mpl.add_artist(
             ax_mpl.legend(
                 handles=handles,
-                labels=[handle.get_label() for handle in handles]
-                if labels is None
-                else labels,
+                labels=(
+                    [handle.get_label() for handle in handles]
+                    if labels is None
+                    else labels
+                ),
                 loc=self.leg_loc,
                 fontsize=self.leg_fontsize,
                 ncol=self.leg_ncol,
@@ -794,8 +774,6 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         self.set_xlabel()
         self.set_ylabel(self.axis_top)
         self.set_tick_params()
-        if not self.atlas_tag_outside:
-            self.fig.tight_layout()
         self.plotting_done = True
         if self.apply_atlas_style:
             self.atlasify()

@@ -50,8 +50,10 @@ class TaggerBasisTestCase(unittest.TestCase):
                 (
                     "puma",
                     "DEBUG",
-                    "Template initialised with template being `None` - not "
-                    "doing anything.",
+                    (
+                        "Template initialised with template being `None` - not "
+                        "doing anything."
+                    ),
                 )
             )
 

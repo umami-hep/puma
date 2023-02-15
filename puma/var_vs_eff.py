@@ -433,7 +433,7 @@ class VarVsEff(PlotLineObject):  # pylint: disable=too-many-instance-attributes
 class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
     """var_vs_eff plot class"""
 
-    def __init__(self, mode, **kwargs) -> None:
+    def __init__(self, mode, grid: bool = False, **kwargs) -> None:
         """var_vs_eff plot properties
 
         Parameters
@@ -441,6 +441,8 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         mode : str
             Defines which quantity is plotted, the following options ar available:
             "sig_eff", "bkg_eff", "sig_rej" or "bkg_rej"
+        grid : bool, optional
+            Set the grid for the plots.
         **kwargs : kwargs
             Keyword arguments from `puma.PlotObject`
 
@@ -449,7 +451,7 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         ValueError
             If incompatible mode given or more than 1 ratio panel requested
         """
-        super().__init__(**kwargs)
+        super().__init__(grid=grid, **kwargs)
         mode_options = ["sig_eff", "bkg_eff", "sig_rej", "bkg_rej"]
         if mode not in mode_options:
             raise ValueError(
@@ -467,7 +469,7 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         self.inverse_cut = False
         if self.n_ratio_panels > 1:
             raise ValueError("Not more than one ratio panel supported.")
-        self.initialise_figure(sub_plot_index=6)
+        self.initialise_figure()
 
     def add(self, curve: object, key: str = None, reference: bool = False):
         """Adding var_vs_eff object to figure.
@@ -637,11 +639,6 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                 edgecolor="none",
             )
 
-    def set_grid(self):
-        """Set gtid lines."""
-        self.axis_top.grid()
-        self.axis_ratio_1.grid()
-
     def set_inverse_cut(self, inverse_cut=True):
         """Invert the discriminant cut, which will yield the efficiency or rejection
         of the jets not passing the working point.
@@ -704,8 +701,6 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                 labelpad=labelpad,
             )
         self.make_legend(plt_handles, ax_mpl=self.axis_top)
-        if not self.atlas_tag_outside:
-            self.tight_layout()
         self.plotting_done = True
         if self.apply_atlas_style is True:
             self.atlasify(use_tag=self.use_atlas_tag)

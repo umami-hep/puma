@@ -82,8 +82,7 @@ class Results:
             "ylabel": "Background rejection",
             "xlabel": "$b$-jet efficiency" if is_b_sig else "$c$-jet efficiency",
             "atlas_second_tag": self.atlas_second_tag,
-            "figsize": (6.5, 6),
-            "y_scale": 1.4,
+            "y_scale": 1.3,
         }
         # TODO: update in python 3.9
         if args_roc_plot is not None:
@@ -111,7 +110,7 @@ class Results:
                     n_test=tagger.n_jets_light,
                     rej_class="ujets",
                     signal_class="bjets",
-                    label=tagger.label,
+                    label=tagger.label if tagger.label else tagger.model_name,
                     colour=tagger.colour,
                 ),
                 reference=tagger.reference,
@@ -123,24 +122,15 @@ class Results:
                     n_test=tagger.n_jets_c,
                     rej_class="cjets",
                     signal_class="bjets",
-                    label=tagger.label,
+                    label=tagger.label if tagger.label else tagger.model_name,
                     colour=tagger.colour,
                 ),
                 reference=tagger.reference,
             )
 
         # setting which flavour rejection ratio is drawn in which ratio panel
-        plot_roc.set_ratio_class(1, "ujets", label="Light-jet ratio")
-        plot_roc.set_ratio_class(
-            2,
-            "cjets",
-            label="$c$-jet ratio" if is_b_sig else "$b$-jet ratio",
-        )
-        plot_roc.set_leg_rej_labels("ujets", "Light-jet rejection")
-        plot_roc.set_leg_rej_labels(
-            "cjets",
-            "$c$-jet rejection" if is_b_sig else "$b$-jet rejection",
-        )
+        plot_roc.set_ratio_class(1, "ujets")
+        plot_roc.set_ratio_class(2, "cjets")
 
         plot_roc.draw()
         plot_roc.savefig(plot_name)
@@ -181,7 +171,7 @@ class Results:
         # define the curves
         plot_light_rej = VarVsEffPlot(
             mode="bkg_rej",
-            ylabel="Light-flavour jets rejection",
+            ylabel="Light-jets rejection",
             xlabel=xlabel,
             logy=False,
             atlas_second_tag=self.atlas_second_tag,
@@ -222,7 +212,7 @@ class Results:
                     disc_sig=discs[is_signal],
                     x_var_bkg=tagger.perf_var[tagger.is_light],
                     disc_bkg=discs[tagger.is_light],
-                    label=tagger.label,
+                    label=tagger.label if tagger.label else tagger.model_name,
                     colour=tagger.colour,
                     **kwargs,
                 ),
@@ -234,7 +224,7 @@ class Results:
                     disc_sig=discs[is_signal],
                     x_var_bkg=tagger.perf_var[is_bkg],
                     disc_bkg=discs[is_bkg],
-                    label=tagger.label,
+                    label=tagger.label if tagger.label else tagger.model_name,
                     colour=tagger.colour,
                     **kwargs,
                 ),
@@ -246,7 +236,7 @@ class Results:
                     disc_sig=discs[is_signal],
                     x_var_bkg=tagger.perf_var[tagger.is_light],
                     disc_bkg=discs[tagger.is_light],
-                    label=tagger.label,
+                    label=tagger.label if tagger.label else tagger.model_name,
                     colour=tagger.colour,
                     **kwargs,
                 ),
@@ -318,10 +308,12 @@ class Results:
         line_styles = get_good_linestyles()
 
         tagger_output_plot = HistogramPlot(
-            n_ratio_panels=1,
+            bins=50,
+            n_ratio_panels=0,
             xlabel=xlabel,
             ylabel="Normalised number of jets",
-            figsize=(6.5, 5.5),
+            figsize=(7.0, 4.5),
+            logy=True,
             atlas_second_tag=self.atlas_second_tag,
             **kwargs,
         )
@@ -335,7 +327,7 @@ class Results:
                 Histogram(
                     discs[tagger.is_light],
                     ratio_group="ujets",
-                    label="Light-flavour jets" if tag_i == 0 else None,
+                    label="Light-jets" if tag_i == 0 else None,
                     colour=flav_cat["ujets"]["colour"],
                     linestyle=line_styles[tag_i],
                 ),
@@ -362,7 +354,7 @@ class Results:
                 reference=tagger.reference,
             )
             tag_i += 1
-            tag_labels.append(tagger.label)
+            tag_labels.append(tagger.label if tagger.label else tagger.model_name)
         tagger_output_plot.draw()
         tagger_output_plot.make_linestyle_legend(
             linestyles=line_styles[:tag_i],

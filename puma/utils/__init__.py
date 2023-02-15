@@ -161,12 +161,12 @@ def get_good_linestyles(names=None):
     """
     linestyle_tuples = {
         "solid": "solid",
-        "densely dashed": (0, (5, 1)),
-        "densely dotted": (0, (1, 1)),
         "densely dashdotted": (0, (3, 1, 1, 1)),
+        "densely dashed": (0, (5, 2)),
+        "densely dotted": (0, (1, 1)),
         "densely dashdotdotted": (0, (3, 1, 1, 1, 1, 1)),
-        "dotted": (0, (1, 1)),
         "dashed": (0, (5, 5)),
+        "dotted": (0, (2, 2)),
         "dashdot": "dashdot",
         "loosely dashed": (0, (5, 10)),
         "loosely dotted": (0, (1, 10)),
@@ -178,15 +178,15 @@ def get_good_linestyles(names=None):
 
     default_order = [
         "solid",
-        "densely dotted",
-        "densely dashed",
         "densely dashdotted",
+        "densely dashed",
+        "densely dotted",
         "densely dashdotdotted",
-        "dotted",
         "dashed",
+        "dotted",
         "dashdot",
-        "loosely dotted",
         "loosely dashed",
+        "loosely dotted",
         "loosely dashdotted",
         "loosely dashdotdotted",
         "dashdotted",
@@ -215,7 +215,7 @@ global_config = {
         },
         "ujets": {
             "colour": "#2ca02c",  # green
-            "legend_label": "light-flavour jets",
+            "legend_label": "Light-jets",
         },
         "taujets": {
             "colour": "#7c5295",  # purple
@@ -275,7 +275,7 @@ global_config = {
         },
         "singletaubdecay": {
             "colour": "#e76f51",
-            "legend_label": "\u03C4's in $b$- or $c$-hadron decay",
+            "legend_label": "$\\tau$'s in $b$- or $c$-hadron decay",
         },
         "Hbb": {
             "colour": "#1f77b4",  # blue

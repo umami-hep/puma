@@ -1,6 +1,7 @@
 """Example for a basic line plot with puma"""
 import numpy as np
-from puma import Line2DPlot, Line2D
+
+from puma import Line2D, Line2DPlot
 
 # This is just some dummy data to make the plot look reasonable
 epochs = np.arange(0, 100)
