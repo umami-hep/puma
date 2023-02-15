@@ -94,18 +94,18 @@ class Results:
             tagger.is_c = data[label_var] == 0
             self.add(tagger)
 
-    def __getitem__(self, tagger_name):
+    def __getitem__(self, tagger_name: str):
         """Retrieve Tagger object.
 
         Parameters
         ----------
-        model_name : str
-            name of model
+        tagger_name : str
+            Name of model
 
         Returns
         -------
         Tagger
-            Tagger class with info about tagger
+            Instance of the puma.hlplots.Tagger class, containing tagger information.
         """
         return self.taggers[tagger_name]
 
