@@ -23,7 +23,6 @@ parts/
 sdist/
 var/
 plots/
-tests/
 wheels/
 pip-wheel-metadata/
 share/python-wheels/
@@ -44,6 +43,7 @@ pip-log.txt
 pip-delete-this-directory.txt
 
 # Unit test / coverage reports
+*failed-diff.png
 htmlcov/
 .tox/
 .nox/

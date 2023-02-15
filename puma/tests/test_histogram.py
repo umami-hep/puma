@@ -18,7 +18,7 @@ from puma.utils import global_config, logger, set_log_level
 
 set_log_level(logger, "DEBUG")
 
-flav_cat = global_config["flavour_categories"]
+flav_cat = global_config["flavours"]
 
 
 class HistogramTestCase(unittest.TestCase):
