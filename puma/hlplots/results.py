@@ -1,9 +1,20 @@
 """Results module for high level API."""
+import operator
 from dataclasses import dataclass, field
+
+import h5py
 
 from puma import Histogram, HistogramPlot, Roc, RocPlot, VarVsEff, VarVsEffPlot
 from puma.metrics import calc_rej
 from puma.utils import get_good_linestyles, global_config, logger
+
+OPERATORS = {
+    "==": operator.__eq__,
+    ">=": operator.__ge__,
+    "<=": operator.__le__,
+    ">": operator.__gt__,
+    "<": operator.__lt__,
+}
 
 
 @dataclass
@@ -30,6 +41,58 @@ class Results:
         if tagger.model_name in self.taggers:
             raise KeyError(f"{tagger.model_name} was already added.")
         self.taggers[tagger.model_name] = tagger
+
+    def add_taggers_from_file(
+        self,
+        taggers,
+        file_path,
+        key="jets",
+        label_var="HadronConeExclTruthLabelID",
+        cuts=None,
+        num_jets=None,
+    ):
+        """Add taggers from file.
+
+        # TODO: proper cuts class implementation
+
+        Parameters
+        ----------
+        taggers : list
+            List of taggers to add
+        file_path : str
+            Path to file
+        key : str, optional
+            Key in file, by default 'jets'
+        label_var : str
+            Label variable to use
+        cuts : lits
+            List of cuts to apply
+        num_jets : int, optional
+            Number of jets to load from the file, by default all jets
+        """
+
+        # get a list of all variables to be loaded from the file
+        var_list = sum([tagger.variables for tagger in taggers], [label_var])
+        var_list += [cut[0] for cut in cuts]
+        var_list = list(set(var_list))
+
+        # load data
+        with h5py.File(file_path) as f:
+            data = f[key].fields(var_list)[:num_jets]
+
+        # apply cuts
+        if cuts is None:
+            cuts = []
+        for var, op, value in cuts:
+            data = data[OPERATORS[op](data[var], value)]
+
+        # add taggers from loaded data
+        for tagger in taggers:
+            tagger.extract_tagger_scores(data, source_type="structured_array")
+            tagger.is_b = data[label_var] == 5
+            tagger.is_light = data[label_var] == 4
+            tagger.is_c = data[label_var] == 0
+            self.add(tagger)
 
     def __getitem__(self, tagger_name):
         """Retrieve Tagger object.

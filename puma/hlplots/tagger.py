@@ -18,7 +18,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
     reference: bool = False
 
     scores = None
-    perf_var: str = None
+    perf_var = None
     output_nodes: list = field(default_factory=lambda: ["pu", "pc", "pb"])
 
     is_b: bool = None
@@ -50,9 +50,9 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         source_type : str, optional
             Indicates from which source scores should be extracted. Possible options are
             `data_frame` when passing a pd.DataFrame, `data_frame_path` when passing a
-            file path to a h5 file with a pd.DataFrame, `numpy_structured` when
+            file path to a h5 file with a pd.DataFrame, `h5_file` when
             passing a file path to a h5 file with a structured numpy array, or
-            `h5py_fields` when passing a fields object from an h5py file,
+            `strucuted_array` when passing a structured numpy array,
             by default "data_frame"
         key : str, optional
             Key within h5 file, needs to be provided when using the `source_type`
@@ -67,13 +67,13 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
             logger.debug("Retrieving tagger `%s` from data frame.", self.model_name)
             self.scores = source[self.variables].values
             return
-        elif source_type == "h5py_fields":
+        elif source_type == "structured_array":
             logger.debug(
                 "Retrieving tagger %s from h5py fields %s.",
                 self.model_name,
                 source,
             )
-            self.scores = structured_to_unstructured(source[self.variables][:])
+            self.scores = structured_to_unstructured(source[self.variables])
             return
         if key is None:
             raise ValueError(
@@ -89,9 +89,9 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
             df_in = pd.read_hdf(source, key=key)
             self.scores = df_in[self.variables].values
 
-        elif source_type == "numpy_structured":
+        elif source_type == "h5_file":
             logger.debug(
-                "Retrieving tagger %s from structured numpy file %s.",
+                "Retrieving tagger %s from structured h5 file %s.",
                 self.model_name,
                 source,
             )

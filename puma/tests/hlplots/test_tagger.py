@@ -100,7 +100,7 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
         np.testing.assert_array_equal(tagger.scores, self.scores_expected)
 
     def test_h5_structured_numpy_path(self):
-        """Test passing data frame path."""
+        """Test passing structured h5 path."""
 
         tagger = Tagger("dummy")
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -111,8 +111,19 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
                 )
 
             tagger.extract_tagger_scores(
-                file_name, key="dummy_tagger", source_type="numpy_structured"
+                file_name, key="dummy_tagger", source_type="h5_file"
             )
+        np.testing.assert_array_equal(tagger.scores, self.scores_expected)
+
+    def test_structured_array(self):
+        """Test passing structured numpy array."""
+
+        tagger = Tagger("dummy")
+        tagger.extract_tagger_scores(
+            self.df_dummy.to_records(),
+            key="dummy_tagger",
+            source_type="structured_array",
+        )
         np.testing.assert_array_equal(tagger.scores, self.scores_expected)
 
 
