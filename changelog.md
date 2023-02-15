@@ -3,6 +3,7 @@
 ### [Latest]
 
 - Improve ROC format [#146](https://github.com/umami-hep/puma/pull/149)
+- Fix for CI [!152](https://github.com/umami-hep/puma/pull/152)
 
 ### [v0.2.1] (2022/12/15)
 
