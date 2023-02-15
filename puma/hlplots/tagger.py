@@ -34,7 +34,14 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
 
     @property
     def variables(self):
-        """Return a list of the outputs of the tagger."""
+        """Return a list of the outputs of the tagger.
+
+        Returns
+        -------
+        list
+            List of the outputs variable names of the tagger
+        """
+
         return [f"{self.model_name}_{flv}" for flv in self.output_nodes]
 
     def extract_tagger_scores(
