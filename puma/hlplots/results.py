@@ -1,18 +1,20 @@
 """Results module for high level API."""
+from dataclasses import dataclass, field
+
 from puma import Histogram, HistogramPlot, Roc, RocPlot, VarVsEff, VarVsEffPlot
 from puma.metrics import calc_rej
 from puma.utils import get_good_linestyles, global_config, logger
 
 
+@dataclass
 class Results:
-    """Stores all results of the different taggers."""
+    """Store information about several taggers and plot results."""
 
-    def __init__(self) -> None:
-        self.atlas_second_tag = None
-        self._taggers = []
-        self._model_names = []
-        # defining target efficiency
-        self.sig_eff = None
+    atlas_second_tag: str = None
+    _taggers: list = field(default_factory=list)
+    _model_names: list = field(default_factory=list)
+    # defining target efficiency
+    sig_eff: float = None
 
     def add(self, tagger):
         """Add tagger to class.

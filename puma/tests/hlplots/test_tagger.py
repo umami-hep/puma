@@ -11,7 +11,6 @@ import unittest
 import h5py
 import numpy as np
 import pandas as pd
-from testfixtures import LogCapture
 
 from puma.hlplots import Tagger
 from puma.utils import logger, set_log_level
@@ -30,32 +29,14 @@ class TaggerBasisTestCase(unittest.TestCase):
     def test_wrong_template(self):
         """Test wrong template."""
         template_wrong = {"test": 1}
-        tagger = Tagger("dummy")
-        with self.assertRaises(KeyError):
-            tagger._init_from_template(template=template_wrong)  # pylint: disable=W0212
+        with self.assertRaises(TypeError):
+            Tagger("dummy", **template_wrong)  # pylint: disable=W0212
 
     def test_label_template(self):
         """Test template with label."""
         template_label = {"label": 1.5}
-        tagger = Tagger("dummy")
-        tagger._init_from_template(template=template_label)  # pylint: disable=W0212
+        tagger = Tagger("dummy", **template_label)  # pylint: disable=W0212
         self.assertEqual(tagger.label, 1.5)
-
-    def test_none_template(self):
-        """Test None template."""
-        tagger = Tagger("dummy")
-        with LogCapture("puma") as log:
-            tagger._init_from_template(template=None)  # pylint: disable=W0212
-            log.check(
-                (
-                    "puma",
-                    "DEBUG",
-                    (
-                        "Template initialised with template being `None` - not "
-                        "doing anything."
-                    ),
-                )
-            )
 
     def test_n_jets(self):
         """Test if number of n_jets correctly calculated."""
@@ -145,7 +126,7 @@ class TaggerTestCase(unittest.TestCase):
     def test_disc_cut_template(self):
         """Test template with disc_cut."""
         template_disc_cut = {"disc_cut": 1.5}
-        tagger = Tagger("dummy", template=template_disc_cut)
+        tagger = Tagger("dummy", **template_disc_cut)
         self.assertEqual(tagger.disc_cut, 1.5)
 
     def test_disc_b_calc_no_fc(self):

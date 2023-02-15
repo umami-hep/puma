@@ -1,4 +1,6 @@
 """Tagger module for high level API."""
+from dataclasses import dataclass, field
+
 import h5py
 import numpy as np
 import pandas as pd
@@ -7,41 +9,28 @@ from numpy.lib.recfunctions import structured_to_unstructured
 from puma.utils import calc_disc, logger
 
 
+@dataclass
 class Tagger:  # pylint: disable=too-many-instance-attributes
-    """Class storing tagger results."""
+    """Class storing information and results for a tagger."""
 
-    def __init__(self, model_name: str, template: dict = None) -> None:
-        """Init Tagger class.
+    model_name: str
+    label: str = None
+    reference: bool = False
 
-        Parameters
-        ----------
-        model_name : str
-            Name of the model, also correspondinng to the pre-fix of the tagger
-            variables.
-        template : dict
-            Template dictionary which keys are directly set as class variables
-        """
+    scores = None
+    perf_var: str = None
+    output_nodes: list = field(default_factory=lambda: ["pu", "pc", "pb"])
 
-        self.model_name = model_name
-        self.label = None
-        self.reference = False
+    is_b: bool = None
+    is_light: bool = None
+    is_c: bool = None
 
-        self.scores = None
-        self.perf_var = None
-        self.output_nodes = ["pu", "pc", "pb"]
+    colour: str = None
 
-        self.is_b = None
-        self.is_light = None
-        self.is_c = None
-
-        self.colour = None
-
-        self.disc_cut = None
-        self.working_point = None
-        self.f_c = None
-        self.f_b = None
-
-        self._init_from_template(template)
+    disc_cut: float = None
+    working_point: float = None
+    f_c: float = None
+    f_b: float = None
 
     def extract_tagger_scores(
         self, source: object, source_type: str = "data_frame", key: str = None
@@ -100,18 +89,6 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
                 )
         else:
             raise ValueError(f"{source_type} is not a valid value for `source_type`.")
-
-    def _init_from_template(self, template):
-        if template is not None:
-            for key, val in template.items():
-                if hasattr(self, key):
-                    setattr(self, key, val)
-                else:
-                    raise KeyError(f"`{key}` is not an attribute of the Tagger class.")
-        else:
-            logger.debug(
-                "Template initialised with template being `None` - not doing anything."
-            )
 
     @property
     def n_jets_light(self):

@@ -68,7 +68,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
             "is_c": labels == 4,
             "is_b": labels == 5,
         }
-        dummy_tagger_1 = Tagger("dummy", template=tagger_args)
+        dummy_tagger_1 = Tagger("dummy", **tagger_args)
         dummy_tagger_1.scores = scores
         dummy_tagger_1.label = "dummy tagger"
         self.dummy_tagger_1 = dummy_tagger_1
