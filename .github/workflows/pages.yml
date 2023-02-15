@@ -10,7 +10,7 @@ on:
 jobs:
   build-sphinx-docs:
     runs-on: ubuntu-latest
-    container: 3.8-alpine3.15
+    container: python:3.8-slim
     steps:
       - name: Checkout
         uses: actions/checkout@master

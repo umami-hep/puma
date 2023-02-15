@@ -31,7 +31,7 @@ jobs:
   example_tests:
     name: Example tests
     runs-on: ubuntu-latest
-    container: 3.8-alpine3.15
+    container: python:3.8-slim
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
