@@ -108,6 +108,8 @@ class Line2DPlot(PlotBase):
         ----------
         logy : bool, optional
             Decide, if the y-axis of the plot will be in log, by default False
+        grid : bool, optional
+            Set the grid for the plots.
         **kwargs : kwargs
             Keyword arguments from `puma.PlotObject`
         """

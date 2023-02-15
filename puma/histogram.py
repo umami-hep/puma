@@ -217,6 +217,8 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             Specify if the bin width should be added to the ylabel, by default False
         underoverflow : bool, optional
             Option to include under- and overflow values in outermost bins.
+        grid : bool, optional
+            Set the grid for the plots.
         **kwargs : kwargs
             Keyword arguments from `puma.PlotObject`
 

@@ -192,6 +192,8 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
 
         Parameters
         ----------
+        grid : bool, optional
+            Set the grid for the plots.
         **kwargs : kwargs
             Keyword arguments from `puma.PlotObject`
         """

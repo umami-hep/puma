@@ -441,6 +441,8 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         mode : str
             Defines which quantity is plotted, the following options ar available:
             "sig_eff", "bkg_eff", "sig_rej" or "bkg_rej"
+        grid : bool, optional
+            Set the grid for the plots.
         **kwargs : kwargs
             Keyword arguments from `puma.PlotObject`
 
