@@ -6,7 +6,7 @@ from scipy.interpolate import pchip
 
 from puma.metrics import rej_err
 from puma.plot_base import PlotBase, PlotLineObject
-from puma.utils import get_good_colours, logger
+from puma.utils import get_good_colours, get_good_linestyles, global_config, logger
 
 
 class Roc(PlotLineObject):
@@ -187,15 +187,17 @@ class Roc(PlotLineObject):
 class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
     """ROC plot class"""
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, grid: bool = True, **kwargs) -> None:
         """ROC plot properties
 
         Parameters
         ----------
+        grid : bool, optional
+            Set the grid for the plots.
         **kwargs : kwargs
             Keyword arguments from `puma.PlotObject`
         """
-        super().__init__(**kwargs)
+        super().__init__(grid=grid, **kwargs)
         self.test = ""
         self.rocs = {}
         self.roc_ratios = {}
@@ -206,9 +208,7 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         self.reference_roc = None
         self.initialise_figure()
         self.eff_min, self.eff_max = (1, 0)
-        # setting default linestyles if no linestyles provided
-        # solid line and densed dotted dashed
-        self.default_linestyles = ["-", (0, (3, 1, 1, 1))]
+        self.default_linestyles = get_good_linestyles()
         self.legend_flavs = None
         self.leg_rej_loc = "lower left"
 
@@ -315,20 +315,8 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             )
             self.reference_roc[rej_class] = key
 
-    def set_leg_rej_labels(self, rej_class: str, label: str):
-        """Set legend label for rejection class
-
-        Parameters
-        ----------
-        rej_class : str
-            Rejection class
-        label : str
-            Label added in legend
-        """
-        self.leg_rej_labels[rej_class] = label
-
-    def set_ratio_class(self, ratio_panel: int, rej_class: str, label: str):
-        """Associate the rejection class to a ratio panel
+    def set_ratio_class(self, ratio_panel: int, rej_class: str):
+        """Associate the rejection class to a ratio panel adn set the legend label
 
         Parameters
         ----------
@@ -336,8 +324,6 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             Ratio panel either 1 or 2
         rej_class : str
             Rejeciton class associated to that panel
-        label : str
-            y-axis label of the ratio panel
 
         Raises
         ------
@@ -349,7 +335,10 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                 "Requested ratio panels and given ratio_panel do not match."
             )
         self.ratio_axes[ratio_panel] = rej_class
-        self.set_ratio_label(ratio_panel, label)
+        label = global_config["flavour_categories"][rej_class]["legend_label"]
+        label = label.replace("jets", "jet")
+        self.set_ratio_label(ratio_panel, f"{label} ratio")
+        self.leg_rej_labels[rej_class] = f"{label} rejection"
 
     def add_ratios(self):
         """Calculating ratios.
@@ -372,14 +361,8 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             )
         self.plot_ratios(axis=self.axis_ratio_1, rej_class=self.ratio_axes[1])
 
-        if self.grid:
-            self.axis_ratio_1.grid()
-
         if self.n_ratio_panels == 2:
             self.plot_ratios(axis=self.axis_ratio_2, rej_class=self.ratio_axes[2])
-
-            if self.grid:
-                self.axis_ratio_2.grid()
 
     def get_xlim_auto(self):
         """Returns min and max efficiency values
@@ -564,8 +547,6 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         self.set_y_lim()
         self.set_xlabel()
         self.set_ylabel(self.axis_top)
-        if self.grid:
-            self.axis_top.grid()
 
         if self.n_ratio_panels > 0:
             self.set_ylabel(
@@ -598,9 +579,6 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             # the second legend by hand
             if self.legend_flavs is not None:
                 self.legend_flavs.set_frame_on(False)
-
-        if not self.atlas_tag_outside:
-            self.tight_layout()
 
     def plot_roc(self, **kwargs) -> mpl.lines.Line2D:
         """Plotting roc curves

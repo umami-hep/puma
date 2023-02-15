@@ -125,14 +125,11 @@ plot_roc.add_roc(
     ),
 )
 # setting which flavour rejection ratio is drawn in which ratio panel
-plot_roc.set_ratio_class(1, "ujets", label="Light-jet ratio")
-plot_roc.set_ratio_class(2, "cjets", label="$c$-jet ratio")
+plot_roc.set_ratio_class(1, "ujets")
+plot_roc.set_ratio_class(2, "cjets")
 # if you want to swap the ratios just uncomment the following 2 lines
-# plot_roc.set_ratio_class(2, "ujets", label="light-flavour jets ratio")
-# plot_roc.set_ratio_class(1, "cjets", label="c-jets ratio")
-plot_roc.set_leg_rej_labels("ujets", "Light-jet rejection")
-plot_roc.set_leg_rej_labels("cjets", "$c$-jet rejection")
-
+# plot_roc.set_ratio_class(2, "ujets")
+# plot_roc.set_ratio_class(1, "cjets")
 
 plot_roc.draw()
 plot_roc.savefig("roc.png", transparent=False)

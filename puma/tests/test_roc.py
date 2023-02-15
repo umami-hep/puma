@@ -301,7 +301,7 @@ class RocOutputTestCase(
             )
         )
 
-        plot.set_ratio_class(1, "ujets", label="Light-flavour jets ratio")
+        plot.set_ratio_class(1, "ujets")
 
         # Draw the figure
         plot.draw()
@@ -353,7 +353,7 @@ class RocOutputTestCase(
             )
         )
 
-        plot.set_ratio_class(1, "ujets", label="Light-flavour jets ratio")
+        plot.set_ratio_class(1, "ujets")
 
         # Draw the figure
         plot.draw()
@@ -418,10 +418,8 @@ class RocOutputTestCase(
             )
         )
 
-        plot.set_ratio_class(1, "ujets", label="Light-flavour jets ratio")
-        plot.set_ratio_class(2, "cjets", label="$c$-jets ratio")
-        plot.set_leg_rej_labels("ujets", "Light-flavour jets rejection")
-        plot.set_leg_rej_labels("cjets", "$c$-jets rejection")
+        plot.set_ratio_class(1, "ujets")
+        plot.set_ratio_class(2, "cjets")
 
         # Draw the figure
         plot.draw()
@@ -488,10 +486,8 @@ class RocOutputTestCase(
             )
         )
 
-        plot.set_ratio_class(1, "ujets", label="Light-flavour jets ratio")
-        plot.set_ratio_class(2, "cjets", label="$c$-jets ratio")
-        plot.set_leg_rej_labels("ujets", "Light-flavour jets rejection")
-        plot.set_leg_rej_labels("cjets", "$c$-jets rejection")
+        plot.set_ratio_class(1, "ujets")
+        plot.set_ratio_class(2, "cjets")
 
         plot.set_leg_rej_loc("ratio_legend")
 
@@ -562,10 +558,8 @@ class RocOutputTestCase(
             )
         )
 
-        plot.set_ratio_class(1, "ujets", label="Light-flavour jets ratio")
-        plot.set_ratio_class(2, "cjets", label="$c$-jets ratio")
-        plot.set_leg_rej_labels("ujets", "Light-flavour jets rejection")
-        plot.set_leg_rej_labels("cjets", "$c$-jets rejection")
+        plot.set_ratio_class(1, "ujets")
+        plot.set_ratio_class(2, "cjets")
 
         # Draw the figure
         plot.draw()

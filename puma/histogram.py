@@ -185,6 +185,7 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         logy: bool = False,
         bin_width_in_ylabel: bool = False,
         underoverflow: bool = False,
+        grid: bool = False,
         **kwargs,
     ) -> None:
         """histogram plot properties
@@ -216,6 +217,8 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             Specify if the bin width should be added to the ylabel, by default False
         underoverflow : bool, optional
             Option to include under- and overflow values in outermost bins.
+        grid : bool, optional
+            Set the grid for the plots.
         **kwargs : kwargs
             Keyword arguments from `puma.PlotObject`
 
@@ -226,7 +229,7 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         """
         # TODO: use union operator `|` for multiple types of `bins` in python 3.10
 
-        super().__init__(**kwargs)
+        super().__init__(grid=grid, **kwargs)
         self.logy = logy
         self.bins = bins
         self.bins_range = bins_range
@@ -239,9 +242,10 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         self.ratios_objects = {}
         self.ratio_axes = {}
         self.reference_object = None
+
         if self.n_ratio_panels > 1:
             raise ValueError("Not more than one ratio panel supported.")
-        self.initialise_figure(sub_plot_index=6)
+        self.initialise_figure()
 
     def add(self, histogram: object, key: str = None, reference: bool = False):
         """Adding histogram object to figure.
@@ -634,9 +638,6 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
 
         self.make_legend(plt_handles, ax_mpl=legend_axis)
         self.set_title()
-
-        if not self.atlas_tag_outside:
-            self.fig.tight_layout()
 
         if self.apply_atlas_style:
             self.atlasify()
