@@ -2,7 +2,7 @@
 
 ### [Latest]
 
-- Rename flavour_categories -> flavours [#146](https://github.com/umami-hep/puma/pull/149)
+- Rename flavour_categories -> flavours [#154](https://github.com/umami-hep/puma/pull/154)
 - Fixate the python container version [!153](https://github.com/umami-hep/puma/pull/153)
 - Improve ROC format [#146](https://github.com/umami-hep/puma/pull/149)
 - Fix for CI [!152](https://github.com/umami-hep/puma/pull/152)
