@@ -42,7 +42,7 @@ class Results:
             raise KeyError(f"{tagger.model_name} was already added.")
         self.taggers[tagger.model_name] = tagger
 
-    def add_taggers_from_file(
+    def add_taggers_from_file(  # pylint: disable=R0913
         self,
         taggers,
         file_path,
@@ -77,14 +77,14 @@ class Results:
         var_list = list(set(var_list))
 
         # load data
-        with h5py.File(file_path) as f:
-            data = f[key].fields(var_list)[:num_jets]
+        with h5py.File(file_path) as file:
+            data = file[key].fields(var_list)[:num_jets]
 
         # apply cuts
         if cuts is None:
             cuts = []
-        for var, op, value in cuts:
-            data = data[OPERATORS[op](data[var], value)]
+        for var, cut_op, value in cuts:
+            data = data[OPERATORS[cut_op](data[var], value)]
 
         # add taggers from loaded data
         for tagger in taggers:

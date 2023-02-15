@@ -67,7 +67,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
             logger.debug("Retrieving tagger `%s` from data frame.", self.model_name)
             self.scores = source[self.variables].values
             return
-        elif source_type == "structured_array":
+        if source_type == "structured_array":
             logger.debug(
                 "Retrieving tagger %s from h5py fields %s.",
                 self.model_name,

@@ -30,7 +30,7 @@ class TaggerBasisTestCase(unittest.TestCase):
         """Test wrong template."""
         template_wrong = {"test": 1}
         with self.assertRaises(TypeError):
-            Tagger("dummy", **template_wrong)  # pylint: disable=W0212
+            Tagger("dummy", **template_wrong)  # pylint: disable=W0212,E1123
 
     def test_label_template(self):
         """Test template with label."""
