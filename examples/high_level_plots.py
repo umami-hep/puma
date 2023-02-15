@@ -23,18 +23,18 @@ tagger_args = {
     "is_light": df["HadronConeExclTruthLabelID"] == 0,
     "is_c": df["HadronConeExclTruthLabelID"] == 4,
     "is_b": df["HadronConeExclTruthLabelID"] == 5,
-    "perf_var": df["pt"] / 1e3,
 }
 
-
-dips = Tagger("dips", **tagger_args)  # pylint: disable=E1123
+dips = Tagger("dips", **tagger_args)
+dips.perf_var = df["pt"] / 1e3
 dips.label = "dummy DIPS ($f_{c}=0.005$)"
 dips.f_c = 0.005
 dips.f_b = 0.04
 dips.colour = "#AA3377"
 dips.extract_tagger_scores(df)
 
-rnnip = Tagger("rnnip", **tagger_args)  # pylint: disable=E1123
+rnnip = Tagger("rnnip", **tagger_args)
+rnnip.perf_var = df["pt"] / 1e3
 rnnip.label = "dummy RNNIP ($f_{c}=0.07$)"
 rnnip.f_c = 0.07
 rnnip.f_b = 0.04
