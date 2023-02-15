@@ -204,7 +204,7 @@ def get_good_linestyles(names=None):
 
 
 global_config = {
-    "flavour_categories": {
+    "flavours": {
         "bjets": {
             "colour": "#1f77b4",  # blue
             "legend_label": "$b$-jets",

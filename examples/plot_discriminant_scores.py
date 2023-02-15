@@ -22,7 +22,7 @@ is_light = df["HadronConeExclTruthLabelID"] == 0
 is_c = df["HadronConeExclTruthLabelID"] == 4
 is_b = df["HadronConeExclTruthLabelID"] == 5
 
-flav_cat = global_config["flavour_categories"]
+flav_cat = global_config["flavours"]
 taggers = ["dips", "rnnip"]
 linestyles = get_good_linestyles()[:2]
 

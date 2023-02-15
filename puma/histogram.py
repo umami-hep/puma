@@ -99,18 +99,16 @@ class Histogram(
         )
         # If flavour was specified, extract configuration from global config
         if self.flavour is not None:
-            if self.flavour in global_config["flavour_categories"]:
+            if self.flavour in global_config["flavours"]:
                 # Use globally defined flavour colour if not specified
                 if self.colour is None:
-                    self.colour = global_config["flavour_categories"][self.flavour][
-                        "colour"
-                    ]
+                    self.colour = global_config["flavours"][self.flavour]["colour"]
                     logger.debug("Histogram colour was set to %s", self.colour)
                 # Add globally defined flavour label if not suppressed
                 if self.add_flavour_label:
-                    global_flavour_label = global_config["flavour_categories"][
-                        self.flavour
-                    ]["legend_label"]
+                    global_flavour_label = global_config["flavours"][self.flavour][
+                        "legend_label"
+                    ]
                     self.label = f"{global_flavour_label} {label}"
                 else:
                     self.label = label

@@ -304,7 +304,7 @@ class Results:
         elif not is_b_sig and xlabel is None:
             xlabel = r"$D_{c}$"
 
-        flav_cat = global_config["flavour_categories"]
+        flav_cat = global_config["flavours"]
         line_styles = get_good_linestyles()
 
         tagger_output_plot = HistogramPlot(

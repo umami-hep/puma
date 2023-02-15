@@ -18,7 +18,7 @@ example_plot_1.savefig("pie_example_1.png")
 # Another example with some styling
 
 # Get the flavour colours from the global config
-flav_cat = global_config["flavour_categories"]
+flav_cat = global_config["flavours"]
 colours = [
     flav_cat["ujets"]["colour"],
     flav_cat["cjets"]["colour"],
