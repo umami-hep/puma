@@ -32,6 +32,11 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
     f_c: float = None
     f_b: float = None
 
+    @property
+    def variables(self):
+        """Return a list of the outputs of the tagger."""
+        return [f"{self.model_name}_{flv}" for flv in self.output_nodes]
+
     def extract_tagger_scores(
         self, source: object, source_type: str = "data_frame", key: str = None
     ):
@@ -45,8 +50,9 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         source_type : str, optional
             Indicates from which source scores should be extracted. Possible options are
             `data_frame` when passing a pd.DataFrame, `data_frame_path` when passing a
-            file path to a h5 file with a pd.DataFrame or `numpy_structured` when
-            passing a file path to a h5 file with a structured numpy array,
+            file path to a h5 file with a pd.DataFrame, `numpy_structured` when
+            passing a file path to a h5 file with a structured numpy array, or
+            `h5py_fields` when passing a fields object from an h5py file,
             by default "data_frame"
         key : str, optional
             Key within h5 file, needs to be provided when using the `source_type`
@@ -56,12 +62,18 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         ValueError
             if source_type is wrongly specified
         """
-        # list tagger variables
-        tagger_vars = [f"{self.model_name}_{flv}" for flv in self.output_nodes]
         # TODO: change to case syntax in python 3.10
         if source_type == "data_frame":
             logger.debug("Retrieving tagger `%s` from data frame.", self.model_name)
-            self.scores = source[tagger_vars].values
+            self.scores = source[self.variables].values
+            return
+        elif source_type == "h5py_fields":
+            logger.debug(
+                "Retrieving tagger %s from h5py fields %s.",
+                self.model_name,
+                source,
+            )
+            self.scores = structured_to_unstructured(source[self.variables][:])
             return
         if key is None:
             raise ValueError(
@@ -75,7 +87,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
                 source,
             )
             df_in = pd.read_hdf(source, key=key)
-            self.scores = df_in[tagger_vars].values
+            self.scores = df_in[self.variables].values
 
         elif source_type == "numpy_structured":
             logger.debug(
@@ -85,8 +97,9 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
             )
             with h5py.File(source, "r") as f_h5:
                 self.scores = structured_to_unstructured(
-                    f_h5[key].fields(tagger_vars)[:]
+                    f_h5[key].fields(self.variables)[:]
                 )
+
         else:
             raise ValueError(f"{source_type} is not a valid value for `source_type`.")
 

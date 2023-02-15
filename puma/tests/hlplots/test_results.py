@@ -43,7 +43,7 @@ class ResultsTestCase(unittest.TestCase):
         results.add(dummy_tagger_1)
         results.add(dummy_tagger_2)
         self.assertEqual(
-            results._model_names, ["dummy", "dummy_2"]  # pylint: disable=W0212
+            list(results.taggers.keys()), ["dummy", "dummy_2"]  # pylint: disable=W0212
         )
 
     def test_get_taggers(self):
@@ -53,7 +53,7 @@ class ResultsTestCase(unittest.TestCase):
         results = Results()
         results.add(dummy_tagger_1)
         results.add(dummy_tagger_2)
-        retrieved_dummy_tagger_2 = results.get("dummy_2")
+        retrieved_dummy_tagger_2 = results["dummy_2"]
         self.assertEqual(retrieved_dummy_tagger_2.model_name, dummy_tagger_2.model_name)
 
 
