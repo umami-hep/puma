@@ -27,14 +27,14 @@ tagger_args = {
 }
 
 
-dips = Tagger("dips", **tagger_args)
+dips = Tagger("dips", **tagger_args)  # pylint: disable=E1123
 dips.label = "dummy DIPS ($f_{c}=0.005$)"
 dips.f_c = 0.005
 dips.f_b = 0.04
 dips.colour = "#AA3377"
 dips.extract_tagger_scores(df)
 
-rnnip = Tagger("rnnip", **tagger_args)
+rnnip = Tagger("rnnip", **tagger_args)  # pylint: disable=E1123
 rnnip.label = "dummy RNNIP ($f_{c}=0.07$)"
 rnnip.f_c = 0.07
 rnnip.f_b = 0.04
