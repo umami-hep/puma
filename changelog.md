@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Fixate the python container version [!153](https://github.com/umami-hep/puma/pull/153)
 - [!152](https://github.com/umami-hep/puma/pull/152)
 
 ### [v0.2.1] (2022/12/15)
