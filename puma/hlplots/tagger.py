@@ -13,7 +13,7 @@ from puma.utils import calc_disc, logger
 class Tagger:  # pylint: disable=too-many-instance-attributes
     """Class storing information and results for a tagger."""
 
-    model_name: str
+    name: str
     label: str = None
     reference: bool = False
 
@@ -32,6 +32,10 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
     f_c: float = None
     f_b: float = None
 
+    def __post_init__(self):
+        if self.label is None:
+            self.label = self.name
+
     @property
     def variables(self):
         """Return a list of the outputs of the tagger.
@@ -42,7 +46,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
             List of the outputs variable names of the tagger
         """
 
-        return [f"{self.model_name}_{flv}" for flv in self.output_nodes]
+        return [f"{self.name}_{flv}" for flv in self.output_nodes]
 
     def extract_tagger_scores(
         self, source: object, source_type: str = "data_frame", key: str = None
@@ -71,13 +75,13 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         """
         # TODO: change to case syntax in python 3.10
         if source_type == "data_frame":
-            logger.debug("Retrieving tagger `%s` from data frame.", self.model_name)
+            logger.debug("Retrieving tagger `%s` from data frame.", self.name)
             self.scores = source[self.variables].values
             return
         if source_type == "structured_array":
             logger.debug(
                 "Retrieving tagger %s from h5py fields %s.",
-                self.model_name,
+                self.name,
                 source,
             )
             self.scores = structured_to_unstructured(source[self.variables])
@@ -90,7 +94,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         if source_type == "data_frame_path":
             logger.debug(
                 "Retrieving tagger %s in data frame from file %s.",
-                self.model_name,
+                self.name,
                 source,
             )
             df_in = pd.read_hdf(source, key=key)
@@ -99,7 +103,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         elif source_type == "h5_file":
             logger.debug(
                 "Retrieving tagger %s from structured h5 file %s.",
-                self.model_name,
+                self.name,
                 source,
             )
             with h5py.File(source, "r") as f_h5:

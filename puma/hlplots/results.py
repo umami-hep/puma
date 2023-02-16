@@ -38,9 +38,9 @@ class Results:
         KeyError
             if model name duplicated
         """
-        if tagger.model_name in self.taggers:
-            raise KeyError(f"{tagger.model_name} was already added.")
-        self.taggers[tagger.model_name] = tagger
+        if tagger.name in self.taggers:
+            raise KeyError(f"{tagger.name} was already added.")
+        self.taggers[tagger.name] = tagger
 
     def add_taggers_from_file(  # pylint: disable=R0913
         self,
@@ -169,7 +169,7 @@ class Results:
                     n_test=tagger.n_jets_light,
                     rej_class="ujets",
                     signal_class="bjets",
-                    label=tagger.label if tagger.label else tagger.model_name,
+                    label=tagger.label,
                     colour=tagger.colour,
                 ),
                 reference=tagger.reference,
@@ -181,7 +181,7 @@ class Results:
                     n_test=tagger.n_jets_c,
                     rej_class="cjets",
                     signal_class="bjets",
-                    label=tagger.label if tagger.label else tagger.model_name,
+                    label=tagger.label,
                     colour=tagger.colour,
                 ),
                 reference=tagger.reference,
@@ -271,7 +271,7 @@ class Results:
                     disc_sig=discs[is_signal],
                     x_var_bkg=tagger.perf_var[tagger.is_light],
                     disc_bkg=discs[tagger.is_light],
-                    label=tagger.label if tagger.label else tagger.model_name,
+                    label=tagger.label,
                     colour=tagger.colour,
                     **kwargs,
                 ),
@@ -283,7 +283,7 @@ class Results:
                     disc_sig=discs[is_signal],
                     x_var_bkg=tagger.perf_var[is_bkg],
                     disc_bkg=discs[is_bkg],
-                    label=tagger.label if tagger.label else tagger.model_name,
+                    label=tagger.label,
                     colour=tagger.colour,
                     **kwargs,
                 ),
@@ -295,7 +295,7 @@ class Results:
                     disc_sig=discs[is_signal],
                     x_var_bkg=tagger.perf_var[tagger.is_light],
                     disc_bkg=discs[tagger.is_light],
-                    label=tagger.label if tagger.label else tagger.model_name,
+                    label=tagger.label,
                     colour=tagger.colour,
                     **kwargs,
                 ),
@@ -379,7 +379,7 @@ class Results:
         tag_i = 0
         tag_labels = []
         for tagger in self.taggers.values():
-            if exclude_tagger is not None and tagger.model_name in exclude_tagger:
+            if exclude_tagger is not None and tagger.name in exclude_tagger:
                 continue
             discs = tagger.calc_disc_b() if is_b_sig else tagger.calc_disc_c()
             tagger_output_plot.add(
@@ -413,7 +413,7 @@ class Results:
                 reference=tagger.reference,
             )
             tag_i += 1
-            tag_labels.append(tagger.label if tagger.label else tagger.model_name)
+            tag_labels.append(tagger.label if tagger.label else tagger.name)
         tagger_output_plot.draw()
         tagger_output_plot.make_linestyle_legend(
             linestyles=line_styles[:tag_i],

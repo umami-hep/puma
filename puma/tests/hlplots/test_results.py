@@ -19,8 +19,8 @@ set_log_level(logger, "DEBUG")
 class DummyTagger:  # pylint: disable=too-few-public-methods
     """Dummy implementation of the Tagger class, to avoid boiler plate."""
 
-    def __init__(self, model_name) -> None:
-        self.model_name = model_name
+    def __init__(self, name) -> None:
+        self.name = name
 
 
 class ResultsTestCase(unittest.TestCase):
@@ -54,7 +54,7 @@ class ResultsTestCase(unittest.TestCase):
         results.add(dummy_tagger_1)
         results.add(dummy_tagger_2)
         retrieved_dummy_tagger_2 = results["dummy_2"]
-        self.assertEqual(retrieved_dummy_tagger_2.model_name, dummy_tagger_2.model_name)
+        self.assertEqual(retrieved_dummy_tagger_2.name, dummy_tagger_2.name)
 
 
 class ResultsPlotsTestCase(unittest.TestCase):

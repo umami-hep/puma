@@ -24,7 +24,7 @@ class TaggerBasisTestCase(unittest.TestCase):
     def test_empty_string_tagger_name(self):
         """Test empty string as model name."""
         tagger = Tagger("")
-        self.assertEqual(tagger.model_name, "")
+        self.assertEqual(tagger.name, "")
 
     def test_wrong_template(self):
         """Test wrong template."""
