@@ -44,11 +44,10 @@ rnnip.colour = "#4477AA"
 rnnip.reference = True
 rnnip.extract_tagger_scores(df)
 
-
-results = Results()
+# create the Results object for c-jet signal plot use `signal="cjets"`
+results = Results(signal="bjets")
 results.add(dips)
 results.add(rnnip)
-
 
 results.sig_eff = np.linspace(0.6, 0.95, 20)
 results.atlas_second_tag = (
@@ -58,14 +57,10 @@ results.atlas_second_tag = (
 # tagger discriminant plots
 logger.info("Plotting tagger discriminant plots.")
 results.plot_discs("hlplots_disc_b.png")
-results.plot_discs("hlplots_disc_c.png", signal_class="cjets")
 
-
+# ROC curves
 logger.info("Plotting ROC curves.")
-# ROC curves as a function of the b-jet efficiency
 results.plot_rocs("hlplots_roc_b.png")
-# ROC curves as a function of the c-jet efficiency
-results.plot_rocs("hlplots_roc_c.png", signal_class="cjets")
 
 
 logger.info("Plotting efficiency/rejection vs pT curves.")

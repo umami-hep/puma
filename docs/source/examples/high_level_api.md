@@ -13,9 +13,13 @@ performance plots.
 
 ## Initialising the taggers
 
+The `Results` object is initialised with the signal class, by default this is `bjets` but can be changed to `cjets`
+to produce the c-tagging plots.
+
 ```py
-§§§examples/high_level_plots.py:1:56§§§
+§§§examples/high_level_plots.py:1:55§§§
 ```
+
 WARNING: when using 2 different data frames you cannot just use one `tagger_args` but you need
 as many as you have data frames defining the flavour classes and performance variables.
 
@@ -24,39 +28,26 @@ as many as you have data frames defining the flavour classes and performance var
 To plot the discriminant, you can now simply call one function and everything else is handled automatically,
 here for the _b_-jet discriminant
 ```py
-§§§examples/high_level_plots.py:58:60§§§
+§§§examples/high_level_plots.py:57:59§§§
 ```
 
 <img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_disc_b.png width=500>
-
-and similar for the _c_-jet discriminant
-```py
-§§§examples/high_level_plots.py:51§§§
-```
-
-<img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_disc_c.png width=500>
 
 
 ## ROC plots
 
 In the same manner you can plot ROC curves, here for the _b_-tagging performance
 ```py
-§§§examples/high_level_plots.py:64:66§§§
+§§§examples/high_level_plots.py:61:63§§§
 ```
 <img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_roc_b.png width=500>
 
-and similar for the _c_-tagging performance
-```py
-§§§examples/high_level_plots.py:68§§§
-```
-
-<img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_roc_c.png width=500>
 
 
 ## Performance vs a variable
 In this case we plot the performance as a function of the jet pT with the same syntax as above for an inclusive working point of 70%
 ```py
-§§§examples/high_level_plots.py:71:84§§§
+§§§examples/high_level_plots.py:66:79§§§
 ```
 <img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_pt_b_eff.png width=500>
 <img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_pt_c_rej.png width=500>
@@ -64,7 +55,7 @@ In this case we plot the performance as a function of the jet pT with the same s
 
 and similar for a fixed b-efficiency per bin.
 ```py
-§§§examples/high_level_plots.py:86:96§§§
+§§§examples/high_level_plots.py:81:91§§§
 ```
 
 <img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_fixed_per_bin_pt_b_eff.png width=500>
