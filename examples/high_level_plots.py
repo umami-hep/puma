@@ -20,9 +20,11 @@ logger.info("Start plotting")
 # `is_c` and `is_b` for each data frame separately and thus you cannot use these
 # args for each tagger the same applies to the `perf_var`
 tagger_args = {
-    "is_light": df["HadronConeExclTruthLabelID"] == 0,
-    "is_c": df["HadronConeExclTruthLabelID"] == 4,
-    "is_b": df["HadronConeExclTruthLabelID"] == 5,
+    "is_signal": df["HadronConeExclTruthLabelID"] == 5,
+    "is_background": {
+        "ujets": df["HadronConeExclTruthLabelID"] == 0,
+        "cjets": df["HadronConeExclTruthLabelID"] == 4,
+    },
 }
 
 dips = Tagger("dips", **tagger_args)
