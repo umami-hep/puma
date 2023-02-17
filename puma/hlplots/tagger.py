@@ -131,6 +131,11 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
     def n_jets_background(self, background: str):
         """Retrieve number of background jets.
 
+        Parameters
+        ----------
+        background : str
+            Name of background
+
         Returns
         -------
         int
