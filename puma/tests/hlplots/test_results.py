@@ -57,13 +57,13 @@ class ResultsTestCase(unittest.TestCase):
 
     def add_taggers_from_file(self):
         """Test for Results.add_taggers_from_file function"""
-        self.tmp_dir = tempfile.TemporaryDirectory()  # pylint: disable=R1732e
-        with h5py.File(f"{self.tmp_dir.name}/test.h5", "w") as file:
+        tmp_dir = tempfile.TemporaryDirectory()  # pylint: disable=R1732
+        with h5py.File(f"{tmp_dir.name}/test.h5", "w") as file:
             file.create_dataset("jets", data=get_dummy_2_taggers().to_records())
 
         results = Results()
         taggers = [Tagger("rnnip")]
-        results.add_taggers_from_file(taggers, f"{self.tmp_dir.name}/test.h5")
+        results.add_taggers_from_file(taggers, f"{tmp_dir.name}/test.h5")
         self.assertEqual(results.taggers.values(), taggers)
 
 
