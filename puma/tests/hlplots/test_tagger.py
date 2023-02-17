@@ -3,7 +3,7 @@
 """
 Unit test script for the functions in hlplots/tagger.py
 """
-# pylint: disable=no-self-use
+
 
 import tempfile
 import unittest

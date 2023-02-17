@@ -23,7 +23,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
     output_nodes: list = field(default_factory=lambda: ["pu", "pc", "pb"])
 
     is_signal: array = None
-    is_background: dict[array] = field(default_factory=dict)
+    is_background: dict = field(default_factory=dict)
 
     colour: str = None
 
