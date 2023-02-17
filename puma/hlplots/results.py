@@ -23,7 +23,7 @@ class Results:
     """Store information about several taggers and plot results."""
 
     signal: Literal["bjets", "cjets"] = "bjets"
-    backgrounds: list[str] = field(init=False)
+    backgrounds: list = field(init=False)
     atlas_second_tag: str = None
     taggers: dict = field(default_factory=dict)
     sig_eff: float = None
