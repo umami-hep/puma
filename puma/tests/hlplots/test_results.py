@@ -69,7 +69,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
         dummy_tagger_1.label = "dummy tagger"
         self.dummy_tagger_1 = dummy_tagger_1
 
-    def assertIsFile(self, path: str):  # pylint: disable=invalid-name,no-self-use
+    def assertIsFile(self, path: str):  # pylint: disable=invalid-name
         """Check for file to exist.
         Taken from https://stackoverflow.com/a/59198749/10896585
         Parameters
