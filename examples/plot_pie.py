@@ -39,7 +39,7 @@ example_plot_2 = PiePlot(
         "startangle": 90,
         "textprops": {"fontsize": 10},
         "radius": 1,
-        "wedgeprops": dict(width=0.4, edgecolor="w"),
+        "wedgeprops": {"width": 0.4, "edgecolor": "w"},
         "pctdistance": 0.4,
     },
     # kwargs passed to puma.PlotObject

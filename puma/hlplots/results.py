@@ -33,6 +33,10 @@ class Results:
             self.backgrounds = ["ujets", "cjets"]
         elif self.signal == "cjets":
             self.backgrounds = ["ujets", "bjets"]
+        else:
+            raise ValueError(
+                "So far only `bjets` and `cjets` are supported as signal class."
+            )
 
     def add(self, tagger):
         """Add tagger to class.
@@ -132,11 +136,6 @@ class Results:
         args_roc_plot: dict, optional
             key word arguments being passed to `RocPlot`
         """
-        if self.signal not in ["bjets", "cjets"]:
-            raise ValueError(
-                "So far only `bjets` and `cjets` are supported as signal class."
-            )
-
         is_b_sig = self.signal == "bjets"
         roc_plot_args = {
             "n_ratio_panels": 2,
@@ -198,10 +197,6 @@ class Results:
         **kwargs : kwargs
             key word arguments for `puma.VarVsEff`
         """
-        if self.signal not in ["bjets", "cjets"]:
-            raise ValueError(
-                "So far only `bjets` and `cjets` are supported as signal class."
-            )
         is_b_sig = self.signal == "bjets"
         # define the curves
         plot_light_rej = VarVsEffPlot(
@@ -325,10 +320,6 @@ class Results:
         **kwargs : kwargs
             key word arguments for `puma.HistogramPlot`
         """
-        if self.signal not in ["bjets", "cjets"]:
-            raise ValueError(
-                "So far only `bjets` and `cjets` are supported as signal class."
-            )
         is_b_sig = self.signal == "bjets"
         if is_b_sig and xlabel is None:
             xlabel = r"$D_{b}$"
