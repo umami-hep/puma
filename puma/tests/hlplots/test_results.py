@@ -6,11 +6,17 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import h5py
 import numpy as np
 
 from puma.hlplots import Results
 from puma.hlplots.tagger import Tagger
-from puma.utils import get_dummy_multiclass_scores, logger, set_log_level
+from puma.utils import (
+    get_dummy_2_taggers,
+    get_dummy_multiclass_scores,
+    logger,
+    set_log_level,
+)
 
 set_log_level(logger, "DEBUG")
 
@@ -48,6 +54,17 @@ class ResultsTestCase(unittest.TestCase):
         results.add(dummy_tagger_2)
         retrieved_dummy_tagger_2 = results["dummy_2"]
         self.assertEqual(retrieved_dummy_tagger_2.name, dummy_tagger_2.name)
+
+    def add_taggers_from_file(self):
+        """Test for Results.add_taggers_from_file function"""
+        self.tmp_dir = tempfile.TemporaryDirectory()  # pylint: disable=R1732e
+        with h5py.File(f"{self.tmp_dir.name}/test.h5", "w") as file:
+            file.create_dataset("jets", data=get_dummy_2_taggers().to_records())
+
+        results = Results()
+        taggers = [Tagger("rnnip")]
+        results.add_taggers_from_file(taggers, f"{self.tmp_dir.name}/test.h5")
+        self.assertEqual(results.taggers.values(), taggers)
 
 
 class ResultsPlotsTestCase(unittest.TestCase):

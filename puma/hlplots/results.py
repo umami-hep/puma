@@ -83,9 +83,12 @@ class Results:
         num_jets : int, optional
             Number of jets to load from the file, by default all jets
         """
+        if cuts is None:
+            cuts = []
 
         # get a list of all variables to be loaded from the file
         var_list = sum([tagger.variables for tagger in taggers], [label_var])
+
         var_list += [cut[0] for cut in cuts]
         var_list = list(set(var_list))
 
@@ -94,8 +97,7 @@ class Results:
             data = file[key].fields(var_list)[:num_jets]
 
         # apply cuts
-        if cuts is None:
-            cuts = []
+
         for var, cut_op, value in cuts:
             data = data[OPERATORS[cut_op](data[var], value)]
 
