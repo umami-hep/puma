@@ -2,7 +2,6 @@
 """
 Unit test script for the functions in hlplots/tagger.py
 """
-# pytest: disable=no-self-use
 import tempfile
 import unittest
 from pathlib import Path
