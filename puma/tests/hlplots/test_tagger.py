@@ -41,15 +41,19 @@ class TaggerBasisTestCase(unittest.TestCase):
     def test_n_jets(self):
         """Test if number of n_jets correctly calculated."""
         tagger = Tagger("dummy")
-        tagger.is_light = np.concatenate([np.ones(80), np.zeros(5), np.zeros(15)])
-        tagger.is_c = np.concatenate([np.zeros(80), np.ones(5), np.zeros(15)])
-        tagger.is_b = np.concatenate([np.zeros(80), np.zeros(5), np.ones(15)])
+        tagger.is_background["ujets"] = np.concatenate(
+            [np.ones(80), np.zeros(5), np.zeros(15)]
+        )
+        tagger.is_background["cjets"] = np.concatenate(
+            [np.zeros(80), np.ones(5), np.zeros(15)]
+        )
+        tagger.is_signal = np.concatenate([np.zeros(80), np.zeros(5), np.ones(15)])
         with self.subTest():
-            self.assertEqual(tagger.n_jets_light, 80)
+            self.assertEqual(tagger.n_jets_background("ujets"), 80)
         with self.subTest():
-            self.assertEqual(tagger.n_jets_c, 5)
+            self.assertEqual(tagger.n_jets_background("cjets"), 5)
         with self.subTest():
-            self.assertEqual(tagger.n_jets_b, 15)
+            self.assertEqual(tagger.n_jets_signal, 15)
 
 
 class TaggerScoreExtractionTestCase(unittest.TestCase):

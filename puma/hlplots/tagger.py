@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 import h5py
 import numpy as np
 import pandas as pd
+from numpy import array
 from numpy.lib.recfunctions import structured_to_unstructured
 
 from puma.utils import calc_disc, logger
@@ -19,11 +20,10 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
 
     scores = None
     perf_var = None
-    output_nodes: list = field(default_factory=lambda: ["pu", "pc", "pb"])
+    output_nodes: list[str] = field(default_factory=lambda: ["pu", "pc", "pb"])
 
-    is_b: bool = None
-    is_light: bool = None
-    is_c: bool = None
+    is_signal: array = None
+    is_background: dict[array] = field(default_factory=dict)
 
     colour: str = None
 
@@ -35,6 +35,9 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
     def __post_init__(self):
         if self.label is None:
             self.label = self.name
+
+    def __repr__(self):
+        return self.name
 
     @property
     def variables(self):
@@ -115,37 +118,25 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
             raise ValueError(f"{source_type} is not a valid value for `source_type`.")
 
     @property
-    def n_jets_light(self):
-        """Retrieve number of light jets.
+    def n_jets_signal(self):
+        """Retrieve number of signal jets.
 
         Returns
         -------
         int
-            number of light jets
+            number of signal jets
         """
-        return int(np.sum(self.is_light))
+        return int(np.sum(self.is_signal))
 
-    @property
-    def n_jets_c(self):
-        """Retrieve number of c jets.
+    def n_jets_background(self, background: str):
+        """Retrieve number of background jets.
 
         Returns
         -------
         int
-            number of c jets
+            number of background jets
         """
-        return int(np.sum(self.is_c))
-
-    @property
-    def n_jets_b(self):
-        """Retrieve number of b jets.
-
-        Returns
-        -------
-        int
-            number of b jets
-        """
-        return int(np.sum(self.is_b))
+        return int(np.sum(self.is_background[background]))
 
     def calc_disc_b(self) -> np.ndarray:
         """Calculate b-tagging discriminant

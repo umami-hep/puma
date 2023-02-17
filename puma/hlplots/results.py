@@ -1,6 +1,7 @@
 """Results module for high level API."""
 import operator
 from dataclasses import dataclass, field
+from typing import Literal
 
 import h5py
 
@@ -21,9 +22,17 @@ OPERATORS = {
 class Results:
     """Store information about several taggers and plot results."""
 
+    signal: Literal["bjets", "cjets"] = "bjets"
+    backgrounds: list[str] = field(init=False)
     atlas_second_tag: str = None
     taggers: dict = field(default_factory=dict)
     sig_eff: float = None
+
+    def __post_init__(self):
+        if self.signal == "bjets":
+            self.backgrounds = ["ujets", "cjets"]
+        elif self.signal == "cjets":
+            self.backgrounds = ["ujets", "bjets"]
 
     def add(self, tagger):
         """Add tagger to class.
@@ -38,9 +47,9 @@ class Results:
         KeyError
             if model name duplicated
         """
-        if tagger.name in self.taggers:
-            raise KeyError(f"{tagger.name} was already added.")
-        self.taggers[tagger.name] = tagger
+        if str(tagger) in self.taggers:
+            raise KeyError(f"{tagger} was already added.")
+        self.taggers[str(tagger)] = tagger
 
     def add_taggers_from_file(  # pylint: disable=R0913
         self,
@@ -89,9 +98,9 @@ class Results:
         # add taggers from loaded data
         for tagger in taggers:
             tagger.extract_tagger_scores(data, source_type="structured_array")
-            tagger.is_b = data[label_var] == 5
-            tagger.is_light = data[label_var] == 4
-            tagger.is_c = data[label_var] == 0
+            tagger.is_signal = data[label_var] == 5
+            tagger.is_background["ujets"] = data[label_var] == 0
+            tagger.is_background["cjets"] = data[label_var] == 4
             self.add(tagger)
 
     def __getitem__(self, tagger_name: str):
@@ -112,7 +121,6 @@ class Results:
     def plot_rocs(
         self,
         plot_name: str,
-        signal_class: str = "bjets",
         args_roc_plot: dict = None,
     ):
         """Plots rocs
@@ -121,21 +129,15 @@ class Results:
         ----------
         plot_name : puma.RocPlot
             roc plot object
-        signal_class : str, optional
-            signal class to plot Roc with, wither `bjets` or `cjets`, by default `bjets`
         args_roc_plot: dict, optional
             key word arguments being passed to `RocPlot`
-
-        Raises
-        ------
-        ValueError
-            if specified signal class is invalid
         """
-        if signal_class not in ["bjets", "cjets"]:
+        if self.signal not in ["bjets", "cjets"]:
             raise ValueError(
                 "So far only `bjets` and `cjets` are supported as signal class."
             )
-        is_b_sig = signal_class == "bjets"
+
+        is_b_sig = self.signal == "bjets"
         roc_plot_args = {
             "n_ratio_panels": 2,
             "ylabel": "Background rejection",
@@ -150,46 +152,28 @@ class Results:
 
         for tagger in self.taggers.values():
             discs = tagger.calc_disc_b() if is_b_sig else tagger.calc_disc_c()
-            signal_selection = tagger.is_b if is_b_sig else tagger.is_c
-            bkg_selection = tagger.is_c if is_b_sig else tagger.is_b
-            light_rej = calc_rej(
-                discs[signal_selection],
-                discs[tagger.is_light],
-                self.sig_eff,
-            )
-            c_or_b_rejection = calc_rej(
-                discs[signal_selection],
-                discs[bkg_selection],
-                self.sig_eff,
-            )
-            plot_roc.add_roc(
-                Roc(
+            for background in self.backgrounds:
+                rej = calc_rej(
+                    discs[tagger.is_signal],
+                    discs[tagger.is_background[background]],
                     self.sig_eff,
-                    light_rej,
-                    n_test=tagger.n_jets_light,
-                    rej_class="ujets",
-                    signal_class="bjets",
-                    label=tagger.label,
-                    colour=tagger.colour,
-                ),
-                reference=tagger.reference,
-            )
-            plot_roc.add_roc(
-                Roc(
-                    self.sig_eff,
-                    c_or_b_rejection,
-                    n_test=tagger.n_jets_c,
-                    rej_class="cjets",
-                    signal_class="bjets",
-                    label=tagger.label,
-                    colour=tagger.colour,
-                ),
-                reference=tagger.reference,
-            )
+                )
+                plot_roc.add_roc(
+                    Roc(
+                        self.sig_eff,
+                        rej,
+                        n_test=tagger.n_jets_background(background),
+                        rej_class=background,
+                        signal_class=self.signal,
+                        label=tagger.label,
+                        colour=tagger.colour,
+                    ),
+                    reference=tagger.reference,
+                )
 
         # setting which flavour rejection ratio is drawn in which ratio panel
-        plot_roc.set_ratio_class(1, "ujets")
-        plot_roc.set_ratio_class(2, "cjets")
+        for i, background in enumerate(self.backgrounds):
+            plot_roc.set_ratio_class(i + 1, background)
 
         plot_roc.draw()
         plot_roc.savefig(plot_name)
@@ -198,7 +182,6 @@ class Results:
         self,
         plot_name: str,
         xlabel: str = r"$p_{T}$ [GeV]",
-        signal_class: str = "bjets",
         h_line: float = None,
         **kwargs,
     ):
@@ -210,23 +193,16 @@ class Results:
             plot name base
         xlabel : regexp, optional
             _description_, by default "$p_{T}$ [GeV]"
-        signal_class : str, optional
-            takes either `bjets` or `cjets` as signal class, by default "bjets"
         h_line : float, optional
             draws a horizonatal line in the signal efficiency plot
         **kwargs : kwargs
             key word arguments for `puma.VarVsEff`
-
-        Raises
-        ------
-        ValueError
-            if specified signal class is invalid
         """
-        if signal_class not in ["bjets", "cjets"]:
+        if self.signal not in ["bjets", "cjets"]:
             raise ValueError(
                 "So far only `bjets` and `cjets` are supported as signal class."
             )
-        is_b_sig = signal_class == "bjets"
+        is_b_sig = self.signal == "bjets"
         # define the curves
         plot_light_rej = VarVsEffPlot(
             mode="bkg_rej",
@@ -261,16 +237,20 @@ class Results:
                 kwargs["working_point"] = tagger.working_point
 
             discs = tagger.calc_disc_b() if is_b_sig else tagger.calc_disc_c()
-            # Switch signal and background if signal_class is not b_jets and using
-            # c-jets as signal_class
-            is_signal = tagger.is_b if is_b_sig else tagger.is_c
-            is_bkg = tagger.is_c if is_b_sig else tagger.is_b
+            # Switch signal and background if self.signal is not b_jets and using
+            # c-jets as self.signal
+            is_signal = tagger.is_signal
+            is_bkg = (
+                tagger.is_background["cjets"]
+                if is_b_sig
+                else tagger.is_background["bjets"]
+            )
             plot_light_rej.add(
                 VarVsEff(
                     x_var_sig=tagger.perf_var[is_signal],
                     disc_sig=discs[is_signal],
-                    x_var_bkg=tagger.perf_var[tagger.is_light],
-                    disc_bkg=discs[tagger.is_light],
+                    x_var_bkg=tagger.perf_var[tagger.is_background["ujets"]],
+                    disc_bkg=discs[tagger.is_background["ujets"]],
                     label=tagger.label,
                     colour=tagger.colour,
                     **kwargs,
@@ -293,8 +273,8 @@ class Results:
                 VarVsEff(
                     x_var_sig=tagger.perf_var[is_signal],
                     disc_sig=discs[is_signal],
-                    x_var_bkg=tagger.perf_var[tagger.is_light],
-                    disc_bkg=discs[tagger.is_light],
+                    x_var_bkg=tagger.perf_var[tagger.is_background["ujets"]],
+                    disc_bkg=discs[tagger.is_background["ujets"]],
                     label=tagger.label,
                     colour=tagger.colour,
                     **kwargs,
@@ -329,7 +309,6 @@ class Results:
         plot_name: str,
         exclude_tagger: list = None,
         xlabel: str = None,
-        signal_class: str = "bjets",
         **kwargs,
     ):
         """Plots discriminant
@@ -343,21 +322,14 @@ class Results:
             List of taggers to be excluded from this plot, by default None
         xlabel : str, optional
             x-axis label, by default "$D_{b}$"
-        signal_class : str, optional
-            Signal class which can be either "bjets" or "cjets", by default "bjets"
         **kwargs : kwargs
             key word arguments for `puma.HistogramPlot`
-
-        Raises
-        ------
-        ValueError
-            if specified signal class is invalid
         """
-        if signal_class not in ["bjets", "cjets"]:
+        if self.signal not in ["bjets", "cjets"]:
             raise ValueError(
                 "So far only `bjets` and `cjets` are supported as signal class."
             )
-        is_b_sig = signal_class == "bjets"
+        is_b_sig = self.signal == "bjets"
         if is_b_sig and xlabel is None:
             xlabel = r"$D_{b}$"
         elif not is_b_sig and xlabel is None:
@@ -384,7 +356,7 @@ class Results:
             discs = tagger.calc_disc_b() if is_b_sig else tagger.calc_disc_c()
             tagger_output_plot.add(
                 Histogram(
-                    discs[tagger.is_light],
+                    discs[tagger.is_background["ujets"]],
                     ratio_group="ujets",
                     label="Light-jets" if tag_i == 0 else None,
                     colour=flav_cat["ujets"]["colour"],
@@ -394,7 +366,7 @@ class Results:
             )
             tagger_output_plot.add(
                 Histogram(
-                    discs[tagger.is_c],
+                    discs[tagger.is_background["cjets"]],
                     ratio_group="cjets",
                     label="$c$-jets" if tag_i == 0 else None,
                     colour=flav_cat["cjets"]["colour"],
@@ -404,7 +376,7 @@ class Results:
             )
             tagger_output_plot.add(
                 Histogram(
-                    discs[tagger.is_b],
+                    discs[tagger.is_signal],
                     ratio_group="bjets",
                     label="$b$-jets" if tag_i == 0 else None,
                     colour=flav_cat["bjets"]["colour"],
