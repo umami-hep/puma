@@ -4,7 +4,6 @@ from dataclasses import dataclass, field
 import h5py
 import numpy as np
 import pandas as pd
-from numpy import array
 from numpy.lib.recfunctions import structured_to_unstructured
 
 from puma.utils import calc_disc, logger
@@ -22,8 +21,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
     perf_var = None
     output_nodes: list = field(default_factory=lambda: ["pu", "pc", "pb"])
 
-    is_signal: array = None
-    is_background: dict = field(default_factory=dict)
+    is_flav: dict = field(default_factory=dict)
 
     colour: str = None
 
@@ -37,7 +35,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
             self.label = self.name
 
     def __repr__(self):
-        return self.name
+        return f"{self.name} ({self.label})"
 
     @property
     def variables(self):
@@ -117,31 +115,20 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         else:
             raise ValueError(f"{source_type} is not a valid value for `source_type`.")
 
-    @property
-    def n_jets_signal(self):
-        """Retrieve number of signal jets.
-
-        Returns
-        -------
-        int
-            number of signal jets
-        """
-        return int(np.sum(self.is_signal))
-
-    def n_jets_background(self, background: str):
-        """Retrieve number of background jets.
+    def n_jets(self, flavour: str):
+        """Retrieve number of jets of a given flavour.
 
         Parameters
         ----------
-        background : str
-            Name of background
+        flavour : str
+            Flavour of jets to count
 
         Returns
         -------
         int
-            number of background jets
+            Number of jets of given flavour
         """
-        return int(np.sum(self.is_background[background]))
+        return int(np.sum(self.is_flav[flavour]))
 
     def calc_disc_b(self) -> np.ndarray:
         """Calculate b-tagging discriminant

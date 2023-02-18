@@ -23,6 +23,7 @@ parts/
 sdist/
 var/
 plots/
+outputs/
 wheels/
 pip-wheel-metadata/
 share/python-wheels/

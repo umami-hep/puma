@@ -7,7 +7,7 @@ import h5py
 
 from puma import Histogram, HistogramPlot, Roc, RocPlot, VarVsEff, VarVsEffPlot
 from puma.metrics import calc_rej
-from puma.utils import get_good_linestyles, global_config, logger
+from puma.utils import get_good_linestyles, global_config
 
 OPERATORS = {
     "==": operator.__eq__,
@@ -104,9 +104,10 @@ class Results:
         # add taggers from loaded data
         for tagger in taggers:
             tagger.extract_tagger_scores(data, source_type="structured_array")
-            tagger.is_signal = data[label_var] == 5
-            tagger.is_background["ujets"] = data[label_var] == 0
-            tagger.is_background["cjets"] = data[label_var] == 4
+            tagger.is_flav["bjets"] = data[label_var] == 5
+            tagger.is_flav["ujets"] = data[label_var] == 0
+            tagger.is_flav["cjets"] = data[label_var] == 4
+            tagger.perf_var = data["pt"] * 0.001
             self.add(tagger)
 
     def __getitem__(self, tagger_name: str):
@@ -155,15 +156,15 @@ class Results:
             discs = tagger.calc_disc_b() if is_b_sig else tagger.calc_disc_c()
             for background in self.backgrounds:
                 rej = calc_rej(
-                    discs[tagger.is_signal],
-                    discs[tagger.is_background[background]],
+                    discs[tagger.is_flav[self.signal]],
+                    discs[tagger.is_flav[background]],
                     self.sig_eff,
                 )
                 plot_roc.add_roc(
                     Roc(
                         self.sig_eff,
                         rej,
-                        n_test=tagger.n_jets_background(background),
+                        n_test=tagger.n_jets(background),
                         rej_class=background,
                         signal_class=self.signal,
                         label=tagger.label,
@@ -236,18 +237,14 @@ class Results:
             discs = tagger.calc_disc_b() if is_b_sig else tagger.calc_disc_c()
             # Switch signal and background if self.signal is not b_jets and using
             # c-jets as self.signal
-            is_signal = tagger.is_signal
-            is_bkg = (
-                tagger.is_background["cjets"]
-                if is_b_sig
-                else tagger.is_background["bjets"]
-            )
+            is_signal = tagger.is_flav[self.signal]
+            is_bkg = tagger.is_flav["cjets"] if is_b_sig else tagger.is_flav["bjets"]
             plot_light_rej.add(
                 VarVsEff(
                     x_var_sig=tagger.perf_var[is_signal],
                     disc_sig=discs[is_signal],
-                    x_var_bkg=tagger.perf_var[tagger.is_background["ujets"]],
-                    disc_bkg=discs[tagger.is_background["ujets"]],
+                    x_var_bkg=tagger.perf_var[tagger.is_flav["ujets"]],
+                    disc_bkg=discs[tagger.is_flav["ujets"]],
                     label=tagger.label,
                     colour=tagger.colour,
                     **kwargs,
@@ -270,8 +267,8 @@ class Results:
                 VarVsEff(
                     x_var_sig=tagger.perf_var[is_signal],
                     disc_sig=discs[is_signal],
-                    x_var_bkg=tagger.perf_var[tagger.is_background["ujets"]],
-                    disc_bkg=discs[tagger.is_background["ujets"]],
+                    x_var_bkg=tagger.perf_var[tagger.is_flav["ujets"]],
+                    disc_bkg=discs[tagger.is_flav["ujets"]],
                     label=tagger.label,
                     colour=tagger.colour,
                     **kwargs,
@@ -279,18 +276,15 @@ class Results:
                 reference=tagger.reference,
             )
 
-        logger.info(
-            "Plotting bkg rejection for inclusive efficiency as a function of pt."
-        )
         # You can choose between different modes: "sig_eff", "bkg_eff", "sig_rej",
         # "bkg_rej"
 
         plot_light_rej.draw()
-        plot_light_rej.savefig(f"{plot_name}_pt_light_rej.png")
+        plot_light_rej.savefig(f"{plot_name}_light_rej.png")
 
         plot_c_rej.draw()
         plot_c_rej.savefig(
-            f"{plot_name}_pt_c_rej.png" if is_b_sig else f"{plot_name}_pt_b_rej.png"
+            f"{plot_name}_c_rej.png" if is_b_sig else f"{plot_name}_b_rej.png"
         )
 
         plot_b_eff.draw()
@@ -298,7 +292,7 @@ class Results:
         if h_line:
             plot_b_eff.draw_hline(h_line)
         plot_b_eff.savefig(
-            f"{plot_name}_pt_b_eff.png" if is_b_sig else f"{plot_name}_pt_c_eff.png"
+            f"{plot_name}_b_eff.png" if is_b_sig else f"{plot_name}_c_eff.png"
         )
 
     def plot_discs(
@@ -332,12 +326,10 @@ class Results:
         line_styles = get_good_linestyles()
 
         tagger_output_plot = HistogramPlot(
-            bins=50,
             n_ratio_panels=0,
             xlabel=xlabel,
             ylabel="Normalised number of jets",
             figsize=(7.0, 4.5),
-            logy=True,
             atlas_second_tag=self.atlas_second_tag,
             **kwargs,
         )
@@ -349,7 +341,7 @@ class Results:
             discs = tagger.calc_disc_b() if is_b_sig else tagger.calc_disc_c()
             tagger_output_plot.add(
                 Histogram(
-                    discs[tagger.is_background["ujets"]],
+                    discs[tagger.is_flav["ujets"]],
                     ratio_group="ujets",
                     label="Light-jets" if tag_i == 0 else None,
                     colour=flav_cat["ujets"]["colour"],
@@ -359,7 +351,7 @@ class Results:
             )
             tagger_output_plot.add(
                 Histogram(
-                    discs[tagger.is_background["cjets"]],
+                    discs[tagger.is_flav["cjets"]],
                     ratio_group="cjets",
                     label="$c$-jets" if tag_i == 0 else None,
                     colour=flav_cat["cjets"]["colour"],
@@ -369,7 +361,7 @@ class Results:
             )
             tagger_output_plot.add(
                 Histogram(
-                    discs[tagger.is_signal],
+                    discs[tagger.is_flav[self.signal]],
                     ratio_group="bjets",
                     label="$b$-jets" if tag_i == 0 else None,
                     colour=flav_cat["bjets"]["colour"],
