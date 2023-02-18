@@ -97,7 +97,6 @@ class Results:
             data = file[key].fields(var_list)[:num_jets]
 
         # apply cuts
-
         for var, cut_op, value in cuts:
             data = data[OPERATORS[cut_op](data[var], value)]
 
