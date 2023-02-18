@@ -144,7 +144,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
             )
             self.assertIsFile(plot_name + "_b_eff.png")
             self.assertIsFile(plot_name + "_c_rej.png")
-            self.assertIsFile(plot_name + "_light_rej.png")
+            self.assertIsFile(plot_name + "_u_rej.png")
 
     def test_plot_var_perf_cjets(self):
         """Test that png file is being created."""
@@ -166,7 +166,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
             )
             self.assertIsFile(plot_name + "_c_eff.png")
             self.assertIsFile(plot_name + "_b_rej.png")
-            self.assertIsFile(plot_name + "_light_rej.png")
+            self.assertIsFile(plot_name + "_u_rej.png")
 
     def test_plot_discs_bjets(self):
         """Test that png file is being created."""

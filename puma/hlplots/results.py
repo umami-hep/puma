@@ -280,7 +280,7 @@ class Results:
         # "bkg_rej"
 
         plot_light_rej.draw()
-        plot_light_rej.savefig(f"{plot_name}_light_rej.png")
+        plot_light_rej.savefig(f"{plot_name}_u_rej.png")
 
         plot_c_rej.draw()
         plot_c_rej.savefig(
