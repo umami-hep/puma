@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Add Xbb Support [!157](https://github.com/umami-hep/puma/pull/157)
 - Improvements to the high level API [!155](https://github.com/umami-hep/puma/pull/155)
 - Fixate the python container version [!153](https://github.com/umami-hep/puma/pull/153)
 - Improve ROC format [#146](https://github.com/umami-hep/puma/pull/149)
