@@ -251,15 +251,15 @@ class HistogramPlotTestCase(
         """check with a plot if the ratio is the expected value"""
         hist_plot = HistogramPlot(
             norm=False,
-            ymax_ratio_1=4,
+            ymax_ratio=[4],
             figsize=(6.5, 5),
             n_ratio_panels=1,
         )
         hist_plot.add(self.hist_1, reference=True)
         hist_plot.add(self.hist_2)
         hist_plot.draw()
-        hist_plot.axis_ratio_1.axhline(2, color="r", label="Expected ratio")
-        hist_plot.axis_ratio_1.legend(frameon=False)
+        hist_plot.ratio_axes[0].axhline(2, color="r", label="Expected ratio")
+        hist_plot.ratio_axes[0].legend(frameon=False)
 
         plotname = "test_histogram_ratio_value.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")

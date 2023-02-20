@@ -39,8 +39,8 @@ class LinestylesTestCase(unittest.TestCase):
             expected_linestyles = [
                 "solid",
                 (0, (3, 1, 1, 1)),
-                (0, (5, 2)),
                 (0, (1, 1)),
+                (0, (5, 2)),
                 (0, (3, 1, 1, 1, 1, 1)),
                 (0, (5, 5)),
                 (0, (2, 2)),
@@ -83,7 +83,7 @@ class LinestylesTestCase(unittest.TestCase):
         plotname = "test_linestyles.png"
         test_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
-        # test_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        test_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
         self.assertIsNone(
             compare_images(
                 f"{self.actual_plots_dir}/{plotname}",

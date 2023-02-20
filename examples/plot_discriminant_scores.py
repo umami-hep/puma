@@ -37,8 +37,8 @@ plot_histo = HistogramPlot(
     figsize=(5.5, 4.5),
     bins=np.linspace(-10, 10, 50),
     y_scale=1.5,
-    ymax_ratio_1=1.5,
-    ymin_ratio_1=0.5,
+    ymax_ratio=[1.5],
+    ymin_ratio=[0.5],
     atlas_second_tag="$\\sqrt{s}=13$ TeV, dummy jets \ndummy sample, $f_{c}=0.018$",
 )
 

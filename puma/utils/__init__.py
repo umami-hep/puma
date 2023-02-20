@@ -179,8 +179,8 @@ def get_good_linestyles(names=None):
     default_order = [
         "solid",
         "densely dashdotted",
-        "densely dashed",
         "densely dotted",
+        "densely dashed",
         "densely dashdotdotted",
         "dashed",
         "dotted",
