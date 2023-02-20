@@ -163,7 +163,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
             return self.calc_disc_b()
         if signal_class == "cjets":
             return self.calc_disc_c()
-        if signal_class == "Hbb" or signal_class == "Hcc":
+        if signal_class in ("Hbb", "Hcc"):
             return self.scores[:, self.output_nodes.index(signal_class)]
         raise ValueError(f"No discriminant defined for {signal_class} signal.")
 

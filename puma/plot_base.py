@@ -601,7 +601,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
             else:
                 atlasify.atlasify(atlas=False, axes=self.axis_top, enlarge=1)
             for ratio_axis in self.ratio_axes:
-                atlasify.atlasify(atlas=False, axes=axis, enlarge=1)
+                atlasify.atlasify(atlas=False, axes=ratio_axis, enlarge=1)
             if self.vertical_split:
                 atlasify.atlasify(atlas=False, axes=self.axis_leg, enlarge=1)
             if force:

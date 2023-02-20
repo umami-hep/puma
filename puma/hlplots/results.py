@@ -119,7 +119,7 @@ class Results:
         num_jets : int, optional
             Number of jets to load from the file, by default all jets
         perf_var : str, optional
-           Override the performance variable to use, by default None
+            Override the performance variable to use, by default None
         """
         if cuts is None:
             cuts = []
