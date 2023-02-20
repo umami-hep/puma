@@ -55,16 +55,20 @@ class ResultsTestCase(unittest.TestCase):
         retrieved_dummy_tagger_2 = results["dummy_2 (dummy_2)"]
         self.assertEqual(retrieved_dummy_tagger_2.name, dummy_tagger_2.name)
 
-    def add_taggers_from_file(self):
+    def test_add_taggers_from_file(self):
         """Test for Results.add_taggers_from_file function"""
         tmp_dir = tempfile.TemporaryDirectory()  # pylint: disable=R1732
+        rng = np.random.default_rng(seed=16)
         with h5py.File(f"{tmp_dir.name}/test.h5", "w") as file:
-            file.create_dataset("jets", data=get_dummy_2_taggers().to_records())
-
+            df = get_dummy_2_taggers()
+            df["pt"] = rng.random(len(df))
+            file.create_dataset("jets", data=df.to_records())
         results = Results()
         taggers = [Tagger("rnnip")]
-        results.add_taggers_from_file(taggers, f"{tmp_dir.name}/test.h5")
-        self.assertEqual(results.taggers.values(), taggers)
+        results.add_taggers_from_file(
+            taggers, f"{tmp_dir.name}/test.h5", perf_var=df["pt"]
+        )
+        self.assertEqual(list(results.taggers.values()), taggers)
 
 
 class ResultsPlotsTestCase(unittest.TestCase):
