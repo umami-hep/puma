@@ -311,7 +311,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         if self.grid:
             self.axis_top.grid(lw=0.3)
             for ratio_axis in self.ratio_axes:
-                axis.grid(lw=0.3)
+                ratio_axis.grid(lw=0.3)
 
     def draw_vlines(
         self,
@@ -373,7 +373,9 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
             )
 
             for ratio_axis in self.ratio_axes:
-                axis.axvline(x=vline, color=colour, linestyle="dashed", linewidth=1.0)
+                ratio_axis.axvline(
+                    x=vline, color=colour, linestyle="dashed", linewidth=1.0
+                )
 
     def set_title(self, title: str = None, **kwargs):
         """Set title of top panel.
@@ -409,7 +411,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
             # Set log scale for all plots
             self.axis_top.set_xscale("log")
             for ratio_axis in self.ratio_axes:
-                axis.set_xscale("log")
+                ratio_axis.set_xscale("log")
 
         if self.logy or force_y:
             if not self.logy:

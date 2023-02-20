@@ -141,7 +141,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         """
         return int(np.sum(self.is_flav[flavour]))
 
-    def get_disc(self, signal_class):
+    def get_disc(self, signal_class: str):
         """Retrieve the discriminant for a given signal class.
 
         Parameters
@@ -153,6 +153,11 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         -------
         np.ndarray
             Discriminant for given signal class
+
+        Raises
+        ------
+        ValueError
+            If no discriminant is defined for given signal class
         """
         if signal_class == "bjets":
             return self.calc_disc_b()
