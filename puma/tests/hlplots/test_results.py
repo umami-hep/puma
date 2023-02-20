@@ -60,13 +60,13 @@ class ResultsTestCase(unittest.TestCase):
         tmp_dir = tempfile.TemporaryDirectory()  # pylint: disable=R1732
         rng = np.random.default_rng(seed=16)
         with h5py.File(f"{tmp_dir.name}/test.h5", "w") as file:
-            df = get_dummy_2_taggers()
-            df["pt"] = rng.random(len(df))
-            file.create_dataset("jets", data=df.to_records())
+            data = get_dummy_2_taggers()
+            data["pt"] = rng.random(len(data))
+            file.create_dataset("jets", data=data.to_records())
         results = Results()
         taggers = [Tagger("rnnip")]
         results.add_taggers_from_file(
-            taggers, f"{tmp_dir.name}/test.h5", perf_var=df["pt"]
+            taggers, f"{tmp_dir.name}/test.h5", perf_var=data["pt"]
         )
         self.assertEqual(list(results.taggers.values()), taggers)
 
