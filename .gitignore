@@ -23,7 +23,7 @@ parts/
 sdist/
 var/
 plots/
-tests/
+outputs/
 wheels/
 pip-wheel-metadata/
 share/python-wheels/
@@ -47,6 +47,7 @@ pip-delete-this-directory.txt
 htmlcov/
 .tox/
 .nox/
+*diff.png
 .coverage
 .coverage.*
 .cache

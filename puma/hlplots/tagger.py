@@ -1,4 +1,6 @@
 """Tagger module for high level API."""
+from dataclasses import dataclass, field
+
 import h5py
 import numpy as np
 import pandas as pd
@@ -7,41 +9,45 @@ from numpy.lib.recfunctions import structured_to_unstructured
 from puma.utils import calc_disc, logger
 
 
+@dataclass
 class Tagger:  # pylint: disable=too-many-instance-attributes
-    """Class storing tagger results."""
+    """Class storing information and results for a tagger."""
 
-    def __init__(self, model_name: str, template: dict = None) -> None:
-        """Init Tagger class.
+    name: str
+    label: str = None
+    reference: bool = False
 
-        Parameters
-        ----------
-        model_name : str
-            Name of the model, also correspondinng to the pre-fix of the tagger
-            variables.
-        template : dict
-            Template dictionary which keys are directly set as class variables
+    scores = None
+    perf_var = None
+    output_nodes: list = field(default_factory=lambda: ["pu", "pc", "pb"])
+
+    is_flav: dict = field(default_factory=dict)
+
+    colour: str = None
+
+    disc_cut: float = None
+    working_point: float = None
+    f_c: float = None
+    f_b: float = None
+
+    def __post_init__(self):
+        if self.label is None:
+            self.label = self.name
+
+    def __repr__(self):
+        return f"{self.name} ({self.label})"
+
+    @property
+    def variables(self):
+        """Return a list of the outputs of the tagger.
+
+        Returns
+        -------
+        list
+            List of the outputs variable names of the tagger
         """
 
-        self.model_name = model_name
-        self.label = None
-        self.reference = False
-
-        self.scores = None
-        self.perf_var = None
-        self.output_nodes = ["pu", "pc", "pb"]
-
-        self.is_b = None
-        self.is_light = None
-        self.is_c = None
-
-        self.colour = None
-
-        self.disc_cut = None
-        self.working_point = None
-        self.f_c = None
-        self.f_b = None
-
-        self._init_from_template(template)
+        return [f"{self.name}_{flv}" for flv in self.output_nodes]
 
     def extract_tagger_scores(
         self, source: object, source_type: str = "data_frame", key: str = None
@@ -56,8 +62,9 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         source_type : str, optional
             Indicates from which source scores should be extracted. Possible options are
             `data_frame` when passing a pd.DataFrame, `data_frame_path` when passing a
-            file path to a h5 file with a pd.DataFrame or `numpy_structured` when
-            passing a file path to a h5 file with a structured numpy array,
+            file path to a h5 file with a pd.DataFrame, `h5_file` when
+            passing a file path to a h5 file with a structured numpy array, or
+            `strucuted_array` when passing a structured numpy array,
             by default "data_frame"
         key : str, optional
             Key within h5 file, needs to be provided when using the `source_type`
@@ -67,12 +74,18 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         ValueError
             if source_type is wrongly specified
         """
-        # list tagger variables
-        tagger_vars = [f"{self.model_name}_{flv}" for flv in self.output_nodes]
         # TODO: change to case syntax in python 3.10
         if source_type == "data_frame":
-            logger.debug("Retrieving tagger `%s` from data frame.", self.model_name)
-            self.scores = source[tagger_vars].values
+            logger.debug("Retrieving tagger `%s` from data frame.", self.name)
+            self.scores = source[self.variables].values
+            return
+        if source_type == "structured_array":
+            logger.debug(
+                "Retrieving tagger %s from h5py fields %s.",
+                self.name,
+                source,
+            )
+            self.scores = structured_to_unstructured(source[self.variables])
             return
         if key is None:
             raise ValueError(
@@ -82,69 +95,40 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         if source_type == "data_frame_path":
             logger.debug(
                 "Retrieving tagger %s in data frame from file %s.",
-                self.model_name,
+                self.name,
                 source,
             )
             df_in = pd.read_hdf(source, key=key)
-            self.scores = df_in[tagger_vars].values
+            self.scores = df_in[self.variables].values
 
-        elif source_type == "numpy_structured":
+        elif source_type == "h5_file":
             logger.debug(
-                "Retrieving tagger %s from structured numpy file %s.",
-                self.model_name,
+                "Retrieving tagger %s from structured h5 file %s.",
+                self.name,
                 source,
             )
             with h5py.File(source, "r") as f_h5:
                 self.scores = structured_to_unstructured(
-                    f_h5[key].fields(tagger_vars)[:]
+                    f_h5[key].fields(self.variables)[:]
                 )
+
         else:
             raise ValueError(f"{source_type} is not a valid value for `source_type`.")
 
-    def _init_from_template(self, template):
-        if template is not None:
-            for key, val in template.items():
-                if hasattr(self, key):
-                    setattr(self, key, val)
-                else:
-                    raise KeyError(f"`{key}` is not an attribute of the Tagger class.")
-        else:
-            logger.debug(
-                "Template initialised with template being `None` - not doing anything."
-            )
+    def n_jets(self, flavour: str):
+        """Retrieve number of jets of a given flavour.
 
-    @property
-    def n_jets_light(self):
-        """Retrieve number of light jets.
+        Parameters
+        ----------
+        flavour : str
+            Flavour of jets to count
 
         Returns
         -------
         int
-            number of light jets
+            Number of jets of given flavour
         """
-        return int(np.sum(self.is_light))
-
-    @property
-    def n_jets_c(self):
-        """Retrieve number of c jets.
-
-        Returns
-        -------
-        int
-            number of c jets
-        """
-        return int(np.sum(self.is_c))
-
-    @property
-    def n_jets_b(self):
-        """Retrieve number of b jets.
-
-        Returns
-        -------
-        int
-            number of b jets
-        """
-        return int(np.sum(self.is_b))
+        return int(np.sum(self.is_flav[flavour]))
 
     def calc_disc_b(self) -> np.ndarray:
         """Calculate b-tagging discriminant

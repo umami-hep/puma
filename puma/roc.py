@@ -336,9 +336,8 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             )
         self.ratio_axes[ratio_panel] = rej_class
         label = global_config["flavour_categories"][rej_class]["legend_label"]
-        label = label.replace("jets", "jet")
         self.set_ratio_label(ratio_panel, f"{label} ratio")
-        self.leg_rej_labels[rej_class] = f"{label} rejection"
+        self.leg_rej_labels[rej_class] = label
 
     def add_ratios(self):
         """Calculating ratios.

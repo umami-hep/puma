@@ -20,21 +20,23 @@ logger.info("Start plotting")
 # `is_c` and `is_b` for each data frame separately and thus you cannot use these
 # args for each tagger the same applies to the `perf_var`
 tagger_args = {
-    "perf_var": df["pt"] / 1e3,
-    "is_light": df["HadronConeExclTruthLabelID"] == 0,
-    "is_c": df["HadronConeExclTruthLabelID"] == 4,
-    "is_b": df["HadronConeExclTruthLabelID"] == 5,
+    "is_flav": {
+        "bjets": df["HadronConeExclTruthLabelID"] == 5,
+        "cjets": df["HadronConeExclTruthLabelID"] == 4,
+        "ujets": df["HadronConeExclTruthLabelID"] == 0,
+    }
 }
 
-
-dips = Tagger("dips", template=tagger_args)
+dips = Tagger("dips", **tagger_args)
+dips.perf_var = df["pt"] / 1e3
 dips.label = "dummy DIPS ($f_{c}=0.005$)"
 dips.f_c = 0.005
 dips.f_b = 0.04
 dips.colour = "#AA3377"
 dips.extract_tagger_scores(df)
 
-rnnip = Tagger("rnnip", template=tagger_args)
+rnnip = Tagger("rnnip", **tagger_args)
+rnnip.perf_var = df["pt"] / 1e3
 rnnip.label = "dummy RNNIP ($f_{c}=0.07$)"
 rnnip.f_c = 0.07
 rnnip.f_b = 0.04
@@ -42,11 +44,10 @@ rnnip.colour = "#4477AA"
 rnnip.reference = True
 rnnip.extract_tagger_scores(df)
 
-
-results = Results()
+# create the Results object for c-jet signal plot use `signal="cjets"`
+results = Results(signal="bjets")
 results.add(dips)
 results.add(rnnip)
-
 
 results.sig_eff = np.linspace(0.6, 0.95, 20)
 results.atlas_second_tag = (
@@ -56,14 +57,10 @@ results.atlas_second_tag = (
 # tagger discriminant plots
 logger.info("Plotting tagger discriminant plots.")
 results.plot_discs("hlplots_disc_b.png")
-results.plot_discs("hlplots_disc_c.png", signal_class="cjets")
 
-
+# ROC curves
 logger.info("Plotting ROC curves.")
-# ROC curves as a function of the b-jet efficiency
 results.plot_rocs("hlplots_roc_b.png")
-# ROC curves as a function of the c-jet efficiency
-results.plot_rocs("hlplots_roc_c.png", signal_class="cjets")
 
 
 logger.info("Plotting efficiency/rejection vs pT curves.")

@@ -3,7 +3,7 @@
 """
 Unit test script for the functions in hlplots/tagger.py
 """
-# pylint: disable=no-self-use
+
 
 import tempfile
 import unittest
@@ -11,7 +11,6 @@ import unittest
 import h5py
 import numpy as np
 import pandas as pd
-from testfixtures import LogCapture
 
 from puma.hlplots import Tagger
 from puma.utils import logger, set_log_level
@@ -25,50 +24,38 @@ class TaggerBasisTestCase(unittest.TestCase):
     def test_empty_string_tagger_name(self):
         """Test empty string as model name."""
         tagger = Tagger("")
-        self.assertEqual(tagger.model_name, "")
+        self.assertEqual(tagger.name, "")
 
     def test_wrong_template(self):
         """Test wrong template."""
         template_wrong = {"test": 1}
-        tagger = Tagger("dummy")
-        with self.assertRaises(KeyError):
-            tagger._init_from_template(template=template_wrong)  # pylint: disable=W0212
+        with self.assertRaises(TypeError):
+            Tagger("dummy", **template_wrong)  # pylint: disable=W0212,E1123
 
     def test_label_template(self):
         """Test template with label."""
         template_label = {"label": 1.5}
-        tagger = Tagger("dummy")
-        tagger._init_from_template(template=template_label)  # pylint: disable=W0212
+        tagger = Tagger("dummy", **template_label)  # pylint: disable=W0212
         self.assertEqual(tagger.label, 1.5)
-
-    def test_none_template(self):
-        """Test None template."""
-        tagger = Tagger("dummy")
-        with LogCapture("puma") as log:
-            tagger._init_from_template(template=None)  # pylint: disable=W0212
-            log.check(
-                (
-                    "puma",
-                    "DEBUG",
-                    (
-                        "Template initialised with template being `None` - not "
-                        "doing anything."
-                    ),
-                )
-            )
 
     def test_n_jets(self):
         """Test if number of n_jets correctly calculated."""
         tagger = Tagger("dummy")
-        tagger.is_light = np.concatenate([np.ones(80), np.zeros(5), np.zeros(15)])
-        tagger.is_c = np.concatenate([np.zeros(80), np.ones(5), np.zeros(15)])
-        tagger.is_b = np.concatenate([np.zeros(80), np.zeros(5), np.ones(15)])
+        tagger.is_flav["ujets"] = np.concatenate(
+            [np.ones(80), np.zeros(5), np.zeros(15)]
+        )
+        tagger.is_flav["cjets"] = np.concatenate(
+            [np.zeros(80), np.ones(5), np.zeros(15)]
+        )
+        tagger.is_flav["bjets"] = np.concatenate(
+            [np.zeros(80), np.zeros(5), np.ones(15)]
+        )
         with self.subTest():
-            self.assertEqual(tagger.n_jets_light, 80)
+            self.assertEqual(tagger.n_jets("ujets"), 80)
         with self.subTest():
-            self.assertEqual(tagger.n_jets_c, 5)
+            self.assertEqual(tagger.n_jets("cjets"), 5)
         with self.subTest():
-            self.assertEqual(tagger.n_jets_b, 15)
+            self.assertEqual(tagger.n_jets("bjets"), 15)
 
 
 class TaggerScoreExtractionTestCase(unittest.TestCase):
@@ -119,7 +106,7 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
         np.testing.assert_array_equal(tagger.scores, self.scores_expected)
 
     def test_h5_structured_numpy_path(self):
-        """Test passing data frame path."""
+        """Test passing structured h5 path."""
 
         tagger = Tagger("dummy")
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -130,8 +117,19 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
                 )
 
             tagger.extract_tagger_scores(
-                file_name, key="dummy_tagger", source_type="numpy_structured"
+                file_name, key="dummy_tagger", source_type="h5_file"
             )
+        np.testing.assert_array_equal(tagger.scores, self.scores_expected)
+
+    def test_structured_array(self):
+        """Test passing structured numpy array."""
+
+        tagger = Tagger("dummy")
+        tagger.extract_tagger_scores(
+            self.df_dummy.to_records(),
+            key="dummy_tagger",
+            source_type="structured_array",
+        )
         np.testing.assert_array_equal(tagger.scores, self.scores_expected)
 
 
@@ -145,7 +143,7 @@ class TaggerTestCase(unittest.TestCase):
     def test_disc_cut_template(self):
         """Test template with disc_cut."""
         template_disc_cut = {"disc_cut": 1.5}
-        tagger = Tagger("dummy", template=template_disc_cut)
+        tagger = Tagger("dummy", **template_disc_cut)
         self.assertEqual(tagger.disc_cut, 1.5)
 
     def test_disc_b_calc_no_fc(self):

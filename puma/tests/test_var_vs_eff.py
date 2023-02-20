@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# pylint: disable=no-self-use
+
 
 """
 Unit test script for the functions in var_vs_eff.py
