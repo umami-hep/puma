@@ -201,7 +201,7 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         self.test = ""
         self.rocs = {}
         self.roc_ratios = {}
-        self.ratio_axes = {}
+        self.rej_axes = {}
         self.rej_class_ls = {}
         self.label_colours = {}
         self.leg_rej_labels = {}
@@ -330,11 +330,11 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         ValueError
             if requested ratio panels and given ratio_panel do not match.
         """
-        if self.n_ratio_panels < ratio_panel and ratio_panel not in [1, 2]:
+        if self.n_ratio_panels < ratio_panel:
             raise ValueError(
                 "Requested ratio panels and given ratio_panel do not match."
             )
-        self.ratio_axes[ratio_panel] = rej_class
+        self.rej_axes[rej_class] = self.ratio_axes[ratio_panel - 1]
         label = global_config["flavour_categories"][rej_class]["legend_label"]
         self.set_ratio_label(ratio_panel, f"{label} ratio")
         self.leg_rej_labels[rej_class] = label
@@ -354,14 +354,13 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                 f"{len(self.reference_roc)} reference rocs defined but requested "
                 f"{self.n_ratio_panels} ratio panels."
             )
-        if len(self.ratio_axes) != self.n_ratio_panels:
+        if len(self.rej_axes) != self.n_ratio_panels:
             raise ValueError(
                 "Ratio classes not set, set them first with `set_ratio_class`."
             )
-        self.plot_ratios(axis=self.axis_ratio_1, rej_class=self.ratio_axes[1])
 
-        if self.n_ratio_panels == 2:
-            self.plot_ratios(axis=self.axis_ratio_2, rej_class=self.ratio_axes[2])
+        for rej_class, axis in self.rej_axes.items():
+            self.plot_ratios(axis=axis, rej_class=rej_class)
 
     def get_xlim_auto(self):
         """Returns min and max efficiency values
@@ -448,46 +447,35 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             If not 2 ratios requested
         """
 
-        if self.n_ratio_panels != 2:
+        if self.n_ratio_panels < 2:
             raise ValueError("For a split legend you need 2 ratio panels.")
 
         if self.leg_rej_loc == "ratio_legend":
-            legend_line = mpl.lines.Line2D(
-                [],
-                [],
-                color="k",
-                label=self.leg_rej_labels[self.ratio_axes[1]],
-                linestyle=self.rej_class_ls[self.ratio_axes[1]],
-            )
-            self.axis_ratio_1.legend(
-                handles=[legend_line],
-                labels=[legend_line.get_label()],
-                loc="upper right",
-                fontsize=self.leg_fontsize,
-            )
-            legend_line = mpl.lines.Line2D(
-                [],
-                [],
-                color="k",
-                label=self.leg_rej_labels[self.ratio_axes[2]],
-                linestyle=self.rej_class_ls[self.ratio_axes[2]],
-            )
-            self.axis_ratio_2.legend(
-                handles=[legend_line],
-                labels=[legend_line.get_label()],
-                loc="upper right",
-                fontsize=self.leg_fontsize,
-            )
+            for rej_class, axis in self.rej_axes.items():
+                legend_line = mpl.lines.Line2D(
+                    [],
+                    [],
+                    color="k",
+                    label=self.leg_rej_labels[rej_class],
+                    linestyle=self.rej_class_ls[rej_class],
+                )
+                axis.legend(
+                    handles=[legend_line],
+                    labels=[legend_line.get_label()],
+                    loc="upper right",
+                    fontsize=self.leg_fontsize,
+                )
+
         else:
             line_list_rej = []
-            for elem in [self.ratio_axes[1], self.ratio_axes[2]]:
+            for rej_class in self.rej_axes:
                 line_list_rej.append(
                     mpl.lines.Line2D(
                         [],
                         [],
                         color="k",
-                        label=self.leg_rej_labels[elem],
-                        linestyle=self.rej_class_ls[elem],
+                        label=self.leg_rej_labels[rej_class],
+                        linestyle=self.rej_class_ls[rej_class],
                     )
                 )
 
@@ -547,17 +535,10 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         self.set_xlabel()
         self.set_ylabel(self.axis_top)
 
-        if self.n_ratio_panels > 0:
+        for i, axis in enumerate(self.rej_axes.values()):
             self.set_ylabel(
-                self.axis_ratio_1,
-                self.ylabel_ratio_1,
-                align_right=False,
-                labelpad=labelpad,
-            )
-        if self.n_ratio_panels == 2:
-            self.set_ylabel(
-                self.axis_ratio_2,
-                self.ylabel_ratio_2,
+                axis,
+                self.ylabel_ratio[i],
                 align_right=False,
                 labelpad=labelpad,
             )
@@ -566,8 +547,8 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             self.make_legend(plt_handles, ax_mpl=self.axis_top)
         else:
             if not self.leg_rej_labels:
-                self.leg_rej_labels[self.ratio_axes[1]] = self.ratio_axes[1]
-                self.leg_rej_labels[self.ratio_axes[2]] = self.ratio_axes[2]
+                for rej_class in self.rej_axes:
+                    self.leg_rej_labels[rej_class] = rej_class
 
             self.make_split_legend(handles=plt_handles)
 

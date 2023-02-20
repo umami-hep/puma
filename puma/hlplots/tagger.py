@@ -19,7 +19,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
 
     scores = None
     perf_var = None
-    output_nodes: list = field(default_factory=lambda: ["pu", "pc", "pb"])
+    output_nodes: list = field(default_factory=lambda: ["ujets", "cjets", "bjets"])
 
     is_flav: dict = field(default_factory=dict)
 
@@ -38,6 +38,17 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         return f"{self.name} ({self.label})"
 
     @property
+    def probailities(self):
+        """Return the probabilities of the tagger.
+
+        Returns
+        -------
+        list
+            List of probability names
+        """
+        return [f"p{flv.rstrip('jets')}" for flv in self.output_nodes]
+
+    @property
     def variables(self):
         """Return a list of the outputs of the tagger.
 
@@ -47,7 +58,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
             List of the outputs variable names of the tagger
         """
 
-        return [f"{self.name}_{flv}" for flv in self.output_nodes]
+        return [f"{self.name}_{prob}" for prob in self.probailities]
 
     def extract_tagger_scores(
         self, source: object, source_type: str = "data_frame", key: str = None
@@ -130,6 +141,27 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         """
         return int(np.sum(self.is_flav[flavour]))
 
+    def get_disc(self, signal_class):
+        """Retrieve the discriminant for a given signal class.
+
+        Parameters
+        ----------
+        signal_class : str
+            Signal class for which the discriminant should be retrieved
+
+        Returns
+        -------
+        np.ndarray
+            Discriminant for given signal class
+        """
+        if signal_class == "bjets":
+            return self.calc_disc_b()
+        if signal_class == "cjets":
+            return self.calc_disc_c()
+        if signal_class == "Hbb" or signal_class == "Hcc":
+            return self.scores[:, self.output_nodes.index(signal_class)]
+        raise ValueError(f"No discriminant defined for {signal_class} signal.")
+
     def calc_disc_b(self) -> np.ndarray:
         """Calculate b-tagging discriminant
 
@@ -153,7 +185,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         }
         return calc_disc(
             scores=self.scores,
-            flvs=self.output_nodes,
+            flvs=self.probailities,
             flv_map=flv_map,
         )
 
@@ -180,6 +212,6 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         }
         return calc_disc(
             scores=self.scores,
-            flvs=self.output_nodes,
+            flvs=self.probailities,
             flv_map=flv_map,
         )
