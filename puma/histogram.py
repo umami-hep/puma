@@ -240,7 +240,6 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         self.plot_objects = {}
         self.add_order = []
         self.ratios_objects = {}
-        self.ratio_axes = {}
         self.reference_object = None
 
         if self.n_ratio_panels > 1:
@@ -554,7 +553,7 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             ratio_unc_band_high = np.nan_to_num(ratio + ratio_unc, nan=0, posinf=0)
 
             # Plot the ratio values with the step function
-            self.axis_ratio_1.step(
+            self.ratio_axes[0].step(
                 x=elem.bin_edges,
                 y=ratio,
                 color=elem.colour,
@@ -564,7 +563,7 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
 
             # Plot the ratio uncertainty
             if self.draw_errors:
-                self.axis_ratio_1.fill_between(
+                self.ratio_axes[0].fill_between(
                     x=elem.bin_edges,
                     y1=ratio_unc_band_low,
                     y2=ratio_unc_band_high,
@@ -625,8 +624,8 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
 
         if self.n_ratio_panels > 0:
             self.set_ylabel(
-                self.axis_ratio_1,
-                self.ylabel_ratio_1,
+                self.ratio_axes[0],
+                self.ylabel_ratio[0],
                 align_right=False,
                 labelpad=labelpad,
             )

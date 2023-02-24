@@ -22,21 +22,56 @@ OPERATORS = {
 class Results:
     """Store information about several taggers and plot results."""
 
-    signal: Literal["bjets", "cjets"] = "bjets"
+    signal: Literal["bjets", "cjets", "Hcc"] = "bjets"
     backgrounds: list = field(init=False)
     atlas_second_tag: str = None
     taggers: dict = field(default_factory=dict)
     sig_eff: float = None
+    perf_var: str = "pt"
 
     def __post_init__(self):
         if self.signal == "bjets":
             self.backgrounds = ["ujets", "cjets"]
         elif self.signal == "cjets":
             self.backgrounds = ["ujets", "bjets"]
+        elif self.signal == "Hbb":
+            self.backgrounds = ["Hcc", "top", "dijets"]
+        elif self.signal == "Hcc":
+            self.backgrounds = ["Hbb", "top", "dijets"]
         else:
-            raise ValueError(
-                "So far only `bjets` and `cjets` are supported as signal class."
-            )
+            raise ValueError(f"Unsupported signal class {self.signal}.")
+
+    @property
+    def flavours(self):
+        """Return a list of all flavours.
+
+        Returns
+        -------
+        list
+            List of all flavours
+        """
+        return self.backgrounds + [self.signal]
+
+    def flav_string(self, flav):
+        """Return the label string for a given flavour.
+
+        Parameters
+        ----------
+        flav : str
+            Flavour to get string for
+
+        Returns
+        -------
+        str
+            Flavour string
+        """
+        string = global_config["flavour_categories"][flav]["legend_label"]
+        string = string.replace("jets", "jet")
+        if flav == self.signal:
+            string = f"{string} efficiency"
+        else:
+            string = f"{string} rejection"
+        return string
 
     def add(self, tagger):
         """Add tagger to class.
@@ -63,6 +98,7 @@ class Results:
         label_var="HadronConeExclTruthLabelID",
         cuts=None,
         num_jets=None,
+        perf_var=None,
     ):
         """Add taggers from file.
 
@@ -82,6 +118,8 @@ class Results:
             List of cuts to apply
         num_jets : int, optional
             Number of jets to load from the file, by default all jets
+        perf_var : str, optional
+            Override the performance variable to use, by default None
         """
         if cuts is None:
             cuts = []
@@ -98,15 +136,26 @@ class Results:
 
         # apply cuts
         for var, cut_op, value in cuts:
+            perf_var = perf_var[OPERATORS[cut_op](data[var], value)]
             data = data[OPERATORS[cut_op](data[var], value)]
 
         # add taggers from loaded data
         for tagger in taggers:
             tagger.extract_tagger_scores(data, source_type="structured_array")
-            tagger.is_flav["bjets"] = data[label_var] == 5
-            tagger.is_flav["ujets"] = data[label_var] == 0
-            tagger.is_flav["cjets"] = data[label_var] == 4
-            tagger.perf_var = data["pt"] * 0.001
+
+            if label_var == "HadronConeExclTruthLabelID":
+                tagger.is_flav["bjets"] = data[label_var] == 5
+                tagger.is_flav["ujets"] = data[label_var] == 0
+                tagger.is_flav["cjets"] = data[label_var] == 4
+            elif label_var == "R10TruthLabel_R22v1":
+                tagger.is_flav["Hbb"] = data[label_var] == 11
+                tagger.is_flav["Hcc"] = data[label_var] == 12
+                tagger.is_flav["top"] = data[label_var] == 1
+                tagger.is_flav["dijets"] = data[label_var] == 10
+            if perf_var is None:
+                tagger.perf_var = data[self.perf_var] * 0.001
+            else:
+                tagger.perf_var = perf_var
             self.add(tagger)
 
     def __getitem__(self, tagger_name: str):
@@ -138,11 +187,10 @@ class Results:
         args_roc_plot: dict, optional
             key word arguments being passed to `RocPlot`
         """
-        is_b_sig = self.signal == "bjets"
         roc_plot_args = {
-            "n_ratio_panels": 2,
+            "n_ratio_panels": len(self.backgrounds),
             "ylabel": "Background rejection",
-            "xlabel": "$b$-jet efficiency" if is_b_sig else "$c$-jet efficiency",
+            "xlabel": self.flav_string(self.signal),
             "atlas_second_tag": self.atlas_second_tag,
             "y_scale": 1.3,
         }
@@ -152,7 +200,7 @@ class Results:
         plot_roc = RocPlot(**roc_plot_args)
 
         for tagger in self.taggers.values():
-            discs = tagger.calc_disc_b() if is_b_sig else tagger.calc_disc_c()
+            discs = tagger.get_disc(self.signal)
             for background in self.backgrounds:
                 rej = calc_rej(
                     discs[tagger.is_flav[self.signal]],
@@ -188,6 +236,9 @@ class Results:
     ):
         """Variable vs efficiency/rejection plot.
 
+        You can choose between different modes: "sig_eff", "bkg_eff", "sig_rej",
+        "bkg_rej"
+
         Parameters
         ----------
         plot_name : str
@@ -199,32 +250,31 @@ class Results:
         **kwargs : kwargs
             key word arguments for `puma.VarVsEff`
         """
-        is_b_sig = self.signal == "bjets"
         # define the curves
-        plot_light_rej = VarVsEffPlot(
-            mode="bkg_rej",
-            ylabel="Light-jets rejection",
-            xlabel=xlabel,
-            logy=False,
-            atlas_second_tag=self.atlas_second_tag,
-            n_ratio_panels=1,
-        )
-        plot_c_rej = VarVsEffPlot(
-            mode="bkg_rej",
-            ylabel=r"$c$-jets rejection" if is_b_sig else r"$b$-jets rejection",
-            xlabel=xlabel,
-            logy=False,
-            atlas_second_tag=self.atlas_second_tag,
-            n_ratio_panels=1,
-        )
-        plot_b_eff = VarVsEffPlot(
+        plot_sig_eff = VarVsEffPlot(
             mode="sig_eff",
-            ylabel="$b$-jets efficiency" if is_b_sig else "$c$-jets efficiency",
+            ylabel=self.flav_string(self.signal),
             xlabel=xlabel,
             logy=False,
             atlas_second_tag=self.atlas_second_tag,
             n_ratio_panels=1,
+            y_scale=1.4,
         )
+        plot_bkg = []
+        for background in self.backgrounds:
+
+            plot_bkg.append(
+                VarVsEffPlot(
+                    mode="bkg_rej",
+                    ylabel=self.flav_string(background),
+                    xlabel=xlabel,
+                    logy=False,
+                    atlas_second_tag=self.atlas_second_tag,
+                    n_ratio_panels=1,
+                    y_scale=1.4,
+                )
+            )
+
         disc_cut_in_kwargs = "disc_cut" in kwargs
         working_point_in_kwargs = "working_point" in kwargs
         for tagger in self.taggers.values():
@@ -233,66 +283,40 @@ class Results:
             if not working_point_in_kwargs:
                 kwargs["working_point"] = tagger.working_point
 
-            discs = tagger.calc_disc_b() if is_b_sig else tagger.calc_disc_c()
-            # Switch signal and background if self.signal is not b_jets and using
-            # c-jets as self.signal
+            discs = tagger.get_disc(self.signal)
             is_signal = tagger.is_flav[self.signal]
-            is_bkg = tagger.is_flav["cjets"] if is_b_sig else tagger.is_flav["bjets"]
-            plot_light_rej.add(
+            plot_sig_eff.add(
                 VarVsEff(
                     x_var_sig=tagger.perf_var[is_signal],
                     disc_sig=discs[is_signal],
-                    x_var_bkg=tagger.perf_var[tagger.is_flav["ujets"]],
-                    disc_bkg=discs[tagger.is_flav["ujets"]],
                     label=tagger.label,
                     colour=tagger.colour,
                     **kwargs,
                 ),
                 reference=tagger.reference,
             )
-            plot_c_rej.add(
-                VarVsEff(
-                    x_var_sig=tagger.perf_var[is_signal],
-                    disc_sig=discs[is_signal],
-                    x_var_bkg=tagger.perf_var[is_bkg],
-                    disc_bkg=discs[is_bkg],
-                    label=tagger.label,
-                    colour=tagger.colour,
-                    **kwargs,
-                ),
-                reference=tagger.reference,
-            )
-            plot_b_eff.add(
-                VarVsEff(
-                    x_var_sig=tagger.perf_var[is_signal],
-                    disc_sig=discs[is_signal],
-                    x_var_bkg=tagger.perf_var[tagger.is_flav["ujets"]],
-                    disc_bkg=discs[tagger.is_flav["ujets"]],
-                    label=tagger.label,
-                    colour=tagger.colour,
-                    **kwargs,
-                ),
-                reference=tagger.reference,
-            )
+            for i, background in enumerate(self.backgrounds):
+                is_bkg = tagger.is_flav[background]
+                plot_bkg[i].add(
+                    VarVsEff(
+                        x_var_sig=tagger.perf_var[is_signal],
+                        disc_sig=discs[is_signal],
+                        x_var_bkg=tagger.perf_var[is_bkg],
+                        disc_bkg=discs[is_bkg],
+                        label=tagger.label,
+                        colour=tagger.colour,
+                        **kwargs,
+                    ),
+                    reference=tagger.reference,
+                )
 
-        # You can choose between different modes: "sig_eff", "bkg_eff", "sig_rej",
-        # "bkg_rej"
-
-        plot_light_rej.draw()
-        plot_light_rej.savefig(f"{plot_name}_u_rej.png")
-
-        plot_c_rej.draw()
-        plot_c_rej.savefig(
-            f"{plot_name}_c_rej.png" if is_b_sig else f"{plot_name}_b_rej.png"
-        )
-
-        plot_b_eff.draw()
-        # Drawing a hline indicating inclusive efficiency
+        plot_sig_eff.draw()
         if h_line:
-            plot_b_eff.draw_hline(h_line)
-        plot_b_eff.savefig(
-            f"{plot_name}_b_eff.png" if is_b_sig else f"{plot_name}_c_eff.png"
-        )
+            plot_sig_eff.draw_hline(h_line)
+        plot_sig_eff.savefig(f"{plot_name}_{self.signal}_eff.png")
+        for i, background in enumerate(self.backgrounds):
+            plot_bkg[i].draw()
+            plot_bkg[i].savefig(f"{plot_name}_{background}_rej.png")
 
     def plot_discs(
         self,
@@ -315,11 +339,8 @@ class Results:
         **kwargs : kwargs
             key word arguments for `puma.HistogramPlot`
         """
-        is_b_sig = self.signal == "bjets"
-        if is_b_sig and xlabel is None:
-            xlabel = r"$D_{b}$"
-        elif not is_b_sig and xlabel is None:
-            xlabel = r"$D_{c}$"
+        if xlabel is None:
+            xlabel = rf"$D_{{{self.signal.rstrip('jets')}}}$"
 
         flav_cat = global_config["flavour_categories"]
         line_styles = get_good_linestyles()
@@ -337,37 +358,18 @@ class Results:
         for tagger in self.taggers.values():
             if exclude_tagger is not None and tagger.name in exclude_tagger:
                 continue
-            discs = tagger.calc_disc_b() if is_b_sig else tagger.calc_disc_c()
-            tagger_output_plot.add(
-                Histogram(
-                    discs[tagger.is_flav["ujets"]],
-                    ratio_group="ujets",
-                    label="Light-jets" if tag_i == 0 else None,
-                    colour=flav_cat["ujets"]["colour"],
-                    linestyle=line_styles[tag_i],
-                ),
-                reference=tagger.reference,
-            )
-            tagger_output_plot.add(
-                Histogram(
-                    discs[tagger.is_flav["cjets"]],
-                    ratio_group="cjets",
-                    label="$c$-jets" if tag_i == 0 else None,
-                    colour=flav_cat["cjets"]["colour"],
-                    linestyle=line_styles[tag_i],
-                ),
-                reference=tagger.reference,
-            )
-            tagger_output_plot.add(
-                Histogram(
-                    discs[tagger.is_flav[self.signal]],
-                    ratio_group="bjets",
-                    label="$b$-jets" if tag_i == 0 else None,
-                    colour=flav_cat["bjets"]["colour"],
-                    linestyle=line_styles[tag_i],
-                ),
-                reference=tagger.reference,
-            )
+            discs = tagger.get_disc(self.signal)
+            for flav in self.flavours:
+                tagger_output_plot.add(
+                    Histogram(
+                        discs[tagger.is_flav[flav]],
+                        ratio_group=flav,
+                        label=flav_cat[flav]["legend_label"] if tag_i == 0 else None,
+                        colour=flav_cat[flav]["colour"],
+                        linestyle=line_styles[tag_i],
+                    ),
+                    reference=tagger.reference,
+                )
             tag_i += 1
             tag_labels.append(tagger.label if tagger.label else tagger.name)
         tagger_output_plot.draw()

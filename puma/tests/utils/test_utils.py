@@ -39,8 +39,8 @@ class LinestylesTestCase(unittest.TestCase):
             expected_linestyles = [
                 "solid",
                 (0, (3, 1, 1, 1)),
-                (0, (5, 2)),
                 (0, (1, 1)),
+                (0, (5, 2)),
                 (0, (3, 1, 1, 1, 1, 1)),
                 (0, (5, 5)),
                 (0, (2, 2)),

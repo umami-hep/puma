@@ -76,14 +76,10 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
         Minimum value of the y-axis, by default None
     ymax : float, optional
         Maximum value of the y-axis, by default None
-    ymin_ratio_1 : float, optional
-        Set the lower y limit of the first ratio subplot, by default None.
-    ymax_ratio_1 : float, optional
-        Set the upper y limit of the first ratio subplot, by default None.
-    ymin_ratio_2 : float, optional
-        Set the lower y limit of the second ratio subplot, by default None.
-    ymax_ratio_2 : float, optional
-        Set the upper y limit of the second ratio subplot, by default None.
+    ymin_ratio : list, optional
+        Set the lower y limit of each of the ratio subplots, by default None.
+    ymax_ratio : list, optional
+        Set the upper y limit of each of the ratio subplots, by default None.
     y_scale : float, optional
         Scaling up the y axis, e.g. to fit the ATLAS Tag. Applied if ymax not defined,
         by default 1.3
@@ -95,10 +91,8 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
         Label of the x-axis, by default None
     ylabel : str, optional
         Label of the y-axis, by default None
-    ylabel_ratio_1 : str, optional
-        Label of the y-axis in the first ratio plot, by default "Ratio"
-    ylabel_ratio_2 : str, optional
-        Label of the y-axis in the second ratio plot, by default "Ratio"
+    ylabel_ratio : list, optional
+        List of labels for the y-axis in the ratio plots, by default "Ratio"
     label_fontsize : int, optional
         Used fontsize in label, by default 12
     fontsize : int, optional
@@ -160,17 +154,14 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
     xmax: float = None
     ymin: float = None
     ymax: float = None
-    ymin_ratio_1: float = None
-    ymax_ratio_1: float = None
-    ymin_ratio_2: float = None
-    ymax_ratio_2: float = None
+    ymin_ratio: list = None
+    ymax_ratio: list = None
     y_scale: float = 1.3
     logx: bool = False
     logy: bool = True
     xlabel: str = None
     ylabel: str = None
-    ylabel_ratio_1: str = "Ratio"
-    ylabel_ratio_2: str = "Ratio"
+    ylabel_ratio: list = None
     label_fontsize: int = 12
     fontsize: int = 10
 
@@ -209,15 +200,18 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
         Raises
         ------
         ValueError
-            If n_ratio_panels not in [0, 1, 2]
+            If n_ratio_panels not in [0, 1, 2, 3]
         """
         self.__check_figsize()
-        allowed_n_ratio_panels = [0, 1, 2]
+        allowed_n_ratio_panels = [0, 1, 2, 3]
         if self.n_ratio_panels not in allowed_n_ratio_panels:
             raise ValueError(
                 f"{self.n_ratio_panels} not allwed value for `n_ratio_panels`. "
                 f"Allowed are {allowed_n_ratio_panels}"
             )
+        self.ymin_ratio = [None] * self.n_ratio_panels
+        self.ymax_ratio = [None] * self.n_ratio_panels
+        self.ylabel_ratio = ["Ratio"] * self.n_ratio_panels
         if self.leg_fontsize is None:
             self.leg_fontsize = self.fontsize
         if self.atlas_fontsize is None:
@@ -262,8 +256,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         """
         super().__init__(**kwargs)
         self.axis_top = None
-        self.axis_ratio_1 = None
-        self.axis_ratio_2 = None
+        self.ratio_axes = []
         self.axis_leg = None
         self.fig = None
 
@@ -313,14 +306,12 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
                     )
                     if i < self.n_ratio_panels:
                         set_xaxis_ticklabels_invisible(sub_axis)
-                    setattr(self, f"axis_ratio_{i}", sub_axis)
+                    self.ratio_axes.append(sub_axis)
 
         if self.grid:
             self.axis_top.grid(lw=0.3)
-            if self.axis_ratio_1:
-                self.axis_ratio_1.grid(lw=0.3)
-            if self.axis_ratio_2:
-                self.axis_ratio_2.grid(lw=0.3)
+            for ratio_axis in self.ratio_axes:
+                ratio_axis.grid(lw=0.3)
 
     def draw_vlines(
         self,
@@ -381,12 +372,8 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
                 fontsize=fontsize,
             )
 
-            if self.n_ratio_panels > 0:
-                self.axis_ratio_1.axvline(
-                    x=vline, color=colour, linestyle="dashed", linewidth=1.0
-                )
-            if self.n_ratio_panels == 2:
-                self.axis_ratio_2.axvline(
+            for ratio_axis in self.ratio_axes:
+                ratio_axis.axvline(
                     x=vline, color=colour, linestyle="dashed", linewidth=1.0
                 )
 
@@ -423,10 +410,8 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
 
             # Set log scale for all plots
             self.axis_top.set_xscale("log")
-            if self.axis_ratio_1:
-                self.axis_ratio_1.set_xscale("log")
-            if self.axis_ratio_2:
-                self.axis_ratio_2.set_xscale("log")
+            for ratio_axis in self.ratio_axes:
+                ratio_axis.set_xscale("log")
 
         if self.logy or force_y:
             if not self.logy:
@@ -446,29 +431,12 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
             ymin + (ymax - ymin) * self.y_scale if self.ymax is None else self.ymax,
         )
 
-        if self.axis_ratio_1:
-            if self.ymin_ratio_1 or self.ymax_ratio_1:
-                ymin, ymax = self.axis_ratio_1.get_ylim()
-
-                if self.ymin_ratio_1:
-                    ymin = self.ymin_ratio_1
-
-                if self.ymax_ratio_1:
-                    ymax = self.ymax_ratio_1
-
-                self.axis_ratio_1.set_ylim(bottom=ymin, top=ymax)
-
-        if self.axis_ratio_2:
-            if self.ymin_ratio_2 or self.ymax_ratio_2:
-                ymin, ymax = self.axis_ratio_2.get_ylim()
-
-                if self.ymin_ratio_2:
-                    ymin = self.ymin_ratio_2
-
-                if self.ymax_ratio_2:
-                    ymax = self.ymax_ratio_2
-
-                self.axis_ratio_2.set_ylim(bottom=ymin, top=ymax)
+        for i, ratio_axis in enumerate(self.ratio_axes):
+            if self.ymin_ratio[i] or self.ymax_ratio[i]:
+                ymin, ymax = ratio_axis.get_ylim()
+                ymin = self.ymin_ratio[i] if self.ymin_ratio[i] else ymin
+                ymax = self.ymax_ratio[i] if self.ymax_ratio[i] else ymax
+                ratio_axis.set_ylim(bottom=ymin, top=ymax)
 
     def set_ylabel(self, ax_mpl, label: str = None, align_right: bool = True, **kwargs):
         """Set y-axis label.
@@ -519,13 +487,10 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
             "x": 1.0,
             "fontsize": self.label_fontsize,
         }
-        # TODO: switch to cases syntax in python 3.10
         if self.n_ratio_panels == 0:
             self.axis_top.set_xlabel(**xlabel_args, **kwargs)
-        elif self.n_ratio_panels == 1:
-            self.axis_ratio_1.set_xlabel(**xlabel_args, **kwargs)
-        elif self.n_ratio_panels == 2:
-            self.axis_ratio_2.set_xlabel(**xlabel_args, **kwargs)
+        if self.n_ratio_panels > 0:
+            self.ratio_axes[-1].set_xlabel(**xlabel_args, **kwargs)
 
     def set_tick_params(self, labelsize: int = None, **kwargs):
         """Set x-axis label.
@@ -540,16 +505,12 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         """
         labelsize = self.fontsize if labelsize is None else labelsize
         self.axis_top.tick_params(axis="y", labelsize=labelsize, **kwargs)
-        # TODO: switch to cases syntax in python 3.10
         if self.n_ratio_panels == 0:
             self.axis_top.tick_params(axis="x", labelsize=labelsize, **kwargs)
-        elif self.n_ratio_panels == 1:
-            self.axis_ratio_1.tick_params(axis="y", labelsize=labelsize, **kwargs)
-            self.axis_ratio_1.tick_params(axis="x", labelsize=labelsize, **kwargs)
-        elif self.n_ratio_panels == 2:
-            self.axis_ratio_1.tick_params(axis="y", labelsize=labelsize, **kwargs)
-            self.axis_ratio_2.tick_params(axis="y", labelsize=labelsize, **kwargs)
-            self.axis_ratio_2.tick_params(axis="x", labelsize=labelsize, **kwargs)
+        for i, ratio_axis in enumerate(self.ratio_axes):
+            ratio_axis.tick_params(axis="y", labelsize=labelsize, **kwargs)
+            if i == self.n_ratio_panels - 1:
+                ratio_axis.tick_params(axis="x", labelsize=labelsize, **kwargs)
 
     def set_xlim(self, xmin: float = None, xmax: float = None, **kwargs):
         """Set limits of x-axis
@@ -639,10 +600,8 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
                 )
             else:
                 atlasify.atlasify(atlas=False, axes=self.axis_top, enlarge=1)
-            if self.n_ratio_panels >= 1:
-                atlasify.atlasify(atlas=False, axes=self.axis_ratio_1, enlarge=1)
-            if self.n_ratio_panels == 2:
-                atlasify.atlasify(atlas=False, axes=self.axis_ratio_2, enlarge=1)
+            for ratio_axis in self.ratio_axes:
+                atlasify.atlasify(atlas=False, axes=ratio_axis, enlarge=1)
             if self.vertical_split:
                 atlasify.atlasify(atlas=False, axes=self.axis_leg, enlarge=1)
             if force:
@@ -761,10 +720,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
             raise ValueError(
                 "Requested ratio panels and given ratio_panel do not match."
             )
-        if ratio_panel == 1:
-            self.ylabel_ratio_1 = label
-        if ratio_panel == 2:
-            self.ylabel_ratio_2 = label
+        self.ylabel_ratio[ratio_panel - 1] = label
 
     def initialise_plot(self):
         """Calls other methods which are usually used when plotting"""

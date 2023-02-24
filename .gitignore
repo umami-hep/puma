@@ -24,6 +24,7 @@ sdist/
 var/
 plots/
 outputs/
+run/
 wheels/
 pip-wheel-metadata/
 share/python-wheels/

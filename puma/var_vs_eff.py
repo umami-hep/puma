@@ -462,7 +462,6 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         self.plot_objects = {}
         self.add_order = []
         self.ratios_objects = {}
-        self.ratio_axes = {}
         self.reference_object = None
         self.bin_edge_min = np.inf
         self.bin_edge_max = -np.inf
@@ -611,7 +610,7 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                 mode=self.mode,
                 inverse_cut=self.inverse_cut,
             )
-            error_bar = self.axis_ratio_1.errorbar(
+            error_bar = self.ratio_axes[0].errorbar(
                 x_bin_centres,
                 ratio,
                 xerr=bin_widths,
@@ -628,7 +627,7 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             down_variation = np.concatenate((down_variation[:1], down_variation[:]))
             up_variation = np.concatenate((up_variation[:1], up_variation[:]))
 
-            self.axis_ratio_1.fill_between(
+            self.ratio_axes[0].fill_between(
                 elem.bin_edges,
                 down_variation,
                 up_variation,
@@ -695,8 +694,8 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
 
         if self.n_ratio_panels > 0:
             self.set_ylabel(
-                self.axis_ratio_1,
-                self.ylabel_ratio_1,
+                self.ratio_axes[0],
+                self.ylabel_ratio[0],
                 align_right=False,
                 labelpad=labelpad,
             )

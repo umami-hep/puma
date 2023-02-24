@@ -30,15 +30,15 @@ linestyles = get_good_linestyles()[:2]
 plot_histo = HistogramPlot(
     n_ratio_panels=1,
     ylabel="Normalised number of jets",
-    ylabel_ratio_1="Ratio to DIPS",
+    ylabel_ratio=["Ratio to DIPS"],
     xlabel="$b$-jet discriminant",
     logy=False,
     leg_ncol=1,
     figsize=(5.5, 4.5),
     bins=np.linspace(-10, 10, 50),
     y_scale=1.5,
-    ymax_ratio_1=1.5,
-    ymin_ratio_1=0.5,
+    ymax_ratio=[1.5],
+    ymin_ratio=[0.5],
     atlas_second_tag="$\\sqrt{s}=13$ TeV, dummy jets \ndummy sample, $f_{c}=0.018$",
 )
 

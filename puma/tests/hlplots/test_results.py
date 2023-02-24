@@ -55,16 +55,20 @@ class ResultsTestCase(unittest.TestCase):
         retrieved_dummy_tagger_2 = results["dummy_2 (dummy_2)"]
         self.assertEqual(retrieved_dummy_tagger_2.name, dummy_tagger_2.name)
 
-    def add_taggers_from_file(self):
+    def test_add_taggers_from_file(self):
         """Test for Results.add_taggers_from_file function"""
         tmp_dir = tempfile.TemporaryDirectory()  # pylint: disable=R1732
+        rng = np.random.default_rng(seed=16)
         with h5py.File(f"{tmp_dir.name}/test.h5", "w") as file:
-            file.create_dataset("jets", data=get_dummy_2_taggers().to_records())
-
+            data = get_dummy_2_taggers()
+            data["pt"] = rng.random(len(data))
+            file.create_dataset("jets", data=data.to_records())
         results = Results()
         taggers = [Tagger("rnnip")]
-        results.add_taggers_from_file(taggers, f"{tmp_dir.name}/test.h5")
-        self.assertEqual(results.taggers.values(), taggers)
+        results.add_taggers_from_file(
+            taggers, f"{tmp_dir.name}/test.h5", perf_var=data["pt"]
+        )
+        self.assertEqual(list(results.taggers.values()), taggers)
 
 
 class ResultsPlotsTestCase(unittest.TestCase):
@@ -142,9 +146,9 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 plot_name=plot_name,
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
             )
-            self.assertIsFile(plot_name + "_b_eff.png")
-            self.assertIsFile(plot_name + "_c_rej.png")
-            self.assertIsFile(plot_name + "_u_rej.png")
+            self.assertIsFile(plot_name + "_bjets_eff.png")
+            self.assertIsFile(plot_name + "_cjets_rej.png")
+            self.assertIsFile(plot_name + "_ujets_rej.png")
 
     def test_plot_var_perf_cjets(self):
         """Test that png file is being created."""
@@ -164,9 +168,9 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 h_line=self.dummy_tagger_1.working_point,
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
             )
-            self.assertIsFile(plot_name + "_c_eff.png")
-            self.assertIsFile(plot_name + "_b_rej.png")
-            self.assertIsFile(plot_name + "_u_rej.png")
+            self.assertIsFile(plot_name + "_cjets_eff.png")
+            self.assertIsFile(plot_name + "_bjets_rej.png")
+            self.assertIsFile(plot_name + "_ujets_rej.png")
 
     def test_plot_discs_bjets(self):
         """Test that png file is being created."""
