@@ -233,6 +233,7 @@ class Results:
         plot_name: str,
         xlabel: str = r"$p_{T}$ [GeV]",
         h_line: float = None,
+        format: str = 'png',
         **kwargs,
     ):
         """Variable vs efficiency/rejection plot.
@@ -314,10 +315,10 @@ class Results:
         plot_sig_eff.draw()
         if h_line:
             plot_sig_eff.draw_hline(h_line)
-        plot_sig_eff.savefig(f"{plot_name}_{self.signal}_eff.png")
+        plot_sig_eff.savefig(f"{plot_name}_{self.signal}_eff.{format}")
         for i, background in enumerate(self.backgrounds):
             plot_bkg[i].draw()
-            plot_bkg[i].savefig(f"{plot_name}_{background}_rej.png")
+            plot_bkg[i].savefig(f"{plot_name}_{background}_rej.{format}")
 
     def plot_discs(
         self,
