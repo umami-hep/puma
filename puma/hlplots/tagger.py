@@ -97,6 +97,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
                 source,
             )
             self.scores = structured_to_unstructured(source[self.variables])
+            self.scores = self.scores.astype("float32")
             return
         if key is None:
             raise ValueError(

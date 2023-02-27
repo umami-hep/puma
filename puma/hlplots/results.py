@@ -136,7 +136,8 @@ class Results:
 
         # apply cuts
         for var, cut_op, value in cuts:
-            perf_var = perf_var[OPERATORS[cut_op](data[var], value)]
+            if perf_var is not None:
+                perf_var = perf_var[OPERATORS[cut_op](data[var], value)]
             data = data[OPERATORS[cut_op](data[var], value)]
 
         # add taggers from loaded data

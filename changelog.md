@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Cast scores to full precision [!159](https://github.com/umami-hep/puma/pull/159)
 - Add Xbb Support [!157](https://github.com/umami-hep/puma/pull/157)
 - Improvements to the high level API [!155](https://github.com/umami-hep/puma/pull/155)
 - Fixate the python container version [!153](https://github.com/umami-hep/puma/pull/153)
