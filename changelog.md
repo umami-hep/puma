@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+### [v0.2.2] (2023/02/28)
 - Extend format saving options [!160](https://github.com/umami-hep/puma/pull/160)
 - Cast scores to full precision [!159](https://github.com/umami-hep/puma/pull/159)
 - Add Xbb Support [!157](https://github.com/umami-hep/puma/pull/157)
