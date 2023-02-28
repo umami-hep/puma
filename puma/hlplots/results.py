@@ -249,6 +249,8 @@ class Results:
             _description_, by default "$p_{T}$ [GeV]"
         h_line : float, optional
             draws a horizonatal line in the signal efficiency plot
+        ext : str, optional
+            changes the extension of the save plot
         **kwargs : kwargs
             key word arguments for `puma.VarVsEff`
         """
