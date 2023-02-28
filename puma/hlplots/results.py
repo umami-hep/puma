@@ -233,7 +233,7 @@ class Results:
         plot_name: str,
         xlabel: str = r"$p_{T}$ [GeV]",
         h_line: float = None,
-        format: str = 'png',
+        format: str = "png",
         **kwargs,
     ):
         """Variable vs efficiency/rejection plot.
@@ -264,7 +264,6 @@ class Results:
         )
         plot_bkg = []
         for background in self.backgrounds:
-
             plot_bkg.append(
                 VarVsEffPlot(
                     mode="bkg_rej",
