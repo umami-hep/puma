@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+### [v0.2.2] (2023/02/28)
+
 - Cast scores to full precision [!159](https://github.com/umami-hep/puma/pull/159)
 - Add Xbb Support [!157](https://github.com/umami-hep/puma/pull/157)
 - Improvements to the high level API [!155](https://github.com/umami-hep/puma/pull/155)
