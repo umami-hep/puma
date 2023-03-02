@@ -233,6 +233,7 @@ class Results:
         plot_name: str,
         xlabel: str = r"$p_{T}$ [GeV]",
         h_line: float = None,
+        ext: str = "png",
         **kwargs,
     ):
         """Variable vs efficiency/rejection plot.
@@ -248,6 +249,8 @@ class Results:
             _description_, by default "$p_{T}$ [GeV]"
         h_line : float, optional
             draws a horizonatal line in the signal efficiency plot
+        ext : str, optional
+            changes the extension of the save plot
         **kwargs : kwargs
             key word arguments for `puma.VarVsEff`
         """
@@ -263,7 +266,6 @@ class Results:
         )
         plot_bkg = []
         for background in self.backgrounds:
-
             plot_bkg.append(
                 VarVsEffPlot(
                     mode="bkg_rej",
@@ -314,10 +316,10 @@ class Results:
         plot_sig_eff.draw()
         if h_line:
             plot_sig_eff.draw_hline(h_line)
-        plot_sig_eff.savefig(f"{plot_name}_{self.signal}_eff.png")
+        plot_sig_eff.savefig(f"{plot_name}_{self.signal}_eff.{ext}")
         for i, background in enumerate(self.backgrounds):
             plot_bkg[i].draw()
-            plot_bkg[i].savefig(f"{plot_name}_{background}_rej.png")
+            plot_bkg[i].savefig(f"{plot_name}_{background}_rej.{ext}")
 
     def plot_discs(
         self,

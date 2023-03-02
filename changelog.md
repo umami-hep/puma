@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+- Extend format saving options [!160](https://github.com/umami-hep/puma/pull/160)
+
 ### [v0.2.2] (2023/02/28)
 
 - Cast scores to full precision [!159](https://github.com/umami-hep/puma/pull/159)

@@ -23,6 +23,12 @@ repos:
         types: [python]
         exclude: setup.py
         args: ["--darglint-ignore-regex", "*"]
+      - id: darglint
+        name: darglint
+        stages: [commit]
+        language: system
+        entry: darglint
+        types: [python]
       # - id: pylint
       #   name: pylint
       #   stages: [commit]
