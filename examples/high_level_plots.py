@@ -72,7 +72,7 @@ results.atlas_second_tag = "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$\n70% WP
 # or alternatively also pass the argument `working_point` to the plot_var_perf function.
 # to specify the `disc_cut` per tagger is also possible.
 results.plot_var_perf(
-    plot_name="hlplots_dummy_tagger",
+    plot_name="hlplots_dummy_tagger_pt",
     working_point=0.7,
     bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
     fixed_eff_bin=False,
@@ -82,7 +82,7 @@ results.atlas_second_tag = (
     "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$\n70% WP per bin"
 )
 results.plot_var_perf(
-    plot_name="hlplots_dummy_tagger_fixed_per_bin",
+    plot_name="hlplots_dummy_tagger_pt_fixed_per_bin",
     bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
     fixed_eff_bin=True,
     working_point=0.7,

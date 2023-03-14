@@ -49,18 +49,18 @@ In this case we plot the performance as a function of the jet pT with the same s
 ```py
 §§§examples/high_level_plots.py:66:79§§§
 ```
-<img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_pt_b_eff.png width=500>
-<img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_pt_c_rej.png width=500>
-<img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_pt_light_rej.png width=500>
+<img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_pt_bjets_eff.png width=500>
+<img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_pt_cjets_rej.png width=500>
+<img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_pt_ujets_rej.png width=500>
 
 and similar for a fixed b-efficiency per bin.
 ```py
 §§§examples/high_level_plots.py:81:91§§§
 ```
 
-<img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_fixed_per_bin_pt_b_eff.png width=500>
-<img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_fixed_per_bin_pt_c_rej.png width=500>
-<img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_fixed_per_bin_pt_light_rej.png width=500>
+<img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_fixed_per_bin_pt_bjets_eff.png width=500>
+<img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_fixed_per_bin_pt_cjets_rej.png width=500>
+<img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_fixed_per_bin_pt_ujets_rej.png width=500>
 
 
 Similar to above you can also do these plots for _c_-tagging by changing the `signal_class` to `cjets`.
