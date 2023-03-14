@@ -4,7 +4,7 @@ coverage==6.3.1
 darglint==1.8.1
 flake8==4.0.1
 isort==5.10.1
-h5py==3.7.0
+h5py==3.8.0
 librep==0.0.5
 matplotlib==3.5.1
 numpy==1.21.0

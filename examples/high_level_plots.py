@@ -1,53 +1,49 @@
 """Produce roc curves from tagger output and labels."""
-# from pathlib import Path
 
-# import h5py
 import numpy as np
 
 from puma.hlplots import Results, Tagger
 from puma.utils import get_dummy_2_taggers, logger
 
 # The line below generates dummy data which is similar to a NN output
-df = get_dummy_2_taggers(add_pt=True)
-class_ids = [0, 4, 5]
-# Remove all jets which are not trained on
-df.query(f"HadronConeExclTruthLabelID in {class_ids}", inplace=True)
-df.query("pt < 250e3", inplace=True)
+file = get_dummy_2_taggers(add_pt=True, return_file=True)
 
-logger.info("Start plotting")
+# define jet selections
+cuts = [("n_truth_promptLepton", "==", 0)]
 
-# WARNING: if you use 2 different data frames you need to specify the `is_light`,
-# `is_c` and `is_b` for each data frame separately and thus you cannot use these
-# args for each tagger the same applies to the `perf_var`
-tagger_args = {
-    "is_flav": {
-        "bjets": df["HadronConeExclTruthLabelID"] == 5,
-        "cjets": df["HadronConeExclTruthLabelID"] == 4,
-        "ujets": df["HadronConeExclTruthLabelID"] == 0,
-    }
-}
-
-dips = Tagger("dips", **tagger_args)
-dips.perf_var = df["pt"] / 1e3
-dips.label = "dummy DIPS ($f_{c}=0.005$)"
-dips.f_c = 0.005
-dips.f_b = 0.04
-dips.colour = "#AA3377"
-dips.extract_tagger_scores(df)
-
-rnnip = Tagger("rnnip", **tagger_args)
-rnnip.perf_var = df["pt"] / 1e3
-rnnip.label = "dummy RNNIP ($f_{c}=0.07$)"
-rnnip.f_c = 0.07
-rnnip.f_b = 0.04
-rnnip.colour = "#4477AA"
-rnnip.reference = True
-rnnip.extract_tagger_scores(df)
-
-# create the Results object for c-jet signal plot use `signal="cjets"`
+# can also use `signal="cjets"` to study c-tagging performance
 results = Results(signal="bjets")
-results.add(dips)
-results.add(rnnip)
+
+# define the taggers
+dips = Tagger(
+    name="dips",
+    label="dummy DIPS ($f_{c}=0.005$)",
+    f_c=0.005,
+    f_b=0.04,
+    colour="#AA3377",
+)
+rnnip = Tagger(
+    name="rnnip",
+    label="dummy RNNIP ($f_{c}=0.07$)",
+    f_c=0.07,
+    f_b=0.04,
+    colour="#4477AA",
+    reference=True,
+)
+
+# create the Results object
+# for c-tagging use signal="cjets"
+# for Hbb-tagging use signal="Hbb"
+results = Results(signal="bjets")
+
+# load taggers from the file object
+logger.info("Loading taggers.")
+results.add_taggers_from_file(
+    [dips, rnnip],
+    file.filename,
+    cuts=cuts,
+    num_jets=len(file["jets"]),
+)
 
 results.sig_eff = np.linspace(0.6, 0.95, 20)
 results.atlas_second_tag = (

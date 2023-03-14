@@ -24,7 +24,7 @@ class Results:
 
     signal: Literal["bjets", "cjets", "Hcc"] = "bjets"
     backgrounds: list = field(init=False)
-    atlas_fist_tag: str = None
+    atlas_first_tag: str = None
     atlas_second_tag: str = None
     taggers: dict = field(default_factory=dict)
     sig_eff: float = None
@@ -119,7 +119,7 @@ class Results:
             List of cuts to apply
         num_jets : int, optional
             Number of jets to load from the file, by default all jets
-        perf_var : str, optional
+        perf_var : np.ndarray, optional
             Override the performance variable to use, by default None
         """
         if cuts is None:
@@ -129,7 +129,7 @@ class Results:
         var_list = sum([tagger.variables for tagger in taggers], [label_var])
 
         var_list += [cut[0] for cut in cuts]
-        var_list = list(set(var_list))
+        var_list = list(set(var_list)) + [self.perf_var]
 
         # load data
         with h5py.File(file_path) as file:
