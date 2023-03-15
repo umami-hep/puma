@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- HLAPI and CI Updates [!165](https://github.com/umami-hep/puma/pull/165)
 - Extend format saving options [!160](https://github.com/umami-hep/puma/pull/160)
 
 ### [v0.2.2] (2023/02/28)
