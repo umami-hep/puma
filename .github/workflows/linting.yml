@@ -14,15 +14,5 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
       - run: pip install pre-commit
+      - run: pip install -r requirements.txt
       - run: pre-commit run --all-files
-  pylint:
-    runs-on: ubuntu-latest
-    container: python:3.8.15-slim
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v3
-      - name: Install requirements
-        run: pip install -r requirements.txt
-      - run: pip install .
-      - run: pylint -j2 ./puma
-      - run: pylint -j2 ./examples/*.py

@@ -50,7 +50,7 @@ def get_dummy_multiclass_scores(
     return output, labels
 
 
-def get_dummy_2_taggers(
+def get_dummy_2_taggers(  # pylint: disable=R0913
     size: int = 9_999,
     shuffle: bool = True,
     seed: int = 42,
@@ -105,7 +105,9 @@ def get_dummy_2_taggers(
     df_gen["n_truth_promptLepton"] = 0
 
     if return_file:
-        fname = NamedTemporaryFile(mode="w", suffix=".h5", delete=False).name
+        fname = NamedTemporaryFile(  # pylint: disable=R1732
+            mode="w", suffix=".h5", delete=False
+        ).name
         file = h5py.File(fname, "w")
         file.create_dataset(name="jets", data=df_gen.to_records())
         return file
