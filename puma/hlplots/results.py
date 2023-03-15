@@ -24,6 +24,7 @@ class Results:
 
     signal: Literal["bjets", "cjets", "Hcc"] = "bjets"
     backgrounds: list = field(init=False)
+    atlas_first_tag: str = None
     atlas_second_tag: str = None
     taggers: dict = field(default_factory=dict)
     sig_eff: float = None
@@ -118,7 +119,7 @@ class Results:
             List of cuts to apply
         num_jets : int, optional
             Number of jets to load from the file, by default all jets
-        perf_var : str, optional
+        perf_var : np.ndarray, optional
             Override the performance variable to use, by default None
         """
         if cuts is None:
@@ -128,7 +129,7 @@ class Results:
         var_list = sum([tagger.variables for tagger in taggers], [label_var])
 
         var_list += [cut[0] for cut in cuts]
-        var_list = list(set(var_list))
+        var_list = list(set(var_list)) + [self.perf_var]
 
         # load data
         with h5py.File(file_path) as file:
@@ -192,6 +193,7 @@ class Results:
             "n_ratio_panels": len(self.backgrounds),
             "ylabel": "Background rejection",
             "xlabel": self.flav_string(self.signal),
+            "atlas_first_tag": self.atlas_first_tag,
             "atlas_second_tag": self.atlas_second_tag,
             "y_scale": 1.3,
         }
@@ -260,6 +262,7 @@ class Results:
             ylabel=self.flav_string(self.signal),
             xlabel=xlabel,
             logy=False,
+            atlas_first_tag=self.atlas_first_tag,
             atlas_second_tag=self.atlas_second_tag,
             n_ratio_panels=1,
             y_scale=1.4,
@@ -272,6 +275,7 @@ class Results:
                     ylabel=self.flav_string(background),
                     xlabel=xlabel,
                     logy=False,
+                    atlas_first_tag=self.atlas_first_tag,
                     atlas_second_tag=self.atlas_second_tag,
                     n_ratio_panels=1,
                     y_scale=1.4,
@@ -353,6 +357,7 @@ class Results:
             xlabel=xlabel,
             ylabel="Normalised number of jets",
             figsize=(7.0, 4.5),
+            atlas_first_tag=self.atlas_first_tag,
             atlas_second_tag=self.atlas_second_tag,
             **kwargs,
         )

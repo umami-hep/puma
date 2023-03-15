@@ -1,4 +1,7 @@
 """Dummy data generation for plotting."""
+from tempfile import NamedTemporaryFile
+
+import h5py
 import numpy as np
 import pandas as pd
 from scipy.special import softmax
@@ -47,11 +50,13 @@ def get_dummy_multiclass_scores(
     return output, labels
 
 
-def get_dummy_2_taggers(
+def get_dummy_2_taggers(  # pylint: disable=R0913
     size: int = 9_999,
     shuffle: bool = True,
     seed: int = 42,
     add_pt: bool = False,
+    label: str = "HadronConeExclTruthLabelID",
+    return_file: bool = False,
 ):
     """
     Wrapper function of `get_dummy_multiclass_scores` to generate classifier output
@@ -69,19 +74,23 @@ def get_dummy_2_taggers(
         by default 42
     add_pt : bool, optional
         Specify if pt column should be added as well, by default False
+    label : str, optional
+        Name of the label column, by default "HadronConeExclTruthLabelID"
+    return_file : bool, optional
+        If True returns a file object instead of a pandas.DataFrame,
 
     Returns
     -------
-    df_gen : pandas.DataFrame
+    df_gen : pandas.DataFrame or file
         Dataframe with columns
-        [HadronConeExclTruthLabelID, rnnip_pu, rnnip_pc, rnnip_pb, dips_pu, dips_pc,
+        [label, rnnip_pu, rnnip_pc, rnnip_pb, dips_pu, dips_pc,
         dips_pb] if `add_pt` is True also pt is added
     """
     output_rnnip, labels = get_dummy_multiclass_scores(
         bjets_mean=0.9, size=size, seed=seed
     )
     df_gen = pd.DataFrame(output_rnnip, columns=["rnnip_pu", "rnnip_pc", "rnnip_pb"])
-    df_gen["HadronConeExclTruthLabelID"] = labels
+    df_gen[label] = labels
     output_dips, _ = get_dummy_multiclass_scores(
         bjets_mean=1.4, size=size, seed=seed + 10
     )
@@ -92,4 +101,15 @@ def get_dummy_2_taggers(
         df_gen["pt"] = rng.exponential(100_000, size=len(df_gen))
     if shuffle:
         df_gen = df_gen.sample(frac=1).reset_index(drop=True)
+
+    df_gen["n_truth_promptLepton"] = 0
+
+    if return_file:
+        fname = NamedTemporaryFile(  # pylint: disable=R1732
+            mode="w", suffix=".h5", delete=False
+        ).name
+        file = h5py.File(fname, "w")
+        file.create_dataset(name="jets", data=df_gen.to_records())
+        return file
+
     return df_gen

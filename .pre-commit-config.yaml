@@ -1,42 +1,35 @@
 repos:
-  - repo: local
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
     hooks:
       - id: isort
-        name: isort
-        stages: [commit]
-        language: system
-        entry: isort
-        types: [python]
         args: ["--profile", "black"]
+
+  - repo: https://github.com/psf/black
+    rev: 23.1.0
+    hooks:
       - id: black
-        name: black
-        stages: [commit]
-        language: system
-        entry: black
-        types: [python]
         args: ["--preview"]
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 5.0.4
+    hooks:
       - id: flake8
-        name: flake8
-        stages: [commit]
-        language: system
-        entry: flake8
-        types: [python]
-        exclude: setup.py
-        args: ["--darglint-ignore-regex", "*"]
+
+  - repo: https://github.com/terrencepreilly/darglint
+    rev: v1.8.1
+    hooks:
       - id: darglint
-        name: darglint
-        stages: [commit]
+
+  - repo: local
+    hooks:
+      - id: pylint
+        name: pylint
+        entry: pylint
         language: system
-        entry: darglint
         types: [python]
-      # - id: pylint
-      #   name: pylint
-      #   stages: [commit]
-      #   language: system
-      #   entry: pylint
-      #   types: [python]
-      #   args:
-      #     [
-      #       "-rn", # Only display messages
-      #       "-sn", # Don't display the score
-      #     ]
+        args: [
+            "-rn", # Only display messages
+            "-sn", # Don't display the score
+            "--ignore-paths=.github/*,docs/*",
+          ]

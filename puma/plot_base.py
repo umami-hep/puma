@@ -270,9 +270,11 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         if self.vertical_split:  # split figure vertically instead of horizonally
             if self.n_ratio_panels >= 1:
                 logger.warning(
-                    "You set the number of ratio panels to %i but also set the"
-                    " vertical splitting to True. Therefore no ratiopanels are"
-                    " created.",
+                    (
+                        "You set the number of ratio panels to %i but also set the"
+                        " vertical splitting to True. Therefore no ratiopanels are"
+                        " created."
+                    ),
                     self.n_ratio_panels,
                 )
             self.fig = Figure(
