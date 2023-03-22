@@ -1,44 +1,38 @@
 """Results module for high level API."""
-import operator
 from dataclasses import dataclass, field
-from typing import Literal
 
-import h5py
+import numpy as np
+from ftag import Cuts, Flavour, Flavours
+from ftag.hdf5 import H5Reader
 
 from puma import Histogram, HistogramPlot, Roc, RocPlot, VarVsEff, VarVsEffPlot
 from puma.metrics import calc_rej
-from puma.utils import get_good_linestyles, global_config
-
-OPERATORS = {
-    "==": operator.__eq__,
-    ">=": operator.__ge__,
-    "<=": operator.__le__,
-    ">": operator.__gt__,
-    "<": operator.__lt__,
-}
+from puma.utils import get_good_linestyles
 
 
 @dataclass
 class Results:
     """Store information about several taggers and plot results."""
 
-    signal: Literal["bjets", "cjets", "Hcc"] = "bjets"
+    signal: Flavour | str = Flavours.bjets
     backgrounds: list = field(init=False)
-    atlas_first_tag: str = None
+    atlas_first_tag: str = "Simulation Internal"
     atlas_second_tag: str = None
     taggers: dict = field(default_factory=dict)
     sig_eff: float = None
     perf_var: str = "pt"
 
     def __post_init__(self):
-        if self.signal == "bjets":
-            self.backgrounds = ["ujets", "cjets"]
-        elif self.signal == "cjets":
-            self.backgrounds = ["ujets", "bjets"]
-        elif self.signal == "Hbb":
-            self.backgrounds = ["Hcc", "top", "dijets"]
-        elif self.signal == "Hcc":
-            self.backgrounds = ["Hbb", "top", "dijets"]
+        if isinstance(self.signal, str):
+            self.signal = Flavours[self.signal]
+        if self.signal == Flavours.bjets:
+            self.backgrounds = [Flavours.cjets, Flavours.ujets]
+        elif self.signal == Flavours.cjets:
+            self.backgrounds = [Flavours.bjets, Flavours.ujets]
+        elif self.signal == Flavours.hbb:
+            self.backgrounds = [Flavours.hcc, Flavours.top, Flavours.qcd]
+        elif self.signal == Flavours.hcc:
+            self.backgrounds = [Flavours.hbb, Flavours.top, Flavours.qcd]
         else:
             raise ValueError(f"Unsupported signal class {self.signal}.")
 
@@ -52,27 +46,6 @@ class Results:
             List of all flavours
         """
         return self.backgrounds + [self.signal]
-
-    def flav_string(self, flav):
-        """Return the label string for a given flavour.
-
-        Parameters
-        ----------
-        flav : str
-            Flavour to get string for
-
-        Returns
-        -------
-        str
-            Flavour string
-        """
-        string = global_config["flavour_categories"][flav]["legend_label"]
-        string = string.replace("jets", "jet")
-        if flav == self.signal:
-            string = f"{string} efficiency"
-        else:
-            string = f"{string} rejection"
-        return string
 
     def add(self, tagger):
         """Add tagger to class.
@@ -115,47 +88,38 @@ class Results:
             Key in file, by default 'jets'
         label_var : str
             Label variable to use
-        cuts : lits
+        cuts : Cuts | list
             List of cuts to apply
         num_jets : int, optional
             Number of jets to load from the file, by default all jets
         perf_var : np.ndarray, optional
             Override the performance variable to use, by default None
         """
-        if cuts is None:
-            cuts = []
 
         # get a list of all variables to be loaded from the file
+        if not isinstance(cuts, Cuts):
+            cuts = Cuts.empty() if cuts is None else Cuts.from_list(cuts)
         var_list = sum([tagger.variables for tagger in taggers], [label_var])
-
-        var_list += [cut[0] for cut in cuts]
-        var_list = list(set(var_list)) + [self.perf_var]
+        var_list += cuts.variables
+        var_list = list(set(var_list + [self.perf_var]))
 
         # load data
-        with h5py.File(file_path) as file:
-            data = file[key].fields(var_list)[:num_jets]
+        reader = H5Reader(file_path)
+        data = reader.load({key: var_list}, num_jets)[key]
 
         # apply cuts
-        for var, cut_op, value in cuts:
-            if perf_var is not None:
-                perf_var = perf_var[OPERATORS[cut_op](data[var], value)]
-            data = data[OPERATORS[cut_op](data[var], value)]
+        idx, data = cuts(data)
+        if perf_var is not None:
+            perf_var = perf_var[idx]
 
-        # add taggers from loaded data
+        # attach data to tagger objects
         for tagger in taggers:
             tagger.extract_tagger_scores(data, source_type="structured_array")
-
-            if label_var == "HadronConeExclTruthLabelID":
-                tagger.is_flav["bjets"] = data[label_var] == 5
-                tagger.is_flav["ujets"] = data[label_var] == 0
-                tagger.is_flav["cjets"] = data[label_var] == 4
-            elif label_var == "R10TruthLabel_R22v1":
-                tagger.is_flav["Hbb"] = data[label_var] == 11
-                tagger.is_flav["Hcc"] = data[label_var] == 12
-                tagger.is_flav["top"] = data[label_var] == 1
-                tagger.is_flav["dijets"] = data[label_var] == 10
+            tagger.labels = np.array(data[label_var], dtype=[(label_var, "i4")])
             if perf_var is None:
-                tagger.perf_var = data[self.perf_var] * 0.001
+                tagger.perf_var = data[self.perf_var]
+                if any(x in self.perf_var for x in ["pt", "mass"]):
+                    tagger.perf_var *= 0.001
             else:
                 tagger.perf_var = perf_var
             self.add(tagger)
@@ -192,7 +156,7 @@ class Results:
         roc_plot_args = {
             "n_ratio_panels": len(self.backgrounds),
             "ylabel": "Background rejection",
-            "xlabel": self.flav_string(self.signal),
+            "xlabel": self.signal.eff_str,
             "atlas_first_tag": self.atlas_first_tag,
             "atlas_second_tag": self.atlas_second_tag,
             "y_scale": 1.3,
@@ -206,8 +170,8 @@ class Results:
             discs = tagger.get_disc(self.signal)
             for background in self.backgrounds:
                 rej = calc_rej(
-                    discs[tagger.is_flav[self.signal]],
-                    discs[tagger.is_flav[background]],
+                    discs[tagger.is_flav(self.signal)],
+                    discs[tagger.is_flav(background)],
                     self.sig_eff,
                 )
                 plot_roc.add_roc(
@@ -259,7 +223,7 @@ class Results:
         # define the curves
         plot_sig_eff = VarVsEffPlot(
             mode="sig_eff",
-            ylabel=self.flav_string(self.signal),
+            ylabel=self.signal.eff_str,
             xlabel=xlabel,
             logy=False,
             atlas_first_tag=self.atlas_first_tag,
@@ -272,7 +236,7 @@ class Results:
             plot_bkg.append(
                 VarVsEffPlot(
                     mode="bkg_rej",
-                    ylabel=self.flav_string(background),
+                    ylabel=background.rej_str,
                     xlabel=xlabel,
                     logy=False,
                     atlas_first_tag=self.atlas_first_tag,
@@ -291,7 +255,7 @@ class Results:
                 kwargs["working_point"] = tagger.working_point
 
             discs = tagger.get_disc(self.signal)
-            is_signal = tagger.is_flav[self.signal]
+            is_signal = tagger.is_flav(self.signal)
             plot_sig_eff.add(
                 VarVsEff(
                     x_var_sig=tagger.perf_var[is_signal],
@@ -303,7 +267,7 @@ class Results:
                 reference=tagger.reference,
             )
             for i, background in enumerate(self.backgrounds):
-                is_bkg = tagger.is_flav[background]
+                is_bkg = tagger.is_flav(background)
                 plot_bkg[i].add(
                     VarVsEff(
                         x_var_sig=tagger.perf_var[is_signal],
@@ -347,9 +311,8 @@ class Results:
             key word arguments for `puma.HistogramPlot`
         """
         if xlabel is None:
-            xlabel = rf"$D_{{{self.signal.rstrip('jets')}}}$"
+            xlabel = rf"$D_{{{self.signal.name.rstrip('jets')}}}$"
 
-        flav_cat = global_config["flavour_categories"]
         line_styles = get_good_linestyles()
 
         tagger_output_plot = HistogramPlot(
@@ -370,10 +333,10 @@ class Results:
             for flav in self.flavours:
                 tagger_output_plot.add(
                     Histogram(
-                        discs[tagger.is_flav[flav]],
+                        discs[tagger.is_flav(flav)],
                         ratio_group=flav,
-                        label=flav_cat[flav]["legend_label"] if tag_i == 0 else None,
-                        colour=flav_cat[flav]["colour"],
+                        label=flav.label if tag_i == 0 else None,
+                        colour=flav.colour,
                         linestyle=line_styles[tag_i],
                     ),
                     reference=tagger.reference,

@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 import h5py
 import numpy as np
 import pandas as pd
+from ftag import Flavour, Flavours
 from numpy.lib.recfunctions import structured_to_unstructured
 
 from puma.utils import calc_disc, logger
@@ -18,10 +19,9 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
     reference: bool = False
 
     scores = None
+    labels = None
     perf_var = None
     output_nodes: list = field(default_factory=lambda: ["ujets", "cjets", "bjets"])
-
-    is_flav: dict = field(default_factory=dict)
 
     colour: str = None
 
@@ -37,6 +37,22 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
     def __repr__(self):
         return f"{self.name} ({self.label})"
 
+    def is_flav(self, flavour: Flavour | str):
+        """Return indices of jets of given flavour.
+
+        Parameters
+        ----------
+        flavour : str
+            Flavour to select
+
+        Returns
+        -------
+        np.ndarray
+            Array of indices of the given flavour
+        """
+        flavour = Flavours[flavour] if isinstance(flavour, str) else flavour
+        return flavour.cuts(self.labels).idx
+
     @property
     def probailities(self):
         """Return the probabilities of the tagger.
@@ -46,7 +62,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         list
             List of probability names
         """
-        return [f"p{flv.rstrip('jets')}" for flv in self.output_nodes]
+        return [Flavours[flav].px for flav in self.output_nodes]
 
     @property
     def variables(self):
@@ -85,7 +101,6 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         ValueError
             if source_type is wrongly specified
         """
-        # TODO: change to case syntax in python 3.10
         if source_type == "data_frame":
             logger.debug("Retrieving tagger `%s` from data frame.", self.name)
             self.scores = source[self.variables].values
@@ -127,12 +142,12 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         else:
             raise ValueError(f"{source_type} is not a valid value for `source_type`.")
 
-    def n_jets(self, flavour: str):
+    def n_jets(self, flavour: Flavour | str):
         """Retrieve number of jets of a given flavour.
 
         Parameters
         ----------
-        flavour : str
+        flavour : Flavour | str
             Flavour of jets to count
 
         Returns
@@ -140,9 +155,10 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         int
             Number of jets of given flavour
         """
-        return int(np.sum(self.is_flav[flavour]))
+        flavour = Flavours[flavour] if isinstance(flavour, str) else flavour
+        return len(flavour.cuts(self.labels).values)
 
-    def get_disc(self, signal_class: str):
+    def get_disc(self, signal_class: Flavour):
         """Retrieve the discriminant for a given signal class.
 
         Parameters
@@ -160,12 +176,12 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         ValueError
             If no discriminant is defined for given signal class
         """
-        if signal_class == "bjets":
+        if signal_class == Flavours.bjets:
             return self.calc_disc_b()
-        if signal_class == "cjets":
+        if signal_class == Flavours.cjets:
             return self.calc_disc_c()
-        if signal_class in ("Hbb", "Hcc"):
-            return self.scores[:, self.output_nodes.index(signal_class)]
+        if signal_class in (Flavours.hbb, Flavours.hcc):
+            return self.scores[:, self.output_nodes.index(signal_class.name)]
         raise ValueError(f"No discriminant defined for {signal_class} signal.")
 
     def calc_disc_b(self) -> np.ndarray:

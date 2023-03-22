@@ -41,15 +41,8 @@ class TaggerBasisTestCase(unittest.TestCase):
     def test_n_jets(self):
         """Test if number of n_jets correctly calculated."""
         tagger = Tagger("dummy")
-        tagger.is_flav["ujets"] = np.concatenate(
-            [np.ones(80), np.zeros(5), np.zeros(15)]
-        )
-        tagger.is_flav["cjets"] = np.concatenate(
-            [np.zeros(80), np.ones(5), np.zeros(15)]
-        )
-        tagger.is_flav["bjets"] = np.concatenate(
-            [np.zeros(80), np.zeros(5), np.ones(15)]
-        )
+        labels = np.concatenate([np.zeros(80), np.ones(5) * 4, np.ones(15) * 5])
+        tagger.labels = np.array(labels, dtype=[("HadronConeExclTruthLabelID", "i4")])
         with self.subTest():
             self.assertEqual(tagger.n_jets("ujets"), 80)
         with self.subTest():

@@ -1,5 +1,5 @@
 atlasify==0.8.0
-black==22.3.0
+black==23.1.0
 coverage==6.3.1
 darglint==1.8.1
 flake8==4.0.1
@@ -19,3 +19,4 @@ scipy==1.10.1
 tables==3.7.0
 testfixtures==7.0.0
 palettable==3.3.0
+atlas-ftag-tools==0.0.4

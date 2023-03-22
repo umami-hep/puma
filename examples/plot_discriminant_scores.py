@@ -1,9 +1,10 @@
 """Produce histogram of discriminant from tagger output and labels."""
 
 import numpy as np
+from ftag import Flavours
 
 from puma import Histogram, HistogramPlot
-from puma.utils import get_dummy_2_taggers, get_good_linestyles, global_config
+from puma.utils import get_dummy_2_taggers, get_good_linestyles
 
 # The line below generates dummy data which is similar to a NN output
 df = get_dummy_2_taggers()
@@ -22,7 +23,6 @@ is_light = df["HadronConeExclTruthLabelID"] == 0
 is_c = df["HadronConeExclTruthLabelID"] == 4
 is_b = df["HadronConeExclTruthLabelID"] == 5
 
-flav_cat = global_config["flavour_categories"]
 taggers = ["dips", "rnnip"]
 linestyles = get_good_linestyles()[:2]
 
@@ -52,7 +52,7 @@ for tagger, linestyle in zip(taggers, linestyles):
             # linecolour. Instead, we specify a "linestyle legend" further down in the
             # script
             label="Light-flavour jets" if tagger == "dips" else None,
-            colour=flav_cat["ujets"]["colour"],
+            colour=Flavours["ujets"].colour,
             ratio_group="ujets",
             linestyle=linestyle,
         ),
@@ -62,7 +62,7 @@ for tagger, linestyle in zip(taggers, linestyles):
         Histogram(
             df[is_c][f"disc_{tagger}"],
             label="$c$-jets" if tagger == "dips" else None,
-            colour=flav_cat["cjets"]["colour"],
+            colour=Flavours["cjets"].colour,
             ratio_group="cjets",
             linestyle=linestyle,
         ),
@@ -72,7 +72,7 @@ for tagger, linestyle in zip(taggers, linestyles):
         Histogram(
             df[is_b][f"disc_{tagger}"],
             label="$b$-jets" if tagger == "dips" else None,
-            colour=flav_cat["bjets"]["colour"],
+            colour=Flavours["bjets"].colour,
             ratio_group="bjets",
             linestyle=linestyle,
         ),

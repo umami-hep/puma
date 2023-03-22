@@ -10,15 +10,13 @@ import tempfile
 import unittest
 
 import numpy as np
+from ftag import Flavours
 from matplotlib.testing.compare import compare_images
-from testfixtures import LogCapture
 
 from puma import Histogram, HistogramPlot
-from puma.utils import global_config, logger, set_log_level
+from puma.utils import logger, set_log_level
 
 set_log_level(logger, "DEBUG")
-
-flav_cat = global_config["flavour_categories"]
 
 
 class HistogramTestCase(unittest.TestCase):
@@ -109,15 +107,8 @@ class HistogramTestCase(unittest.TestCase):
     def test_multiple_references_wrong_flavour(self):
         """Tests if warning is raised with wrong flavour."""
         dummy_array = np.array([1, 1, 2, 3, 2, 3])
-        with LogCapture("puma") as log:
+        with self.assertRaises(KeyError):
             Histogram(dummy_array, flavour="dummy")
-            log.check(
-                (
-                    "puma",
-                    "WARNING",
-                    "The flavour 'dummy' was not found in the global config.",
-                )
-            )
 
 
 class HistogramPlotTestCase(
@@ -531,15 +522,15 @@ class HistogramPlotTestCase(
             Histogram(
                 rng.normal(0, 1, size=10_000),
                 ratio_group="ratio group 1",
-                colour=flav_cat["ujets"]["colour"],
-                label=flav_cat["ujets"]["legend_label"],
+                colour=Flavours["ujets"].colour,
+                label=Flavours["ujets"].label,
             ),
             reference=True,
         )
         hist_plot.add(
             Histogram(
                 rng.normal(0.5, 1, size=10_000),
-                colour=flav_cat["ujets"]["colour"],
+                colour=Flavours["ujets"].colour,
                 ratio_group="ratio group 1",
                 linestyle="--",
             ),
@@ -547,8 +538,8 @@ class HistogramPlotTestCase(
         hist_plot.add(
             Histogram(
                 rng.normal(3, 1, size=10_000),
-                label=flav_cat["bjets"]["legend_label"],
-                colour=flav_cat["bjets"]["colour"],
+                label=Flavours["bjets"].label,
+                colour=Flavours["bjets"].colour,
                 ratio_group="Ratio group 2",
             ),
             reference=True,
@@ -556,7 +547,7 @@ class HistogramPlotTestCase(
         hist_plot.add(
             Histogram(
                 rng.normal(3.5, 1, size=10_000),
-                colour=flav_cat["bjets"]["colour"],
+                colour=Flavours["bjets"].colour,
                 ratio_group="Ratio group 2",
                 linestyle="--",
                 linewidth=3,
@@ -639,7 +630,7 @@ class HistogramPlotTestCase(
         plotname = "test_flavoured_labels.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
-        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
         self.assertIsNone(
             compare_images(
                 f"{self.actual_plots_dir}/{plotname}",

@@ -2,6 +2,7 @@
 import matplotlib as mpl
 import numpy as np
 import pandas as pd
+from ftag import Flavour, Flavours
 
 from puma.plot_base import PlotBase, PlotLineObject
 from puma.utils import get_good_colours, global_config, logger
@@ -21,7 +22,7 @@ class Histogram(
         values: np.ndarray,
         weights: np.ndarray = None,
         ratio_group: str = None,
-        flavour: str = None,
+        flavour: str | Flavour = None,
         add_flavour_label: bool = True,
         histtype: str = "step",
         **kwargs,
@@ -41,7 +42,7 @@ class Histogram(
             Name of the ratio group this histogram is compared with. The ratio group
             allows you to compare different groups of histograms within one plot.
             By default None
-        flavour: str, optional
+        flavour: str | Flavour, optional
             If set, the correct colour and a label prefix will be extracted from
             `puma.utils.global_config` set for this histogram.
             Allowed values are e.g. "bjets", "cjets", "ujets", "bbjets", ...
@@ -82,7 +83,7 @@ class Histogram(
         self.values = values
         self.weights = weights
         self.ratio_group = ratio_group
-        self.flavour = flavour
+        self.flavour = Flavours[flavour] if isinstance(flavour, str) else flavour
         self.add_flavour_label = add_flavour_label
         self.histtype = histtype
 
@@ -99,18 +100,14 @@ class Histogram(
         )
         # If flavour was specified, extract configuration from global config
         if self.flavour is not None:
-            if self.flavour in global_config["flavour_categories"]:
+            if self.flavour in Flavours:
                 # Use globally defined flavour colour if not specified
                 if self.colour is None:
-                    self.colour = global_config["flavour_categories"][self.flavour][
-                        "colour"
-                    ]
+                    self.colour = self.flavour.colour
                     logger.debug("Histogram colour was set to %s", self.colour)
                 # Add globally defined flavour label if not suppressed
                 if self.add_flavour_label:
-                    global_flavour_label = global_config["flavour_categories"][
-                        self.flavour
-                    ]["legend_label"]
+                    global_flavour_label = self.flavour.label
                     self.label = f"{global_flavour_label} {label}"
                 else:
                     self.label = label

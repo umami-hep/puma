@@ -273,7 +273,7 @@ class RocOutputTestCase(
         plot = RocPlot(
             n_ratio_panels=1,
             ylabel="Background rejection",
-            xlabel="$b$-jets efficiency",
+            xlabel="$b$-jet efficiency",
             atlas_second_tag=(
                 "$\\sqrt{s}=13$ TeV, PFlow Jets,\n"
                 "$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
@@ -323,7 +323,7 @@ class RocOutputTestCase(
         plot = RocPlot(
             n_ratio_panels=1,
             ylabel="Background rejection",
-            xlabel="$b$-jets efficiency",
+            xlabel="$b$-jet efficiency",
             atlas_second_tag=(
                 "$\\sqrt{s}=13$ TeV, PFlow Jets,\n"
                 "$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
@@ -375,7 +375,7 @@ class RocOutputTestCase(
         plot = RocPlot(
             n_ratio_panels=2,
             ylabel="Background rejection",
-            xlabel="$b$-jets efficiency",
+            xlabel="$b$-jet efficiency",
             atlas_second_tag=(
                 "$\\sqrt{s}=13$ TeV, PFlow Jets,\n"
                 "$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
@@ -443,7 +443,7 @@ class RocOutputTestCase(
         plot = RocPlot(
             n_ratio_panels=2,
             ylabel="Background rejection",
-            xlabel="$b$-jets efficiency",
+            xlabel="$b$-jet efficiency",
             atlas_second_tag=(
                 "$\\sqrt{s}=13$ TeV, PFlow Jets,\n"
                 "$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
@@ -511,7 +511,7 @@ class RocOutputTestCase(
         plot = RocPlot(
             n_ratio_panels=2,
             ylabel="Background rejection",
-            xlabel="$b$-jets efficiency",
+            xlabel="$b$-jet efficiency",
             atlas_second_tag=(
                 "$\\sqrt{s}=13$ TeV, PFlow Jets,\n"
                 "$t\\bar{t}$ dummy sample, $f_{c}=0.018$"

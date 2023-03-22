@@ -1,6 +1,7 @@
 """Example plotting script for the puma.PiePlot class"""
+from ftag import Flavours
+
 from puma.pie import PiePlot
-from puma.utils import global_config
 
 HadrTruthLabel_fracs = [200_000, 34_000, 150_000, 5_000]
 HadrTruthLabel_labels = ["Light-flavour jets", "$c$-jets", "$b$-jets", "$\\tau$-jets"]
@@ -18,12 +19,11 @@ example_plot_1.savefig("pie_example_1.png")
 # Another example with some styling
 
 # Get the flavour colours from the global config
-flav_cat = global_config["flavour_categories"]
 colours = [
-    flav_cat["ujets"]["colour"],
-    flav_cat["cjets"]["colour"],
-    flav_cat["bjets"]["colour"],
-    flav_cat["taujets"]["colour"],
+    Flavours["ujets"].colour,
+    Flavours["cjets"].colour,
+    Flavours["bjets"].colour,
+    Flavours["taujets"].colour,
 ]
 
 example_plot_2 = PiePlot(
