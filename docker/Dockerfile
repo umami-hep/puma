@@ -1,4 +1,4 @@
-FROM python:3.11.6-slim
+FROM python:3.11.2-slim
 
 # Copy the current version of the repo in the image
 COPY . /puma_repo
