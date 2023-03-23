@@ -2,15 +2,15 @@ name: Pages
 on:
   pull_request:
     branches:
-      - '*'
+      - "*"
   push:
     branches:
-      - 'main'
+      - "main"
 
 jobs:
   build-sphinx-docs:
     runs-on: ubuntu-latest
-    container: python:3.8.15
+    container: python:3.11.2
     steps:
       - name: Checkout
         uses: actions/checkout@master
