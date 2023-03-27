@@ -21,7 +21,7 @@ jobs:
       - run: echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
       - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
       - run: pip install -r requirements.txt
-      - run: pip install -e . # install in editable mode
+      - run: pip install .
       - name: Run tests
         run: pytest -v --junitxml=coverage.xml --cov-report=term-missing:skip-covered --cov=puma puma/tests/
       - name: Install git
@@ -39,6 +39,7 @@ jobs:
       - run: echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
       - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
       - run: pip install -r requirements.txt
+      - run: pip install .
       - run: mkdir plots
       - run: cd plots && for f in ../examples/*.py; do python "$f"; done
       # rsync is needed for the subsequently used action
