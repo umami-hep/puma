@@ -11,9 +11,6 @@ file = get_dummy_2_taggers(add_pt=True, return_file=True)
 # define jet selections
 cuts = [("n_truth_promptLepton", "==", 0)]
 
-# can also use `signal="cjets"` to study c-tagging performance
-results = Results(signal="bjets")
-
 # define the taggers
 dips = Tagger(
     name="dips",
@@ -33,7 +30,7 @@ rnnip = Tagger(
 
 # create the Results object
 # for c-tagging use signal="cjets"
-# for Hbb-tagging use signal="Hbb"
+# for Xbb-tagging use signal="Hbb"/"Hcc"
 results = Results(signal="bjets")
 
 # load taggers from the file object

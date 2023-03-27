@@ -1,5 +1,5 @@
 """Tagger module for high level API."""
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import h5py
 import numpy as np
@@ -21,7 +21,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
     scores = None
     labels = None
     perf_var = None
-    output_nodes: list = field(default_factory=lambda: ["ujets", "cjets", "bjets"])
+    output_nodes: list = None
 
     colour: str = None
 
@@ -54,6 +54,17 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         return flavour.cuts(self.labels).idx
 
     @property
+    def output_nodes_lower(self):
+        """Return the lowercase output nodes.
+
+        Returns
+        -------
+        list
+            List of lower case output nodes
+        """
+        return [x.name.lower() for x in self.output_nodes]
+
+    @property
     def probailities(self):
         """Return the probabilities of the tagger.
 
@@ -62,7 +73,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         list
             List of probability names
         """
-        return [Flavours[flav].px for flav in self.output_nodes]
+        return [flav.px for flav in self.output_nodes]
 
     @property
     def variables(self):
@@ -181,7 +192,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         if signal_class == Flavours.cjets:
             return self.calc_disc_c()
         if signal_class in (Flavours.hbb, Flavours.hcc):
-            return self.scores[:, self.output_nodes.index(signal_class.name)]
+            return self.scores[:, self.output_nodes_lower.index(signal_class.name)]
         raise ValueError(f"No discriminant defined for {signal_class} signal.")
 
     def calc_disc_b(self) -> np.ndarray:
