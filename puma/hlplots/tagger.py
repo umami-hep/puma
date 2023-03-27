@@ -1,7 +1,7 @@
 """Tagger module for high level API."""
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import h5py
 import numpy as np
@@ -23,7 +23,9 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
     scores = None
     labels = None
     perf_var = None
-    output_nodes: list = None
+    output_nodes: list = field(
+        default_factory=lambda: [Flavours.ujets, Flavours.cjets, Flavours.bjets]
+    )
 
     colour: str = None
 
