@@ -127,7 +127,7 @@ class Results:
             if perf_var is None:
                 tagger.perf_var = data[self.perf_var]
                 if any(x in self.perf_var for x in ["pt", "mass"]):
-                    tagger.perf_var *= 0.001
+                    tagger.perf_var = tagger.perf_var * 0.001
             else:
                 tagger.perf_var = perf_var
             self.add(tagger)
