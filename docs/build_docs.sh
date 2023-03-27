@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# install requirements
+pip install -r requirements.txt
+
 # install docs requirements
 pip install -r docs/requirements.txt
 
