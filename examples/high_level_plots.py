@@ -30,7 +30,7 @@ rnnip = Tagger(
 
 # create the Results object
 # for c-tagging use signal="cjets"
-# for Xbb-tagging use signal="Hbb"/"Hcc"
+# for Xbb/cc-tagging use signal="hbb"/"hcc"
 results = Results(signal="bjets")
 
 # load taggers from the file object

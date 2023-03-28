@@ -69,7 +69,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         return [x.name.lower() for x in self.output_nodes]
 
     @property
-    def probailities(self):
+    def probabilities(self):
         """Return the probabilities of the tagger.
 
         Returns
@@ -89,7 +89,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
             List of the outputs variable names of the tagger
         """
 
-        return [f"{self.name}_{prob}" for prob in self.probailities]
+        return [f"{self.name}_{prob}" for prob in self.probabilities]
 
     def extract_tagger_scores(
         self, source: object, source_type: str = "data_frame", key: str = None
@@ -222,7 +222,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         }
         return calc_disc(
             scores=self.scores,
-            flvs=self.probailities,
+            flvs=self.probabilities,
             flv_map=flv_map,
         )
 
@@ -249,6 +249,6 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         }
         return calc_disc(
             scores=self.scores,
-            flvs=self.probailities,
+            flvs=self.probabilities,
             flv_map=flv_map,
         )
