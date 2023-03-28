@@ -2,10 +2,10 @@ name: Pages
 on:
   pull_request:
     branches:
-      - '*'
+      - "*"
   push:
     branches:
-      - 'main'
+      - "main"
 
 jobs:
   build-sphinx-docs:

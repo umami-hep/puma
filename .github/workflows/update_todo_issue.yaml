@@ -2,7 +2,7 @@ name: Update TODO Issue
 on:
   push:
     branches:
-      - 'main'
+      - "main"
 
 jobs:
   update_issue:

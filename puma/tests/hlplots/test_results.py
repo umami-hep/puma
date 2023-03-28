@@ -77,14 +77,10 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def setUp(self) -> None:
         """Set up for unit tests."""
         scores, labels = get_dummy_multiclass_scores()
-        tagger_args = {
-            "is_flav": {
-                "ujets": labels == 0,
-                "cjets": labels == 4,
-                "bjets": labels == 5,
-            }
-        }
-        dummy_tagger_1 = Tagger("dummy", **tagger_args)
+        dummy_tagger_1 = Tagger("dummy")
+        dummy_tagger_1.labels = np.array(
+            labels, dtype=[("HadronConeExclTruthLabelID", "i4")]
+        )
         dummy_tagger_1.scores = scores
         dummy_tagger_1.label = "dummy tagger"
         self.dummy_tagger_1 = dummy_tagger_1

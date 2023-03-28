@@ -203,6 +203,7 @@ def get_good_linestyles(names=None):
     return [linestyle_tuples[name] for name in names]
 
 
+# TODO: remove flavour_categories once not used in ummai
 global_config = {
     "flavour_categories": {
         "bjets": {

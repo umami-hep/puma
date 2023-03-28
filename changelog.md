@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Integrate [atlas-ftag-tools](https://github.com/umami-hep/atlas-ftag-tools/) package [!168](https://github.com/umami-hep/puma/pull/168)
 - HLAPI and CI Updates [!165](https://github.com/umami-hep/puma/pull/165)
 - Extend format saving options [!160](https://github.com/umami-hep/puma/pull/160)
 

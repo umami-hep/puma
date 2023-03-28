@@ -1,12 +1,15 @@
 """ROC curve functions."""
+from __future__ import annotations
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
+from ftag import Flavour, Flavours
 from scipy.interpolate import pchip
 
 from puma.metrics import rej_err
 from puma.plot_base import PlotBase, PlotLineObject
-from puma.utils import get_good_colours, get_good_linestyles, global_config, logger
+from puma.utils import get_good_colours, get_good_linestyles, logger
 
 
 class Roc(PlotLineObject):
@@ -19,7 +22,7 @@ class Roc(PlotLineObject):
         sig_eff: np.ndarray,
         bkg_rej: np.ndarray,
         n_test: int = None,
-        rej_class: str = None,
+        rej_class: str | Flavour = None,
         signal_class: str = None,
         key: str = None,
         **kwargs,
@@ -37,7 +40,7 @@ class Roc(PlotLineObject):
             by default None
         signal_class : str
             Signal class, e.g. for b-tagging "bjets", by default None
-        rej_class : str
+        rej_class : str or Flavour
             Rejection class, e.g. for b-tagging anc charm rejection "cjets",
             by default None
         key : str
@@ -60,7 +63,9 @@ class Roc(PlotLineObject):
         self.bkg_rej = bkg_rej
         self.n_test = None if n_test is None else int(n_test)
         self.signal_class = signal_class
-        self.rej_class = rej_class
+        self.rej_class = (
+            Flavours[rej_class] if isinstance(rej_class, str) else rej_class
+        )
         self.key = key
 
     def binomial_error(self, norm: bool = False, n_test: int = None) -> np.ndarray:
@@ -286,7 +291,7 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             )
             self.set_roc_reference(key, roc_curve.rej_class)
 
-    def set_roc_reference(self, key: str, rej_class: str):
+    def set_roc_reference(self, key: str, rej_class: Flavour):
         """Setting the reference roc curves used in the ratios
 
         Parameters
@@ -321,14 +326,14 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             )
             self.reference_roc[rej_class] = key
 
-    def set_ratio_class(self, ratio_panel: int, rej_class: str):
+    def set_ratio_class(self, ratio_panel: int, rej_class: str | Flavour):
         """Associate the rejection class to a ratio panel adn set the legend label
 
         Parameters
         ----------
         ratio_panel : int
             Ratio panel either 1 or 2
-        rej_class : str
+        rej_class : Flavour
             Rejeciton class associated to that panel
 
         Raises
@@ -336,14 +341,15 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         ValueError
             if requested ratio panels and given ratio_panel do not match.
         """
+        rej_class = Flavours[rej_class] if isinstance(rej_class, str) else rej_class
         if self.n_ratio_panels < ratio_panel:
             raise ValueError(
                 "Requested ratio panels and given ratio_panel do not match."
             )
         self.rej_axes[rej_class] = self.ratio_axes[ratio_panel - 1]
-        label = global_config["flavour_categories"][rej_class]["legend_label"]
+        label = rej_class.label.replace("jets", "jet")
         self.set_ratio_label(ratio_panel, f"{label} ratio")
-        self.leg_rej_labels[rej_class] = label
+        self.leg_rej_labels[rej_class] = rej_class.label
 
     def add_ratios(self):
         """Calculating ratios.
