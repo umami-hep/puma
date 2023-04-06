@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+- Replace `dijets` category with `QCD` category [!170](https://github.com/umami-hep/puma/pull/170)
+
 ### [v0.2.3] (2023/03/28)
 
 - Integrate [atlas-ftag-tools](https://github.com/umami-hep/atlas-ftag-tools/) package [!168](https://github.com/umami-hep/puma/pull/168)
