@@ -290,7 +290,7 @@ global_config = {
             "colour": "#A300A3",  # dark magenta
             "legend_label": "$Top$-jets",
         },
-        "dijets": {
+        "QCD": {
             "colour": "#38761D",  # Bilbao (dark green)
             "legend_label": "QCD-jets",
         },
