@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+### [v0.2.4] (2023/04/06)
+
 - Replace `dijets` category with `QCD` category [!170](https://github.com/umami-hep/puma/pull/170)
 
 ### [v0.2.3] (2023/03/28)
