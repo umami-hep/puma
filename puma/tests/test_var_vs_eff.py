@@ -176,9 +176,8 @@ class VarVsEffTestCase(unittest.TestCase):
             fixed_eff_bin=True,
             bins=n_bins,
         )
-        np.testing.assert_array_almost_equal(
-            var_plot.divide(var_plot, mode="sig_eff")[0], np.ones(1)
-        )
+        var_plot.y_var_mean, var_plot.y_var_std = var_plot.get("sig_eff")
+        np.testing.assert_array_almost_equal(var_plot.divide(var_plot)[0], np.ones(1))
 
     def test_var_vs_eff_divide_wrong_mode(self):
         """Test var_vs_eff divide."""
@@ -193,7 +192,8 @@ class VarVsEffTestCase(unittest.TestCase):
             bins=n_bins,
         )
         with self.assertRaises(ValueError):
-            var_plot.divide(var_plot, mode="test")
+            var_plot.y_var_mean, var_plot.y_var_std = var_plot.get("test")
+            var_plot.divide(var_plot)
 
     def test_var_vs_eff_divide_different_binning(self):
         """Test var_vs_eff divide."""
@@ -216,7 +216,9 @@ class VarVsEffTestCase(unittest.TestCase):
             bins=2,
         )
         with self.assertRaises(ValueError):
-            var_plot.divide(var_plot_comp, mode="sig_eff")
+            var_plot.y_var_mean, var_plot.y_var_std = var_plot.get("sig_eff")
+            var_plot_comp.y_var_mean, var_plot_comp.y_var_std = var_plot.get("sig_eff")
+            var_plot.divide(var_plot_comp)
 
 
 class VarVsEffOutputTestCase(

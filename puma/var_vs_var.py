@@ -23,6 +23,7 @@ class VarVsVar(PlotLineObject):  # pylint: disable=too-many-instance-attributes
         x_var_widths: np.ndarray = None,
         key: str = None,
         fill: bool = False,
+        plot_y_std: bool = True,
         **kwargs,
     ) -> None:
         """Initialise properties of roc curve object.
@@ -41,6 +42,8 @@ class VarVsVar(PlotLineObject):  # pylint: disable=too-many-instance-attributes
             Identifier for the curve e.g. tagger, by default None
         fill : bool, optional
             Defines do we need to fill box around point, by default False
+        plot_y_std : bool, optional
+            Defines do we need to plot y_var_std, by default True
         **kwargs : kwargs
             Keyword arguments passed to `PlotLineObject`
 
@@ -49,7 +52,6 @@ class VarVsVar(PlotLineObject):  # pylint: disable=too-many-instance-attributes
         ValueError
             If provided options are not compatible with each other
         """
-
         super().__init__(**kwargs)
         if len(x_var_mean) != len(y_var_mean):
             raise ValueError(
@@ -66,6 +68,7 @@ class VarVsVar(PlotLineObject):  # pylint: disable=too-many-instance-attributes
         self.x_var_widths = None if x_var_widths is None else np.array(x_var_widths)
         self.y_var_mean = np.array(y_var_mean)
         self.y_var_std = np.array(y_var_std)
+        self.plot_y_std = plot_y_std
         self.key = key
         self.fill = fill
 
@@ -253,7 +256,11 @@ class VarVsVarPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                 elem.x_var_mean,
                 elem.y_var_mean,
                 xerr=elem.x_var_widths / 2 if elem.x_var_widths is not None else None,
-                yerr=elem.y_var_std,
+                yerr=(
+                    elem.y_var_std
+                    if elem.plot_y_std
+                    else np.zeros_like(elem.x_var_mean)
+                ),
                 color=elem.colour,
                 fmt="none",
                 label=elem.label,
@@ -321,7 +328,7 @@ class VarVsVarPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                 elem.x_var_mean,
                 ratio,
                 xerr=elem.x_var_widths / 2 if elem.x_var_widths is not None else None,
-                yerr=ratio_err,
+                yerr=ratio_err if elem.plot_y_std else np.zeros_like(elem.x_var_mean),
                 color=elem.colour,
                 fmt="none",
                 alpha=elem.alpha,

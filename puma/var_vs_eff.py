@@ -1,15 +1,14 @@
 """Efficiency plots vs. specific variable."""
-import matplotlib as mpl
 import numpy as np
 
 # TODO: fix the import below
 from puma.metrics import eff_err, rej_err
-from puma.plot_base import PlotBase, PlotLineObject
-from puma.utils import get_good_colours, logger
-from puma.utils.histogram import hist_ratio, save_divide
+from puma.utils import logger
+from puma.utils.histogram import save_divide
+from puma.var_vs_var import VarVsVar, VarVsVarPlot
 
 
-class VarVsEff(PlotLineObject):  # pylint: disable=too-many-instance-attributes
+class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
     """
     var_vs_eff class storing info about curve and allows to calculate ratio w.r.t other
     efficiency plots.
@@ -65,7 +64,6 @@ class VarVsEff(PlotLineObject):  # pylint: disable=too-many-instance-attributes
         """
         # TODO: in python 3.10 add multipe type operator | for bins and disc_cut
 
-        super().__init__(**kwargs)
         if len(x_var_sig) != len(disc_sig):
             raise ValueError(
                 f"Length of `x_var_sig` ({len(x_var_sig)}) and `disc_sig` "
@@ -98,7 +96,6 @@ class VarVsEff(PlotLineObject):  # pylint: disable=too-many-instance-attributes
         self.working_point = working_point
         self.disc_cut = disc_cut
         self.fixed_eff_bin = fixed_eff_bin
-        self.key = key
         # Binning related variables
         self.n_bins = None
         self.bn_edges = None
@@ -124,6 +121,18 @@ class VarVsEff(PlotLineObject):  # pylint: disable=too-many-instance-attributes
                     )
         self._apply_binning()
         self._get_disc_cuts()
+
+        VarVsVar.__init__(
+            self,
+            x_var_mean=self.x_bin_centres,
+            y_var_mean=np.zeros_like(self.x_bin_centres),
+            y_var_std=np.zeros_like(self.x_bin_centres),
+            x_var_widths=2 * self.bin_widths,
+            key=key,
+            fill=True,
+            plot_y_std=False,
+            **kwargs,
+        )
         self.inverse_cut = False
 
     def _set_bin_edges(self, bins):
@@ -374,63 +383,8 @@ class VarVsEff(PlotLineObject):  # pylint: disable=too-many-instance-attributes
             f"{mode_options}."
         )
 
-    def divide(
-        self, other, mode: str, inverse: bool = False, inverse_cut: bool = False
-    ):
-        """Calculate ratio between two class objects.
 
-        Parameters
-        ----------
-        other : var_vs_eff class
-            Second var_vs_eff object to calculate ratio with
-        mode : str
-            Defines the mode which is used for the ratoi calculation, can be the
-            following values: `sig_eff`, `bkg_eff`, `sig_rej`, `bkg_rej`
-        inverse : bool
-            If False the ratio is calculated `this / other`,
-            if True the inverse is calculated
-        inverse_cut : bool
-            Inverts the discriminant cut, which will yield the efficiency or rejection
-            of the jets not passing the working point, by default False
-
-        Returns
-        -------
-        np.ndarray
-            Ratio
-        np.ndarray
-            Ratio error
-        np.ndarray
-            Bin centres
-        np.ndarray
-            Bin widths
-
-        Raises
-        ------
-        ValueError
-            If binning is not identical between 2 objects
-        """
-        if not np.array_equal(self.bin_edges, other.bin_edges):
-            raise ValueError("The binning of the two given objects do not match.")
-        # TODO: python 3.10 switch to cases syntax
-        nom, nom_err = self.get(mode, inverse_cut=inverse_cut)
-        denom, denom_err = other.get(mode, inverse_cut=inverse_cut)
-
-        ratio, ratio_err = hist_ratio(
-            denom if inverse else nom,
-            nom if inverse else denom,
-            denom_err if inverse else nom_err,
-            nom_err if inverse else denom_err,
-            step=False,
-        )
-        return (
-            ratio,
-            ratio_err,
-            self.x_bin_centres,
-            self.bin_widths,
-        )
-
-
-class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
+class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attributes
     """var_vs_eff plot class"""
 
     def __init__(self, mode, grid: bool = False, **kwargs) -> None:
@@ -459,82 +413,13 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                 f"{mode_options}."
             )
         self.mode = mode
-        self.plot_objects = {}
-        self.add_order = []
-        self.ratios_objects = {}
-        self.reference_object = None
-        self.bin_edge_min = np.inf
-        self.bin_edge_max = -np.inf
-        self.inverse_cut = False
-        if self.n_ratio_panels > 1:
-            raise ValueError("Not more than one ratio panel supported.")
-        self.initialise_figure()
 
-    def add(self, curve: object, key: str = None, reference: bool = False):
-        """Adding var_vs_eff object to figure.
-
-        Parameters
-        ----------
-        curve : var_vs_eff class
-            Var_vs_eff curve
-        key : str, optional
-            Unique identifier for var_vs_eff, by default None
-        reference : bool, optional
-            If var_vs_eff is used as reference for ratio calculation, by default False
-
-        Raises
-        ------
-        KeyError
-            If unique identifier key is used twice
-        """
-        if key is None:
-            key = len(self.plot_objects) + 1
-        if key in self.plot_objects:
-            raise KeyError(f"Duplicated key {key} already used for unique identifier.")
-
-        self.plot_objects[key] = curve
-        self.add_order.append(key)
-        # set linestyle
-        if curve.linestyle is None:
-            curve.linestyle = "-"
-        # set colours
-        if curve.colour is None:
-            curve.colour = get_good_colours()[len(self.plot_objects) - 1]
-        # set alpha
-        if curve.alpha is None:
-            curve.alpha = 0.8
-        # set linewidth
-        if curve.linewidth is None:
-            curve.linewidth = 1.6
-
-        # set min and max bin edges
-        self.bin_edge_min = min(self.bin_edge_min, curve.bin_edges[0])
-        self.bin_edge_max = max(self.bin_edge_max, curve.bin_edges[-1])
-
-        if reference:
-            logger.debug("Setting roc %s as reference.", key)
-            self.set_reference(key)
-
-    def set_reference(self, key: str):
-        """Setting the reference roc curves used in the ratios
-
-        Parameters
-        ----------
-        key : str
-            Unique identifier of roc object
-        """
-        if self.reference_object is None:
-            self.reference_object = key
-        else:
-            logger.warning(
-                (
-                    "You specified a second curve %s as reference for ratio. "
-                    "Using it as new reference instead of %s."
-                ),
-                key,
-                self.reference_object,
-            )
-            self.reference_object = key
+    def _setup_curves(self):
+        for key in self.add_order:
+            elem = self.plot_objects[key]
+            y_value, y_error = elem.get(self.mode, inverse_cut=self.inverse_cut)
+            elem.y_var_mean = y_value
+            elem.y_var_std = y_error
 
     def plot(self, **kwargs):
         """Plotting curves
@@ -550,158 +435,5 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             matplotlib Line2D object
         """
         logger.debug("Plotting curves with mode %s", self.mode)
-        plt_handles = []
-        for key in self.add_order:
-            elem = self.plot_objects[key]
-            y_value, y_error = elem.get(self.mode, inverse_cut=self.inverse_cut)
-            error_bar = self.axis_top.errorbar(
-                elem.x_bin_centres,
-                y_value,
-                xerr=elem.bin_widths,
-                yerr=np.zeros(elem.n_bins),
-                color=elem.colour,
-                fmt="none",
-                label=elem.label,
-                alpha=elem.alpha,
-                linewidth=elem.linewidth,
-                **kwargs,
-            )
-            # set linestyle for errorbar
-            error_bar[-1][0].set_linestyle(elem.linestyle)
-            down_variation = y_value - y_error
-            up_variation = y_value + y_error
-            down_variation = np.concatenate((down_variation[:1], down_variation[:]))
-            up_variation = np.concatenate((up_variation[:1], up_variation[:]))
-
-            self.axis_top.fill_between(
-                elem.bin_edges,
-                down_variation,
-                up_variation,
-                color=elem.colour,
-                alpha=0.3,
-                zorder=1,
-                step="pre",
-                edgecolor="none",
-                linestyle=elem.linestyle,
-            )
-            plt_handles.append(
-                mpl.lines.Line2D(
-                    [],
-                    [],
-                    color=elem.colour,
-                    label=elem.label,
-                    linestyle=elem.linestyle,
-                )
-            )
-        return plt_handles
-
-    def plot_ratios(self):
-        """Plotting ratio curves.
-
-        Raises
-        ------
-        ValueError
-            If no reference curve is defined
-        """
-        if self.reference_object is None:
-            raise ValueError("Please specify a reference curve.")
-        for key in self.add_order:
-            elem = self.plot_objects[key]
-            (ratio, ratio_err, x_bin_centres, bin_widths) = elem.divide(
-                self.plot_objects[self.reference_object],
-                mode=self.mode,
-                inverse_cut=self.inverse_cut,
-            )
-            error_bar = self.ratio_axes[0].errorbar(
-                x_bin_centres,
-                ratio,
-                xerr=bin_widths,
-                yerr=np.zeros(elem.n_bins),
-                color=elem.colour,
-                fmt="none",
-                alpha=elem.alpha,
-                linewidth=elem.linewidth,
-            )
-            # set linestyle for errorbar
-            error_bar[-1][0].set_linestyle(elem.linestyle)
-            down_variation = ratio - ratio_err
-            up_variation = ratio + ratio_err
-            down_variation = np.concatenate((down_variation[:1], down_variation[:]))
-            up_variation = np.concatenate((up_variation[:1], up_variation[:]))
-
-            self.ratio_axes[0].fill_between(
-                elem.bin_edges,
-                down_variation,
-                up_variation,
-                color=elem.colour,
-                alpha=0.3,
-                zorder=1,
-                step="pre",
-                edgecolor="none",
-            )
-
-    def set_inverse_cut(self, inverse_cut=True):
-        """Invert the discriminant cut, which will yield the efficiency or rejection
-        of the jets not passing the working point.
-
-        Parameters
-        ----------
-        inverse_cut : bool, optional
-            Invert discriminant cut, by default True
-        """
-        self.inverse_cut = inverse_cut
-
-    def draw_hline(self, y_val: float):
-        """Draw hline in top plot panel.
-
-        Parameters
-        ----------
-        y_val : float
-            y value of the horizontal line
-        """
-        self.axis_top.hlines(
-            y=y_val,
-            xmin=self.bin_edge_min,
-            xmax=self.bin_edge_max,
-            colors="black",
-            linestyle="dotted",
-            alpha=0.5,
-        )
-
-    def draw(
-        self,
-        labelpad: int = None,
-    ):
-        """Draw figure.
-
-        Parameters
-        ----------
-        labelpad : int, optional
-            Spacing in points from the axes bounding box including
-            ticks and tick labels, by default "ratio"
-        """
-        self.set_xlim(
-            self.bin_edge_min if self.xmin is None else self.xmin,
-            self.bin_edge_max if self.xmax is None else self.xmax,
-        )
-        plt_handles = self.plot()
-        if self.n_ratio_panels == 1:
-            self.plot_ratios()
-        self.set_title()
-        self.set_log()
-        self.set_y_lim()
-        self.set_xlabel()
-        self.set_tick_params()
-        self.set_ylabel(self.axis_top)
-
-        if self.n_ratio_panels > 0:
-            self.set_ylabel(
-                self.ratio_axes[0],
-                self.ylabel_ratio[0],
-                align_right=False,
-                labelpad=labelpad,
-            )
-        self.make_legend(plt_handles, ax_mpl=self.axis_top)
-        self.plotting_done = True
-        if self.apply_atlas_style is True:
-            self.atlasify(use_tag=self.use_atlas_tag)
+        self._setup_curves()
+        return super().plot(**kwargs)
