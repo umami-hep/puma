@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from puma.plot_base import PlotBase, PlotLineObject
-from puma.utils import get_good_colours, logger
+from puma.utils import get_good_colours, get_good_markers, logger
 
 
 class Line2D(PlotLineObject):  # pylint: disable=too-few-public-methods
@@ -183,7 +183,7 @@ class Line2DPlot(PlotBase):
                 curve.colour = self.plot_objects[len(self.plot_objects)].colour
             # Set markerstyle
             if curve.marker is None:
-                curve.marker = "x"
+                curve.marker = get_good_markers()[len(self.plot_objects)]
             # Set markersize
             if curve.markersize is None:
                 curve.markersize = 15

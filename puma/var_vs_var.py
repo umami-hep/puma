@@ -1,10 +1,11 @@
 """Variable vs another variable plot"""
 import matplotlib as mpl
 import numpy as np
+from matplotlib.patches import Rectangle
 
 # TODO: fix the import below
 from puma.plot_base import PlotBase, PlotLineObject
-from puma.utils import get_good_colours, logger
+from puma.utils import get_good_colours, get_good_markers, logger
 from puma.utils.histogram import hist_ratio
 
 
@@ -21,6 +22,7 @@ class VarVsVar(PlotLineObject):  # pylint: disable=too-many-instance-attributes
         y_var_std: np.ndarray,
         x_var_widths: np.ndarray = None,
         key: str = None,
+        fill: bool = False,
         **kwargs,
     ) -> None:
         """Initialise properties of roc curve object.
@@ -37,6 +39,8 @@ class VarVsVar(PlotLineObject):  # pylint: disable=too-many-instance-attributes
             Std value for x-axis variable
         key : str, optional
             Identifier for the curve e.g. tagger, by default None
+        fill : bool, optional
+            Defines do we need to fill box around point, by default False
         **kwargs : kwargs
             Keyword arguments passed to `PlotLineObject`
 
@@ -63,6 +67,7 @@ class VarVsVar(PlotLineObject):  # pylint: disable=too-many-instance-attributes
         self.y_var_mean = np.array(y_var_mean)
         self.y_var_std = np.array(y_var_std)
         self.key = key
+        self.fill = fill
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
@@ -144,7 +149,9 @@ class VarVsVarPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             raise ValueError("Not more than one ratio panel supported.")
         self.initialise_figure()
 
-    def add(self, curve: object, key: str = None, reference: bool = False):
+    def add(
+        self, curve: object, key: str = None, reference: bool = False
+    ):  # pylint: disable=too-many-branches
         """Adding var_vs_eff object to figure.
 
         Parameters
@@ -181,9 +188,24 @@ class VarVsVarPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         if curve.linewidth is None:
             curve.linewidth = 1.6
 
-        # set min and max bin edges
-        self.x_var_min = min(self.x_var_min, np.sort(curve.x_var_mean)[0])
-        self.x_var_max = max(self.x_var_max, np.sort(curve.x_var_mean)[-1])
+        if curve.is_marker is True:
+            if curve.marker is None:
+                curve.marker = get_good_markers()[len(self.plot_objects)]
+            # Set markersize
+            if curve.markersize is None:
+                curve.markersize = 15
+            if curve.markeredgewidth is None:
+                curve.markeredgewidth = 2
+
+        # set min and max edges
+        if curve.x_var_widths is not None:
+            left_edge = curve.x_var_mean - curve.x_var_widths / 2
+            right_edge = curve.x_var_mean + curve.x_var_widths / 2
+        else:
+            left_edge = curve.x_var_mean
+            right_edge = curve.x_var_mean
+        self.x_var_min = min(self.x_var_min, np.sort(left_edge)[0])
+        self.x_var_max = max(self.x_var_max, np.sort(right_edge)[-1])
 
         if reference:
             logger.debug("Setting roc %s as reference.", key)
@@ -230,7 +252,7 @@ class VarVsVarPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             error_bar = self.axis_top.errorbar(
                 elem.x_var_mean,
                 elem.y_var_mean,
-                xerr=elem.x_var_widths / 2,
+                xerr=elem.x_var_widths / 2 if elem.x_var_widths is not None else None,
                 yerr=elem.y_var_std,
                 color=elem.colour,
                 fmt="none",
@@ -241,15 +263,35 @@ class VarVsVarPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             )
             # # set linestyle for errorbar
             error_bar[-1][0].set_linestyle(elem.linestyle)
-
             # Draw markers
-            self.axis_top.scatter(
-                x=elem.x_var_mean,
-                y=elem.y_var_mean,
-                marker=elem.marker,
-                color=elem.colour,
-            )
-
+            if elem.is_marker is True:
+                self.axis_top.scatter(
+                    x=elem.x_var_mean,
+                    y=elem.y_var_mean,
+                    marker=elem.marker,
+                    color=elem.colour,
+                )
+            if elem.x_var_widths is not None and elem.fill:
+                for x_pos, y_pos, width, height in zip(
+                    elem.x_var_mean,
+                    elem.y_var_mean,
+                    elem.x_var_widths,
+                    2 * elem.y_var_std,
+                ):
+                    self.axis_top.add_patch(
+                        Rectangle(
+                            xy=(
+                                x_pos - width / 2,
+                                y_pos - height / 2,
+                            ),
+                            width=width,
+                            height=height,
+                            linewidth=0,
+                            color=elem.colour,
+                            alpha=0.3,
+                            zorder=1,
+                        )
+                    )
             plt_handles.append(
                 mpl.lines.Line2D(
                     [],
@@ -278,7 +320,7 @@ class VarVsVarPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             error_bar = self.ratio_axes[0].errorbar(
                 elem.x_var_mean,
                 ratio,
-                xerr=elem.x_var_widths / 2,
+                xerr=elem.x_var_widths / 2 if elem.x_var_widths is not None else None,
                 yerr=ratio_err,
                 color=elem.colour,
                 fmt="none",
@@ -287,10 +329,29 @@ class VarVsVarPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             )
             # set linestyle for errorbar
             error_bar[-1][0].set_linestyle(elem.linestyle)
-
-            self.ratio_axes[0].scatter(
-                x=elem.x_var_mean, y=ratio, marker=elem.marker, color=elem.colour
-            )
+            # draw markers
+            if elem.is_marker is True:
+                self.ratio_axes[0].scatter(
+                    x=elem.x_var_mean, y=ratio, marker=elem.marker, color=elem.colour
+                )
+            if elem.x_var_widths is not None and elem.fill:
+                for x_pos, y_pos, width, height in zip(
+                    elem.x_var_mean, ratio, elem.x_var_widths, 2 * ratio_err
+                ):
+                    self.ratio_axes[0].add_patch(
+                        Rectangle(
+                            xy=(
+                                x_pos - width / 2,
+                                y_pos - height / 2,
+                            ),
+                            width=width,
+                            height=height,
+                            linewidth=0,
+                            color=elem.colour,
+                            alpha=0.3,
+                            zorder=1,
+                        )
+                    )
 
     def draw_hline(self, y_val: float):
         """Draw hline in top plot panel.
