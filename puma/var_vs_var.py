@@ -63,6 +63,11 @@ class VarVsVar(PlotLineObject):  # pylint: disable=too-many-instance-attributes
                 f"Length of `x_var_mean` ({len(x_var_mean)}) and `y_var_std` "
                 f"({len(y_var_std)}) have to be identical."
             )
+        if x_var_widths is not None and len(x_var_mean) != len(x_var_widths):
+            raise ValueError(
+                f"Length of `x_var_mean` ({len(x_var_mean)}) and `x_var_widths` "
+                f"({len(x_var_widths)}) have to be identical."
+            )
 
         self.x_var_mean = np.array(x_var_mean)
         self.x_var_widths = None if x_var_widths is None else np.array(x_var_widths)
