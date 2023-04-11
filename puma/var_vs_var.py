@@ -93,8 +93,8 @@ class VarVsVar(PlotLineObject):  # pylint: disable=too-many-instance-attributes
 
         Parameters
         ----------
-        other : var_vs_var class
-            Second var_vs_var object to calculate ratio with
+        other : VarVsVar class
+            Second VarVsVar object to calculate ratio with
         inverse : bool
             If False the ratio is calculated `this / other`,
             if True the inverse is calculated
@@ -118,10 +118,10 @@ class VarVsVar(PlotLineObject):  # pylint: disable=too-many-instance-attributes
         denom, denom_err = other.y_var_mean, other.y_var_std
 
         ratio, ratio_err = hist_ratio(
-            denom if inverse else nom,
-            nom if inverse else denom,
-            denom_err if inverse else nom_err,
-            nom_err if inverse else denom_err,
+            numerator=denom if inverse else nom,
+            denominator=nom if inverse else denom,
+            numerator_unc=denom_err if inverse else nom_err,
+            denominator_unc=nom_err if inverse else denom_err,
             step=False,
         )
         return (ratio, ratio_err)
