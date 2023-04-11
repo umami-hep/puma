@@ -31,7 +31,7 @@ class VarVsVar(PlotLineObject):  # pylint: disable=too-many-instance-attributes
         Parameters
         ----------
         x_var : np.ndarray
-            Values for x-axis variable, bin midpoints
+            Values for x-axis variable, e.g. bin midpoints for binned data
         y_var_mean : np.ndarray
             Mean value for y-axis variable
         y_var_std : np.ndarray
@@ -113,7 +113,6 @@ class VarVsVar(PlotLineObject):  # pylint: disable=too-many-instance-attributes
         """
         if not np.array_equal(self.x_var, other.x_var):
             raise ValueError("The x variables of the two given objects do not match.")
-        # TODO: python 3.10 switch to cases syntax
         nom, nom_err = self.y_var_mean, self.y_var_std
         denom, denom_err = other.y_var_mean, other.y_var_std
 
