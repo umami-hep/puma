@@ -11,36 +11,39 @@ from puma.utils.histogram import hist_ratio
 
 class VarVsVar(PlotLineObject):  # pylint: disable=too-many-instance-attributes
     """
-    var_vs_eff class storing info about curve and allows to calculate ratio w.r.t other
+    VarVsVar class storing info about curve and allows to calculate ratio w.r.t other
     efficiency plots.
     """
 
     def __init__(  # pylint: disable=too-many-arguments
         self,
-        x_var_mean: np.ndarray,
+        x_var: np.ndarray,
         y_var_mean: np.ndarray,
         y_var_std: np.ndarray,
         x_var_widths: np.ndarray = None,
         key: str = None,
-        fill: bool = False,
+        fill: bool = True,
+        plot_y_std: bool = True,
         **kwargs,
     ) -> None:
-        """Initialise properties of roc curve object.
+        """Initialise properties of VarVsVar curve object.
 
         Parameters
         ----------
-        x_var_mean : np.ndarray
-            Values for x-axis variable
+        x_var : np.ndarray
+            Values for x-axis variable, bin midpoints
         y_var_mean : np.ndarray
             Mean value for y-axis variable
         y_var_std : np.ndarray
             Std value for y-axis variable
         x_var_widths : np.ndarray, optional
-            Std value for x-axis variable
+            Widths for x-axis variable, e.g. bin widths for binned data
         key : str, optional
             Identifier for the curve e.g. tagger, by default None
         fill : bool, optional
-            Defines do we need to fill box around point, by default False
+            Defines do we need to fill box around point, by default True
+        plot_y_std : bool, optional
+            Defines do we need to plot y_var_std, by default True
         **kwargs : kwargs
             Keyword arguments passed to `PlotLineObject`
 
@@ -51,28 +54,34 @@ class VarVsVar(PlotLineObject):  # pylint: disable=too-many-instance-attributes
         """
 
         super().__init__(**kwargs)
-        if len(x_var_mean) != len(y_var_mean):
+        if len(x_var) != len(y_var_mean):
             raise ValueError(
-                f"Length of `x_var_mean` ({len(x_var_mean)}) and `y_var_mean` "
+                f"Length of `x_var` ({len(x_var)}) and `y_var_mean` "
                 f"({len(y_var_mean)}) have to be identical."
             )
-        if len(x_var_mean) != len(y_var_std):
+        if len(x_var) != len(y_var_std):
             raise ValueError(
-                f"Length of `x_var_mean` ({len(x_var_mean)}) and `y_var_std` "
+                f"Length of `x_var` ({len(x_var)}) and `y_var_std` "
                 f"({len(y_var_std)}) have to be identical."
             )
-
-        self.x_var_mean = np.array(x_var_mean)
+        if x_var_widths is not None and len(x_var) != len(x_var_widths):
+            raise ValueError(
+                f"Length of `x_var` ({len(x_var)}) and `x_var_widths` "
+                f"({len(x_var_widths)}) have to be identical."
+            )
+        self.x_var = np.array(x_var)
         self.x_var_widths = None if x_var_widths is None else np.array(x_var_widths)
         self.y_var_mean = np.array(y_var_mean)
         self.y_var_std = np.array(y_var_std)
+
         self.key = key
         self.fill = fill
+        self.plot_y_std = plot_y_std
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return (
-                np.all(self.x_var_mean == other.x_var_mean)
+                np.all(self.x_var == other.x_var)
                 and np.all(self.y_var_mean == other.y_var_mean)
                 and np.all(self.y_var_std == other.y_var_std)
                 and self.key == other.key
@@ -102,7 +111,7 @@ class VarVsVar(PlotLineObject):  # pylint: disable=too-many-instance-attributes
         ValueError
             If binning is not identical between 2 objects
         """
-        if not np.array_equal(self.x_var_mean, other.x_var_mean):
+        if not np.array_equal(self.x_var, other.x_var):
             raise ValueError("The x variables of the two given objects do not match.")
         # TODO: python 3.10 switch to cases syntax
         nom, nom_err = self.y_var_mean, self.y_var_std
@@ -150,18 +159,18 @@ class VarVsVarPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         self.initialise_figure()
 
     def add(
-        self, curve: object, key: str = None, reference: bool = False
+        self, curve: VarVsVar, key: str = None, reference: bool = False
     ):  # pylint: disable=too-many-branches
-        """Adding var_vs_eff object to figure.
+        """Adding VarVsVar object to figure.
 
         Parameters
         ----------
-        curve : var_vs_eff class
-            Var_vs_eff curve
+        curve : VarVsVar class
+            VarVsVar curve
         key : str, optional
-            Unique identifier for var_vs_eff, by default None
+            Unique identifier for VarVsVar curve, by default None
         reference : bool, optional
-            If var_vs_eff is used as reference for ratio calculation, by default False
+            If VarVsVar is used as reference for ratio calculation, by default False
 
         Raises
         ------
@@ -199,11 +208,11 @@ class VarVsVarPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
 
         # set min and max edges
         if curve.x_var_widths is not None:
-            left_edge = curve.x_var_mean - curve.x_var_widths / 2
-            right_edge = curve.x_var_mean + curve.x_var_widths / 2
+            left_edge = curve.x_var - curve.x_var_widths / 2
+            right_edge = curve.x_var + curve.x_var_widths / 2
         else:
-            left_edge = curve.x_var_mean
-            right_edge = curve.x_var_mean
+            left_edge = curve.x_var
+            right_edge = curve.x_var
         self.x_var_min = min(self.x_var_min, np.sort(left_edge)[0])
         self.x_var_max = max(self.x_var_max, np.sort(right_edge)[-1])
 
@@ -250,10 +259,10 @@ class VarVsVarPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         for key in self.add_order:
             elem = self.plot_objects[key]
             error_bar = self.axis_top.errorbar(
-                elem.x_var_mean,
+                elem.x_var,
                 elem.y_var_mean,
                 xerr=elem.x_var_widths / 2 if elem.x_var_widths is not None else None,
-                yerr=elem.y_var_std,
+                yerr=(elem.y_var_std if elem.plot_y_std else np.zeros_like(elem.x_var)),
                 color=elem.colour,
                 fmt="none",
                 label=elem.label,
@@ -266,14 +275,14 @@ class VarVsVarPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             # Draw markers
             if elem.is_marker is True:
                 self.axis_top.scatter(
-                    x=elem.x_var_mean,
+                    x=elem.x_var,
                     y=elem.y_var_mean,
                     marker=elem.marker,
                     color=elem.colour,
                 )
             if elem.x_var_widths is not None and elem.fill:
                 for x_pos, y_pos, width, height in zip(
-                    elem.x_var_mean,
+                    elem.x_var,
                     elem.y_var_mean,
                     elem.x_var_widths,
                     2 * elem.y_var_std,
@@ -318,10 +327,10 @@ class VarVsVarPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             elem = self.plot_objects[key]
             (ratio, ratio_err) = elem.divide(self.plot_objects[self.reference_object])
             error_bar = self.ratio_axes[0].errorbar(
-                elem.x_var_mean,
+                elem.x_var,
                 ratio,
                 xerr=elem.x_var_widths / 2 if elem.x_var_widths is not None else None,
-                yerr=ratio_err,
+                yerr=ratio_err if elem.plot_y_std else np.zeros_like(elem.x_var),
                 color=elem.colour,
                 fmt="none",
                 alpha=elem.alpha,
@@ -332,11 +341,11 @@ class VarVsVarPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             # draw markers
             if elem.is_marker is True:
                 self.ratio_axes[0].scatter(
-                    x=elem.x_var_mean, y=ratio, marker=elem.marker, color=elem.colour
+                    x=elem.x_var, y=ratio, marker=elem.marker, color=elem.colour
                 )
             if elem.x_var_widths is not None and elem.fill:
                 for x_pos, y_pos, width, height in zip(
-                    elem.x_var_mean, ratio, elem.x_var_widths, 2 * ratio_err
+                    elem.x_var, ratio, elem.x_var_widths, 2 * ratio_err
                 ):
                     self.ratio_axes[0].add_patch(
                         Rectangle(
