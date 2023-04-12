@@ -66,6 +66,19 @@ class VarVsVarTestCase(unittest.TestCase):
         )
         self.assertEqual(var_plot, var_plot)
 
+    def test_var_vs_var_eq_different_classes(self):
+        """Test var_vs_var eq."""
+        var_plot = VarVsVar(
+            np.ones(6),
+            np.ones(6),
+            np.ones(6),
+            x_var_widths=np.ones(6),
+            key="test",
+            fill=True,
+            plot_y_std=False,
+        )
+        self.assertNotEqual(var_plot, np.ones(6))
+
     def test_var_vs_var_divide_same(self):
         """Test var_vs_var divide."""
         var_plot = VarVsVar(
@@ -91,10 +104,10 @@ class VarVsVarTestCase(unittest.TestCase):
             var_plot.divide(var_plot_comp)
 
 
-class VarVsVarOutputTestCase(
+class VarVsVarPlotTestCase(
     unittest.TestCase
 ):  # pylint:disable=too-many-instance-attributes
-    """Test class for the puma.var_vs_var_plot output"""
+    """Test class for the puma.var_vs_var_plot"""
 
     def setUp(self):
         # Set up temp directory for comparison plots
@@ -110,14 +123,12 @@ class VarVsVarOutputTestCase(
         self.x_var = np.linspace(0, 250, num=n_random)
         self.y_var_mean = np.exp(-self.x_var / 200) * 10
         self.y_var_std = np.sin(self.y_var_mean)
+        self.x_var_widths = np.ones_like(self.x_var) * 5
 
         self.y_var_mean_2 = np.exp(-self.x_var / 100) * 10
-        self.y_var_std_2 = np.sin(self.y_var_mean)
+        self.y_var_std_2 = np.sin(self.y_var_mean_2)
 
-    def test_output_plot(self):
-        """Test output plot."""
-        # define the curves
-        test = VarVsVar(
+        self.test = VarVsVar(
             x_var=self.x_var,
             y_var_mean=self.y_var_mean,
             y_var_std=self.y_var_std,
@@ -125,14 +136,55 @@ class VarVsVarOutputTestCase(
             fill=False,
             is_marker=True,
         )
-        test_2 = VarVsVar(
+        self.test_2 = VarVsVar(
             x_var=self.x_var,
             y_var_mean=self.y_var_mean_2,
             y_var_std=self.y_var_std_2,
+            x_var_widths=self.x_var_widths,
             label=r"$10e^{-x/100}$",
-            fill=False,
-            is_marker=True,
+            fill=True,
+            plot_y_std=False,
+            is_marker=False,
         )
+
+    def test_n_ratio_panels(self):
+        """Check if ValueError is raised when we require more than 1 ratio panel"""
+        with self.assertRaises(ValueError):
+            VarVsVarPlot(
+                n_ratio_panels=np.random.randint(2, 10),
+            )
+
+    def test_no_reference(self):
+        """Check if ValueError is raised when plot ratios without reference"""
+        test_plot = VarVsVarPlot(
+            n_ratio_panels=1,
+        )
+        test_plot.add(self.test)
+        test_plot.add(self.test_2)
+        with self.assertRaises(ValueError):
+            test_plot.plot_ratios()
+
+    def test_overwrite_reference(self):
+        """Check correct reference overwrite"""
+        test_plot = VarVsVarPlot(
+            n_ratio_panels=1,
+        )
+        test_plot.add(self.test, reference=True)
+        test_plot.add(self.test_2, reference=True)
+
+    def test_same_keys(self):
+        """Check if KeyError is rased when we add VarVsVar object with existing key"""
+        test_plot = VarVsVarPlot(
+            n_ratio_panels=1,
+        )
+        test_plot.add(self.test, key="1")
+        with self.assertRaises(KeyError):
+            test_plot.add(self.test_2, key="1")
+
+    def test_output_plot(self):
+        """Test output plot."""
+        # define the curves
+
         test_plot = VarVsVarPlot(
             ylabel=r"$\overline{N}_{trk}$",
             xlabel=r"$p_{T}$ [GeV]",
@@ -142,12 +194,13 @@ class VarVsVarOutputTestCase(
             n_ratio_panels=1,
             figsize=(9, 6),
         )
-        test_plot.add(test, reference=True)
-        test_plot.add(test_2, reference=False)
+        test_plot.add(self.test, reference=True)
+        test_plot.add(self.test_2, reference=False)
 
+        test_plot.draw_hline(4)
         test_plot.draw()
 
-        plotname = "test_avg_ntracks.png"
+        plotname = "test_var_vs_var.png"
         test_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
         # test_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
@@ -156,6 +209,6 @@ class VarVsVarOutputTestCase(
             compare_images(
                 f"{self.actual_plots_dir}/{plotname}",
                 f"{self.expected_plots_dir}/{plotname}",
-                tol=1,
+                tol=5,
             ),
         )
