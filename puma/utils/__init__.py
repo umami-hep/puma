@@ -139,6 +139,27 @@ def get_good_colours(colour_scheme=None):
         return Dark2_8.mpl_colors
 
 
+def get_good_markers():
+    """List of markers adequate for plotting
+
+    Returns
+    -------
+    list
+        list with markers
+    """
+    # TODO needs improvements
+
+    return [
+        "o",  # Circle
+        "x",  # x
+        "v",  # Triangle down
+        "^",  # Triangle up
+        "D",  # Diamond
+        "p",  # Pentagon
+        "s",  # Square
+    ]
+
+
 def get_good_linestyles(names=None):
     """Returns a list of good linestyles
 
