@@ -209,8 +209,15 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
                 f"{self.n_ratio_panels} not allwed value for `n_ratio_panels`. "
                 f"Allowed are {allowed_n_ratio_panels}"
             )
-        self.ymin_ratio = [None] * self.n_ratio_panels
-        self.ymax_ratio = [None] * self.n_ratio_panels
+        self.__check_yratio(self.ymin_ratio)
+        self.ymin_ratio = (
+            [None] * self.n_ratio_panels if self.ymin_ratio is None else self.ymin_ratio
+        )
+        self.__check_yratio(self.ymax_ratio)
+        self.ymax_ratio = (
+            [None] * self.n_ratio_panels if self.ymax_ratio is None else self.ymax_ratio
+        )
+
         self.ylabel_ratio = ["Ratio"] * self.n_ratio_panels
         if self.leg_fontsize is None:
             self.leg_fontsize = self.fontsize
@@ -240,6 +247,27 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
             raise ValueError(
                 f"You passed `figsize` as {self.figsize} which is not allowed. "
                 "Either a tuple or a list of size 2 is allowed"
+            )
+
+    def __check_yratio(self, yratio):
+        """Check `yratio`
+
+        Parameters
+        ----------
+        yratio : list
+            List of min or max limits of ratio plots
+        Raises
+        ------
+        ValueError
+            If `yratio` is not a list and it's lenght
+            is not equal to number of ratio panels
+        """
+        if yratio is None:
+            return
+        if not isinstance(yratio, (list, tuple)) or len(yratio) != self.n_ratio_panels:
+            raise ValueError(
+                f"You passed `min/max_yratio` as {yratio} which is not allowed. "
+                f"Either a tuple or a list of size {self.n_ratio_panels} is allowed"
             )
 
 
