@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+- Add `VarVsVar` plot [!172](https://github.com/umami-hep/puma/pull/172)
+
 ### [v0.2.4] (2023/04/06)
 
 - Replace `dijets` category with `QCD` category [!170](https://github.com/umami-hep/puma/pull/170)
