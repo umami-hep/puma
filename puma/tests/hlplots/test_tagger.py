@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 """Unit test script for the functions in hlplots/tagger.py."""
-
 import tempfile
 import unittest
 
@@ -9,6 +8,7 @@ import h5py
 import numpy as np
 import pandas as pd
 from numpy.lib.recfunctions import structured_to_unstructured as s2u
+from numpy.lib.recfunctions import unstructured_to_structured as u2s
 
 from puma.hlplots import Tagger
 from puma.utils import logger, set_log_level
@@ -120,7 +120,8 @@ class TaggerTestCase(unittest.TestCase):
 
     def setUp(self) -> None:
         """Set up for tests."""
-        self.scores = np.column_stack((np.ones(10), np.ones(10), np.ones(10)))
+        scores = np.column_stack((np.ones(10), np.ones(10), np.ones(10)))
+        self.scores = u2s(scores, dtype=[("ujets", "f4"), ("cjets", "f4"), ("bjets", "f4")])
 
     def test_disc_cut_template(self):
         """Test template with disc_cut."""
