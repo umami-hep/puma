@@ -7,6 +7,7 @@ import h5py
 import numpy as np
 import pandas as pd
 from ftag import Flavour, Flavours
+from numpy.lib.recfunctions import structured_to_unstructured as s2u
 
 from puma.utils import calc_disc, logger
 
@@ -203,7 +204,7 @@ class Tagger:
             "bkg": {"pu": 1 - self.f_c, "pc": self.f_c},
         }
         return calc_disc(
-            scores=self.scores,
+            scores=s2u(self.scores),
             flvs=self.probabilities,
             flv_map=flv_map,
         )
