@@ -71,9 +71,7 @@ results.plot_var_perf(
     fixed_eff_bin=False,
 )
 
-results.atlas_second_tag = (
-    "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$\n70% WP per bin"
-)
+results.atlas_second_tag = "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$\n70% WP per bin"
 results.plot_var_perf(
     plot_name="hlplots_dummy_tagger_pt_fixed_per_bin",
     bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],

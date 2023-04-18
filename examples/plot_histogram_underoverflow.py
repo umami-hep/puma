@@ -1,4 +1,4 @@
-"""Example script that demonstrates under/overflow bins"""
+"""Example script that demonstrates under/overflow bins."""
 import numpy as np
 
 from puma import Histogram, HistogramPlot

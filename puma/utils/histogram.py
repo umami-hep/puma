@@ -51,7 +51,7 @@ def save_divide(
     return ratio
 
 
-def hist_w_unc(  # pylint: disable=too-many-arguments,too-many-locals
+def hist_w_unc(
     arr,
     bins,
     bins_range=None,
@@ -118,15 +118,11 @@ def hist_w_unc(  # pylint: disable=too-many-arguments,too-many-locals
 
     # calculate the uncertainty with sum of squared weights (per bin, so we use
     # np.histogram again here)
-    unc = np.sqrt(
-        np.histogram(arr, bins=bins, range=bins_range, weights=weights**2)[0]
-    )
+    unc = np.sqrt(np.histogram(arr, bins=bins, range=bins_range, weights=weights**2)[0])
 
     if underoverflow:
         # add two dummy bins (from outermost bins to +-infinity)
-        bins_with_overunderflow = np.hstack(
-            [np.array([-np.inf]), bin_edges, np.array([np.inf])]
-        )
+        bins_with_overunderflow = np.hstack([np.array([-np.inf]), bin_edges, np.array([np.inf])])
         # recalculate the histogram with this adjusted binning
         counts, _ = np.histogram(arr, bins=bins_with_overunderflow, weights=weights)
         counts[1] += counts[0]  # add underflow values to underflow bin
@@ -134,9 +130,9 @@ def hist_w_unc(  # pylint: disable=too-many-arguments,too-many-locals
         counts = counts[1:-1]  # remove dummy bins
 
         # calculate the sum of squared weights
-        sum_squared_weights = np.histogram(
-            arr, bins=bins_with_overunderflow, weights=weights**2
-        )[0]
+        sum_squared_weights = np.histogram(arr, bins=bins_with_overunderflow, weights=weights**2)[
+            0
+        ]
         # add sum of squared weights from under/overflow values to under/overflow bin
         sum_squared_weights[1] += sum_squared_weights[0]
         sum_squared_weights[-2] += sum_squared_weights[-1]
@@ -205,18 +201,12 @@ def hist_ratio(
     if numerator.shape != numerator_unc.shape:
         raise AssertionError("Numerator and numerator_unc don't have the same legth")
     if denominator.shape != denominator_unc.shape:
-        raise (
-            AssertionError("Denominator and denominator_unc don't have the same legth")
-        )
+        raise (AssertionError("Denominator and denominator_unc don't have the same legth"))
     step_ratio = save_divide(numerator, denominator, 1 if step else np.inf)
 
     # Calculate rel uncertainties
-    numerator_rel_unc = save_divide(
-        numerator_unc, numerator, default=0 if step else np.inf
-    )
-    denominator_rel_unc = save_divide(
-        denominator_unc, denominator, default=0 if step else np.inf
-    )
+    numerator_rel_unc = save_divide(numerator_unc, numerator, default=0 if step else np.inf)
+    denominator_rel_unc = save_divide(denominator_unc, denominator, default=0 if step else np.inf)
 
     # Calculate rel uncertainty
     step_rel_unc = np.sqrt(numerator_rel_unc**2 + denominator_rel_unc**2)

@@ -1,4 +1,4 @@
-"""Example of fraction scan plot"""
+"""Example of fraction scan plot."""
 
 import numpy as np
 
@@ -24,7 +24,7 @@ dips_scores = df[["dips_pu", "dips_pc", "dips_pb"]].values
 
 
 def calc_effs(fc_value: float):
-    """Tagger efficiency for fixed working point
+    """Tagger efficiency for fixed working point.
 
     Parameters
     ----------

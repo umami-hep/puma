@@ -1,6 +1,4 @@
-"""
-Unit test script for the functions in utils.logging
-"""
+"""Unit test script for the functions in utils.logging."""
 
 import unittest
 

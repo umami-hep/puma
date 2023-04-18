@@ -1,7 +1,7 @@
 """Module for usefule tools in puma."""
 
 # flake8: noqa
-# pylint: skip-file
+
 
 import numpy as np
 import pandas as pd
@@ -10,7 +10,7 @@ from scipy.special import softmax
 
 from puma.utils.discriminant import calc_disc, calc_disc_b, calc_disc_c
 from puma.utils.generate import get_dummy_2_taggers, get_dummy_multiclass_scores
-from puma.utils.logging import logger, set_log_level  # noqa: F401
+from puma.utils.logging import logger, set_log_level
 
 
 def set_xaxis_ticklabels_invisible(ax):
@@ -105,8 +105,7 @@ def get_good_pie_colours(colour_scheme=None):
             "#FFE28A",
         ]
     raise KeyError(
-        f"Given colour scheme is {colour_scheme} but it has to "
-        "be blue, red, green, yellow or None"
+        f"Given colour scheme is {colour_scheme} but it has to be blue, red, green, yellow or None"
     )
 
 
@@ -218,9 +217,7 @@ def get_good_linestyles(names=None):
     elif isinstance(names, str):
         return linestyle_tuples[names]
     elif not isinstance(names, list):
-        raise ValueError(
-            "Invalid type of `names`, has to be a list of strings or a sting."
-        )
+        raise ValueError("Invalid type of `names`, has to be a list of strings or a sting.")
     return [linestyle_tuples[name] for name in names]
 
 

@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
 
-"""
-Unit test script for the functions in metrics.py
-"""
+"""Unit test script for the functions in metrics.py."""
 
 import unittest
 
@@ -19,35 +17,37 @@ class SeparationTestCase(unittest.TestCase):
     """Test class for the puma.metrics.calc_separation."""
 
     def setUp(self):
-        """Define a default (seeded) random number generator for all tests"""
+        """Define a default (seeded) random number generator for all tests."""
         self.rng = np.random.default_rng(42)
 
     def test_equal_datasets(self):
-        """Separation of two equal datasets (=0)"""
+        """Separation of two equal datasets (=0)."""
         values_a = np.array([1, 1, 2, 2])
         self.assertEqual(0, calc_separation(values_a, values_a)[0])
 
     def test_completely_separated(self):
-        """Separation of two completely separated distributions"""
+        """Separation of two completely separated distributions."""
         values_a = np.array([0.1, 0.5, 0.8, 1])
         values_b = np.array([1.1, 1.5, 1.8, 2])
         self.assertAlmostEqual(1, calc_separation(values_a, values_b)[0])
 
     def test_completely_separated_bad_binning(self):
         """Separation of two completely separated distributions if the binning
-        if chosen such that they share one bin"""
+        if chosen such that they share one bin
+        .
+        """
         values_a = np.array([0.1, 0.5, 0.8, 1])
         values_b = np.array([1.1, 1.5, 1.8, 2])
         self.assertNotAlmostEqual(1, calc_separation(values_a, values_b, bins=3)[0])
 
     def test_half_separated(self):
-        """Separation of 0.5"""
+        """Separation of 0.5."""
         values_a = np.array([0, 1])
         values_b = np.array([1, 2])
         self.assertAlmostEqual(0.5, calc_separation(values_a, values_b, bins=3)[0])
 
     def test_return_bins(self):
-        """Test if bins are correctly returned"""
+        """Test if bins are correctly returned."""
         values_a = np.array([0, 1])
         values_b = np.array([1, 2])
 
@@ -88,34 +88,28 @@ class CalcEffAndRejTestCase(unittest.TestCase):
         self.disc_bkg = rng.normal(loc=0, size=100_000)
 
     def test_float_target(self):
-        """Test efficiency and cut value calculation for one target value"""
-
+        """Test efficiency and cut value calculation for one target value."""
         # we target a signal efficiency of 0.841345, which is the integral of a gaussian
-        # from μ-1σ to infinity
+        # from μ-1o to infinity
         # -->   the cut_value should be at 2, since the signal is a normal distribution
         #       with mean 3
         # https://www.wolframalpha.com/input?i=integrate+1%2Fsqrt%282+pi%29+*+exp%28-0.5*%28x-3%29**2%29+from+2+to+oo
         # -->   For the bkg efficiency this means that we integrate a normal distr.
-        #       from μ+2σ to infinity --> expect a value of 0.0227501
+        #       from μ+2o to infinity --> expect a value of 0.0227501
         # https://www.wolframalpha.com/input?i=integrate+1%2Fsqrt%282+pi%29+*+exp%28-0.5*x**2%29+from+2+to+oo
-        bkg_eff, cut = calc_eff(
-            self.disc_sig, self.disc_bkg, target_eff=0.841345, return_cuts=True
-        )
+        bkg_eff, cut = calc_eff(self.disc_sig, self.disc_bkg, target_eff=0.841345, return_cuts=True)
         # the values here differ slightly from the values of the analytical integral,
         # since we use random numbers
         self.assertAlmostEqual(cut, 1.9956997)
         self.assertAlmostEqual(bkg_eff, 0.02367)
 
         # same for rejection, just use rej = 1 / eff
-        bkg_rej, cut = calc_rej(
-            self.disc_sig, self.disc_bkg, target_eff=0.841345, return_cuts=True
-        )
+        bkg_rej, cut = calc_rej(self.disc_sig, self.disc_bkg, target_eff=0.841345, return_cuts=True)
         self.assertAlmostEqual(cut, 1.9956997)
         self.assertAlmostEqual(bkg_rej, 1 / 0.02367)
 
     def test_array_target(self):
-        """Test efficiency and cut value calculation for list of target efficiencies"""
-
+        """Test efficiency and cut value calculation for list of target efficiencies."""
         # explanation is the same as above, now also cut the signal in the middle
         # --> target sig.efficiency 0.841345 and 0.5 --> cut at 2 and 3
         bkg_eff, cut = calc_eff(

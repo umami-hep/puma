@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-"""
-Unit test script for the functions in line_plot_2d.py
-"""
+"""Unit test script for the functions in line_plot_2d.py."""
 
 import os
 import tempfile
@@ -21,7 +19,7 @@ class Line2DTestCase(unittest.TestCase):
     """Test class for the puma.line_plot_2d functions."""
 
     def test_wrong_inputs_xvalues(self):
-        """test if providing wrong input type to Line2D raises ValueError"""
+        """test if providing wrong input type to Line2D raises ValueError."""
         with self.assertRaises(ValueError):
             Line2D(
                 x_values="Test",
@@ -29,7 +27,7 @@ class Line2DTestCase(unittest.TestCase):
             )
 
     def test_differnt_input_types(self):
-        """test if providing different input types raises ValueError"""
+        """test if providing different input types raises ValueError."""
         with self.assertRaises(ValueError):
             Line2D(
                 x_values=[1, 2, 3],
@@ -37,7 +35,7 @@ class Line2DTestCase(unittest.TestCase):
             )
 
     def test_empty_input(self):
-        """test if ValueError is raised when one of the input values is zero"""
+        """test if ValueError is raised when one of the input values is zero."""
         with self.assertRaises(ValueError):
             Line2D(
                 x_values=[],
@@ -51,7 +49,7 @@ class Line2DTestCase(unittest.TestCase):
             )
 
     def test_different_input_shapes(self):
-        """test if ValueError is raised when different lengths given"""
+        """test if ValueError is raised when different lengths given."""
         with self.assertRaises(ValueError):
             Line2D(
                 x_values=[1, 2, 3],
@@ -60,11 +58,10 @@ class Line2DTestCase(unittest.TestCase):
 
 
 class Line2DPlotTestCase(unittest.TestCase):
-    """Test class for puma.Line2DPlot"""
+    """Test class for puma.Line2DPlot."""
 
     def setUp(self):
         """Set up values needed."""
-
         # Line values
         self.x_values = np.arange(0.001, 1, 0.001)
         self.y_values = np.arange(0.001, 1, 0.001)
@@ -76,12 +73,10 @@ class Line2DPlotTestCase(unittest.TestCase):
         # Set up directories for comparison plots
         self.tmp_dir = tempfile.TemporaryDirectory()  # pylint: disable=R1732
         self.actual_plots_dir = f"{self.tmp_dir.name}"
-        self.expected_plots_dir = os.path.join(
-            os.path.dirname(__file__), "expected_plots"
-        )
+        self.expected_plots_dir = os.path.join(os.path.dirname(__file__), "expected_plots")
 
     def test_basic(self):
-        """Test the basic functions of Line2DPlot"""
+        """Test the basic functions of Line2DPlot."""
         frac_plot = Line2DPlot(**{"n_ratio_panels": 0})
 
         # Add line
@@ -132,7 +127,7 @@ class Line2DPlotTestCase(unittest.TestCase):
         )
 
     def test_grid_off(self):
-        """Test the basic functions of Line2DPlot"""
+        """Test the basic functions of Line2DPlot."""
         frac_plot = Line2DPlot(**{"n_ratio_panels": 0}, grid=False)
 
         # Add line
@@ -183,7 +178,7 @@ class Line2DPlotTestCase(unittest.TestCase):
         )
 
     def test_no_param_set(self):
-        """Test the basic functions of Line2DPlot"""
+        """Test the basic functions of Line2DPlot."""
         frac_plot = Line2DPlot(**{"n_ratio_panels": 0})
 
         # Add line
@@ -236,7 +231,7 @@ class Line2DPlotTestCase(unittest.TestCase):
         )
 
     def test_double_key(self):
-        """Test the basic functions of Line2DPlot"""
+        """Test the basic functions of Line2DPlot."""
         frac_plot = Line2DPlot(**{"n_ratio_panels": 0})
 
         # Add line

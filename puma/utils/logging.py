@@ -7,7 +7,7 @@ class CustomFormatter(logging.Formatter):
     """
     Logging Formatter to add colours and count warning / errors using implementation
     from
-    https://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output
+    https://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output.
     """
 
     grey = "\x1b[38;21m"
@@ -16,9 +16,7 @@ class CustomFormatter(logging.Formatter):
     red = "\x1b[31;21m"
     bold_red = "\x1b[31;1m"
     reset = "\x1b[0m"
-    debugformat = (
-        "%(asctime)s - %(levelname)s:%(name)s: %(message)s (%(filename)s:%(lineno)d)"
-    )
+    debugformat = "%(asctime)s - %(levelname)s:%(name)s: %(message)s (%(filename)s:%(lineno)d)"
     date_format = "%(levelname)s:%(name)s: %(message)s"
 
     FORMATS = {
@@ -85,7 +83,6 @@ def initialise_logger(
     logger
         logger object with new level set
     """
-
     log_level = get_log_level(
         os.environ.get("LOG_LEVEL", "INFO") if log_level is None else log_level
     )
@@ -114,7 +111,6 @@ def set_log_level(
     log_level : str
         Logging level corresponding CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET
     """
-
     puma_logger.setLevel(get_log_level(log_level))
     for handler in puma_logger.handlers:
         handler.setLevel(get_log_level(log_level))

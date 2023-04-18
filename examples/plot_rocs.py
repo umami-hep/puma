@@ -13,7 +13,7 @@ logger.info("caclulate tagger discriminants")
 
 # define a small function to calculate discriminant
 def disc_fct(arr: np.ndarray, f_c: float = 0.018) -> np.ndarray:
-    """Tagger discriminant
+    """Tagger discriminant.
 
     Parameters
     ----------
@@ -39,12 +39,8 @@ def disc_fct(arr: np.ndarray, f_c: float = 0.018) -> np.ndarray:
 # )
 
 # calculate discriminant
-discs_rnnip = np.apply_along_axis(
-    disc_fct, 1, df[["rnnip_pu", "rnnip_pc", "rnnip_pb"]].values
-)
-discs_dips = np.apply_along_axis(
-    disc_fct, 1, df[["dips_pu", "dips_pc", "dips_pb"]].values
-)
+discs_rnnip = np.apply_along_axis(disc_fct, 1, df[["rnnip_pu", "rnnip_pc", "rnnip_pb"]].values)
+discs_dips = np.apply_along_axis(disc_fct, 1, df[["dips_pu", "dips_pc", "dips_pb"]].values)
 # defining target efficiency
 sig_eff = np.linspace(0.49, 1, 20)
 # defining boolean arrays to select the different flavour classes

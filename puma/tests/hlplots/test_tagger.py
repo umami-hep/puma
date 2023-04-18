@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 
-"""
-Unit test script for the functions in hlplots/tagger.py
-"""
-
+"""Unit test script for the functions in hlplots/tagger.py."""
 
 import tempfile
 import unittest
@@ -11,6 +8,7 @@ import unittest
 import h5py
 import numpy as np
 import pandas as pd
+from numpy.lib.recfunctions import structured_to_unstructured as s2u
 
 from puma.hlplots import Tagger
 from puma.utils import logger, set_log_level
@@ -63,9 +61,7 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
                 "dummy_pb": np.zeros(10),
             }
         )
-        self.scores_expected = np.column_stack(
-            (np.ones(10), np.zeros(10), np.zeros(10))
-        )
+        self.scores_expected = np.column_stack((np.ones(10), np.zeros(10), np.zeros(10)))
 
     def test_wrong_source_type(self):
         """Test using wrong source type."""
@@ -87,7 +83,6 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
 
     def test_data_frame_path(self):
         """Test passing data frame path."""
-
         tagger = Tagger("dummy")
         with tempfile.TemporaryDirectory() as tmp_dir:
             file_name = f"{tmp_dir}/dummy_df.h5"
@@ -100,30 +95,24 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
 
     def test_h5_structured_numpy_path(self):
         """Test passing structured h5 path."""
-
         tagger = Tagger("dummy")
         with tempfile.TemporaryDirectory() as tmp_dir:
             file_name = f"{tmp_dir}/dummy_df.h5"
             with h5py.File(file_name, "w") as f_h5:
-                f_h5.create_dataset(
-                    data=self.df_dummy.to_records(), name="dummy_tagger"
-                )
+                f_h5.create_dataset(data=self.df_dummy.to_records(), name="dummy_tagger")
 
-            tagger.extract_tagger_scores(
-                file_name, key="dummy_tagger", source_type="h5_file"
-            )
-        np.testing.assert_array_equal(tagger.scores, self.scores_expected)
+            tagger.extract_tagger_scores(file_name, key="dummy_tagger", source_type="h5_file")
+        np.testing.assert_array_equal(s2u(tagger.scores), self.scores_expected)
 
     def test_structured_array(self):
         """Test passing structured numpy array."""
-
         tagger = Tagger("dummy")
         tagger.extract_tagger_scores(
             self.df_dummy.to_records(),
             key="dummy_tagger",
             source_type="structured_array",
         )
-        np.testing.assert_array_equal(tagger.scores, self.scores_expected)
+        np.testing.assert_array_equal(s2u(tagger.scores), self.scores_expected)
 
 
 class TaggerTestCase(unittest.TestCase):

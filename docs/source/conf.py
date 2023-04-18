@@ -74,10 +74,7 @@ current_hash = check_output(["git", "rev-parse", "HEAD"]).decode("ascii").split(
 commits = requests.get("https://api.github.com/repos/umami-hep/puma/commits/main")
 latest_commit_hash = commits.json()["sha"]
 
-if current_hash == latest_commit_hash:
-    version_match = "latest"
-else:
-    version_match = f"v{release}"
+version_match = "latest" if current_hash == latest_commit_hash else f"v{release}"
 
 html_theme = "pydata_sphinx_theme"
 html_theme_options = {

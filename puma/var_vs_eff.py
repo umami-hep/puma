@@ -9,13 +9,13 @@ from puma.utils import get_good_colours, logger
 from puma.utils.histogram import hist_ratio, save_divide
 
 
-class VarVsEff(PlotLineObject):  # pylint: disable=too-many-instance-attributes
+class VarVsEff(PlotLineObject):
     """
     var_vs_eff class storing info about curve and allows to calculate ratio w.r.t other
     efficiency plots.
     """
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         x_var_sig: np.ndarray,
         disc_sig: np.ndarray,
@@ -88,8 +88,7 @@ class VarVsEff(PlotLineObject):  # pylint: disable=too-many-instance-attributes
                 )
             if working_point is None:
                 raise ValueError(
-                    "You need to specify a working point `wp`, when `fixed_eff_bin` is "
-                    "set to True."
+                    "You need to specify a working point `wp`, when `fixed_eff_bin` is set to True."
                 )
         self.x_var_sig = np.array(x_var_sig)
         self.disc_sig = np.array(disc_sig)
@@ -116,12 +115,10 @@ class VarVsEff(PlotLineObject):  # pylint: disable=too-many-instance-attributes
         if disc_cut is not None:
             if working_point is not None:
                 raise ValueError("You cannot specify `disc_cut` when providing `wp`.")
-            if isinstance(disc_cut, (list, np.ndarray)):
-                if self.n_bins != len(disc_cut):
-                    raise ValueError(
-                        "`disc_cut` has to be a float or has to have the same length "
-                        "as number of bins."
-                    )
+            if isinstance(disc_cut, (list, np.ndarray)) and self.n_bins != len(disc_cut):
+                raise ValueError(
+                    "`disc_cut` has to be a float or has to have the same length as number of bins."
+                )
         self._apply_binning()
         self._get_disc_cuts()
         self.inverse_cut = False
@@ -220,10 +217,7 @@ class VarVsEff(PlotLineObject):  # pylint: disable=too-many-instance-attributes
         float
             Efficiency error
         """
-        if self.inverse_cut:
-            eff = sum(arr < cut) / len(arr)
-        else:
-            eff = sum(arr > cut) / len(arr)
+        eff = sum(arr < cut) / len(arr) if self.inverse_cut else sum(arr > cut) / len(arr)
         eff_error = eff_err(eff, len(arr))
         return eff, eff_error
 
@@ -370,13 +364,10 @@ class VarVsEff(PlotLineObject):  # pylint: disable=too-many-instance-attributes
         # setting class variable again to False
         self.inverse_cut = False
         raise ValueError(
-            f"The selected mode {mode} is not supported. Use one of the following: "
-            f"{mode_options}."
+            f"The selected mode {mode} is not supported. Use one of the following: {mode_options}."
         )
 
-    def divide(
-        self, other, mode: str, inverse: bool = False, inverse_cut: bool = False
-    ):
+    def divide(self, other, mode: str, inverse: bool = False, inverse_cut: bool = False):
         """Calculate ratio between two class objects.
 
         Parameters
@@ -430,11 +421,11 @@ class VarVsEff(PlotLineObject):  # pylint: disable=too-many-instance-attributes
         )
 
 
-class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
-    """var_vs_eff plot class"""
+class VarVsEffPlot(PlotBase):
+    """var_vs_eff plot class."""
 
     def __init__(self, mode, grid: bool = False, **kwargs) -> None:
-        """var_vs_eff plot properties
+        """var_vs_eff plot properties.
 
         Parameters
         ----------
@@ -516,7 +507,7 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             self.set_reference(key)
 
     def set_reference(self, key: str):
-        """Setting the reference roc curves used in the ratios
+        """Setting the reference roc curves used in the ratios.
 
         Parameters
         ----------
@@ -537,7 +528,7 @@ class VarVsEffPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             self.reference_object = key
 
     def plot(self, **kwargs):
-        """Plotting curves
+        """Plotting curves.
 
         Parameters
         ----------

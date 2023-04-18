@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-"""
-Unit test script for the functions in utils/generate.py
-"""
+"""Unit test script for the functions in utils/generate.py."""
 
 import unittest
 
@@ -27,7 +25,7 @@ class GetDummyMulticlassScoresTestCase(unittest.TestCase):
             self.assertEqual(len(labels), 9)
 
     def test_range(self):
-        """Check that correct range of output is returned"""
+        """Check that correct range of output is returned."""
         output, _ = get_dummy_multiclass_scores()
         with self.subTest("max val"):
             self.assertLessEqual(np.max(output), 1)

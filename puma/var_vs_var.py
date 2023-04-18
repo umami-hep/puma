@@ -1,4 +1,4 @@
-"""Variable vs another variable plot"""
+"""Variable vs another variable plot."""
 import matplotlib as mpl
 import numpy as np
 from matplotlib.patches import Rectangle
@@ -9,13 +9,13 @@ from puma.utils import get_good_colours, get_good_markers, logger
 from puma.utils.histogram import hist_ratio
 
 
-class VarVsVar(PlotLineObject):  # pylint: disable=too-many-instance-attributes
+class VarVsVar(PlotLineObject):
     """
     VarVsVar class storing info about curve and allows to calculate ratio w.r.t other
     efficiency plots.
     """
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         x_var: np.ndarray,
         y_var_mean: np.ndarray,
@@ -52,7 +52,6 @@ class VarVsVar(PlotLineObject):  # pylint: disable=too-many-instance-attributes
         ValueError
             If provided options are not compatible with each other
         """
-
         super().__init__(**kwargs)
         if len(x_var) != len(y_var_mean):
             raise ValueError(
@@ -126,11 +125,11 @@ class VarVsVar(PlotLineObject):  # pylint: disable=too-many-instance-attributes
         return (ratio, ratio_err)
 
 
-class VarVsVarPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
-    """var_vs_eff plot class"""
+class VarVsVarPlot(PlotBase):
+    """var_vs_eff plot class."""
 
     def __init__(self, grid: bool = False, **kwargs) -> None:
-        """var_vs_eff plot properties
+        """var_vs_eff plot properties.
 
         Parameters
         ----------
@@ -157,9 +156,7 @@ class VarVsVarPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             raise ValueError("Not more than one ratio panel supported.")
         self.initialise_figure()
 
-    def add(
-        self, curve: VarVsVar, key: str = None, reference: bool = False
-    ):  # pylint: disable=too-many-branches
+    def add(self, curve: VarVsVar, key: str = None, reference: bool = False):
         """Adding VarVsVar object to figure.
 
         Parameters
@@ -220,7 +217,7 @@ class VarVsVarPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             self.set_reference(key)
 
     def set_reference(self, key: str):
-        """Setting the reference roc curves used in the ratios
+        """Setting the reference roc curves used in the ratios.
 
         Parameters
         ----------
@@ -241,7 +238,7 @@ class VarVsVarPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             self.reference_object = key
 
     def plot(self, **kwargs):
-        """Plotting curves
+        """Plotting curves.
 
         Parameters
         ----------

@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-"""
-Unit test script for the functions in plot_base.py
-"""
+"""Unit test script for the functions in plot_base.py."""
 
 import unittest
 
