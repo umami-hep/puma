@@ -70,7 +70,9 @@ def calc_disc(
     denominator = None
     for bkg_name, frac in flv_map["bkg"].items():
         bkg_arr = scores[:, flvs.index(bkg_name)]
-        denominator = frac * bkg_arr if denominator is None else denominator + frac * bkg_arr
+        denominator = (
+            frac * bkg_arr if denominator is None else denominator + frac * bkg_arr
+        )
     discs = np.log(
         save_divide(
             numerator + epsilon,

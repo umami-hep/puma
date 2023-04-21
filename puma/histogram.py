@@ -95,7 +95,9 @@ class Histogram(PlotLineObject):
         self.band = None
         self.key = None
 
-        label = kwargs["label"] if "label" in kwargs and kwargs["label"] is not None else ""
+        label = (
+            kwargs["label"] if "label" in kwargs and kwargs["label"] is not None else ""
+        )
         # If flavour was specified, extract configuration from global config
         if self.flavour is not None:
             if self.flavour in Flavours:
@@ -111,7 +113,9 @@ class Histogram(PlotLineObject):
                     self.label = label
                 logger.debug("Histogram label was set to %s", {self.label})
             else:
-                logger.warning("The flavour '%s' was not found in the global config.", self.flavour)
+                logger.warning(
+                    "The flavour '%s' was not found in the global config.", self.flavour
+                )
 
     def divide(self, other):
         """Calculate ratio between two class objects.
@@ -341,7 +345,9 @@ class HistogramPlot(PlotBase):
                 range=self.bins_range,
             )
         else:
-            raise ValueError("Unsupported type for bins. Supported types: int, numpy.array, list")
+            raise ValueError(
+                "Unsupported type for bins. Supported types: int, numpy.array, list"
+            )
 
         # Loop over all plot objects and plot them
         bins = self.bins
@@ -399,7 +405,9 @@ class HistogramPlot(PlotBase):
 
         if self.draw_errors:
             plt_handles.append(
-                mpl.patches.Patch(label="stat. uncertainty", **global_config["hist_err_style"])
+                mpl.patches.Patch(
+                    label="stat. uncertainty", **global_config["hist_err_style"]
+                )
             )
 
         if self.discrete_vals is not None:
@@ -450,7 +458,9 @@ class HistogramPlot(PlotBase):
                 elem.hist = elem.hist[indice]
                 elem.unc = elem.unc[indice]
                 elem.band = elem.band[indice]
-                bins = np.linspace(0, len(self.discrete_vals), len(self.discrete_vals) + 1)
+                bins = np.linspace(
+                    0, len(self.discrete_vals), len(self.discrete_vals) + 1
+                )
                 elem.bin_edges = bins
                 self.axis_top.set_xticks(bins[:-1] + 0.5)
                 self.axis_top.set_xticklabels(self.discrete_vals, rotation=33)
@@ -461,7 +471,8 @@ class HistogramPlot(PlotBase):
                 )
         else:
             raise ValueError(
-                "Choose a binning with more than one bin in order to plotonly discrete values."
+                "Choose a binning with more than one bin in order to plotonly discrete"
+                " values."
             )
 
         return bins
@@ -499,10 +510,13 @@ class HistogramPlot(PlotBase):
 
         if matches != 1:
             raise ValueError(
-                f"Found {matches} matching reference candidates, but only one match is allowed."
+                f"Found {matches} matching reference candidates, but only one match is"
+                " allowed."
             )
 
-        logger.debug("Reference histogram for '%s' is '%s'", histo.key, reference_histo.key)
+        logger.debug(
+            "Reference histogram for '%s' is '%s'", histo.key, reference_histo.key
+        )
 
         return reference_histo
 

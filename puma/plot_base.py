@@ -305,7 +305,9 @@ class PlotBase(PlotObject):
                     ),
                     self.n_ratio_panels,
                 )
-            self.fig = Figure(figsize=(6, 4.5) if self.figsize is None else self.figsize)
+            self.fig = Figure(
+                figsize=(6, 4.5) if self.figsize is None else self.figsize
+            )
             g_spec = gridspec.GridSpec(1, 11, figure=self.fig)
             self.axis_top = self.fig.add_subplot(g_spec[0, :9])
             self.axis_leg = self.fig.add_subplot(g_spec[0, 9:])
@@ -329,7 +331,9 @@ class PlotBase(PlotObject):
                 for i in range(1, self.n_ratio_panels + 1):
                     start = int((top_height + ratio_height * (i - 1)) * 10)
                     stop = int(start + ratio_height * 10)
-                    sub_axis = self.fig.add_subplot(g_spec[start:stop, 0], sharex=self.axis_top)
+                    sub_axis = self.fig.add_subplot(
+                        g_spec[start:stop, 0], sharex=self.axis_top
+                    )
                     if i < self.n_ratio_panels:
                         set_xaxis_ticklabels_invisible(sub_axis)
                     self.ratio_axes.append(sub_axis)
@@ -399,7 +403,9 @@ class PlotBase(PlotObject):
             )
 
             for ratio_axis in self.ratio_axes:
-                ratio_axis.axvline(x=vline, color=colour, linestyle="dashed", linewidth=1.0)
+                ratio_axis.axvline(
+                    x=vline, color=colour, linestyle="dashed", linewidth=1.0
+                )
 
     def set_title(self, title: str = None, **kwargs):
         """Set title of top panel.
@@ -427,7 +433,9 @@ class PlotBase(PlotObject):
         """
         if self.logx or force_x:
             if not self.logx:
-                logger.warning("Setting log of x-axis but `logx` flag was set to False.")
+                logger.warning(
+                    "Setting log of x-axis but `logx` flag was set to False."
+                )
 
             # Set log scale for all plots
             self.axis_top.set_xscale("log")
@@ -436,7 +444,9 @@ class PlotBase(PlotObject):
 
         if self.logy or force_y:
             if not self.logy:
-                logger.warning("Setting log of y-axis but `logy` flag was set to False.")
+                logger.warning(
+                    "Setting log of y-axis but `logy` flag was set to False."
+                )
 
             self.axis_top.set_yscale("log")
             ymin, ymax = self.axis_top.get_ylim()
@@ -625,11 +635,13 @@ class PlotBase(PlotObject):
             if force:
                 if self.apply_atlas_style is False:
                     logger.warning(
-                        "Initialising ATLAS style even though `apply_atlas_style` is  set to False."
+                        "Initialising ATLAS style even though `apply_atlas_style` is "
+                        " set to False."
                     )
                 if self.plotting_done is False:
                     logger.warning(
-                        "Initialising ATLAS style even though `plotting_done` is set to False."
+                        "Initialising ATLAS style even though `plotting_done` is set to"
+                        " False."
                     )
 
     def make_legend(self, handles: list, ax_mpl: axis, labels: list = None, **kwargs):
@@ -653,7 +665,11 @@ class PlotBase(PlotObject):
         ax_mpl.add_artist(
             ax_mpl.legend(
                 handles=handles,
-                labels=([handle.get_label() for handle in handles] if labels is None else labels),
+                labels=(
+                    [handle.get_label() for handle in handles]
+                    if labels is None
+                    else labels
+                ),
                 loc=self.leg_loc,
                 fontsize=self.leg_fontsize,
                 ncol=self.leg_ncol,
@@ -728,7 +744,9 @@ class PlotBase(PlotObject):
         """
         # TODO: could add possibility to specify ratio label as function of rej_class
         if self.n_ratio_panels < ratio_panel and ratio_panel not in [1, 2]:
-            raise ValueError("Requested ratio panels and given ratio_panel do not match.")
+            raise ValueError(
+                "Requested ratio panels and given ratio_panel do not match."
+            )
         self.ylabel_ratio[ratio_panel - 1] = label
 
     def initialise_plot(self):

@@ -57,7 +57,9 @@ class PiePlot(PlotBase):
             logger.info("Using specified colour scheme (%s).", colour_scheme)
             self.colours = get_good_pie_colours(colour_scheme)[: len(wedge_sizes)]
 
-        self.labels = labels if labels is not None else ["" for i in range(len(wedge_sizes))]
+        self.labels = (
+            labels if labels is not None else ["" for i in range(len(wedge_sizes))]
+        )
 
         # Add some good defaults if not specified:
         self.mpl_pie_kwargs = {

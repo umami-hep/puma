@@ -2,14 +2,14 @@
 requires = ["setuptools", "wheel"]
 
 [tool.black]
-line-length = 100
+line-length = 88
 preview = "True"
 
 [tool.ruff]
 target-version = "py38"
 select = ["I", "E", "W", "F", "B", "UP", "ARG", "SIM", "TID", "RUF", "D2", "D3", "D4"]
 ignore = ["D211", "D213", "RUF005", "D401", "D205", "D403", "D400", "D404", "SIM117"]
-line-length = 100
+line-length = 88
 
 [tool.ruff.pydocstyle]
 convention = "numpy"  # Accepts: "google", "numpy", or "pep257".

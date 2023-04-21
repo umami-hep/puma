@@ -34,7 +34,9 @@ class HistWUncTestCase(unittest.TestCase):
         # 3 counts in second bin due to weights
         self.hist_weighted_normed = np.array([1, 3, 1]) / np.sum(self.weights)
         # use sqrt(sum of squared weights) for error calculation
-        self.unc_weighted_normed = np.sqrt(np.array([1, 2**2 + 1, 1])) / np.sum(self.weights)
+        self.unc_weighted_normed = np.sqrt(np.array([1, 2**2 + 1, 1])) / np.sum(
+            self.weights
+        )
         self.band_weighted_normed = self.hist_weighted_normed - self.unc_weighted_normed
 
         self.hist_weighted = np.array([1, 3, 1])
@@ -168,7 +170,9 @@ class HistWUncTestCase(unittest.TestCase):
         """Test if infinity values are treated as expected."""
         values_with_infs = np.array([1, 2, 3, -np.inf, +np.inf, +np.inf])
 
-        with self.subTest("Test if the warning for number of inf values is raised in hist_w_unc"):
+        with self.subTest(
+            "Test if the warning for number of inf values is raised in hist_w_unc"
+        ):
             with LogCapture("puma") as log:
                 _ = hist_w_unc(values_with_infs, bins=np.linspace(0, 3, 3))
                 log.check(

@@ -119,7 +119,8 @@ class Tagger:
             return
         if key is None:
             raise ValueError(
-                "When using a `source_type` other than `data_frame`, you need to specify the `key`."
+                "When using a `source_type` other than `data_frame`, you need to"
+                " specify the `key`."
             )
         if source_type == "data_frame_path":
             logger.debug(
@@ -198,7 +199,9 @@ class Tagger:
             if f_c parameter is not specified for tagger
         """
         if self.f_c is None:
-            raise ValueError("Before calculating the b-tagging discriminant, specify `f_c`")
+            raise ValueError(
+                "Before calculating the b-tagging discriminant, specify `f_c`"
+            )
         flv_map = {
             "sig": {"pb": 1.0},
             "bkg": {"pu": 1 - self.f_c, "pc": self.f_c},
@@ -223,7 +226,9 @@ class Tagger:
             if f_b parameter is not specified for tagger
         """
         if self.f_b is None:
-            raise ValueError("Before calculating the c-tagging discriminant, specify `f_b`")
+            raise ValueError(
+                "Before calculating the c-tagging discriminant, specify `f_b`"
+            )
         flv_map = {
             "sig": {"pc": 1.0},
             "bkg": {"pu": 1 - self.f_b, "pb": self.f_b},

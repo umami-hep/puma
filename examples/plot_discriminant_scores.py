@@ -11,7 +11,9 @@ df = get_dummy_2_taggers()
 
 # Calculate discriminant scores for DIPS and RNNIP, and add them to the dataframe
 FRAC_C = 0.018
-df["disc_dips"] = np.log(df["dips_pb"] / (FRAC_C * df["dips_pc"] + (1 - FRAC_C) * df["dips_pu"]))
+df["disc_dips"] = np.log(
+    df["dips_pb"] / (FRAC_C * df["dips_pc"] + (1 - FRAC_C) * df["dips_pu"])
+)
 df["disc_rnnip"] = np.log(
     df["rnnip_pb"] / (FRAC_C * df["rnnip_pc"] + (1 - FRAC_C) * df["rnnip_pu"])
 )

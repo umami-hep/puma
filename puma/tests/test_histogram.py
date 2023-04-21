@@ -115,13 +115,19 @@ class HistogramPlotTestCase(unittest.TestCase):
     def setUp(self):
         np.random.seed(42)
         n_random = 10_000
-        self.hist_1 = Histogram(np.random.normal(size=n_random), label=f"N={n_random:_}")
-        self.hist_2 = Histogram(np.random.normal(size=2 * n_random), label=f"N={2*n_random:_}")
+        self.hist_1 = Histogram(
+            np.random.normal(size=n_random), label=f"N={n_random:_}"
+        )
+        self.hist_2 = Histogram(
+            np.random.normal(size=2 * n_random), label=f"N={2*n_random:_}"
+        )
 
         # Set up directories for comparison plots
         self.tmp_dir = tempfile.TemporaryDirectory()
         self.actual_plots_dir = f"{self.tmp_dir.name}/"
-        self.expected_plots_dir = os.path.join(os.path.dirname(__file__), "expected_plots")
+        self.expected_plots_dir = os.path.join(
+            os.path.dirname(__file__), "expected_plots"
+        )
 
     def test_invalid_bins_type(self):
         """check if ValueError is raised when using invalid type in `bins` argument."""
@@ -276,7 +282,8 @@ class HistogramPlotTestCase(unittest.TestCase):
             norm=True,
             figsize=(6.5, 5),
             atlas_second_tag=(
-                "Test if ratio is 1 for whole range if reference histogram is empty\n(+ normalised)"
+                "Test if ratio is 1 for whole range if reference histogram is empty\n(+"
+                " normalised)"
             ),
             n_ratio_panels=1,
         )
@@ -301,7 +308,9 @@ class HistogramPlotTestCase(unittest.TestCase):
         hist_plot = HistogramPlot(
             norm=False,
             figsize=(6.5, 5),
-            atlas_second_tag="Test if ratio is 1 for whole range if reference histogram is empty",
+            atlas_second_tag=(
+                "Test if ratio is 1 for whole range if reference histogram is empty"
+            ),
             n_ratio_panels=1,
         )
         hist_plot.add(Histogram(np.array([]), label="empty histogram"), reference=True)
@@ -326,7 +335,9 @@ class HistogramPlotTestCase(unittest.TestCase):
         .
         """
         hist_plot = HistogramPlot(
-            atlas_second_tag="Test ratio for the case of different histogram ranges. \n",
+            atlas_second_tag=(
+                "Test ratio for the case of different histogram ranges. \n"
+            ),
             xlabel="x",
             figsize=(7, 6),
             leg_loc="upper right",
@@ -344,7 +355,9 @@ class HistogramPlotTestCase(unittest.TestCase):
         arr_2 = np.random.uniform(0, 2, n_random)
         arr_3 = np.random.uniform(-1, 1, n_random)
         hist_plot.add(
-            Histogram(arr_1, label="uniform [-2, 0] and uniform [0.5, 1] \n(reference)"),
+            Histogram(
+                arr_1, label="uniform [-2, 0] and uniform [0.5, 1] \n(reference)"
+            ),
             reference=True,
         )
         hist_plot.add(Histogram(arr_2, label="uniform [0, 2]"))
@@ -580,7 +593,9 @@ class HistogramPlotTestCase(unittest.TestCase):
             figsize=(8, 6),
         )
         # No flavour
-        hist_plot.add(Histogram(rng.normal(0, 1, size=10_000), label="Unflavoured histogram"))
+        hist_plot.add(
+            Histogram(rng.normal(0, 1, size=10_000), label="Unflavoured histogram")
+        )
         # Flavour, but also label (using the default flavour label + the specified one)
         hist_plot.add(
             Histogram(

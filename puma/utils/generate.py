@@ -42,7 +42,9 @@ def get_dummy_multiclass_scores(
     rng = np.random.default_rng(seed=seed)
     ujets = softmax(rng.normal(loc=[-1, 0, 0], scale=1, size=(size_class, 3)), axis=1)
     cjets = softmax(rng.normal(loc=[0, 1, 0], scale=2.5, size=(size_class, 3)), axis=1)
-    bjets = softmax(rng.normal(loc=[0, 0, bjets_mean], scale=2, size=(size_class, 3)), axis=1)
+    bjets = softmax(
+        rng.normal(loc=[0, 0, bjets_mean], scale=2, size=(size_class, 3)), axis=1
+    )
     output = np.concatenate((ujets, cjets, bjets))
     output = u2s(output, dtype=[("ujets", "f4"), ("cjets", "f4"), ("bjets", "f4")])
     labels = np.concatenate(
@@ -87,10 +89,16 @@ def get_dummy_2_taggers(
         [label, rnnip_pu, rnnip_pc, rnnip_pb, dips_pu, dips_pc,
         dips_pb] if `add_pt` is True also pt is added
     """
-    output_rnnip, labels = get_dummy_multiclass_scores(bjets_mean=0.9, size=size, seed=seed)
-    df_gen = pd.DataFrame(s2u(output_rnnip), columns=["rnnip_pu", "rnnip_pc", "rnnip_pb"])
+    output_rnnip, labels = get_dummy_multiclass_scores(
+        bjets_mean=0.9, size=size, seed=seed
+    )
+    df_gen = pd.DataFrame(
+        s2u(output_rnnip), columns=["rnnip_pu", "rnnip_pc", "rnnip_pb"]
+    )
     df_gen[label] = labels
-    output_dips, _ = get_dummy_multiclass_scores(bjets_mean=1.4, size=size, seed=seed + 10)
+    output_dips, _ = get_dummy_multiclass_scores(
+        bjets_mean=1.4, size=size, seed=seed + 10
+    )
     df_gen2 = pd.DataFrame(s2u(output_dips), columns=["dips_pu", "dips_pc", "dips_pb"])
     df_gen = pd.concat([df_gen, df_gen2], axis=1)
     if add_pt:

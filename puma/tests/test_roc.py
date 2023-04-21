@@ -88,18 +88,24 @@ class RocTestCase(unittest.TestCase):
         """Test roc binomial_error function."""
         error_rej = np.array([8.717798, 35.0, 99.498744]) / np.array([20, 50, 100])
         roc_curve = Roc(np.array([0.1, 0.2, 0.3]), np.array([20, 50, 100]), n_test=100)
-        np.testing.assert_array_almost_equal(roc_curve.binomial_error(norm=True), error_rej)
+        np.testing.assert_array_almost_equal(
+            roc_curve.binomial_error(norm=True), error_rej
+        )
 
     def test_binomial_error_example_pass_ntest(self):
         """Test roc binomial_error function."""
         error_rej = np.array([8.717798, 35.0, 99.498744])
         roc_curve = Roc(np.array([0.1, 0.2, 0.3]), np.array([20, 50, 100]))
-        np.testing.assert_array_almost_equal(roc_curve.binomial_error(n_test=100), error_rej)
+        np.testing.assert_array_almost_equal(
+            roc_curve.binomial_error(n_test=100), error_rej
+        )
 
     def test_fct_inter(self):
         """Test roc fct_inter function."""
         roc_curve = Roc(self.sig_eff, self.bkg_rej)
-        np.testing.assert_array_almost_equal(roc_curve.fct_inter(self.sig_eff), self.bkg_rej)
+        np.testing.assert_array_almost_equal(
+            roc_curve.fct_inter(self.sig_eff), self.bkg_rej
+        )
 
 
 class RocMaskTestCase(unittest.TestCase):
@@ -142,28 +148,36 @@ class RocMaskTestCase(unittest.TestCase):
         roc_curve = Roc(self.sig_eff, self.bkg_rej)
         result_bkg_rej = self.bkg_rej[[False, True, False, True, True, False, True]]
         result_sig_eff = self.sig_eff[[False, True, False, True, True, False, True]]
-        np.testing.assert_array_almost_equal(roc_curve.non_zero, (result_bkg_rej, result_sig_eff))
+        np.testing.assert_array_almost_equal(
+            roc_curve.non_zero, (result_bkg_rej, result_sig_eff)
+        )
 
     def test_non_zero_xmin(self):
         """Test roc non_zero function."""
         roc_curve = Roc(self.sig_eff, self.bkg_rej, xmin=0.4)
         result_bkg_rej = self.bkg_rej[[False, False, False, True, True, False, True]]
         result_sig_eff = self.sig_eff[[False, False, False, True, True, False, True]]
-        np.testing.assert_array_almost_equal(roc_curve.non_zero, (result_bkg_rej, result_sig_eff))
+        np.testing.assert_array_almost_equal(
+            roc_curve.non_zero, (result_bkg_rej, result_sig_eff)
+        )
 
     def test_non_zero_xmax(self):
         """Test roc non_zero function."""
         roc_curve = Roc(self.sig_eff, self.bkg_rej, xmax=0.6)
         result_bkg_rej = self.bkg_rej[[False, True, False, True, True, False, False]]
         result_sig_eff = self.sig_eff[[False, True, False, True, True, False, False]]
-        np.testing.assert_array_almost_equal(roc_curve.non_zero, (result_bkg_rej, result_sig_eff))
+        np.testing.assert_array_almost_equal(
+            roc_curve.non_zero, (result_bkg_rej, result_sig_eff)
+        )
 
     def test_non_zero_xmin_xmax(self):
         """Test roc non_zero function."""
         roc_curve = Roc(self.sig_eff, self.bkg_rej, xmax=0.6, xmin=0.4)
         result_bkg_rej = self.bkg_rej[[False, False, False, True, True, False, False]]
         result_sig_eff = self.sig_eff[[False, False, False, True, True, False, False]]
-        np.testing.assert_array_almost_equal(roc_curve.non_zero, (result_bkg_rej, result_sig_eff))
+        np.testing.assert_array_almost_equal(
+            roc_curve.non_zero, (result_bkg_rej, result_sig_eff)
+        )
 
 
 class RocOutputTestCase(unittest.TestCase):
@@ -173,9 +187,13 @@ class RocOutputTestCase(unittest.TestCase):
         # Set up temp directory for comparison plots
         self.tmp_dir = tempfile.TemporaryDirectory()  # pylint: disable=R1732
         self.actual_plots_dir = f"{self.tmp_dir.name}/"
-        self.expected_plots_dir = os.path.join(os.path.dirname(__file__), "expected_plots")
+        self.expected_plots_dir = os.path.join(
+            os.path.dirname(__file__), "expected_plots"
+        )
 
-        self.sig_eff = np.array([0.5, 0.56, 0.63, 0.76, 0.83, 0.84, 0.85, 0.88, 0.9, 0.93, 1])
+        self.sig_eff = np.array(
+            [0.5, 0.56, 0.63, 0.76, 0.83, 0.84, 0.85, 0.88, 0.9, 0.93, 1]
+        )
         self.u_rej_1 = np.array([1542, 918, 426, 78, 31, 26, 22, 12, 8, 4, 1])
         self.u_rej_2 = np.array([3061, 1642, 709, 112, 41, 34, 28, 15, 9, 4, 1])
         self.c_rej_1 = np.array([26, 17, 10, 4.1, 2.9, 2.7, 2.6, 2.2, 1.9, 1.6, 1])
@@ -206,7 +224,8 @@ class RocOutputTestCase(unittest.TestCase):
             ylabel="Light-jet rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n$t\\bar{t}$ dummy sample,"
+                " $f_{c}=0.018$"
             ),
             y_scale=1.5,
         )
@@ -252,7 +271,8 @@ class RocOutputTestCase(unittest.TestCase):
             ylabel="Background rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n$t\\bar{t}$ dummy sample,"
+                " $f_{c}=0.018$"
             ),
             y_scale=1.5,
             # logy=False,
@@ -301,7 +321,8 @@ class RocOutputTestCase(unittest.TestCase):
             ylabel="Background rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n$t\\bar{t}$ dummy sample,"
+                " $f_{c}=0.018$"
             ),
             y_scale=1.5,
             # logy=False,
@@ -352,7 +373,8 @@ class RocOutputTestCase(unittest.TestCase):
             ylabel="Background rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n$t\\bar{t}$ dummy sample,"
+                " $f_{c}=0.018$"
             ),
         )
 
@@ -411,13 +433,14 @@ class RocOutputTestCase(unittest.TestCase):
         )
 
     def test_output_ratio_legend_four_curves_two_ratio(self):
-        """Test with two curves for each flavour, two ratio panels, using ratio legend."""
+        """Test with two curves for each flavour, two ratio panels, and ratio legend"""
         plot = RocPlot(
             n_ratio_panels=2,
             ylabel="Background rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n$t\\bar{t}$ dummy sample,"
+                " $f_{c}=0.018$"
             ),
         )
 
@@ -484,7 +507,8 @@ class RocOutputTestCase(unittest.TestCase):
             ylabel="Background rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n$t\\bar{t}$ dummy sample,"
+                " $f_{c}=0.018$"
             ),
         )
 

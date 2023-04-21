@@ -61,7 +61,9 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
                 "dummy_pb": np.zeros(10),
             }
         )
-        self.scores_expected = np.column_stack((np.ones(10), np.zeros(10), np.zeros(10)))
+        self.scores_expected = np.column_stack(
+            (np.ones(10), np.zeros(10), np.zeros(10))
+        )
 
     def test_wrong_source_type(self):
         """Test using wrong source type."""
@@ -99,9 +101,13 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir:
             file_name = f"{tmp_dir}/dummy_df.h5"
             with h5py.File(file_name, "w") as f_h5:
-                f_h5.create_dataset(data=self.df_dummy.to_records(), name="dummy_tagger")
+                f_h5.create_dataset(
+                    data=self.df_dummy.to_records(), name="dummy_tagger"
+                )
 
-            tagger.extract_tagger_scores(file_name, key="dummy_tagger", source_type="h5_file")
+            tagger.extract_tagger_scores(
+                file_name, key="dummy_tagger", source_type="h5_file"
+            )
         np.testing.assert_array_equal(s2u(tagger.scores), self.scores_expected)
 
     def test_structured_array(self):
@@ -121,7 +127,9 @@ class TaggerTestCase(unittest.TestCase):
     def setUp(self) -> None:
         """Set up for tests."""
         scores = np.column_stack((np.ones(10), np.ones(10), np.ones(10)))
-        self.scores = u2s(scores, dtype=[("ujets", "f4"), ("cjets", "f4"), ("bjets", "f4")])
+        self.scores = u2s(
+            scores, dtype=[("ujets", "f4"), ("cjets", "f4"), ("bjets", "f4")]
+        )
 
     def test_disc_cut_template(self):
         """Test template with disc_cut."""

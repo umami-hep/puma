@@ -36,7 +36,9 @@ def disc_fct(arr: np.ndarray, f_c: float = 0.018) -> np.ndarray:
 df = get_dummy_2_taggers(add_pt=True)
 
 # calculate discriminant
-discs_rnnip = np.apply_along_axis(disc_fct, 1, df[["rnnip_pu", "rnnip_pc", "rnnip_pb"]].values)
+discs_rnnip = np.apply_along_axis(
+    disc_fct, 1, df[["rnnip_pu", "rnnip_pc", "rnnip_pb"]].values
+)
 discs_dips = np.apply_along_axis(
     disc_fct,
     1,

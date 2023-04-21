@@ -97,14 +97,18 @@ class CalcEffAndRejTestCase(unittest.TestCase):
         # -->   For the bkg efficiency this means that we integrate a normal distr.
         #       from μ+2o to infinity --> expect a value of 0.0227501
         # https://www.wolframalpha.com/input?i=integrate+1%2Fsqrt%282+pi%29+*+exp%28-0.5*x**2%29+from+2+to+oo
-        bkg_eff, cut = calc_eff(self.disc_sig, self.disc_bkg, target_eff=0.841345, return_cuts=True)
+        bkg_eff, cut = calc_eff(
+            self.disc_sig, self.disc_bkg, target_eff=0.841345, return_cuts=True
+        )
         # the values here differ slightly from the values of the analytical integral,
         # since we use random numbers
         self.assertAlmostEqual(cut, 1.9956997)
         self.assertAlmostEqual(bkg_eff, 0.02367)
 
         # same for rejection, just use rej = 1 / eff
-        bkg_rej, cut = calc_rej(self.disc_sig, self.disc_bkg, target_eff=0.841345, return_cuts=True)
+        bkg_rej, cut = calc_rej(
+            self.disc_sig, self.disc_bkg, target_eff=0.841345, return_cuts=True
+        )
         self.assertAlmostEqual(cut, 1.9956997)
         self.assertAlmostEqual(bkg_rej, 1 / 0.02367)
 

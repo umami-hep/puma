@@ -88,7 +88,8 @@ class VarVsEff(PlotLineObject):
                 )
             if working_point is None:
                 raise ValueError(
-                    "You need to specify a working point `wp`, when `fixed_eff_bin` is set to True."
+                    "You need to specify a working point `wp`, when `fixed_eff_bin` is"
+                    " set to True."
                 )
         self.x_var_sig = np.array(x_var_sig)
         self.disc_sig = np.array(disc_sig)
@@ -115,9 +116,12 @@ class VarVsEff(PlotLineObject):
         if disc_cut is not None:
             if working_point is not None:
                 raise ValueError("You cannot specify `disc_cut` when providing `wp`.")
-            if isinstance(disc_cut, (list, np.ndarray)) and self.n_bins != len(disc_cut):
+            if isinstance(disc_cut, (list, np.ndarray)) and self.n_bins != len(
+                disc_cut
+            ):
                 raise ValueError(
-                    "`disc_cut` has to be a float or has to have the same length as number of bins."
+                    "`disc_cut` has to be a float or has to have the same length as"
+                    " number of bins."
                 )
         self._apply_binning()
         self._get_disc_cuts()
@@ -217,7 +221,9 @@ class VarVsEff(PlotLineObject):
         float
             Efficiency error
         """
-        eff = sum(arr < cut) / len(arr) if self.inverse_cut else sum(arr > cut) / len(arr)
+        eff = (
+            sum(arr < cut) / len(arr) if self.inverse_cut else sum(arr > cut) / len(arr)
+        )
         eff_error = eff_err(eff, len(arr))
         return eff, eff_error
 
@@ -364,10 +370,13 @@ class VarVsEff(PlotLineObject):
         # setting class variable again to False
         self.inverse_cut = False
         raise ValueError(
-            f"The selected mode {mode} is not supported. Use one of the following: {mode_options}."
+            f"The selected mode {mode} is not supported. Use one of the following:"
+            f" {mode_options}."
         )
 
-    def divide(self, other, mode: str, inverse: bool = False, inverse_cut: bool = False):
+    def divide(
+        self, other, mode: str, inverse: bool = False, inverse_cut: bool = False
+    ):
         """Calculate ratio between two class objects.
 
         Parameters
