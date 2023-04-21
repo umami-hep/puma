@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Remove dev image [!176](https://github.com/umami-hep/puma/pull/176)
 - Fix bug in ratio axis limits [!175](https://github.com/umami-hep/puma/pull/175)
 - Add `VarVsVar` plot [!172](https://github.com/umami-hep/puma/pull/172)
 
