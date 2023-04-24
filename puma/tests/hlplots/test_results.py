@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-"""
-Unit test script for the functions in hlplots/tagger.py
-"""
+"""Unit test script for the functions in hlplots/tagger.py."""
 import tempfile
 import unittest
 from pathlib import Path
@@ -56,7 +54,7 @@ class ResultsTestCase(unittest.TestCase):
         self.assertEqual(retrieved_dummy_tagger_2.name, dummy_tagger_2.name)
 
     def test_add_taggers_from_file(self):
-        """Test for Results.add_taggers_from_file function"""
+        """Test for Results.add_taggers_from_file function."""
         tmp_dir = tempfile.TemporaryDirectory()  # pylint: disable=R1732
         rng = np.random.default_rng(seed=16)
         with h5py.File(f"{tmp_dir.name}/test.h5", "w") as file:
@@ -85,13 +83,13 @@ class ResultsPlotsTestCase(unittest.TestCase):
         dummy_tagger_1.label = "dummy tagger"
         self.dummy_tagger_1 = dummy_tagger_1
 
-    def assertIsFile(self, path: str):  # pylint: disable=invalid-name
+    def assertIsFile(self, path: str):
         """Check for file to exist.
         Taken from https://stackoverflow.com/a/59198749/10896585
         Parameters
         ----------
         path : str
-            Path to file
+            Path to file.
 
         Raises
         ------

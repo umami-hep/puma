@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
 
-"""
-Unit test script for the functions in roc.py
-"""
+"""Unit test script for the functions in roc.py."""
 
 import os
 import tempfile
@@ -182,9 +180,7 @@ class RocMaskTestCase(unittest.TestCase):
         )
 
 
-class RocOutputTestCase(
-    unittest.TestCase
-):  # pylint: disable=too-many-instance-attributes
+class RocOutputTestCase(unittest.TestCase):
     """Test class for the puma.roc_plot function."""
 
     def setUp(self):
@@ -222,14 +218,14 @@ class RocOutputTestCase(
         plot.set_leg_rej_loc("upper center")
 
     def test_output_two_curves_no_ratio(self):
-        """Test with two curves of same flavour, without ratio panel"""
+        """Test with two curves of same flavour, without ratio panel."""
         plot = RocPlot(
             n_ratio_panels=0,
             ylabel="Light-jet rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n"
-                "$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n$t\\bar{t}$ dummy sample,"
+                " $f_{c}=0.018$"
             ),
             y_scale=1.5,
         )
@@ -269,14 +265,14 @@ class RocOutputTestCase(
         )
 
     def test_output_two_curves_one_ratio(self):
-        """Test with two curves of same flavour, one ratio panel"""
+        """Test with two curves of same flavour, one ratio panel."""
         plot = RocPlot(
             n_ratio_panels=1,
             ylabel="Background rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n"
-                "$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n$t\\bar{t}$ dummy sample,"
+                " $f_{c}=0.018$"
             ),
             y_scale=1.5,
             # logy=False,
@@ -319,14 +315,14 @@ class RocOutputTestCase(
         )
 
     def test_output_two_curves_one_ratio_uncertainties(self):
-        """Test with two curves of same flavour, one ratio panel"""
+        """Test with two curves of same flavour, one ratio panel."""
         plot = RocPlot(
             n_ratio_panels=1,
             ylabel="Background rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n"
-                "$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n$t\\bar{t}$ dummy sample,"
+                " $f_{c}=0.018$"
             ),
             y_scale=1.5,
             # logy=False,
@@ -371,14 +367,14 @@ class RocOutputTestCase(
         )
 
     def test_output_four_curves_two_ratio(self):
-        """Test with two curves for each flavour, two ratio panels"""
+        """Test with two curves for each flavour, two ratio panels."""
         plot = RocPlot(
             n_ratio_panels=2,
             ylabel="Background rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n"
-                "$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n$t\\bar{t}$ dummy sample,"
+                " $f_{c}=0.018$"
             ),
         )
 
@@ -437,16 +433,14 @@ class RocOutputTestCase(
         )
 
     def test_output_ratio_legend_four_curves_two_ratio(self):
-        """
-        Test with two curves for each flavour, two ratio panels, using ratio legend.
-        """
+        """Test with two curves for each flavour, two ratio panels, and ratio legend"""
         plot = RocPlot(
             n_ratio_panels=2,
             ylabel="Background rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n"
-                "$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n$t\\bar{t}$ dummy sample,"
+                " $f_{c}=0.018$"
             ),
         )
 
@@ -513,8 +507,8 @@ class RocOutputTestCase(
             ylabel="Background rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n"
-                "$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n$t\\bar{t}$ dummy sample,"
+                " $f_{c}=0.018$"
             ),
         )
 

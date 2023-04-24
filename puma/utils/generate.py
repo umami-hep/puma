@@ -4,6 +4,8 @@ from tempfile import NamedTemporaryFile
 import h5py
 import numpy as np
 import pandas as pd
+from numpy.lib.recfunctions import structured_to_unstructured as s2u
+from numpy.lib.recfunctions import unstructured_to_structured as u2s
 from scipy.special import softmax
 
 
@@ -44,13 +46,14 @@ def get_dummy_multiclass_scores(
         rng.normal(loc=[0, 0, bjets_mean], scale=2, size=(size_class, 3)), axis=1
     )
     output = np.concatenate((ujets, cjets, bjets))
+    output = u2s(output, dtype=[("ujets", "f4"), ("cjets", "f4"), ("bjets", "f4")])
     labels = np.concatenate(
         (np.zeros(size_class), np.ones(size_class) * 4, np.ones(size_class) * 5)
     )
     return output, labels
 
 
-def get_dummy_2_taggers(  # pylint: disable=R0913
+def get_dummy_2_taggers(
     size: int = 9_999,
     shuffle: bool = True,
     seed: int = 42,
@@ -89,12 +92,14 @@ def get_dummy_2_taggers(  # pylint: disable=R0913
     output_rnnip, labels = get_dummy_multiclass_scores(
         bjets_mean=0.9, size=size, seed=seed
     )
-    df_gen = pd.DataFrame(output_rnnip, columns=["rnnip_pu", "rnnip_pc", "rnnip_pb"])
+    df_gen = pd.DataFrame(
+        s2u(output_rnnip), columns=["rnnip_pu", "rnnip_pc", "rnnip_pb"]
+    )
     df_gen[label] = labels
     output_dips, _ = get_dummy_multiclass_scores(
         bjets_mean=1.4, size=size, seed=seed + 10
     )
-    df_gen2 = pd.DataFrame(output_dips, columns=["dips_pu", "dips_pc", "dips_pb"])
+    df_gen2 = pd.DataFrame(s2u(output_dips), columns=["dips_pu", "dips_pc", "dips_pb"])
     df_gen = pd.concat([df_gen, df_gen2], axis=1)
     if add_pt:
         rng = np.random.default_rng(seed=seed)

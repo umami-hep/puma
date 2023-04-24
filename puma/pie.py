@@ -5,12 +5,10 @@ from puma.plot_base import PlotBase
 from puma.utils import get_good_pie_colours, logger
 
 
-class PiePlot(
-    PlotBase
-):  # pylint: disable=too-few-public-methods,too-many-instance-attributes
-    """Pie plot class"""
+class PiePlot(PlotBase):
+    """Pie plot class."""
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         wedge_sizes,
         colours: list = None,
@@ -20,7 +18,7 @@ class PiePlot(
         mpl_pie_kwargs: dict = None,
         **kwargs,
     ):
-        """Initialise the pie plot
+        """Initialise the pie plot.
 
         Parameters
         ----------
@@ -79,8 +77,7 @@ class PiePlot(
     def plot(
         self,
     ):
-        """Plot the pie chart"""
-
+        """Plot the pie chart."""
         self.axis_top.pie(
             x=self.wedge_sizes,
             labels=None if self.draw_legend else self.labels,

@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
 
-"""
-Unit test script for the functions in var_vs_var.py
-"""
+"""Unit test script for the functions in var_vs_var.py."""
 
 import os
 import tempfile
@@ -104,10 +102,8 @@ class VarVsVarTestCase(unittest.TestCase):
             var_plot.divide(var_plot_comp)
 
 
-class VarVsVarPlotTestCase(
-    unittest.TestCase
-):  # pylint:disable=too-many-instance-attributes
-    """Test class for the puma.var_vs_var_plot"""
+class VarVsVarPlotTestCase(unittest.TestCase):
+    """Test class for the puma.var_vs_var_plot."""
 
     def setUp(self):
         # Set up temp directory for comparison plots
@@ -148,14 +144,14 @@ class VarVsVarPlotTestCase(
         )
 
     def test_n_ratio_panels(self):
-        """Check if ValueError is raised when we require more than 1 ratio panel"""
+        """Check if ValueError is raised when we require more than 1 ratio panel."""
         with self.assertRaises(ValueError):
             VarVsVarPlot(
                 n_ratio_panels=np.random.randint(2, 10),
             )
 
     def test_no_reference(self):
-        """Check if ValueError is raised when plot ratios without reference"""
+        """Check if ValueError is raised when plot ratios without reference."""
         test_plot = VarVsVarPlot(
             n_ratio_panels=1,
         )
@@ -165,7 +161,7 @@ class VarVsVarPlotTestCase(
             test_plot.plot_ratios()
 
     def test_overwrite_reference(self):
-        """Check correct reference overwrite"""
+        """Check correct reference overwrite."""
         test_plot = VarVsVarPlot(
             n_ratio_panels=1,
         )
@@ -173,7 +169,7 @@ class VarVsVarPlotTestCase(
         test_plot.add(self.test_2, reference=True)
 
     def test_same_keys(self):
-        """Check if KeyError is rased when we add VarVsVar object with existing key"""
+        """Check if KeyError is rased when we add VarVsVar object with existing key."""
         test_plot = VarVsVarPlot(
             n_ratio_panels=1,
         )

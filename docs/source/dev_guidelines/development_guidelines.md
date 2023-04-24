@@ -16,18 +16,15 @@ automatic formatting when you save a file.
 ## Linters
 
 In addition to the pure style-component of checking the code with `black`, we use
-`flake8` and `pylint` to check the code for bad coding practices. Make sure to run them before
-you commit your code.
-
-In addition to that, we require docstrings in the `numpy`-style, which are checked in
-the pipeline by `darglint`.
+`ruff` to check the code for bad coding practices and docstrings. Make sure to run 
+`ruff` before you commit your code.
 
 ## Pre-commit hook
 
-To check staged files for style and `flake8` conformity, you can use the `pre-commit`
-hook, which then won't allow you to commit your staged changes if `isort`, `black` or
-`flake8` fails.
-You might have to set it up by executing the following in the root of the repo:
+To check staged files for style conformity, you can use the `pre-commit`
+hook, which then won't allow you to commit your staged changes if `ruff` 
+or `black fails.
+You can set it up by executing the following in the root of the repo:
 
 ```bash
 pre-commit install

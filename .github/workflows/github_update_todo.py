@@ -13,7 +13,6 @@ def pylint_fixmes():
     list
         pylint_msgs with Todos
     """
-
     (pylint_stdout, _) = lint.py_run("puma/ --disable=all --enable=fixme ", True)
     pylint_stdout = pylint_stdout.read()
     pylint_files, pylint_msgs = [], []

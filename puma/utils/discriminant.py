@@ -1,5 +1,6 @@
 """Discriminant calculation for flavour tagging."""
 import numpy as np
+from numpy.lib.recfunctions import structured_to_unstructured as s2u
 
 from puma.utils.histogram import save_divide
 
@@ -48,6 +49,10 @@ def calc_disc(
     array([0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])
     """
     flvs = ["l", "c", "b"] if flvs is None else flvs
+
+    if scores.dtype.names is not None:
+        scores = s2u(scores)
+
     if len(flvs) != scores.shape[1]:
         raise ValueError("`flvs` and `scores` have incompatible shapes.")
     flv_map = (

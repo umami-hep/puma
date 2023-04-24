@@ -11,7 +11,7 @@ def calc_eff(
     target_eff,
     return_cuts: bool = False,
 ):
-    """Calculate efficiency
+    """Calculate efficiency.
 
     Parameters
     ----------
@@ -61,7 +61,7 @@ def calc_rej(
     target_eff,
     return_cuts: bool = False,
 ):
-    """Calculate efficiency
+    """Calculate efficiency.
 
     Parameters
     ----------
@@ -234,7 +234,6 @@ def calc_separation(
     numpy.ndarray
         Bin edges of the two histograms (only returned if `return_hist` is True)
     """
-
     _, bin_edges = np.histogram(
         np.hstack([values_a, values_b]), bins=bins, range=bins_range
     )

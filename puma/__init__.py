@@ -1,7 +1,6 @@
 """puma framework - Plotting UMami Api."""
 
 # flake8: noqa
-# pylint: skip-file
 
 __version__ = "0.2.4"
 

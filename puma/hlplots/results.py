@@ -147,12 +147,73 @@ class Results:
         """
         return self.taggers[tagger_name]
 
+    def plot_discs(
+        self,
+        plot_name: str,
+        exclude_tagger: list = None,
+        xlabel: str = None,
+        **kwargs,
+    ):
+        """Plot tagger discriminants.
+
+        Parameters
+        ----------
+        plot_name : _type_
+            Name of the plot.
+        exclude_tagger : list, optional
+            List of taggers to be excluded from this plot, by default None
+        xlabel : str, optional
+            x-axis label, by default "$D_{b}$"
+        **kwargs : kwargs
+            key word arguments for `puma.HistogramPlot`
+        """
+        if xlabel is None:
+            xlabel = rf"$D_{{{self.signal.name.rstrip('jets')}}}$"
+
+        line_styles = get_good_linestyles()
+
+        tagger_output_plot = HistogramPlot(
+            n_ratio_panels=0,
+            xlabel=xlabel,
+            ylabel="Normalised number of jets",
+            figsize=(7.0, 4.5),
+            atlas_first_tag=self.atlas_first_tag,
+            atlas_second_tag=self.atlas_second_tag,
+            **kwargs,
+        )
+        tag_i = 0
+        tag_labels = []
+        for tagger in self.taggers.values():
+            if exclude_tagger is not None and tagger.name in exclude_tagger:
+                continue
+            discs = tagger.get_disc(self.signal)
+            for flav in self.flavours:
+                tagger_output_plot.add(
+                    Histogram(
+                        discs[tagger.is_flav(flav)],
+                        ratio_group=flav,
+                        label=flav.label if tag_i == 0 else None,
+                        colour=flav.colour,
+                        linestyle=line_styles[tag_i],
+                    ),
+                    reference=tagger.reference,
+                )
+            tag_i += 1
+            tag_labels.append(tagger.label if tagger.label else tagger.name)
+        tagger_output_plot.draw()
+        tagger_output_plot.make_linestyle_legend(
+            linestyles=line_styles[:tag_i],
+            labels=tag_labels,
+            bbox_to_anchor=(0.55, 1),
+        )
+        tagger_output_plot.savefig(plot_name)
+
     def plot_rocs(
         self,
         plot_name: str,
         args_roc_plot: dict = None,
     ):
-        """Plots rocs
+        """Plots rocs.
 
         Parameters
         ----------
@@ -296,65 +357,3 @@ class Results:
         for i, background in enumerate(self.backgrounds):
             plot_bkg[i].draw()
             plot_bkg[i].savefig(f"{plot_name}_{background}_rej.{ext}")
-
-    def plot_discs(
-        self,
-        plot_name: str,
-        exclude_tagger: list = None,
-        xlabel: str = None,
-        **kwargs,
-    ):
-        """Plots discriminant
-
-
-        Parameters
-        ----------
-        plot_name : _type_
-            Name of the plot.
-        exclude_tagger : list, optional
-            List of taggers to be excluded from this plot, by default None
-        xlabel : str, optional
-            x-axis label, by default "$D_{b}$"
-        **kwargs : kwargs
-            key word arguments for `puma.HistogramPlot`
-        """
-        if xlabel is None:
-            xlabel = rf"$D_{{{self.signal.name.rstrip('jets')}}}$"
-
-        line_styles = get_good_linestyles()
-
-        tagger_output_plot = HistogramPlot(
-            n_ratio_panels=0,
-            xlabel=xlabel,
-            ylabel="Normalised number of jets",
-            figsize=(7.0, 4.5),
-            atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=self.atlas_second_tag,
-            **kwargs,
-        )
-        tag_i = 0
-        tag_labels = []
-        for tagger in self.taggers.values():
-            if exclude_tagger is not None and tagger.name in exclude_tagger:
-                continue
-            discs = tagger.get_disc(self.signal)
-            for flav in self.flavours:
-                tagger_output_plot.add(
-                    Histogram(
-                        discs[tagger.is_flav(flav)],
-                        ratio_group=flav,
-                        label=flav.label if tag_i == 0 else None,
-                        colour=flav.colour,
-                        linestyle=line_styles[tag_i],
-                    ),
-                    reference=tagger.reference,
-                )
-            tag_i += 1
-            tag_labels.append(tagger.label if tagger.label else tagger.name)
-        tagger_output_plot.draw()
-        tagger_output_plot.make_linestyle_legend(
-            linestyles=line_styles[:tag_i],
-            labels=tag_labels,
-            bbox_to_anchor=(0.55, 1),
-        )
-        tagger_output_plot.savefig(plot_name)

@@ -50,7 +50,7 @@ def build_docs_version(version):
 
 def main():
     """main function that is executed when the script is called."""
-    with open("docs/source/_static/switcher.json", "r") as f:  # pylint: disable=W1514
+    with open("docs/source/_static/switcher.json") as f:
         version_switcher = json.load(f)
 
     # get currently active branch

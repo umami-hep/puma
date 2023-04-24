@@ -7,27 +7,28 @@ import h5py
 import numpy as np
 import pandas as pd
 from ftag import Flavour, Flavours
-from numpy.lib.recfunctions import structured_to_unstructured
+from numpy.lib.recfunctions import structured_to_unstructured as s2u
 
 from puma.utils import calc_disc, logger
 
 
 @dataclass
-class Tagger:  # pylint: disable=too-many-instance-attributes
+class Tagger:
     """Class storing information and results for a tagger."""
 
+    # commonly passed to the constructor
     name: str
     label: str = None
     reference: bool = False
+    colour: str = None
 
-    scores = None
-    labels = None
-    perf_var = None
+    # commonly set by the Results class
+    scores: np.ndarray = None
+    labels: np.ndarray = None
+    perf_var: np.ndarray = None
     output_nodes: list = field(
         default_factory=lambda: [Flavours.ujets, Flavours.cjets, Flavours.bjets]
     )
-
-    colour: str = None
 
     disc_cut: float = None
     working_point: float = None
@@ -58,17 +59,6 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         return flavour.cuts(self.labels).idx
 
     @property
-    def output_nodes_lower(self):
-        """Return the lowercase output nodes.
-
-        Returns
-        -------
-        list
-            List of lower case output nodes
-        """
-        return [x.name.lower() for x in self.output_nodes]
-
-    @property
     def probabilities(self):
         """Return the probabilities of the tagger.
 
@@ -88,7 +78,6 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         list
             List of the outputs variable names of the tagger
         """
-
         return [f"{self.name}_{prob}" for prob in self.probabilities]
 
     def extract_tagger_scores(
@@ -118,7 +107,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         """
         if source_type == "data_frame":
             logger.debug("Retrieving tagger `%s` from data frame.", self.name)
-            self.scores = source[self.variables].values
+            self.scores = source[self.variables]
             return
         if source_type == "structured_array":
             logger.debug(
@@ -126,13 +115,12 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
                 self.name,
                 source,
             )
-            self.scores = structured_to_unstructured(source[self.variables])
-            self.scores = self.scores.astype("float32")
+            self.scores = source[self.variables]
             return
         if key is None:
             raise ValueError(
-                "When using a `source_type` other than `data_frame`, you need to "
-                "specify the `key`."
+                "When using a `source_type` other than `data_frame`, you need to"
+                " specify the `key`."
             )
         if source_type == "data_frame_path":
             logger.debug(
@@ -141,7 +129,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
                 source,
             )
             df_in = pd.read_hdf(source, key=key)
-            self.scores = df_in[self.variables].values
+            self.scores = df_in[self.variables]
 
         elif source_type == "h5_file":
             logger.debug(
@@ -150,9 +138,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
                 source,
             )
             with h5py.File(source, "r") as f_h5:
-                self.scores = structured_to_unstructured(
-                    f_h5[key].fields(self.variables)[:]
-                )
+                self.scores = f_h5[key].fields(self.variables)[:]
 
         else:
             raise ValueError(f"{source_type} is not a valid value for `source_type`.")
@@ -196,11 +182,11 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         if signal_class == Flavours.cjets:
             return self.calc_disc_c()
         if signal_class in (Flavours.hbb, Flavours.hcc):
-            return self.scores[:, self.output_nodes_lower.index(signal_class.name)]
+            return self.scores[signal_class.px]
         raise ValueError(f"No discriminant defined for {signal_class} signal.")
 
     def calc_disc_b(self) -> np.ndarray:
-        """Calculate b-tagging discriminant
+        """Calculate b-tagging discriminant.
 
         Returns
         -------
@@ -221,13 +207,13 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
             "bkg": {"pu": 1 - self.f_c, "pc": self.f_c},
         }
         return calc_disc(
-            scores=self.scores,
+            scores=s2u(self.scores),
             flvs=self.probabilities,
             flv_map=flv_map,
         )
 
     def calc_disc_c(self) -> np.ndarray:
-        """Calculate c-tagging discriminant
+        """Calculate c-tagging discriminant.
 
         Returns
         -------

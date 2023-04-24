@@ -7,7 +7,7 @@ from puma.plot_base import PlotBase, PlotLineObject
 from puma.utils import get_good_colours, get_good_markers, logger
 
 
-class Line2D(PlotLineObject):  # pylint: disable=too-few-public-methods
+class Line2D(PlotLineObject):
     """Line2D class storing info about the x and y values and style."""
 
     def __init__(
@@ -41,7 +41,6 @@ class Line2D(PlotLineObject):  # pylint: disable=too-few-public-methods
         ValueError
             If an invalid type was given for x_values
         """
-
         super().__init__(**kwargs)
 
         # Check input dtype
@@ -81,8 +80,8 @@ class Line2D(PlotLineObject):  # pylint: disable=too-few-public-methods
 
         else:
             raise ValueError(
-                "Invalid type of input data. Allowed values are "
-                "numpy.ndarray, list, int, float"
+                "Invalid type of input data. Allowed values are numpy.ndarray, list,"
+                " int, float"
             )
 
         # Set inputs as attributes
@@ -102,7 +101,7 @@ class Line2DPlot(PlotBase):
         grid: bool = True,
         **kwargs,
     ) -> None:
-        """Plot properties
+        """Plot properties.
 
         Parameters
         ----------
@@ -113,7 +112,6 @@ class Line2DPlot(PlotBase):
         **kwargs : kwargs
             Keyword arguments from `puma.PlotObject`
         """
-
         super().__init__(grid=grid, **kwargs)
 
         # Set inputs as attributes
@@ -147,7 +145,6 @@ class Line2DPlot(PlotBase):
         KeyError
             If unique identifier key is used twice
         """
-
         # If key not defined, set it to a numerical value
         if key is None:
             key = len(self.plot_objects) + 1
@@ -248,7 +245,6 @@ class Line2DPlot(PlotBase):
 
     def draw(self):
         """Draw figure."""
-
         plt_handles = self.plot()
 
         # Make the legend

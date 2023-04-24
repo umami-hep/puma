@@ -13,7 +13,7 @@ logger.info("caclulate tagger discriminants")
 
 # define a small function to calculate discriminant
 def disc_fct(arr: np.ndarray, f_c: float = 0.018) -> np.ndarray:
-    """Tagger discriminant
+    """Tagger discriminant.
 
     Parameters
     ----------

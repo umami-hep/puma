@@ -1,16 +1,14 @@
 #!/usr/bin/env python
 
-"""
-Unit test script for the functions in hlplots/tagger.py
-"""
-
-
+"""Unit test script for the functions in hlplots/tagger.py."""
 import tempfile
 import unittest
 
 import h5py
 import numpy as np
 import pandas as pd
+from numpy.lib.recfunctions import structured_to_unstructured as s2u
+from numpy.lib.recfunctions import unstructured_to_structured as u2s
 
 from puma.hlplots import Tagger
 from puma.utils import logger, set_log_level
@@ -87,7 +85,6 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
 
     def test_data_frame_path(self):
         """Test passing data frame path."""
-
         tagger = Tagger("dummy")
         with tempfile.TemporaryDirectory() as tmp_dir:
             file_name = f"{tmp_dir}/dummy_df.h5"
@@ -100,7 +97,6 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
 
     def test_h5_structured_numpy_path(self):
         """Test passing structured h5 path."""
-
         tagger = Tagger("dummy")
         with tempfile.TemporaryDirectory() as tmp_dir:
             file_name = f"{tmp_dir}/dummy_df.h5"
@@ -112,18 +108,17 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
             tagger.extract_tagger_scores(
                 file_name, key="dummy_tagger", source_type="h5_file"
             )
-        np.testing.assert_array_equal(tagger.scores, self.scores_expected)
+        np.testing.assert_array_equal(s2u(tagger.scores), self.scores_expected)
 
     def test_structured_array(self):
         """Test passing structured numpy array."""
-
         tagger = Tagger("dummy")
         tagger.extract_tagger_scores(
             self.df_dummy.to_records(),
             key="dummy_tagger",
             source_type="structured_array",
         )
-        np.testing.assert_array_equal(tagger.scores, self.scores_expected)
+        np.testing.assert_array_equal(s2u(tagger.scores), self.scores_expected)
 
 
 class TaggerTestCase(unittest.TestCase):
@@ -131,7 +126,10 @@ class TaggerTestCase(unittest.TestCase):
 
     def setUp(self) -> None:
         """Set up for tests."""
-        self.scores = np.column_stack((np.ones(10), np.ones(10), np.ones(10)))
+        scores = np.column_stack((np.ones(10), np.ones(10), np.ones(10)))
+        self.scores = u2s(
+            scores, dtype=[("ujets", "f4"), ("cjets", "f4"), ("bjets", "f4")]
+        )
 
     def test_disc_cut_template(self):
         """Test template with disc_cut."""
