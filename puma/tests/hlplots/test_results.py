@@ -11,11 +11,7 @@ from ftag import get_mock_file
 
 from puma.hlplots import Results
 from puma.hlplots.tagger import Tagger
-from puma.utils import (
-    get_dummy_2_taggers,
-    logger,
-    set_log_level,
-)
+from puma.utils import get_dummy_2_taggers, logger, set_log_level
 
 set_log_level(logger, "DEBUG")
 
@@ -182,3 +178,33 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results.add(self.dummy_tagger_1)
             results.plot_discs()
             self.assertIsFile(results.get_filename("disc"))
+
+    def test_plot_fraction_scans_hbb_error(self):
+        """Test that correct error is raised."""
+        self.dummy_tagger_1.reference = True
+        self.dummy_tagger_1.f_c = 0.05
+        with tempfile.TemporaryDirectory() as tmp_file:
+            results = Results(signal="hbb", sample="test", output_dir=tmp_file)
+            results.add(self.dummy_tagger_1)
+            with self.assertRaises(ValueError):
+                results.plot_fraction_scans(rej=False)
+
+    def test_plot_fraction_scans_bjets_eff(self):
+        """Test that png file is being created."""
+        self.dummy_tagger_1.reference = True
+        self.dummy_tagger_1.f_c = 0.05
+        with tempfile.TemporaryDirectory() as tmp_file:
+            results = Results(signal="bjets", sample="test", output_dir=tmp_file)
+            results.add(self.dummy_tagger_1)
+            results.plot_fraction_scans(rej=False)
+            self.assertIsFile(results.get_filename("fraction_scan"))
+
+    def test_plot_fraction_scans_cjets_rej(self):
+        """Test that png file is being created."""
+        self.dummy_tagger_1.reference = True
+        self.dummy_tagger_1.f_b = 0.05
+        with tempfile.TemporaryDirectory() as tmp_file:
+            results = Results(signal="cjets", sample="test", output_dir=tmp_file)
+            results.add(self.dummy_tagger_1)
+            results.plot_fraction_scans(rej=True)
+            self.assertIsFile(results.get_filename("fraction_scan"))

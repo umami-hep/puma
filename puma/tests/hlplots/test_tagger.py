@@ -138,10 +138,17 @@ class TaggerTestCase(unittest.TestCase):
         tagger = Tagger("dummy", **template_disc_cut)
         self.assertEqual(tagger.disc_cut, 1.5)
 
+    def test_errors(self):
+        tagger = Tagger("dummy")
+        tagger.scores = self.scores
+        with self.assertRaises(ValueError):
+            tagger.discriminant("hbb", fx=0.1)
+        with self.assertRaises(ValueError):
+            tagger.discriminant("ujets")
+
     def test_disc_b_calc_no_fc(self):
         """Test b-disc calculation w/o f_c provided."""
         tagger = Tagger("dummy")
-        print(self.scores)
         tagger.scores = self.scores
         with self.assertRaises(TypeError):
             tagger.discriminant("bjets")
