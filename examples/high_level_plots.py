@@ -80,3 +80,8 @@ results.plot_var_perf(
     h_line=0.7,
     disc_cut=None,
 )
+
+# fraction scan plots
+logger.info("Plotting fraction scans.")
+results.atlas_second_tag = "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$\n70% WP"
+results.plot_fraction_scans(efficiency=0.7, rej=False)

@@ -8,8 +8,18 @@ import numpy as np
 from ftag import Cuts, Flavour, Flavours
 from ftag.hdf5 import H5Reader
 
-from puma import Histogram, HistogramPlot, Roc, RocPlot, VarVsEff, VarVsEffPlot
-from puma.metrics import calc_rej
+import puma.fraction_scan as fraction_scan
+from puma import (
+    Histogram,
+    HistogramPlot,
+    Line2D,
+    Line2DPlot,
+    Roc,
+    RocPlot,
+    VarVsEff,
+    VarVsEffPlot,
+)
+from puma.metrics import calc_eff, calc_rej
 from puma.utils import get_good_linestyles
 
 
@@ -388,3 +398,74 @@ class Results:
                 f"{background}_rej_{suffix}" if suffix else f"{background}_rej"
             )
             plot_bkg[i].savefig(self.get_filename(plot_base, plot_suffix))
+
+    def plot_fraction_scans(
+        self, suffix: str = None, efficiency: float = 0.7, rej: bool = False
+    ):
+        """Produce fraction scan (fc/fb) iso-efficiency plots.
+
+        Parameters
+        ----------
+        suffix : str, optional
+            suffix to add to output file name, by default None
+        efficiency : float, optional
+            signal efficiency, by default 0.7
+        rej : bool, optional
+            if True, plot rejection instead of efficiency, by default False
+        """
+        if self.signal not in (Flavours.bjets, Flavours.cjets):
+            raise ValueError("Signal flavour must be bjets or cjets")
+        if len(self.backgrounds) != 2:
+            raise ValueError("Only two background flavours are supported")
+
+        fxs = fraction_scan.get_fx_values()
+        plot = Line2DPlot(atlas_second_tag=self.atlas_second_tag)
+        eff_or_rej = calc_eff if not rej else calc_rej
+
+        for tagger in self.taggers.values():
+            xs = []
+            ys = []
+            for fx in fxs:
+                sig_idx = tagger.is_flav(self.signal)
+                disc = tagger.discriminant(self.signal, fx=fx)
+                bkg_idx = tagger.is_flav(self.backgrounds[0])
+                xs.append(eff_or_rej(disc[sig_idx], disc[bkg_idx], efficiency))
+                bkg_idx = tagger.is_flav(self.backgrounds[1])
+                ys.append(eff_or_rej(disc[sig_idx], disc[bkg_idx], efficiency))
+
+            # add curve for this tagger
+            tagger_fx = tagger.f_c if self.signal == Flavours.bjets else tagger.f_b
+            plot.add(
+                Line2D(
+                    x_values=xs,
+                    y_values=ys,
+                    label=f"{tagger.label} ($f_x={tagger_fx}$)",
+                    colour=tagger.colour,
+                )
+            )
+
+            # Add a marker for the just added fraction scan
+            # The is_marker bool tells the plot that this is a marker and not a line
+            fx_idx = np.argmin(np.abs(fxs - tagger_fx))
+            plot.add(
+                Line2D(
+                    x_values=xs[fx_idx],
+                    y_values=ys[fx_idx],
+                    marker="x",
+                    markersize=15,
+                    markeredgewidth=2,
+                ),
+                is_marker=True,
+            )
+
+            # Adding labels
+            if not rej:
+                plot.xlabel = self.backgrounds[0].eff_str
+                plot.ylabel = self.backgrounds[1].eff_str
+            else:
+                plot.xlabel = self.backgrounds[0].rej_str
+                plot.ylabel = self.backgrounds[1].rej_str
+
+            # Draw and save the plot
+            plot.draw()
+            plot.savefig(self.get_filename("fraction_scan", suffix))
