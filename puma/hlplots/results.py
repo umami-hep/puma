@@ -213,7 +213,7 @@ class Results:
         for tagger in self.taggers.values():
             if exclude_tagger is not None and tagger.name in exclude_tagger:
                 continue
-            discs = tagger.get_disc(self.signal)
+            discs = tagger.discriminant(self.signal)
             for flav in self.flavours:
                 tagger_output_plot.add(
                     Histogram(
@@ -263,7 +263,7 @@ class Results:
         plot_roc = RocPlot(**roc_plot_args)
 
         for tagger in self.taggers.values():
-            discs = tagger.get_disc(self.signal)
+            discs = tagger.discriminant(self.signal)
             for background in self.backgrounds:
                 rej = calc_rej(
                     discs[tagger.is_flav(self.signal)],
@@ -348,7 +348,7 @@ class Results:
             if not working_point_in_kwargs:
                 kwargs["working_point"] = tagger.working_point
 
-            discs = tagger.get_disc(self.signal)
+            discs = tagger.discriminant(self.signal)
             is_signal = tagger.is_flav(self.signal)
             plot_sig_eff.add(
                 VarVsEff(

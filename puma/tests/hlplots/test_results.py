@@ -1,17 +1,18 @@
 #!/usr/bin/env python
 """Unit test script for the functions in hlplots/tagger.py."""
+
 import tempfile
 import unittest
 from pathlib import Path
 
 import h5py
 import numpy as np
+from ftag import get_mock_file
 
 from puma.hlplots import Results
 from puma.hlplots.tagger import Tagger
 from puma.utils import (
     get_dummy_2_taggers,
-    get_dummy_multiclass_scores,
     logger,
     set_log_level,
 )
@@ -74,12 +75,13 @@ class ResultsPlotsTestCase(unittest.TestCase):
 
     def setUp(self) -> None:
         """Set up for unit tests."""
-        scores, labels = get_dummy_multiclass_scores()
-        dummy_tagger_1 = Tagger("dummy")
+        f = get_mock_file()[1]
+        dummy_tagger_1 = Tagger("MockTagger")
         dummy_tagger_1.labels = np.array(
-            labels, dtype=[("HadronConeExclTruthLabelID", "i4")]
+            f["jets"]["HadronConeExclTruthLabelID"],
+            dtype=[("HadronConeExclTruthLabelID", "i4")],
         )
-        dummy_tagger_1.scores = scores
+        dummy_tagger_1.scores = f["jets"]
         dummy_tagger_1.label = "dummy tagger"
         self.dummy_tagger_1 = dummy_tagger_1
 

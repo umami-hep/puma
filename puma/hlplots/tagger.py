@@ -6,10 +6,9 @@ from dataclasses import dataclass, field
 import h5py
 import numpy as np
 import pandas as pd
-from ftag import Flavour, Flavours
-from numpy.lib.recfunctions import structured_to_unstructured as s2u
+from ftag import Flavour, Flavours, get_discriminant
 
-from puma.utils import calc_disc, logger
+from puma.utils import logger
 
 
 @dataclass
@@ -159,13 +158,15 @@ class Tagger:
         flavour = Flavours[flavour] if isinstance(flavour, str) else flavour
         return len(flavour.cuts(self.labels).values)
 
-    def get_disc(self, signal_class: Flavour):
+    def discriminant(self, signal: Flavour, fx: float = None):
         """Retrieve the discriminant for a given signal class.
 
         Parameters
         ----------
-        signal_class : str
+        signal : Flavour
             Signal class for which the discriminant should be retrieved
+        fx : float, optional
+            fc or fb value, by default None
 
         Returns
         -------
@@ -177,64 +178,14 @@ class Tagger:
         ValueError
             If no discriminant is defined for given signal class
         """
-        if signal_class == Flavours.bjets:
-            return self.calc_disc_b()
-        if signal_class == Flavours.cjets:
-            return self.calc_disc_c()
-        if signal_class in (Flavours.hbb, Flavours.hcc):
-            return self.scores[signal_class.px]
-        raise ValueError(f"No discriminant defined for {signal_class} signal.")
-
-    def calc_disc_b(self) -> np.ndarray:
-        """Calculate b-tagging discriminant.
-
-        Returns
-        -------
-        np.ndarray
-            b-tagging discriminant
-
-        Raises
-        ------
-        ValueError
-            if f_c parameter is not specified for tagger
-        """
-        if self.f_c is None:
-            raise ValueError(
-                "Before calculating the b-tagging discriminant, specify `f_c`"
-            )
-        flv_map = {
-            "sig": {"pb": 1.0},
-            "bkg": {"pu": 1 - self.f_c, "pc": self.f_c},
-        }
-        return calc_disc(
-            scores=s2u(self.scores),
-            flvs=self.probabilities,
-            flv_map=flv_map,
-        )
-
-    def calc_disc_c(self) -> np.ndarray:
-        """Calculate c-tagging discriminant.
-
-        Returns
-        -------
-        np.ndarray
-            c-tagging discriminant
-
-        Raises
-        ------
-        ValueError
-            if f_b parameter is not specified for tagger
-        """
-        if self.f_b is None:
-            raise ValueError(
-                "Before calculating the c-tagging discriminant, specify `f_b`"
-            )
-        flv_map = {
-            "sig": {"pc": 1.0},
-            "bkg": {"pu": 1 - self.f_b, "pb": self.f_b},
-        }
-        return calc_disc(
-            scores=self.scores,
-            flvs=self.probabilities,
-            flv_map=flv_map,
-        )
+        if fx is not None and signal not in (Flavours.bjets, Flavours.cjets):
+            raise ValueError("fx only valid for bjets and cjets.")
+        if fx is None:
+            fx = self.f_c if Flavours[signal] == Flavours.bjets else self.f_b
+        if Flavours[signal] == Flavours.bjets:
+            return get_discriminant(self.scores, self.name, signal, fx)
+        if Flavours[signal] == Flavours.cjets:
+            return get_discriminant(self.scores, self.name, signal, fx)
+        if Flavours[signal] in (Flavours.hbb, Flavours.hcc):
+            return self.scores[signal.px]
+        raise ValueError(f"No discriminant defined for {signal} signal.")
