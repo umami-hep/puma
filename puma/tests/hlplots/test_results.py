@@ -26,7 +26,7 @@ class ResultsTestCase(unittest.TestCase):
         """Test empty string as model name."""
         dummy_tagger_1 = Tagger("dummy")
         dummy_tagger_2 = Tagger("dummy")
-        results = Results()
+        results = Results(signal="bjets", sample="test")
         results.add(dummy_tagger_1)
         with self.assertRaises(KeyError):
             results.add(dummy_tagger_2)
@@ -35,7 +35,7 @@ class ResultsTestCase(unittest.TestCase):
         """Test empty string as model name."""
         dummy_tagger_1 = Tagger("dummy")
         dummy_tagger_2 = Tagger("dummy_2")
-        results = Results()
+        results = Results(signal="bjets", sample="test")
         results.add(dummy_tagger_1)
         results.add(dummy_tagger_2)
         self.assertEqual(
@@ -47,7 +47,7 @@ class ResultsTestCase(unittest.TestCase):
         """Test empty string as model name."""
         dummy_tagger_1 = Tagger("dummy")
         dummy_tagger_2 = Tagger("dummy_2")
-        results = Results()
+        results = Results(signal="bjets", sample="test")
         results.add(dummy_tagger_1)
         results.add(dummy_tagger_2)
         retrieved_dummy_tagger_2 = results["dummy_2 (dummy_2)"]
@@ -61,7 +61,7 @@ class ResultsTestCase(unittest.TestCase):
             data = get_dummy_2_taggers()
             data["pt"] = rng.random(len(data))
             file.create_dataset("jets", data=data.to_records())
-        results = Results()
+        results = Results(signal="bjets", sample="test")
         taggers = [Tagger("rnnip")]
         results.add_taggers_from_file(
             taggers, f"{tmp_dir.name}/test.h5", perf_var=data["pt"]
@@ -103,25 +103,23 @@ class ResultsPlotsTestCase(unittest.TestCase):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
         self.dummy_tagger_1.f_c = 0.05
-        results = Results(signal="bjets")
-        results.add(self.dummy_tagger_1)
-        results.sig_eff = np.linspace(0.6, 0.95, 20)
         with tempfile.TemporaryDirectory() as tmp_file:
-            plot_name = f"{tmp_file}/dummy_plot.png"
-            results.plot_rocs(plot_name=plot_name)
-            self.assertIsFile(plot_name)
+            results = Results(signal="bjets", sample="test", output_dir=tmp_file)
+            results.add(self.dummy_tagger_1)
+            results.sig_eff = np.linspace(0.6, 0.95, 20)
+            results.plot_rocs()
+            self.assertIsFile(results.get_filename("roc"))
 
     def test_plot_roc_cjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
         self.dummy_tagger_1.f_b = 0.05
-        results = Results(signal="cjets")
-        results.add(self.dummy_tagger_1)
-        results.sig_eff = np.linspace(0.2, 0.95, 20)
         with tempfile.TemporaryDirectory() as tmp_file:
-            plot_name = f"{tmp_file}/dummy_plot.png"
-            results.plot_rocs(plot_name=plot_name)
-            self.assertIsFile(plot_name)
+            results = Results(signal="cjets", sample="test", output_dir=tmp_file)
+            results.add(self.dummy_tagger_1)
+            results.sig_eff = np.linspace(0.2, 0.95, 20)
+            results.plot_rocs()
+            self.assertIsFile(results.get_filename("roc"))
 
     def test_plot_var_perf_bjets(self):
         """Test that png file is being created."""
@@ -132,17 +130,16 @@ class ResultsPlotsTestCase(unittest.TestCase):
         self.dummy_tagger_1.perf_var = rng.exponential(
             100, size=len(self.dummy_tagger_1.scores)
         )
-        results = Results(signal="bjets")
-        results.add(self.dummy_tagger_1)
         with tempfile.TemporaryDirectory() as tmp_file:
-            plot_name = f"{tmp_file}/dummy_plot"
+            results = Results(signal="bjets", sample="test", output_dir=tmp_file)
+            results.add(self.dummy_tagger_1)
             results.plot_var_perf(
-                plot_name=plot_name,
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
             )
-            self.assertIsFile(plot_name + "_bjets_eff.png")
-            self.assertIsFile(plot_name + "_cjets_rej.png")
-            self.assertIsFile(plot_name + "_ujets_rej.png")
+
+            self.assertIsFile(Path(tmp_file) / "test_bjets_profile_fixed_bjets_eff.png")
+            self.assertIsFile(Path(tmp_file) / "test_bjets_profile_fixed_cjets_rej.png")
+            self.assertIsFile(Path(tmp_file) / "test_bjets_profile_fixed_ujets_rej.png")
 
     def test_plot_var_perf_cjets(self):
         """Test that png file is being created."""
@@ -153,37 +150,33 @@ class ResultsPlotsTestCase(unittest.TestCase):
         self.dummy_tagger_1.perf_var = rng.exponential(
             100, size=len(self.dummy_tagger_1.scores)
         )
-        results = Results(signal="cjets")
-        results.add(self.dummy_tagger_1)
         with tempfile.TemporaryDirectory() as tmp_file:
-            plot_name = f"{tmp_file}/dummy_plot"
+            results = Results(signal="cjets", sample="test", output_dir=tmp_file)
+            results.add(self.dummy_tagger_1)
             results.plot_var_perf(
-                plot_name=plot_name,
                 h_line=self.dummy_tagger_1.working_point,
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
             )
-            self.assertIsFile(plot_name + "_cjets_eff.png")
-            self.assertIsFile(plot_name + "_bjets_rej.png")
-            self.assertIsFile(plot_name + "_ujets_rej.png")
+            self.assertIsFile(Path(tmp_file) / "test_cjets_profile_fixed_cjets_eff.png")
+            self.assertIsFile(Path(tmp_file) / "test_cjets_profile_fixed_bjets_rej.png")
+            self.assertIsFile(Path(tmp_file) / "test_cjets_profile_fixed_ujets_rej.png")
 
     def test_plot_discs_bjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
         self.dummy_tagger_1.f_c = 0.05
-        results = Results(signal="bjets")
-        results.add(self.dummy_tagger_1)
         with tempfile.TemporaryDirectory() as tmp_file:
-            plot_name = f"{tmp_file}/dummy_plot.png"
-            results.plot_discs(plot_name=plot_name)
-            self.assertIsFile(plot_name)
+            results = Results(signal="bjets", sample="test", output_dir=tmp_file)
+            results.add(self.dummy_tagger_1)
+            results.plot_discs()
+            self.assertIsFile(results.get_filename("disc"))
 
     def test_plot_discs_cjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
         self.dummy_tagger_1.f_b = 0.05
-        results = Results(signal="cjets")
-        results.add(self.dummy_tagger_1)
         with tempfile.TemporaryDirectory() as tmp_file:
-            plot_name = f"{tmp_file}/dummy_plot.png"
-            results.plot_discs(plot_name=plot_name)
-            self.assertIsFile(plot_name)
+            results = Results(signal="cjets", sample="test", output_dir=tmp_file)
+            results.add(self.dummy_tagger_1)
+            results.plot_discs()
+            self.assertIsFile(results.get_filename("disc"))

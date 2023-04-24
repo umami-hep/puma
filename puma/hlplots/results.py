@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import numpy as np
 from ftag import Cuts, Flavour, Flavours
@@ -16,13 +17,16 @@ from puma.utils import get_good_linestyles
 class Results:
     """Store information about several taggers and plot results."""
 
-    signal: Flavour | str = Flavours.bjets
+    signal: Flavour | str
+    sample: str
     backgrounds: list = field(init=False)
     atlas_first_tag: str = "Simulation Internal"
     atlas_second_tag: str = None
     taggers: dict = field(default_factory=dict)
     sig_eff: float = None
     perf_var: str = "pt"
+    output_dir: str | Path = "."
+    extension: str = "png"
 
     def __post_init__(self):
         if isinstance(self.signal, str):
@@ -37,6 +41,9 @@ class Results:
             self.backgrounds = [Flavours.hbb, Flavours.top, Flavours.qcd]
         else:
             raise ValueError(f"Unsupported signal class {self.signal}.")
+
+        if isinstance(self.output_dir, str):
+            self.output_dir = Path(self.output_dir)
 
     @property
     def flavours(self):
@@ -147,19 +154,39 @@ class Results:
         """
         return self.taggers[tagger_name]
 
+    def get_filename(self, plot_name: str, suffix: str = None):
+        """Get output name.
+
+        Parameters
+        ----------
+        plot_name : str
+            plot name
+        suffix : str, optional
+            suffix to add to output name, by default None
+
+        Returns
+        -------
+        str
+            output name
+        """
+        base = f"{self.sample}_{self.signal}_{plot_name}"
+        if suffix is not None:
+            base += f"_{suffix}"
+        return Path(self.output_dir / base).with_suffix(f".{self.extension}")
+
     def plot_discs(
         self,
-        plot_name: str,
+        suffix: str = None,
         exclude_tagger: list = None,
         xlabel: str = None,
         **kwargs,
     ):
-        """Plot tagger discriminants.
+        """Plot discriminant distributions.
 
         Parameters
         ----------
-        plot_name : _type_
-            Name of the plot.
+        suffix : str, optional
+            Suffix to add to output file name, by default None
         exclude_tagger : list, optional
             List of taggers to be excluded from this plot, by default None
         xlabel : str, optional
@@ -206,19 +233,19 @@ class Results:
             labels=tag_labels,
             bbox_to_anchor=(0.55, 1),
         )
-        tagger_output_plot.savefig(plot_name)
+        tagger_output_plot.savefig(self.get_filename("disc", suffix))
 
     def plot_rocs(
         self,
-        plot_name: str,
+        suffix: str = None,
         args_roc_plot: dict = None,
     ):
         """Plots rocs.
 
         Parameters
         ----------
-        plot_name : puma.RocPlot
-            roc plot object
+        suffix : str, optional
+            suffix to add to output file name, by default None
         args_roc_plot: dict, optional
             key word arguments being passed to `RocPlot`
         """
@@ -261,14 +288,14 @@ class Results:
             plot_roc.set_ratio_class(i + 1, background)
 
         plot_roc.draw()
+        plot_name = self.get_filename("roc", suffix)
         plot_roc.savefig(plot_name)
 
     def plot_var_perf(  # pylint: disable=too-many-locals
         self,
-        plot_name: str,
+        suffix: str = None,
         xlabel: str = r"$p_{T}$ [GeV]",
         h_line: float = None,
-        ext: str = "png",
         **kwargs,
     ):
         """Variable vs efficiency/rejection plot.
@@ -278,14 +305,12 @@ class Results:
 
         Parameters
         ----------
-        plot_name : str
-            plot name base
+        suffix : str, optional
+            suffix to add to output file name, by default None
         xlabel : regexp, optional
             _description_, by default "$p_{T}$ [GeV]"
         h_line : float, optional
             draws a horizonatal line in the signal efficiency plot
-        ext : str, optional
-            changes the extension of the save plot
         **kwargs : kwargs
             key word arguments for `puma.VarVsEff`
         """
@@ -353,7 +378,13 @@ class Results:
         plot_sig_eff.draw()
         if h_line:
             plot_sig_eff.draw_hline(h_line)
-        plot_sig_eff.savefig(f"{plot_name}_{self.signal}_eff.{ext}")
+
+        plot_base = "profile_flat" if kwargs.get("fixed_eff_bin") else "profile_fixed"
+        plot_suffix = f"{self.signal}_eff_{suffix}" if suffix else f"{self.signal}_eff"
+        plot_sig_eff.savefig(self.get_filename(plot_base, plot_suffix))
         for i, background in enumerate(self.backgrounds):
             plot_bkg[i].draw()
-            plot_bkg[i].savefig(f"{plot_name}_{background}_rej.{ext}")
+            plot_suffix = (
+                f"{background}_rej_{suffix}" if suffix else f"{background}_rej"
+            )
+            plot_bkg[i].savefig(self.get_filename(plot_base, plot_suffix))
