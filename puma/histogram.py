@@ -471,7 +471,7 @@ class HistogramPlot(PlotBase):
                 )
         else:
             raise ValueError(
-                "Choose a binning with more than one bin in order to plotonly discrete"
+                "Choose a binning with more than one bin in order to plot only discrete"
                 " values."
             )
 
