@@ -31,7 +31,7 @@ rnnip = Tagger(
 # create the Results object
 # for c-tagging use signal="cjets"
 # for Xbb/cc-tagging use signal="hbb"/"hcc"
-results = Results(signal="bjets")
+results = Results(signal="bjets", sample="dummy")
 
 # load taggers from the file object
 logger.info("Loading taggers.")
@@ -49,11 +49,11 @@ results.atlas_second_tag = (
 
 # tagger discriminant plots
 logger.info("Plotting tagger discriminant plots.")
-results.plot_discs("hlplots_disc_b.png")
+results.plot_discs()
 
 # ROC curves
 logger.info("Plotting ROC curves.")
-results.plot_rocs("hlplots_roc_b.png")
+results.plot_rocs()
 
 
 logger.info("Plotting efficiency/rejection vs pT curves.")
@@ -65,7 +65,6 @@ results.atlas_second_tag = "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$\n70% WP
 # or alternatively also pass the argument `working_point` to the plot_var_perf function.
 # to specify the `disc_cut` per tagger is also possible.
 results.plot_var_perf(
-    plot_name="hlplots_dummy_tagger_pt",
     working_point=0.7,
     bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
     fixed_eff_bin=False,
@@ -75,10 +74,14 @@ results.atlas_second_tag = (
     "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$\n70% WP per bin"
 )
 results.plot_var_perf(
-    plot_name="hlplots_dummy_tagger_pt_fixed_per_bin",
     bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
     fixed_eff_bin=True,
     working_point=0.7,
     h_line=0.7,
     disc_cut=None,
 )
+
+# fraction scan plots
+logger.info("Plotting fraction scans.")
+results.atlas_second_tag = "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$\n70% WP"
+results.plot_fraction_scans(efficiency=0.7, rej=False)

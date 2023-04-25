@@ -128,7 +128,8 @@ class TaggerTestCase(unittest.TestCase):
         """Set up for tests."""
         scores = np.column_stack((np.ones(10), np.ones(10), np.ones(10)))
         self.scores = u2s(
-            scores, dtype=[("ujets", "f4"), ("cjets", "f4"), ("bjets", "f4")]
+            scores,
+            dtype=[("dummy_pu", "f4"), ("dummy_pc", "f4"), ("dummy_pb", "f4")],
         )
 
     def test_disc_cut_template(self):
@@ -137,35 +138,39 @@ class TaggerTestCase(unittest.TestCase):
         tagger = Tagger("dummy", **template_disc_cut)
         self.assertEqual(tagger.disc_cut, 1.5)
 
+    def test_errors(self):
+        tagger = Tagger("dummy")
+        tagger.scores = self.scores
+        with self.assertRaises(ValueError):
+            tagger.discriminant("hbb", fx=0.1)
+        with self.assertRaises(ValueError):
+            tagger.discriminant("ujets")
+
     def test_disc_b_calc_no_fc(self):
         """Test b-disc calculation w/o f_c provided."""
         tagger = Tagger("dummy")
         tagger.scores = self.scores
-
-        with self.assertRaises(ValueError):
-            tagger.calc_disc_b()
+        with self.assertRaises(TypeError):
+            tagger.discriminant("bjets")
 
     def test_disc_b_calc(self):
         """Test b-disc calculation."""
-        tagger = Tagger("dummy")
+        tagger = Tagger("dummy", f_c=0.5)
         tagger.scores = self.scores
-        tagger.f_c = 0.5
-        discs = tagger.calc_disc_b()
-
+        discs = tagger.discriminant("bjets")
         np.testing.assert_array_equal(discs, np.zeros(10))
 
-    def test_sig_b_calc_no_fb(self):
+    def test_disc_c_calc_no_fb(self):
         """Test c-disc calculation w/o f_c provided."""
         tagger = Tagger("dummy")
         tagger.scores = self.scores
-        with self.assertRaises(ValueError):
-            tagger.calc_disc_c()
+        with self.assertRaises(TypeError):
+            tagger.discriminant("cjets")
 
-    def test_sig_b_calc(self):
+    def test_disc_c_calc(self):
         """Test c-disc calculation."""
-        tagger = Tagger("dummy")
+        tagger = Tagger("dummy", f_b=0.5)
         tagger.scores = self.scores
-        tagger.f_b = 0.5
-        discs = tagger.calc_disc_c()
+        discs = tagger.discriminant("cjets")
 
         np.testing.assert_array_equal(discs, np.zeros(10))
