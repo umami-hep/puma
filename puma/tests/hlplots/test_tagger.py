@@ -160,7 +160,7 @@ class TaggerTestCase(unittest.TestCase):
         discs = tagger.discriminant("bjets")
         np.testing.assert_array_equal(discs, np.zeros(10))
 
-    def testdisc_c_calc_no_fb(self):
+    def test_disc_c_calc_no_fb(self):
         """Test c-disc calculation w/o f_c provided."""
         tagger = Tagger("dummy")
         tagger.scores = self.scores
