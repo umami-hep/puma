@@ -5,13 +5,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import h5py
 import numpy as np
 from ftag import get_mock_file
 
 from puma.hlplots import Results
 from puma.hlplots.tagger import Tagger
-from puma.utils import get_dummy_2_taggers, logger, set_log_level
+from puma.utils import logger, set_log_level
 
 set_log_level(logger, "DEBUG")
 
@@ -52,17 +51,12 @@ class ResultsTestCase(unittest.TestCase):
 
     def test_add_taggers_from_file(self):
         """Test for Results.add_taggers_from_file function."""
-        tmp_dir = tempfile.TemporaryDirectory()  # pylint: disable=R1732
-        rng = np.random.default_rng(seed=16)
-        with h5py.File(f"{tmp_dir.name}/test.h5", "w") as file:
-            data = get_dummy_2_taggers()
-            data["pt"] = rng.random(len(data))
-            file.create_dataset("jets", data=data.to_records())
+        tempfile.TemporaryDirectory()  # pylint: disable=R1732
+        np.random.default_rng(seed=16)
+        fname = get_mock_file()[0]
         results = Results(signal="bjets", sample="test")
-        taggers = [Tagger("rnnip")]
-        results.add_taggers_from_file(
-            taggers, f"{tmp_dir.name}/test.h5", perf_var=data["pt"]
-        )
+        taggers = [Tagger("MockTagger")]
+        results.add_taggers_from_file(taggers, fname)
         self.assertEqual(list(results.taggers.values()), taggers)
 
 
