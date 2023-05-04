@@ -1,4 +1,4 @@
-"""Example script for plotting weighted histograms"""
+"""Example script for plotting weighted histograms."""
 import numpy as np
 
 from puma import Histogram, HistogramPlot

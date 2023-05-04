@@ -1,17 +1,14 @@
 atlasify==0.8.0
 black==23.1.0
+ruff==0.0.254
 coverage==6.3.1
-darglint==1.8.1
-flake8==4.0.1
-isort==5.10.1
 h5py==3.8.0
 librep==0.0.5
 matplotlib==3.5.1
 numpy==1.24.*
 pandas[hdf5]==1.5.3
-pre-commit==2.17.0
+pre-commit==3.1.1
 pydot==1.4.2
-pylint==2.16.2
 pytest-cov==3.0.0
 pytest-randomly==3.11.0
 pytest==7.0.1
@@ -19,4 +16,4 @@ scipy==1.10.1
 tables==3.7.0
 testfixtures==7.0.0
 palettable==3.3.0
-atlas-ftag-tools==0.0.5
+atlas-ftag-tools==0.1.1

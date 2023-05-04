@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-"""
-Unit test script for the functions in histogram.py
-"""
+"""Unit test script for the functions in histogram.py."""
 
 import os
 import tempfile
@@ -17,7 +15,7 @@ set_log_level(logger, "DEBUG")
 
 
 class PiePlotTestCase(unittest.TestCase):
-    """Test class for puma.PiePlot"""
+    """Test class for puma.PiePlot."""
 
     def setUp(self):
         # Set up directories for comparison plots
@@ -28,7 +26,7 @@ class PiePlotTestCase(unittest.TestCase):
         )
 
     def test_plot_pie_chart_default_style(self):
-        """check if pie chart is plotted correctly (using default style)"""
+        """check if pie chart is plotted correctly (using default style)."""
         pie_plot = PiePlot(
             wedge_sizes=[20, 40, 30, 10],
             labels=["light-flavour jets", "c-jets", "b-jets", "tau-jets"],
@@ -47,7 +45,7 @@ class PiePlotTestCase(unittest.TestCase):
         )
 
     def test_plot_pie_chart_custom_style(self):
-        """check if pie chart is plotted correctly (using default style)"""
+        """check if pie chart is plotted correctly (using default style)."""
         pie_plot = PiePlot(
             wedge_sizes=[20, 40, 30, 10],
             labels=["light-flavour jets", "c-jets", "b-jets", "tau-jets"],

@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-"""
-Unit test script for the functions in utils/__init__.py
-"""
+"""Unit test script for the functions in utils/__init__.py."""
 
 import os
 import tempfile
@@ -34,7 +32,6 @@ class LinestylesTestCase(unittest.TestCase):
 
     def test_get_good_linestyles(self):
         """Test if the default linestyles obtained are the correct ones."""
-
         with self.subTest("Testing default linestyles"):
             expected_linestyles = [
                 "solid",
@@ -68,8 +65,8 @@ class LinestylesTestCase(unittest.TestCase):
 
     def test_linestyles_accepted_by_mpl(self):
         """Test if all the linestyles from get_good_linestyles() are accepted by
-        matplotlib."""
-
+        matplotlib.
+        """
         test_plot = Line2DPlot()
         for i, linestyle in enumerate(get_good_linestyles()):
             test_plot.add(

@@ -6,28 +6,28 @@ from dataclasses import dataclass, field
 import h5py
 import numpy as np
 import pandas as pd
-from ftag import Flavour, Flavours
-from numpy.lib.recfunctions import structured_to_unstructured
+from ftag import Flavour, Flavours, get_discriminant
 
-from puma.utils import calc_disc, logger
+from puma.utils import logger
 
 
 @dataclass
-class Tagger:  # pylint: disable=too-many-instance-attributes
+class Tagger:
     """Class storing information and results for a tagger."""
 
+    # commonly passed to the constructor
     name: str
     label: str = None
     reference: bool = False
+    colour: str = None
 
-    scores = None
-    labels = None
-    perf_var = None
+    # commonly set by the Results class
+    scores: np.ndarray = None
+    labels: np.ndarray = None
+    perf_var: np.ndarray = None
     output_nodes: list = field(
         default_factory=lambda: [Flavours.ujets, Flavours.cjets, Flavours.bjets]
     )
-
-    colour: str = None
 
     disc_cut: float = None
     working_point: float = None
@@ -58,17 +58,6 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         return flavour.cuts(self.labels).idx
 
     @property
-    def output_nodes_lower(self):
-        """Return the lowercase output nodes.
-
-        Returns
-        -------
-        list
-            List of lower case output nodes
-        """
-        return [x.name.lower() for x in self.output_nodes]
-
-    @property
     def probabilities(self):
         """Return the probabilities of the tagger.
 
@@ -88,7 +77,6 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         list
             List of the outputs variable names of the tagger
         """
-
         return [f"{self.name}_{prob}" for prob in self.probabilities]
 
     def extract_tagger_scores(
@@ -118,7 +106,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         """
         if source_type == "data_frame":
             logger.debug("Retrieving tagger `%s` from data frame.", self.name)
-            self.scores = source[self.variables].values
+            self.scores = source[self.variables]
             return
         if source_type == "structured_array":
             logger.debug(
@@ -126,13 +114,12 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
                 self.name,
                 source,
             )
-            self.scores = structured_to_unstructured(source[self.variables])
-            self.scores = self.scores.astype("float32")
+            self.scores = source[self.variables]
             return
         if key is None:
             raise ValueError(
-                "When using a `source_type` other than `data_frame`, you need to "
-                "specify the `key`."
+                "When using a `source_type` other than `data_frame`, you need to"
+                " specify the `key`."
             )
         if source_type == "data_frame_path":
             logger.debug(
@@ -141,7 +128,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
                 source,
             )
             df_in = pd.read_hdf(source, key=key)
-            self.scores = df_in[self.variables].values
+            self.scores = df_in[self.variables]
 
         elif source_type == "h5_file":
             logger.debug(
@@ -150,9 +137,7 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
                 source,
             )
             with h5py.File(source, "r") as f_h5:
-                self.scores = structured_to_unstructured(
-                    f_h5[key].fields(self.variables)[:]
-                )
+                self.scores = f_h5[key].fields(self.variables)[:]
 
         else:
             raise ValueError(f"{source_type} is not a valid value for `source_type`.")
@@ -173,13 +158,15 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         flavour = Flavours[flavour] if isinstance(flavour, str) else flavour
         return len(flavour.cuts(self.labels).values)
 
-    def get_disc(self, signal_class: Flavour):
+    def discriminant(self, signal: Flavour, fx: float = None):
         """Retrieve the discriminant for a given signal class.
 
         Parameters
         ----------
-        signal_class : str
+        signal : Flavour
             Signal class for which the discriminant should be retrieved
+        fx : float, optional
+            fc or fb value, by default None
 
         Returns
         -------
@@ -191,64 +178,14 @@ class Tagger:  # pylint: disable=too-many-instance-attributes
         ValueError
             If no discriminant is defined for given signal class
         """
-        if signal_class == Flavours.bjets:
-            return self.calc_disc_b()
-        if signal_class == Flavours.cjets:
-            return self.calc_disc_c()
-        if signal_class in (Flavours.hbb, Flavours.hcc):
-            return self.scores[:, self.output_nodes_lower.index(signal_class.name)]
-        raise ValueError(f"No discriminant defined for {signal_class} signal.")
-
-    def calc_disc_b(self) -> np.ndarray:
-        """Calculate b-tagging discriminant
-
-        Returns
-        -------
-        np.ndarray
-            b-tagging discriminant
-
-        Raises
-        ------
-        ValueError
-            if f_c parameter is not specified for tagger
-        """
-        if self.f_c is None:
-            raise ValueError(
-                "Before calculating the b-tagging discriminant, specify `f_c`"
-            )
-        flv_map = {
-            "sig": {"pb": 1.0},
-            "bkg": {"pu": 1 - self.f_c, "pc": self.f_c},
-        }
-        return calc_disc(
-            scores=self.scores,
-            flvs=self.probabilities,
-            flv_map=flv_map,
-        )
-
-    def calc_disc_c(self) -> np.ndarray:
-        """Calculate c-tagging discriminant
-
-        Returns
-        -------
-        np.ndarray
-            c-tagging discriminant
-
-        Raises
-        ------
-        ValueError
-            if f_b parameter is not specified for tagger
-        """
-        if self.f_b is None:
-            raise ValueError(
-                "Before calculating the c-tagging discriminant, specify `f_b`"
-            )
-        flv_map = {
-            "sig": {"pc": 1.0},
-            "bkg": {"pu": 1 - self.f_b, "pb": self.f_b},
-        }
-        return calc_disc(
-            scores=self.scores,
-            flvs=self.probabilities,
-            flv_map=flv_map,
-        )
+        if fx is not None and signal not in (Flavours.bjets, Flavours.cjets):
+            raise ValueError("fx only valid for bjets and cjets.")
+        if fx is None:
+            fx = self.f_c if Flavours[signal] == Flavours.bjets else self.f_b
+        if Flavours[signal] == Flavours.bjets:
+            return get_discriminant(self.scores, self.name, signal, fx)
+        if Flavours[signal] == Flavours.cjets:
+            return get_discriminant(self.scores, self.name, signal, fx)
+        if Flavours[signal] in (Flavours.hbb, Flavours.hcc):
+            return self.scores[signal.px]
+        raise ValueError(f"No discriminant defined for {signal} signal.")

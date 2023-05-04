@@ -1,4 +1,4 @@
-"""Example plotting script for the puma.PiePlot class"""
+"""Example plotting script for the puma.PiePlot class."""
 from ftag import Flavours
 
 from puma.pie import PiePlot

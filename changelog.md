@@ -2,6 +2,12 @@
 
 ### [Latest]
 
+- Adding fraction scans to high level API [!178](https://github.com/umami-hep/puma/pull/178)
+- Update pre-commit (using ruff) and store tagger scores as structured array [!177](https://github.com/umami-hep/puma/pull/177)
+- Remove dev image [!176](https://github.com/umami-hep/puma/pull/176)
+- Fix bug in ratio axis limits [!175](https://github.com/umami-hep/puma/pull/175)
+- Add `VarVsVar` plot [!172](https://github.com/umami-hep/puma/pull/172)
+
 ### [v0.2.4] (2023/04/06)
 
 - Replace `dijets` category with `QCD` category [!170](https://github.com/umami-hep/puma/pull/170)

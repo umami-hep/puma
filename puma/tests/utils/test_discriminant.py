@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-"""
-Unit test script for the functions in utils/discriminant.py
-"""
+"""Unit test script for the functions in utils/discriminant.py."""
 
 import unittest
 

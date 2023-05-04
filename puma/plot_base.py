@@ -14,7 +14,7 @@ atlasify.LINE_SPACING = 1.3  # overwrite the default, which is 1.2
 # TODO: enable `kw_only` when switching to Python 3.10
 # @dataclass(kw_only=True)
 @dataclass
-class PlotLineObject:  # pylint: disable=too-many-instance-attributes
+class PlotLineObject:
     """Base data class defining properties of a plot object.
 
     Parameters
@@ -59,7 +59,7 @@ class PlotLineObject:  # pylint: disable=too-many-instance-attributes
 # TODO: enable `kw_only` when switching to Python 3.10
 # @dataclass(kw_only=True)
 @dataclass
-class PlotObject:  # pylint: disable=too-many-instance-attributes
+class PlotObject:
     """Data base class defining properties of a plot object.
 
     Parameters
@@ -209,8 +209,15 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
                 f"{self.n_ratio_panels} not allwed value for `n_ratio_panels`. "
                 f"Allowed are {allowed_n_ratio_panels}"
             )
-        self.ymin_ratio = [None] * self.n_ratio_panels
-        self.ymax_ratio = [None] * self.n_ratio_panels
+        self.__check_yratio(self.ymin_ratio)
+        self.ymin_ratio = (
+            [None] * self.n_ratio_panels if self.ymin_ratio is None else self.ymin_ratio
+        )
+        self.__check_yratio(self.ymax_ratio)
+        self.ymax_ratio = (
+            [None] * self.n_ratio_panels if self.ymax_ratio is None else self.ymax_ratio
+        )
+
         self.ylabel_ratio = ["Ratio"] * self.n_ratio_panels
         if self.leg_fontsize is None:
             self.leg_fontsize = self.fontsize
@@ -225,7 +232,7 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
             )
 
     def __check_figsize(self):
-        """Check `figsize`
+        """Check `figsize`.
 
         Raises
         ------
@@ -242,12 +249,33 @@ class PlotObject:  # pylint: disable=too-many-instance-attributes
                 "Either a tuple or a list of size 2 is allowed"
             )
 
+    def __check_yratio(self, yratio):
+        """Check `yratio`.
 
-class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
-    """Base class for plotting"""
+        Parameters
+        ----------
+        yratio : list
+            List of min or max limits of ratio plots
+        Raises
+        ------
+        ValueError
+            If `yratio` is not a list and it's lenght
+            is not equal to number of ratio panels
+        """
+        if yratio is None:
+            return
+        if not isinstance(yratio, (list, tuple)) or len(yratio) != self.n_ratio_panels:
+            raise ValueError(
+                f"You passed `min/max_yratio` as {yratio} which is not allowed. "
+                f"Either a tuple or a list of size {self.n_ratio_panels} is allowed"
+            )
+
+
+class PlotBase(PlotObject):
+    """Base class for plotting."""
 
     def __init__(self, **kwargs) -> None:
-        """Initialise class
+        """Initialise class.
 
         Parameters
         ----------
@@ -323,8 +351,8 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         same_height: bool = False,
         colour: str = "#000000",
         fontsize: int = 10,
-    ):  # pylint: disable=too-many-arguments
-        """Drawing working points in plot
+    ):
+        """Drawing working points in plot.
 
         Parameters
         ----------
@@ -403,7 +431,6 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         force_y : bool, optional
             Forcing log on y-axis even if `logy` attribute is False, by default False
         """
-
         if self.logx or force_x:
             if not self.logx:
                 logger.warning(
@@ -515,7 +542,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
                 ratio_axis.tick_params(axis="x", labelsize=labelsize, **kwargs)
 
     def set_xlim(self, xmin: float = None, xmax: float = None, **kwargs):
-        """Set limits of x-axis
+        """Set limits of x-axis.
 
         Parameters
         ----------
@@ -561,7 +588,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         )
 
     def atlasify(self, use_tag: bool = True, force: bool = False):
-        """Apply ATLAS style to all axes using the atlasify package
+        """Apply ATLAS style to all axes using the atlasify package.
 
         Parameters
         ----------
@@ -571,7 +598,6 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         force : bool, optional
             Force ATLAS style also if class variable is False, by default False
         """
-
         if self.plotting_done is False and force is False:
             logger.warning(
                 "`atlasify()` has to be called after plotting --> "
@@ -586,7 +612,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
                 # TODO: for some reason, pylint complains about the used arguments
                 # when calling atlasify ("unexpected-keyword-arg") error
                 # --> fix this
-                atlasify.atlasify(  # pylint: disable=E1123
+                atlasify.atlasify(
                     atlas=self.atlas_first_tag,
                     subtext=self.atlas_second_tag,
                     axes=self.axis_top,
@@ -609,8 +635,8 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
             if force:
                 if self.apply_atlas_style is False:
                     logger.warning(
-                        "Initialising ATLAS style even though `apply_atlas_style` is  "
-                        "set to False."
+                        "Initialising ATLAS style even though `apply_atlas_style` is "
+                        " set to False."
                     )
                 if self.plotting_done is False:
                     logger.warning(
@@ -658,7 +684,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         loc: str = None,
         bbox_to_anchor: tuple = None,
         axis_for_legend=None,
-    ):  # pylint: disable=too-many-arguments
+    ):
         """Create a legend to indicate what different linestyles correspond to.
 
         Parameters
@@ -676,7 +702,6 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         axis_for_legend : matplotlib.Axes.axis, optional
             Axis on which to draw the legend, by default None
         """
-
         if axis_for_legend is None:
             axis_for_legend = self.axis_top
 
@@ -703,7 +728,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         axis_for_legend.add_artist(linestyle_legend)
 
     def set_ratio_label(self, ratio_panel: int, label: str):
-        """Associate the rejection class to a ratio panel
+        """Associate the rejection class to a ratio panel.
 
         Parameters
         ----------
@@ -725,7 +750,7 @@ class PlotBase(PlotObject):  # pylint: disable=too-many-instance-attributes
         self.ylabel_ratio[ratio_panel - 1] = label
 
     def initialise_plot(self):
-        """Calls other methods which are usually used when plotting"""
+        """Calls other methods which are usually used when plotting."""
         self.set_title()
         self.set_log()
         self.set_y_lim()

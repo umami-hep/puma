@@ -2,13 +2,24 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import numpy as np
 from ftag import Cuts, Flavour, Flavours
 from ftag.hdf5 import H5Reader
 
-from puma import Histogram, HistogramPlot, Roc, RocPlot, VarVsEff, VarVsEffPlot
-from puma.metrics import calc_rej
+import puma.fraction_scan as fraction_scan
+from puma import (
+    Histogram,
+    HistogramPlot,
+    Line2D,
+    Line2DPlot,
+    Roc,
+    RocPlot,
+    VarVsEff,
+    VarVsEffPlot,
+)
+from puma.metrics import calc_eff, calc_rej
 from puma.utils import get_good_linestyles
 
 
@@ -16,13 +27,16 @@ from puma.utils import get_good_linestyles
 class Results:
     """Store information about several taggers and plot results."""
 
-    signal: Flavour | str = Flavours.bjets
+    signal: Flavour | str
+    sample: str
     backgrounds: list = field(init=False)
     atlas_first_tag: str = "Simulation Internal"
     atlas_second_tag: str = None
     taggers: dict = field(default_factory=dict)
     sig_eff: float = None
     perf_var: str = "pt"
+    output_dir: str | Path = "."
+    extension: str = "png"
 
     def __post_init__(self):
         if isinstance(self.signal, str):
@@ -37,6 +51,9 @@ class Results:
             self.backgrounds = [Flavours.hbb, Flavours.top, Flavours.qcd]
         else:
             raise ValueError(f"Unsupported signal class {self.signal}.")
+
+        if isinstance(self.output_dir, str):
+            self.output_dir = Path(self.output_dir)
 
     @property
     def flavours(self):
@@ -147,17 +164,98 @@ class Results:
         """
         return self.taggers[tagger_name]
 
-    def plot_rocs(
-        self,
-        plot_name: str,
-        args_roc_plot: dict = None,
-    ):
-        """Plots rocs
+    def get_filename(self, plot_name: str, suffix: str = None):
+        """Get output name.
 
         Parameters
         ----------
-        plot_name : puma.RocPlot
-            roc plot object
+        plot_name : str
+            plot name
+        suffix : str, optional
+            suffix to add to output name, by default None
+
+        Returns
+        -------
+        str
+            output name
+        """
+        base = f"{self.sample}_{self.signal}_{plot_name}"
+        if suffix is not None:
+            base += f"_{suffix}"
+        return Path(self.output_dir / base).with_suffix(f".{self.extension}")
+
+    def plot_discs(
+        self,
+        suffix: str = None,
+        exclude_tagger: list = None,
+        xlabel: str = None,
+        **kwargs,
+    ):
+        """Plot discriminant distributions.
+
+        Parameters
+        ----------
+        suffix : str, optional
+            Suffix to add to output file name, by default None
+        exclude_tagger : list, optional
+            List of taggers to be excluded from this plot, by default None
+        xlabel : str, optional
+            x-axis label, by default "$D_{b}$"
+        **kwargs : kwargs
+            key word arguments for `puma.HistogramPlot`
+        """
+        if xlabel is None:
+            xlabel = rf"$D_{{{self.signal.name.rstrip('jets')}}}$"
+
+        line_styles = get_good_linestyles()
+
+        tagger_output_plot = HistogramPlot(
+            n_ratio_panels=0,
+            xlabel=xlabel,
+            ylabel="Normalised number of jets",
+            figsize=(7.0, 4.5),
+            atlas_first_tag=self.atlas_first_tag,
+            atlas_second_tag=self.atlas_second_tag,
+            **kwargs,
+        )
+        tag_i = 0
+        tag_labels = []
+        for tagger in self.taggers.values():
+            if exclude_tagger is not None and tagger.name in exclude_tagger:
+                continue
+            discs = tagger.discriminant(self.signal)
+            for flav in self.flavours:
+                tagger_output_plot.add(
+                    Histogram(
+                        discs[tagger.is_flav(flav)],
+                        ratio_group=flav,
+                        label=flav.label if tag_i == 0 else None,
+                        colour=flav.colour,
+                        linestyle=line_styles[tag_i],
+                    ),
+                    reference=tagger.reference,
+                )
+            tag_i += 1
+            tag_labels.append(tagger.label if tagger.label else tagger.name)
+        tagger_output_plot.draw()
+        tagger_output_plot.make_linestyle_legend(
+            linestyles=line_styles[:tag_i],
+            labels=tag_labels,
+            bbox_to_anchor=(0.55, 1),
+        )
+        tagger_output_plot.savefig(self.get_filename("disc", suffix))
+
+    def plot_rocs(
+        self,
+        suffix: str = None,
+        args_roc_plot: dict = None,
+    ):
+        """Plots rocs.
+
+        Parameters
+        ----------
+        suffix : str, optional
+            suffix to add to output file name, by default None
         args_roc_plot: dict, optional
             key word arguments being passed to `RocPlot`
         """
@@ -175,7 +273,7 @@ class Results:
         plot_roc = RocPlot(**roc_plot_args)
 
         for tagger in self.taggers.values():
-            discs = tagger.get_disc(self.signal)
+            discs = tagger.discriminant(self.signal)
             for background in self.backgrounds:
                 rej = calc_rej(
                     discs[tagger.is_flav(self.signal)],
@@ -200,14 +298,14 @@ class Results:
             plot_roc.set_ratio_class(i + 1, background)
 
         plot_roc.draw()
+        plot_name = self.get_filename("roc", suffix)
         plot_roc.savefig(plot_name)
 
     def plot_var_perf(  # pylint: disable=too-many-locals
         self,
-        plot_name: str,
+        suffix: str = None,
         xlabel: str = r"$p_{T}$ [GeV]",
         h_line: float = None,
-        ext: str = "png",
         **kwargs,
     ):
         """Variable vs efficiency/rejection plot.
@@ -217,14 +315,12 @@ class Results:
 
         Parameters
         ----------
-        plot_name : str
-            plot name base
+        suffix : str, optional
+            suffix to add to output file name, by default None
         xlabel : regexp, optional
             _description_, by default "$p_{T}$ [GeV]"
         h_line : float, optional
             draws a horizonatal line in the signal efficiency plot
-        ext : str, optional
-            changes the extension of the save plot
         **kwargs : kwargs
             key word arguments for `puma.VarVsEff`
         """
@@ -262,7 +358,7 @@ class Results:
             if not working_point_in_kwargs:
                 kwargs["working_point"] = tagger.working_point
 
-            discs = tagger.get_disc(self.signal)
+            discs = tagger.discriminant(self.signal)
             is_signal = tagger.is_flav(self.signal)
             plot_sig_eff.add(
                 VarVsEff(
@@ -292,69 +388,84 @@ class Results:
         plot_sig_eff.draw()
         if h_line:
             plot_sig_eff.draw_hline(h_line)
-        plot_sig_eff.savefig(f"{plot_name}_{self.signal}_eff.{ext}")
+
+        plot_base = "profile_flat" if kwargs.get("fixed_eff_bin") else "profile_fixed"
+        plot_suffix = f"{self.signal}_eff_{suffix}" if suffix else f"{self.signal}_eff"
+        plot_sig_eff.savefig(self.get_filename(plot_base, plot_suffix))
         for i, background in enumerate(self.backgrounds):
             plot_bkg[i].draw()
-            plot_bkg[i].savefig(f"{plot_name}_{background}_rej.{ext}")
+            plot_suffix = (
+                f"{background}_rej_{suffix}" if suffix else f"{background}_rej"
+            )
+            plot_bkg[i].savefig(self.get_filename(plot_base, plot_suffix))
 
-    def plot_discs(
-        self,
-        plot_name: str,
-        exclude_tagger: list = None,
-        xlabel: str = None,
-        **kwargs,
+    def plot_fraction_scans(
+        self, suffix: str = None, efficiency: float = 0.7, rej: bool = False
     ):
-        """Plots discriminant
-
+        """Produce fraction scan (fc/fb) iso-efficiency plots.
 
         Parameters
         ----------
-        plot_name : _type_
-            Name of the plot.
-        exclude_tagger : list, optional
-            List of taggers to be excluded from this plot, by default None
-        xlabel : str, optional
-            x-axis label, by default "$D_{b}$"
-        **kwargs : kwargs
-            key word arguments for `puma.HistogramPlot`
+        suffix : str, optional
+            suffix to add to output file name, by default None
+        efficiency : float, optional
+            signal efficiency, by default 0.7
+        rej : bool, optional
+            if True, plot rejection instead of efficiency, by default False
         """
-        if xlabel is None:
-            xlabel = rf"$D_{{{self.signal.name.rstrip('jets')}}}$"
+        if self.signal not in (Flavours.bjets, Flavours.cjets):
+            raise ValueError("Signal flavour must be bjets or cjets")
+        if len(self.backgrounds) != 2:
+            raise ValueError("Only two background flavours are supported")
 
-        line_styles = get_good_linestyles()
+        fxs = fraction_scan.get_fx_values()
+        plot = Line2DPlot(atlas_second_tag=self.atlas_second_tag)
+        eff_or_rej = calc_eff if not rej else calc_rej
 
-        tagger_output_plot = HistogramPlot(
-            n_ratio_panels=0,
-            xlabel=xlabel,
-            ylabel="Normalised number of jets",
-            figsize=(7.0, 4.5),
-            atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=self.atlas_second_tag,
-            **kwargs,
-        )
-        tag_i = 0
-        tag_labels = []
         for tagger in self.taggers.values():
-            if exclude_tagger is not None and tagger.name in exclude_tagger:
-                continue
-            discs = tagger.get_disc(self.signal)
-            for flav in self.flavours:
-                tagger_output_plot.add(
-                    Histogram(
-                        discs[tagger.is_flav(flav)],
-                        ratio_group=flav,
-                        label=flav.label if tag_i == 0 else None,
-                        colour=flav.colour,
-                        linestyle=line_styles[tag_i],
-                    ),
-                    reference=tagger.reference,
+            xs = []
+            ys = []
+            for fx in fxs:
+                sig_idx = tagger.is_flav(self.signal)
+                disc = tagger.discriminant(self.signal, fx=fx)
+                bkg_idx = tagger.is_flav(self.backgrounds[0])
+                xs.append(eff_or_rej(disc[sig_idx], disc[bkg_idx], efficiency))
+                bkg_idx = tagger.is_flav(self.backgrounds[1])
+                ys.append(eff_or_rej(disc[sig_idx], disc[bkg_idx], efficiency))
+
+            # add curve for this tagger
+            tagger_fx = tagger.f_c if self.signal == Flavours.bjets else tagger.f_b
+            plot.add(
+                Line2D(
+                    x_values=xs,
+                    y_values=ys,
+                    label=f"{tagger.label} ($f_x={tagger_fx}$)",
+                    colour=tagger.colour,
                 )
-            tag_i += 1
-            tag_labels.append(tagger.label if tagger.label else tagger.name)
-        tagger_output_plot.draw()
-        tagger_output_plot.make_linestyle_legend(
-            linestyles=line_styles[:tag_i],
-            labels=tag_labels,
-            bbox_to_anchor=(0.55, 1),
-        )
-        tagger_output_plot.savefig(plot_name)
+            )
+
+            # Add a marker for the just added fraction scan
+            # The is_marker bool tells the plot that this is a marker and not a line
+            fx_idx = np.argmin(np.abs(fxs - tagger_fx))
+            plot.add(
+                Line2D(
+                    x_values=xs[fx_idx],
+                    y_values=ys[fx_idx],
+                    marker="x",
+                    markersize=15,
+                    markeredgewidth=2,
+                ),
+                is_marker=True,
+            )
+
+            # Adding labels
+            if not rej:
+                plot.xlabel = self.backgrounds[0].eff_str
+                plot.ylabel = self.backgrounds[1].eff_str
+            else:
+                plot.xlabel = self.backgrounds[0].rej_str
+                plot.ylabel = self.backgrounds[1].rej_str
+
+            # Draw and save the plot
+            plot.draw()
+            plot.savefig(self.get_filename("fraction_scan", suffix))

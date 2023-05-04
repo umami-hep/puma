@@ -27,7 +27,7 @@ here for the _b_-jet discriminant
 §§§examples/high_level_plots.py:50:52§§§
 ```
 
-<img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_disc_b.png width=500>
+<img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_disc.png width=500>
 
 
 ## ROC plots
@@ -36,27 +36,38 @@ In the same manner you can plot ROC curves, here for the _b_-tagging performance
 ```py
 §§§examples/high_level_plots.py:54:56§§§
 ```
-<img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_roc_b.png width=500>
+<img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_roc.png width=500>
 
 
 
 ## Performance vs a variable
 In this case we plot the performance as a function of the jet pT with the same syntax as above for an inclusive working point of 70%
 ```py
-§§§examples/high_level_plots.py:59:72§§§
+§§§examples/high_level_plots.py:59:71§§§
 ```
-<img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_pt_bjets_eff.png width=500>
-<img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_pt_cjets_rej.png width=500>
-<img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_pt_ujets_rej.png width=500>
+<img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_profile_fixed_bjets_eff.png width=500>
+<img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_profile_fixed_cjets_rej.png width=500>
+<img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_profile_fixed_ujets_rej.png width=500>
 
 and similar for a fixed b-efficiency per bin.
 ```py
-§§§examples/high_level_plots.py:74:84§§§
+§§§examples/high_level_plots.py:73:82§§§
 ```
 
-<img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_fixed_per_bin_pt_bjets_eff.png width=500>
-<img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_fixed_per_bin_pt_cjets_rej.png width=500>
-<img src=https://github.com/umami-hep/puma/raw/examples-material/hlplots_dummy_tagger_fixed_per_bin_pt_ujets_rej.png width=500>
+<img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_profile_flat_bjets_eff.png width=500>
+<img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_profile_flat_cjets_rej.png width=500>
+<img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_profile_flat_ujets_rej.png width=500>
 
 
 Similar to above you can also do these plots for _c_-tagging by changing the `signal_class` to `cjets`.
+
+
+## Fraction scans
+
+Plot the two background efficiencies as a function of the $f_c$ or $f_b$ value.
+
+```py
+§§§examples/high_level_plots.py:84:87§§§
+```
+
+<img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_fraction_scan.png width=500>

@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
 
-"""
-Unit test script for the functions in histogram.py
-"""
+"""Unit test script for the functions in histogram.py."""
 
 import os
 import tempfile
@@ -23,19 +21,19 @@ class HistogramTestCase(unittest.TestCase):
     """Test class for the puma.histogram functions."""
 
     def test_empty_histogram(self):
-        """test if providing wrong input type to histogram raises ValueError"""
+        """test if providing wrong input type to histogram raises ValueError."""
         with self.assertRaises(ValueError):
             Histogram(values=5)
 
     def test_divide_before_plotting(self):
-        """test if ValueError is raised when dividing before plotting the histograms"""
+        """test if ValueError is raised when dividing before plotting the histograms."""
         hist_1 = Histogram([1, 1, 1, 2, 2])
         hist_2 = Histogram([1, 2, 2, 2])
         with self.assertRaises(ValueError):
             hist_1.divide(hist_2)
 
     def test_divide_after_plotting_no_norm(self):
-        """test if ratio is calculated correctly after plotting (without norm)"""
+        """test if ratio is calculated correctly after plotting (without norm)."""
         hist_1 = Histogram([1, 1, 1, 2, 2])
         hist_2 = Histogram([1, 2, 2, 2])
         bins = np.array([1, 2, 3])
@@ -53,7 +51,7 @@ class HistogramTestCase(unittest.TestCase):
         np.testing.assert_almost_equal(expected_ratio_unc, hist_1.divide(hist_2)[1])
 
     def test_divide_after_plotting_norm(self):
-        """test if ratio is calculated correctly after plotting (with norm)"""
+        """test if ratio is calculated correctly after plotting (with norm)."""
         hist_1 = Histogram([1, 1, 1, 2, 2])
         hist_2 = Histogram([1, 2, 2, 2])
         bins = np.array([1, 2, 3])
@@ -71,7 +69,7 @@ class HistogramTestCase(unittest.TestCase):
         np.testing.assert_almost_equal(expected_ratio_unc, hist_1.divide(hist_2)[1])
 
     def test_ratio_same_histogram(self):
-        """test if ratio is 1 for equal histograms (with norm)"""
+        """test if ratio is 1 for equal histograms (with norm)."""
         hist_1 = Histogram([1, 1, 1, 2, 2])
         hist_2 = Histogram([1, 1, 1, 2, 2])
         bins = np.array([1, 2, 3])
@@ -111,10 +109,8 @@ class HistogramTestCase(unittest.TestCase):
             Histogram(dummy_array, flavour="dummy")
 
 
-class HistogramPlotTestCase(
-    unittest.TestCase
-):  # pylint: disable=too-many-public-methods
-    """Test class for puma.histogram_plot"""
+class HistogramPlotTestCase(unittest.TestCase):
+    """Test class for puma.histogram_plot."""
 
     def setUp(self):
         np.random.seed(42)
@@ -127,28 +123,28 @@ class HistogramPlotTestCase(
         )
 
         # Set up directories for comparison plots
-        self.tmp_dir = tempfile.TemporaryDirectory()  # pylint: disable=R1732
+        self.tmp_dir = tempfile.TemporaryDirectory()
         self.actual_plots_dir = f"{self.tmp_dir.name}/"
         self.expected_plots_dir = os.path.join(
             os.path.dirname(__file__), "expected_plots"
         )
 
     def test_invalid_bins_type(self):
-        """check if ValueError is raised when using invalid type in `bins` argument"""
+        """check if ValueError is raised when using invalid type in `bins` argument."""
         hist_plot = HistogramPlot(bins=1.1)
         hist_plot.add(self.hist_1, reference=True)
         with self.assertRaises(ValueError):
             hist_plot.plot()
 
     def test_add_bin_width_to_ylabel(self):
-        """check if ValueError is raised when using invalid type in `bins` argument"""
+        """check if ValueError is raised when using invalid type in `bins` argument."""
         hist_plot = HistogramPlot(bins=60)
         hist_plot.add(self.hist_1, reference=True)
         with self.assertRaises(ValueError):
             hist_plot.add_bin_width_to_ylabel()
 
     def test_multiple_references_no_flavour(self):
-        """Tests if error is raised in case of non-unique reference histogram"""
+        """Tests if error is raised in case of non-unique reference histogram."""
         hist_plot = HistogramPlot(n_ratio_panels=1)
         hist_plot.add(self.hist_1, reference=True)
         hist_plot.add(self.hist_2, reference=True)
@@ -159,7 +155,9 @@ class HistogramPlotTestCase(
 
     def test_multiple_references_flavour(self):
         """Tests if error is raised in case of non-unique reference histogram
-        when flavoured histograms are used"""
+        when flavoured histograms are used
+        .
+        """
         hist_plot = HistogramPlot(n_ratio_panels=1)
         dummy_array = np.array([1, 1, 2, 3, 2, 3])
         hist_plot.add(Histogram(dummy_array, flavour="ujets"), reference=True)
@@ -178,7 +176,7 @@ class HistogramPlotTestCase(
         """check if
         1. bins_range argument is used correctly
         2. deactivate ATLAS branding works
-        3. adding bin width to ylabel works
+        3. adding bin width to ylabel works.
         """
         hist_plot = HistogramPlot(
             bins=20,
@@ -208,7 +206,7 @@ class HistogramPlotTestCase(
         )
 
     def test_discrete_values(self):
-        """check if discrete values are working properly"""
+        """check if discrete values are working properly."""
         hist_plot = HistogramPlot(
             bins=np.linspace(0, 10, 100),
             discrete_vals=[0, 5, 7, 9],
@@ -239,7 +237,7 @@ class HistogramPlotTestCase(
         )
 
     def test_output_ratio(self):
-        """check with a plot if the ratio is the expected value"""
+        """check with a plot if the ratio is the expected value."""
         hist_plot = HistogramPlot(
             norm=False,
             ymax_ratio=[4],
@@ -284,8 +282,8 @@ class HistogramPlotTestCase(
             norm=True,
             figsize=(6.5, 5),
             atlas_second_tag=(
-                "Test if ratio is 1 for whole range if reference histogram is empty\n"
-                "(+ normalised)"
+                "Test if ratio is 1 for whole range if reference histogram is empty\n(+"
+                " normalised)"
             ),
             n_ratio_panels=1,
         )
@@ -306,7 +304,7 @@ class HistogramPlotTestCase(
         )
 
     def test_output_empty_histogram_no_norm(self):
-        """Test if ratio is 1 for whole range if reference histogram is empty"""
+        """Test if ratio is 1 for whole range if reference histogram is empty."""
         hist_plot = HistogramPlot(
             norm=False,
             figsize=(6.5, 5),
@@ -333,8 +331,9 @@ class HistogramPlotTestCase(
 
     def test_output_different_range_histogram(self):
         """Test if ratio yields the expected values for case of different histogram
-        ranges"""
-
+        ranges
+        .
+        """
         hist_plot = HistogramPlot(
             atlas_second_tag=(
                 "Test ratio for the case of different histogram ranges. \n"
@@ -577,8 +576,8 @@ class HistogramPlotTestCase(
 
     def test_flavoured_labels(self):
         """Test different combinations of specifying the label when also specifying a
-        flavour for the histogram."""
-
+        flavour for the histogram.
+        """
         rng = np.random.default_rng(seed=42)
 
         hist_plot = HistogramPlot(
@@ -640,7 +639,7 @@ class HistogramPlotTestCase(
         )
 
     def test_weights(self):
-        """Output plot with weights"""
+        """Output plot with weights."""
         values = np.array([])
         values = np.array([0, 1, 2, 2, 3])
         weights = np.array([1, -1, 3, -2, 1])
@@ -679,7 +678,7 @@ class HistogramPlotTestCase(
         )
 
     def test_weights_wrong_shape(self):
-        """Check if ValueError is raised if wieghts has"""
+        """Check if ValueError is raised if wieghts has."""
         values = np.array([0, 1, 2, 2, 3])
         weights = np.array([1, -1])
 
@@ -690,7 +689,7 @@ class HistogramPlotTestCase(
             )
 
     def test_underoverflow_bin(self):
-        """Test if under/overflow bins work as expected"""
+        """Test if under/overflow bins work as expected."""
         vals = [-1, 1, 2, 3, 6]
         vals_with_inf = [-1, 1, 2, 6, np.inf]
 

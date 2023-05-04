@@ -13,11 +13,9 @@ from puma.utils import get_good_colours, get_good_linestyles, logger
 
 
 class Roc(PlotLineObject):
-    """
-    ROC class storing info about curve and allows to calculate ratio w.r.t other roc.
-    """
+    """Represent a single ROC curve and allows to calculate ratio w.r.t other ROCs."""
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         sig_eff: np.ndarray,
         bkg_rej: np.ndarray,
@@ -157,7 +155,7 @@ class Roc(PlotLineObject):
 
     @property
     def non_zero_mask(self):
-        """Masking points where rejection is 0 and no signal efficiency change present
+        """Masking points where rejection is 0 and no signal efficiency change present.
 
         Returns
         -------
@@ -177,7 +175,7 @@ class Roc(PlotLineObject):
 
     @property
     def non_zero(self):
-        """Abstraction of `non_zero_mask`
+        """Abstraction of `non_zero_mask`.
 
         Returns
         -------
@@ -189,11 +187,11 @@ class Roc(PlotLineObject):
         return self.sig_eff[self.non_zero_mask], self.bkg_rej[self.non_zero_mask]
 
 
-class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
-    """ROC plot class"""
+class RocPlot(PlotBase):
+    """ROC plot class."""
 
     def __init__(self, grid: bool = True, **kwargs) -> None:
-        """ROC plot properties
+        """ROC plot properties.
 
         Parameters
         ----------
@@ -292,7 +290,7 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             self.set_roc_reference(key, roc_curve.rej_class)
 
     def set_roc_reference(self, key: str, rej_class: Flavour):
-        """Setting the reference roc curves used in the ratios
+        """Setting the reference roc curves used in the ratios.
 
         Parameters
         ----------
@@ -327,7 +325,7 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             self.reference_roc[rej_class] = key
 
     def set_ratio_class(self, ratio_panel: int, rej_class: str | Flavour):
-        """Associate the rejection class to a ratio panel adn set the legend label
+        """Associate the rejection class to a ratio panel adn set the legend label.
 
         Parameters
         ----------
@@ -375,14 +373,13 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             self.plot_ratios(axis=axis, rej_class=rej_class)
 
     def get_xlim_auto(self):
-        """Returns min and max efficiency values
+        """Returns min and max efficiency values.
 
         Returns
         -------
         float
             Min and max efficiency values
         """
-
         for elem in self.rocs.values():
             self.eff_min = min(np.min(elem.sig_eff), self.eff_min)
             self.eff_max = max(np.max(elem.sig_eff), self.eff_min)
@@ -390,7 +387,7 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         return self.eff_min, self.eff_max
 
     def plot_ratios(self, axis: plt.axis, rej_class: str):
-        """Plotting ratio curves
+        """Plotting ratio curves.
 
         Parameters
         ----------
@@ -434,7 +431,7 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             from `matplotlib.axes.Axes.legend` as well as the option `ratio_legend`,
             which adds the legend into the ratio panels
 
-         Raises
+        Raises
         ------
         ValueError
             If not 2 ratios requested
@@ -458,7 +455,6 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         ValueError
             If not 2 ratios requested
         """
-
         if self.n_ratio_panels < 2:
             raise ValueError("For a split legend you need 2 ratio panels.")
 
@@ -524,7 +520,7 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         self,
         labelpad: int = None,
     ):
-        """Draw plotting
+        """Draw plotting.
 
         Parameters
         ----------
@@ -573,7 +569,7 @@ class RocPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                 self.legend_flavs.set_frame_on(False)
 
     def plot_roc(self, **kwargs) -> mpl.lines.Line2D:
-        """Plotting roc curves
+        """Plotting roc curves.
 
         Parameters
         ----------

@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
 
-"""
-Unit test script for the functions in var_vs_eff.py
-"""
+"""Unit test script for the functions in var_vs_eff.py."""
 
 import os
 import tempfile
@@ -221,10 +219,8 @@ class VarVsEffTestCase(unittest.TestCase):
             var_plot.divide(var_plot_comp)
 
 
-class VarVsEffOutputTestCase(
-    unittest.TestCase
-):  # pylint:disable=too-many-instance-attributes
-    """Test class for the puma.var_vs_eff_plot output"""
+class VarVsEffOutputTestCase(unittest.TestCase):
+    """Test class for the puma.var_vs_eff_plot output."""
 
     def setUp(self):
         # Set up temp directory for comparison plots

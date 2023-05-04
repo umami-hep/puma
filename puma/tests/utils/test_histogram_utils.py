@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-"""
-Unit test script for the functions in utils/histogram.py
-"""
+"""Unit test script for the functions in utils/histogram.py."""
 
 import unittest
 
@@ -15,9 +13,7 @@ from puma.utils.histogram import hist_ratio, hist_w_unc, save_divide
 set_log_level(logger, "DEBUG")
 
 
-class HistWUncTestCase(
-    unittest.TestCase
-):  # pylint: disable=too-many-instance-attributes
+class HistWUncTestCase(unittest.TestCase):
     """Test case for hist_w_unc function."""
 
     def setUp(self):
@@ -49,8 +45,7 @@ class HistWUncTestCase(
         self.band_weighted = self.hist_weighted - self.unc_weighted
 
     def test_under_overflow_values(self):
-        """Test behaviour for under- and overflow values"""
-
+        """Test behaviour for under- and overflow values."""
         values_with_inf = np.array([-1, 1, 2, 100, np.inf])
 
         with self.subTest("Under/overflow values without under/overflow bins."):
@@ -105,7 +100,6 @@ class HistWUncTestCase(
 
     def test_histogram_weighted_normalised(self):
         """Test weighted histogram (normalised)."""
-
         bin_edges, hist, unc, band = hist_w_unc(
             self.input, weights=self.weights, bins=self.n_bins, normed=True
         )
@@ -117,7 +111,6 @@ class HistWUncTestCase(
 
     def test_histogram_weighted_not_normalised(self):
         """Test weighted histogram (not normalised)."""
-
         bin_edges, hist, unc, band = hist_w_unc(
             self.input, weights=self.weights, bins=self.n_bins, normed=False
         )
@@ -129,7 +122,6 @@ class HistWUncTestCase(
 
     def test_range_argument_ignored(self):
         """Test if the hist_range argument is ignored when bin_edges are provided."""
-
         bins_range = (1, 2)
 
         bin_edges, hist, _, _ = hist_w_unc(
@@ -145,7 +137,6 @@ class HistWUncTestCase(
 
     def test_range_argument(self):
         """Test if the hist_range argument is used when bins is an integer."""
-
         # we test with range from 0 to 2, with 3 bins -> [0, 0.66, 1.33, 2] exp. bins
         bins_range = (0, 2)
         bins_exp = np.array([0, 2 / 3, 1 + 1 / 3, 2])
@@ -164,7 +155,6 @@ class HistWUncTestCase(
 
     def test_negative_weights(self):
         """Test if negative weights are properly handled."""
-
         values = np.array([0, 1, 2, 2, 3])
         weights = np.array([1, -1, 3, -2, 1])
 
@@ -178,7 +168,6 @@ class HistWUncTestCase(
 
     def test_inf_treatment(self):
         """Test if infinity values are treated as expected."""
-
         values_with_infs = np.array([1, 2, 3, -np.inf, +np.inf, +np.inf])
 
         with self.subTest(
@@ -195,13 +184,11 @@ class HistWUncTestCase(
                 )
         with self.subTest(
             "Test if error is raised if inf values are in input but no range is defined"
-        ):
-            with self.assertRaises(ValueError):
-                hist_w_unc(values_with_infs, bins=10)
+        ), self.assertRaises(ValueError):
+            hist_w_unc(values_with_infs, bins=10)
 
     def test_nan_check(self):
-        """Test if the warning with number of nan values is raised in hist_w_unc"""
-
+        """Test if the warning with number of nan values is raised in hist_w_unc."""
         values_with_nans = np.array([1, 2, 3, np.nan, np.nan])
 
         with LogCapture("puma") as log:

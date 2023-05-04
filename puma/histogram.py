@@ -12,15 +12,13 @@ from puma.utils import get_good_colours, global_config, logger
 from puma.utils.histogram import hist_ratio, hist_w_unc
 
 
-class Histogram(
-    PlotLineObject
-):  # pylint: disable=too-few-public-methods,too-many-instance-attributes
+class Histogram(PlotLineObject):
     """
     Histogram class storing info about histogram and allows to calculate ratio w.r.t
     other histograms.
     """
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         values: np.ndarray,
         weights: np.ndarray = None,
@@ -79,9 +77,8 @@ class Histogram(
                 "Invalid type of histogram input data. Allowed values are "
                 "numpy.ndarray, list, pandas.core.series.Series"
             )
-        if weights is not None:
-            if len(values) != len(weights):
-                raise ValueError("`values` and `weights` are not of same length.")
+        if weights is not None and len(values) != len(weights):
+            raise ValueError("`values` and `weights` are not of same length.")
 
         self.values = values
         self.weights = weights
@@ -173,10 +170,10 @@ class Histogram(
         return (ratio, ratio_unc)
 
 
-class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
-    """Histogram plot class"""
+class HistogramPlot(PlotBase):
+    """Histogram plot class."""
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         bins=40,
         bins_range: tuple = None,
@@ -188,7 +185,7 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         grid: bool = False,
         **kwargs,
     ) -> None:
-        """histogram plot properties
+        """histogram plot properties.
 
         Parameters
         ----------
@@ -292,7 +289,7 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             self.set_reference(key)
 
     def set_reference(self, key: str):
-        """Setting the reference histogram curves used in the ratios
+        """Setting the reference histogram curves used in the ratios.
 
         Parameters
         ----------
@@ -325,12 +322,11 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         ValueError
             If specified bins type is not supported.
         """
-        if self.ylabel is not None:
-            if self.norm and "norm" not in self.ylabel.lower():
-                logger.warning(
-                    "You are plotting normalised distributions but 'norm' is not "
-                    "included in your y-label."
-                )
+        if self.ylabel is not None and self.norm and "norm" not in self.ylabel.lower():
+            logger.warning(
+                "You are plotting normalised distributions but 'norm' is not "
+                "included in your y-label."
+            )
         plt_handles = []
 
         # Calculate bins of stacked histograms to ensure all histograms fit in plot
@@ -422,7 +418,7 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
 
     def get_discrete_values(self, elem: object):
         """Get discrete values of a variable and adjust the
-        bins accordingly
+        bins accordingly.
 
         Parameters
         ----------
@@ -443,7 +439,6 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
             If the number of bins is set to 1 such that no values can be
             distinguished
         """
-
         if len(elem.bin_edges) > 1:
             if abs(elem.bin_edges[1] - elem.bin_edges[0]) <= 1:
                 indice = []
@@ -476,14 +471,14 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
                 )
         else:
             raise ValueError(
-                "Choose a binning with more than one bin in order to plot"
-                "only discrete values."
+                "Choose a binning with more than one bin in order to plot only discrete"
+                " values."
             )
 
         return bins
 
     def get_reference_histo(self, histo):
-        """Get reference histogram from list of references
+        """Get reference histogram from list of references.
 
         Parameters
         ----------
@@ -500,7 +495,6 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         ValueError
             If no reference histo was found or multiple matches.
         """
-
         matches = 0
         reference_histo = None
 
@@ -516,8 +510,8 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
 
         if matches != 1:
             raise ValueError(
-                f"Found {matches} matching reference candidates, but only one match "
-                "is allowed."
+                f"Found {matches} matching reference candidates, but only one match is"
+                " allowed."
             )
 
         logger.debug(
@@ -583,7 +577,6 @@ class HistogramPlot(PlotBase):  # pylint: disable=too-many-instance-attributes
         ValueError
             If plotting_done is False (therefore `bins` is not yet calculated)
         """
-
         if self.plotting_done is False:
             raise ValueError(
                 "`add_bin_width_to_ylabel` should be called after plotting, since bins "
