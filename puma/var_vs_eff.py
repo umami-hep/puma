@@ -125,7 +125,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
 
         VarVsVar.__init__(
             self,
-            x_var_mean=self.x_bin_centres,
+            x_var=self.x_bin_centres,
             y_var_mean=np.zeros_like(self.x_bin_centres),
             y_var_std=np.zeros_like(self.x_bin_centres),
             x_var_widths=2 * self.bin_widths,
