@@ -50,7 +50,7 @@ class VarVsEffTestCase(unittest.TestCase):
     def test_var_vs_eff_init_fixed_eff_no_wp(self):
         """Test var_vs_eff init."""
         with self.assertRaises(ValueError):
-            VarVsEff(np.ones(6), np.ones(6), fixed_eff_bin=True)
+            VarVsEff(np.ones(6), np.ones(6), fixed_eff_bin=True, disc_cut=1.0)
 
     def test_var_vs_eff_init_disc_cut_wp(self):
         """Test var_vs_eff init."""
@@ -177,8 +177,8 @@ class VarVsEffTestCase(unittest.TestCase):
         var_plot.y_var_mean, var_plot.y_var_std = var_plot.get("sig_eff")
         np.testing.assert_array_almost_equal(var_plot.divide(var_plot)[0], np.ones(1))
 
-    def test_var_vs_eff_divide_wrong_mode(self):
-        """Test var_vs_eff divide."""
+    def test_var_vs_eff_wrong_mode(self):
+        """Test var_vs_eff wrong mode."""
         n_bins = 1
         var_plot = VarVsEff(
             x_var_sig=self.disc_sig,
@@ -191,7 +191,6 @@ class VarVsEffTestCase(unittest.TestCase):
         )
         with self.assertRaises(ValueError):
             var_plot.y_var_mean, var_plot.y_var_std = var_plot.get("test")
-            var_plot.divide(var_plot)
 
     def test_var_vs_eff_divide_different_binning(self):
         """Test var_vs_eff divide."""
@@ -217,6 +216,27 @@ class VarVsEffTestCase(unittest.TestCase):
             var_plot.y_var_mean, var_plot.y_var_std = var_plot.get("sig_eff")
             var_plot_comp.y_var_mean, var_plot_comp.y_var_std = var_plot.get("sig_eff")
             var_plot.divide(var_plot_comp)
+
+    def test_var_vs_eff_eq_different_classes(self):
+        """Test var_vs_eff eq."""
+        var_plot = VarVsEff(
+            x_var_sig=[0, 1, 2], disc_sig=[3, 4, 5], bins=2, working_point=0.7
+        )
+        self.assertNotEqual(var_plot, np.ones(6))
+
+    def test_var_vs_eff_get(self):
+        var_plot = VarVsEff(
+            x_var_sig=self.disc_sig,
+            disc_sig=self.x_var_sig,
+            x_var_bkg=self.disc_bkg,
+            disc_bkg=self.x_var_bkg,
+            working_point=self.working_point,
+            fixed_eff_bin=True,
+            bins=1,
+        )
+        mode_options = ["sig_eff", "bkg_eff", "sig_rej", "bkg_rej"]
+        for mode in mode_options:
+            var_plot.get(mode)
 
 
 class VarVsEffOutputTestCase(unittest.TestCase):
@@ -263,6 +283,19 @@ class VarVsEffOutputTestCase(unittest.TestCase):
 
         # Define pT bins
         self.bins = [20, 30, 40, 60, 85, 110, 140, 175, 250]
+
+    def test_var_vs_eff_plot_mode_option(self):
+        with self.assertRaises(ValueError):
+            VarVsEffPlot(
+                mode="test",
+                ylabel="Background rejection",
+                xlabel=r"$p_{T}$ [GeV]",
+                logy=True,
+                atlas_second_tag="test",
+                y_scale=1.5,
+                n_ratio_panels=1,
+                figsize=(9, 6),
+            )
 
     def test_output_plot_fixed_eff_bin_bkg_rejection(self):
         """Test output plot with fixed eff per bin - bkg rejection."""
