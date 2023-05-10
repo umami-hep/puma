@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Use `VarVsVar` as a base class for `VarVsEff` [!179](https://github.com/umami-hep/puma/pull/179)
 - Adding fraction scans to high level API [!178](https://github.com/umami-hep/puma/pull/178)
 - Update pre-commit (using ruff) and store tagger scores as structured array [!177](https://github.com/umami-hep/puma/pull/177)
 - Remove dev image [!176](https://github.com/umami-hep/puma/pull/176)
