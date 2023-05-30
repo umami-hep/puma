@@ -48,7 +48,7 @@ results.atlas_second_tag = (
 )
 
 # tagger probability distributions
-results.plot_probs(logy=True, bins=100)
+results.plot_probs(logy=True, bins=40)
 
 # tagger discriminant distributions
 logger.info("Plotting tagger discriminant plots.")
