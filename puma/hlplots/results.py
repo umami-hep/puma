@@ -296,6 +296,8 @@ class Results:
         """
         if xlabel is None:
             xlabel = rf"$D_{{{self.signal.name.rstrip('jets')}}}$"
+        if wp_vlines is None:
+            wp_vlines = []
 
         line_styles = get_good_linestyles()
 
