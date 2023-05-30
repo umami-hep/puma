@@ -2,6 +2,9 @@
 
 ### [Latest]
 
+- Add probability plots to HLAPI and support WP vlines [!183](https://github.com/umami-hep/puma/pull/183)
+
+
 ### [v0.2.5] (2023/05/12)
 
 - Update requirements to include atlas-ftag-tools v0.1.3 [!180](https://github.com/umami-hep/puma/pull/180)
