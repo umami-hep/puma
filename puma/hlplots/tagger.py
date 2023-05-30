@@ -158,6 +158,25 @@ class Tagger:
         flavour = Flavours[flavour] if isinstance(flavour, str) else flavour
         return len(flavour.cuts(self.labels).values)
 
+    def probs(self, prob_flavour: Flavour, label_flavour: Flavour = None):
+        """Retrieve probabilities for a given flavour.
+
+        Parameters
+        ----------
+        prob_flavour : Flavour
+            Return probabilities for this flavour class
+        label_flavour : Flavour, optional
+            Only return jets of the given truth flavour, by default None
+
+        Returns
+        -------
+        np.ndarray
+            Probabilities for given flavour
+        """
+        return self.scores[self.is_flav(label_flavour)][
+            f"{self.name}_{prob_flavour.px}"
+        ]
+
     def discriminant(self, signal: Flavour, fx: float = None):
         """Retrieve the discriminant for a given signal class.
 

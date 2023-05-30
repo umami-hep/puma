@@ -129,7 +129,7 @@ class Results:
         var_list = list(set(var_list + [self.perf_var]))
 
         # load data
-        reader = H5Reader(file_path)
+        reader = H5Reader(file_path, precision="full")
         data = reader.load({key: var_list}, num_jets)[key]
 
         # apply cuts
@@ -184,11 +184,99 @@ class Results:
             base += f"_{suffix}"
         return Path(self.output_dir / base).with_suffix(f".{self.extension}")
 
+    def plot_probs(
+        self,
+        suffix: str = None,
+        **kwargs,
+    ):
+        """Plot probability distributions.
+
+        Parameters
+        ----------
+        suffix : str, optional
+            Suffix to add to output file name, by default None
+        **kwargs : kwargs
+            key word arguments for `puma.HistogramPlot`
+        """
+        line_styles = get_good_linestyles()
+        flavours = self.backgrounds + [self.signal]
+
+        # group by output probability
+        for flav_prob in flavours:
+            histo = HistogramPlot(
+                n_ratio_panels=1,
+                xlabel=flav_prob.px,
+                ylabel="Normalised number of jets",
+                figsize=(7.0, 4.5),
+                atlas_first_tag=self.atlas_first_tag,
+                atlas_second_tag=self.atlas_second_tag,
+                **kwargs,
+            )
+
+            tagger_labels = []
+            for i, tagger in enumerate(self.taggers.values()):
+                tagger_labels.append(tagger.label if tagger.label else tagger.name)
+                for flav_class in flavours:
+                    histo.add(
+                        Histogram(
+                            tagger.probs(flav_prob, flav_class),
+                            ratio_group=flav_class,
+                            label=flav_class.label if i == 0 else None,
+                            colour=flav_class.colour,
+                            linestyle=line_styles[i],
+                        ),
+                        reference=tagger.reference,
+                    )
+
+            histo.draw()
+            histo.make_linestyle_legend(
+                linestyles=line_styles,
+                labels=tagger_labels,
+                bbox_to_anchor=(0.55, 1),
+            )
+            histo.savefig(self.get_filename(f"probs_{flav_prob.px}", suffix))
+
+        # group by flavour
+        for flav_class in flavours:
+            histo = HistogramPlot(
+                n_ratio_panels=1,
+                xlabel=flav_class.label,
+                ylabel="Normalised number of jets",
+                figsize=(7.0, 4.5),
+                atlas_first_tag=self.atlas_first_tag,
+                atlas_second_tag=self.atlas_second_tag,
+                **kwargs,
+            )
+
+            tagger_labels = []
+            for i, tagger in enumerate(self.taggers.values()):
+                tagger_labels.append(tagger.label if tagger.label else tagger.name)
+                for flav_prob in flavours:
+                    histo.add(
+                        Histogram(
+                            tagger.probs(flav_prob, flav_class),
+                            ratio_group=flav_prob,
+                            label=flav_prob.px if i == 0 else None,
+                            colour=flav_prob.colour,
+                            linestyle=line_styles[i],
+                        ),
+                        reference=tagger.reference,
+                    )
+
+            histo.draw()
+            histo.make_linestyle_legend(
+                linestyles=line_styles,
+                labels=tagger_labels,
+                bbox_to_anchor=(0.55, 1),
+            )
+            histo.savefig(self.get_filename(f"probs_{flav_class}", suffix))
+
     def plot_discs(
         self,
         suffix: str = None,
         exclude_tagger: list = None,
         xlabel: str = None,
+        wp_vlines: list = None,
         **kwargs,
     ):
         """Plot discriminant distributions.
@@ -201,6 +289,8 @@ class Results:
             List of taggers to be excluded from this plot, by default None
         xlabel : str, optional
             x-axis label, by default "$D_{b}$"
+        wp_vlines : list, optional
+            List of WPs to draw vertical lines at, by default None
         **kwargs : kwargs
             key word arguments for `puma.HistogramPlot`
         """
@@ -209,7 +299,7 @@ class Results:
 
         line_styles = get_good_linestyles()
 
-        tagger_output_plot = HistogramPlot(
+        histo = HistogramPlot(
             n_ratio_panels=0,
             xlabel=xlabel,
             ylabel="Normalised number of jets",
@@ -218,32 +308,38 @@ class Results:
             atlas_second_tag=self.atlas_second_tag,
             **kwargs,
         )
-        tag_i = 0
-        tag_labels = []
-        for tagger in self.taggers.values():
+
+        tagger_labels = []
+        for i, tagger in enumerate(self.taggers.values()):
             if exclude_tagger is not None and tagger.name in exclude_tagger:
                 continue
             discs = tagger.discriminant(self.signal)
+
+            # get working point
+            for wp in wp_vlines:
+                cut = np.percentile(discs[tagger.is_flav(self.signal)], 100 - wp)
+                label = None if i > 0 else f"{wp}%"
+                histo.draw_vlines([cut], labels=[label], linestyle=line_styles[i])
+
             for flav in self.flavours:
-                tagger_output_plot.add(
+                histo.add(
                     Histogram(
                         discs[tagger.is_flav(flav)],
                         ratio_group=flav,
-                        label=flav.label if tag_i == 0 else None,
+                        label=flav.label if i == 0 else None,
                         colour=flav.colour,
-                        linestyle=line_styles[tag_i],
+                        linestyle=line_styles[i],
                     ),
                     reference=tagger.reference,
                 )
-            tag_i += 1
-            tag_labels.append(tagger.label if tagger.label else tagger.name)
-        tagger_output_plot.draw()
-        tagger_output_plot.make_linestyle_legend(
-            linestyles=line_styles[:tag_i],
-            labels=tag_labels,
+            tagger_labels.append(tagger.label if tagger.label else tagger.name)
+        histo.draw()
+        histo.make_linestyle_legend(
+            linestyles=line_styles,
+            labels=tagger_labels,
             bbox_to_anchor=(0.55, 1),
         )
-        tagger_output_plot.savefig(self.get_filename("disc", suffix))
+        histo.savefig(self.get_filename("disc", suffix))
 
     def plot_rocs(
         self,

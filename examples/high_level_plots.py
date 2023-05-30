@@ -47,23 +47,27 @@ results.atlas_second_tag = (
     "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$, $20$ GeV $< p_{T} <250$ GeV"
 )
 
-# tagger discriminant plots
+# tagger probability distributions
+results.plot_probs(logy=True, bins=100)
+
+# tagger discriminant distributions
 logger.info("Plotting tagger discriminant plots.")
-results.plot_discs()
+results.plot_discs(logy=False, wp_vlines=[60, 85])
+results.plot_discs(logy=True, wp_vlines=[60, 85], suffix="log")
 
 # ROC curves
 logger.info("Plotting ROC curves.")
 results.plot_rocs()
 
-
-logger.info("Plotting efficiency/rejection vs pT curves.")
 # eff/rej vs. variable plots
+logger.info("Plotting efficiency/rejection vs pT curves.")
 results.atlas_second_tag = "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$\n70% WP"
-# you can either specify a WP per tagger
+
+# you can either specify a WP per tagger, e.g.
 # dips.working_point = 0.7
 # rnnip.working_point = 0.7
 # or alternatively also pass the argument `working_point` to the plot_var_perf function.
-# to specify the `disc_cut` per tagger is also possible.
+# specifying the `disc_cut` per tagger is also possible.
 results.plot_var_perf(
     working_point=0.7,
     bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
