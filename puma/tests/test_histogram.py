@@ -390,7 +390,7 @@ class HistogramPlotTestCase(unittest.TestCase):
         )
         hist_plot.add(self.hist_1, reference=True)
         hist_plot.draw_vlines(
-            vlines_xvalues=[1, 2, 3],
+            xs=[1, 2, 3],
         )
         hist_plot.draw()
 
@@ -420,8 +420,8 @@ class HistogramPlotTestCase(unittest.TestCase):
         )
         hist_plot.add(self.hist_1, reference=True)
         hist_plot.draw_vlines(
-            vlines_xvalues=[1, 2, 3],
-            vlines_label_list=["One", "Two", "Three"],
+            xs=[1, 2, 3],
+            labels=["One", "Two", "Three"],
         )
         hist_plot.draw()
 
@@ -451,7 +451,7 @@ class HistogramPlotTestCase(unittest.TestCase):
         )
         hist_plot.add(self.hist_1, reference=True)
         hist_plot.draw_vlines(
-            vlines_xvalues=[1, 2, 3],
+            xs=[1, 2, 3],
             same_height=True,
         )
         hist_plot.draw()
@@ -482,8 +482,8 @@ class HistogramPlotTestCase(unittest.TestCase):
         )
         hist_plot.add(self.hist_1, reference=True)
         hist_plot.draw_vlines(
-            vlines_xvalues=[1, 2, 3],
-            vlines_line_height_list=[0.7, 0.6, 0.5],
+            xs=[1, 2, 3],
+            ys=[0.7, 0.6, 0.5],
         )
         hist_plot.draw()
 
@@ -629,7 +629,7 @@ class HistogramPlotTestCase(unittest.TestCase):
         plotname = "test_flavoured_labels.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
-        hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
         self.assertIsNone(
             compare_images(
                 f"{self.actual_plots_dir}/{plotname}",

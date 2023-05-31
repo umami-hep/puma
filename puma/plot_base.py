@@ -345,66 +345,61 @@ class PlotBase(PlotObject):
 
     def draw_vlines(
         self,
-        vlines_xvalues: list,
-        vlines_label_list: list = None,
-        vlines_line_height_list: list = None,
+        xs: list,
+        labels: list = None,
+        ys: list = None,
         same_height: bool = False,
         colour: str = "#000000",
+        linestyle: str = "dashed",
         fontsize: int = 10,
     ):
         """Drawing working points in plot.
 
         Parameters
         ----------
-        vlines_xvalues : list
+        xs : list
             List of working points x values to draw
-        vlines_label_list : list, optional
+        labels : list, optional
             List with labels for the vertical lines. Must be the same
-            order as the vlines_xvalues. If None, the xvalues * 100 will be
+            order as the xs. If None, the xvalues * 100 will be
             used as labels. By default None
-        vlines_line_height_list : list, optional
+        ys : list, optional
             List with the y height of the vertical lines in percent of the
             upper plot (0 is bottom, 1 is top). Must be the same
-            order as the vlines_xvalues and the labels. By default None
+            order as the xs and the labels. By default None
         same_height : bool, optional
             Working point lines on same height, by default False
         colour : str, optional
             Colour of the vertical line, by default "#000000" (black)
+        linestyle : str, optional
+            Linestyle of the vertical line, by default "dashed"
         fontsize : int, optional
             Fontsize of the vertical line text. By default 10.
         """
-        for vline_counter, vline in enumerate(vlines_xvalues):
+        for i, vline_x in enumerate(xs):
             # Set y-point of the WP lines/text
-            if vlines_line_height_list is None:
-                ytext = 0.65 if same_height else 0.65 - vline_counter * 0.07
-
-            else:
-                ytext = vlines_line_height_list[vline_counter]
+            ytext = (0.65 if same_height else 0.65 - i * 0.07) if ys is None else ys[i]
 
             self.axis_top.axvline(
-                x=vline,
+                x=vline_x,
                 ymax=ytext,
                 color=colour,
-                linestyle="dashed",
+                linestyle=linestyle,
                 linewidth=1.0,
             )
 
             # Set the number above the line
             self.axis_top.text(
-                x=vline - 0.005,
+                x=vline_x - 0.005,
                 y=ytext + 0.005,
-                s=(
-                    f"{int(vline * 100)}%"
-                    if vlines_label_list is None
-                    else f"{vlines_label_list[vline_counter]}"
-                ),
+                s=labels[i] if labels else None,
                 transform=self.axis_top.get_xaxis_text1_transform(0)[0],
                 fontsize=fontsize,
             )
 
             for ratio_axis in self.ratio_axes:
                 ratio_axis.axvline(
-                    x=vline, color=colour, linestyle="dashed", linewidth=1.0
+                    x=vline_x, color=colour, linestyle=linestyle, linewidth=1.0
                 )
 
     def set_title(self, title: str = None, **kwargs):

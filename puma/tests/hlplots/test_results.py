@@ -91,6 +91,41 @@ class ResultsPlotsTestCase(unittest.TestCase):
         if not Path(path).resolve().is_file():
             raise AssertionError(f"File does not exist: {path}")
 
+    def test_plot_probs_bjets(self):
+        """Test that png file is being created."""
+        self.dummy_tagger_1.reference = True
+        self.dummy_tagger_1.f_c = 0.05
+        with tempfile.TemporaryDirectory() as tmp_file:
+            results = Results(signal="bjets", sample="test", output_dir=tmp_file)
+            results.add(self.dummy_tagger_1)
+            results.plot_probs()
+            self.assertIsFile(results.get_filename("probs_bjets"))
+            self.assertIsFile(results.get_filename("probs_cjets"))
+            self.assertIsFile(results.get_filename("probs_ujets"))
+            self.assertIsFile(results.get_filename("probs_pb"))
+            self.assertIsFile(results.get_filename("probs_pc"))
+            self.assertIsFile(results.get_filename("probs_pu"))
+
+    def test_plot_discs_bjets(self):
+        """Test that png file is being created."""
+        self.dummy_tagger_1.reference = True
+        self.dummy_tagger_1.f_c = 0.05
+        with tempfile.TemporaryDirectory() as tmp_file:
+            results = Results(signal="bjets", sample="test", output_dir=tmp_file)
+            results.add(self.dummy_tagger_1)
+            results.plot_discs()
+            self.assertIsFile(results.get_filename("disc"))
+
+    def test_plot_discs_cjets(self):
+        """Test that png file is being created."""
+        self.dummy_tagger_1.reference = True
+        self.dummy_tagger_1.f_b = 0.05
+        with tempfile.TemporaryDirectory() as tmp_file:
+            results = Results(signal="cjets", sample="test", output_dir=tmp_file)
+            results.add(self.dummy_tagger_1)
+            results.plot_discs(wp_vlines=[60])
+            self.assertIsFile(results.get_filename("disc"))
+
     def test_plot_roc_bjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
@@ -152,26 +187,6 @@ class ResultsPlotsTestCase(unittest.TestCase):
             self.assertIsFile(Path(tmp_file) / "test_cjets_profile_fixed_cjets_eff.png")
             self.assertIsFile(Path(tmp_file) / "test_cjets_profile_fixed_bjets_rej.png")
             self.assertIsFile(Path(tmp_file) / "test_cjets_profile_fixed_ujets_rej.png")
-
-    def test_plot_discs_bjets(self):
-        """Test that png file is being created."""
-        self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.f_c = 0.05
-        with tempfile.TemporaryDirectory() as tmp_file:
-            results = Results(signal="bjets", sample="test", output_dir=tmp_file)
-            results.add(self.dummy_tagger_1)
-            results.plot_discs()
-            self.assertIsFile(results.get_filename("disc"))
-
-    def test_plot_discs_cjets(self):
-        """Test that png file is being created."""
-        self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.f_b = 0.05
-        with tempfile.TemporaryDirectory() as tmp_file:
-            results = Results(signal="cjets", sample="test", output_dir=tmp_file)
-            results.add(self.dummy_tagger_1)
-            results.plot_discs()
-            self.assertIsFile(results.get_filename("disc"))
 
     def test_plot_fraction_scans_hbb_error(self):
         """Test that correct error is raised."""
