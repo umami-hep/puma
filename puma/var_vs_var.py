@@ -411,4 +411,4 @@ class VarVsVarPlot(PlotBase):
         self.make_legend(plt_handles, ax_mpl=self.axis_top)
         self.plotting_done = True
         if self.apply_atlas_style is True:
-            self.atlasify(use_tag=self.use_atlas_tag)
+            self.atlasify()
