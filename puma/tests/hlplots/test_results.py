@@ -123,7 +123,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="cjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
-            results.plot_discs()
+            results.plot_discs(wp_vlines=[60])
             self.assertIsFile(results.get_filename("disc"))
 
     def test_plot_roc_bjets(self):
