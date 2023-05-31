@@ -397,7 +397,7 @@ class HistogramPlotTestCase(unittest.TestCase):
         plotname = "test_draw_vlines_histogram.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
-        hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
         self.assertIsNone(
             compare_images(
                 f"{self.actual_plots_dir}/{plotname}",
@@ -428,7 +428,7 @@ class HistogramPlotTestCase(unittest.TestCase):
         plotname = "test_draw_vlines_histogram_custom_labels.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
-        hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
         self.assertIsNone(
             compare_images(
                 f"{self.actual_plots_dir}/{plotname}",
@@ -459,7 +459,7 @@ class HistogramPlotTestCase(unittest.TestCase):
         plotname = "test_draw_vlines_histogram_same_height.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
-        hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
         self.assertIsNone(
             compare_images(
                 f"{self.actual_plots_dir}/{plotname}",
@@ -490,7 +490,7 @@ class HistogramPlotTestCase(unittest.TestCase):
         plotname = "test_draw_vlines_histogram_custom_yheight.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
-        hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
         self.assertIsNone(
             compare_images(
                 f"{self.actual_plots_dir}/{plotname}",
@@ -629,7 +629,7 @@ class HistogramPlotTestCase(unittest.TestCase):
         plotname = "test_flavoured_labels.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
-        hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
         self.assertIsNone(
             compare_images(
                 f"{self.actual_plots_dir}/{plotname}",
