@@ -582,7 +582,7 @@ class PlotBase(PlotObject):
             **kwargs,
         )
 
-    def atlasify(self, use_tag: bool = True, force: bool = False):
+    def atlasify(self, force: bool = False):
         """Apply ATLAS style to all axes using the atlasify package.
 
         Parameters
@@ -603,7 +603,7 @@ class PlotBase(PlotObject):
 
         if self.apply_atlas_style or force:
             logger.debug("Initialise ATLAS style using atlasify.")
-            if use_tag is True:
+            if self.use_atlas_tag is True:
                 # TODO: for some reason, pylint complains about the used arguments
                 # when calling atlasify ("unexpected-keyword-arg") error
                 # --> fix this
