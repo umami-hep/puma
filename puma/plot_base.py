@@ -587,9 +587,6 @@ class PlotBase(PlotObject):
 
         Parameters
         ----------
-        use_tag : bool, optional
-            If False, ATLAS style will be applied but no tag will be put on the plot.
-            If True, the tag will be put on as well, by default True
         force : bool, optional
             Force ATLAS style also if class variable is False, by default False
         """

@@ -562,7 +562,7 @@ class RocPlot(PlotBase):
 
         self.plotting_done = True
         if self.apply_atlas_style is True:
-            self.atlasify(use_tag=self.use_atlas_tag)
+            self.atlasify()
             # atlasify can only handle one legend. Therefore, we remove the frame of
             # the second legend by hand
             if self.legend_flavs is not None:
