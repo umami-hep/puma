@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+### [v0.2.6] (2023/06/01)
+
 - Fixing issue in use_atlas_tag [!184](https://github.com/umami-hep/puma/pull/184)
 - Add probability plots to HLAPI and support WP vlines [!183](https://github.com/umami-hep/puma/pull/183)
 
