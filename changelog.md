@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+- Adding Data/MC Plots capabilities to the histogram classes [!187](https://github.com/umami-hep/puma/pull/187) 
+
 ### [v0.2.6] (2023/06/01)
 
 - Fixing issue in use_atlas_tag [!184](https://github.com/umami-hep/puma/pull/184)
