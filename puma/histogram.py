@@ -422,6 +422,7 @@ class HistogramPlot(PlotBase):
         self.stacked_dict = {
             "x": [],
             "weights": [],
+            "color": [],
             "band": None,
             "unc": None,
         }
@@ -458,11 +459,25 @@ class HistogramPlot(PlotBase):
                     markersize=elem.markersize,
                 )
 
+                plt_handles.append(
+                    mpl.lines.Line2D(
+                        [],
+                        [],
+                        color=elem.colour,
+                        label=elem.label,
+                        alpha=elem.alpha,
+                        linewidth=elem.linewidth,
+                        linestyle=elem.linestyle,
+                        marker=elem.marker,
+                    )
+                )
+
             else:
                 # If stacking is true, append all needed vars to the dict
                 if self.stacked:
                     self.stacked_dict["x"].append(bins[:-1])
                     self.stacked_dict["weights"].append(elem.hist)
+                    self.stacked_dict["color"].append(elem.colour)
 
                     if self.stacked_dict["band"] is None:
                         self.stacked_dict["band"] = elem.band
@@ -475,6 +490,15 @@ class HistogramPlot(PlotBase):
 
                     else:
                         self.stacked_dict["unc"] += elem.unc
+
+                    # Add the element to the legend with a "bar"
+                    plt_handles.append(
+                        mpl.patches.Patch(
+                            color=elem.colour,
+                            label=elem.label,
+                            alpha=elem.alpha,
+                        )
+                    )
 
                 else:
                     # Plot histogram
@@ -501,24 +525,26 @@ class HistogramPlot(PlotBase):
                             **global_config["hist_err_style"],
                         )
 
-            plt_handles.append(
-                mpl.lines.Line2D(
-                    [],
-                    [],
-                    color=elem.colour,
-                    label=elem.label,
-                    alpha=elem.alpha,
-                    linewidth=elem.linewidth,
-                    linestyle=elem.linestyle,
-                    marker=elem.marker,
-                )
-            )
+                    # Add standard "Line" to legend
+                    plt_handles.append(
+                        mpl.lines.Line2D(
+                            [],
+                            [],
+                            color=elem.colour,
+                            label=elem.label,
+                            alpha=elem.alpha,
+                            linewidth=elem.linewidth,
+                            linestyle=elem.linestyle,
+                            marker=elem.marker,
+                        )
+                    )
 
         if self.stacked:
             self.axis_top.hist(
                 x=self.stacked_dict["x"],
                 bins=bins,
                 weights=self.stacked_dict["weights"],
+                color=self.stacked_dict["color"],
                 histtype=self.histtype,
                 alpha=elem.alpha,
                 linewidth=elem.linewidth,
