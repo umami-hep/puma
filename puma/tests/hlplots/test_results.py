@@ -205,7 +205,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
-            results.plot_fraction_scans(rej=False)
+            results.plot_fraction_scans(rej=False, optimal_fc=True)
             self.assertIsFile(results.get_filename("fraction_scan"))
 
     def test_plot_fraction_scans_cjets_rej(self):
@@ -215,5 +215,5 @@ class ResultsPlotsTestCase(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="cjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
-            results.plot_fraction_scans(rej=True)
+            results.plot_fraction_scans(rej=True, optimal_fc=True)
             self.assertIsFile(results.get_filename("fraction_scan"))
