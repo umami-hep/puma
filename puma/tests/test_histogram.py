@@ -121,6 +121,12 @@ class HistogramPlotTestCase(unittest.TestCase):
         self.hist_2 = Histogram(
             np.random.normal(size=2 * n_random), label=f"N={2*n_random:_}"
         )
+        self.data_hist = Histogram(
+            np.random.normal(size=3 * n_random),
+            label=f"Toy Data, N={3*n_random:_}",
+            is_data=True,
+            colour="k",
+        )
 
         # Set up directories for comparison plots
         self.tmp_dir = tempfile.TemporaryDirectory()
@@ -194,6 +200,39 @@ class HistogramPlotTestCase(unittest.TestCase):
         hist_plot.add_bin_width_to_ylabel()
 
         plotname = "test_histogram_custom_range.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        # Uncomment line below to update expected image
+        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname}",
+                f"{self.expected_plots_dir}/{plotname}",
+                tol=1,
+            )
+        )
+
+    def test_data_mc(self):
+        """Check if data mc looks good"""
+        hist_plot = HistogramPlot(
+            bins=20,
+            bins_range=[-2, 2],
+            atlas_brand="",
+            atlas_first_tag="Simulation, $\\sqrt{s}=13$ TeV",
+            atlas_second_tag="Second tag with additional\ndistance from first tag",
+            figsize=(5, 4),
+            ylabel="Number of jets",
+            n_ratio_panels=1,
+            atlas_second_tag_distance=0.3,
+            stacked=True,
+            norm=False,
+        )
+        hist_plot.add(self.hist_1)
+        hist_plot.add(self.hist_2)
+        hist_plot.add(self.data_hist)
+        hist_plot.draw()
+        hist_plot.add_bin_width_to_ylabel()
+
+        plotname = "test_histogram_data_mc.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
         # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")

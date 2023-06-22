@@ -26,6 +26,7 @@ class Histogram(PlotLineObject):
         flavour: str | Flavour = None,
         add_flavour_label: bool = True,
         histtype: str = "step",
+        is_data: bool = False,
         **kwargs,
     ) -> None:
         """Initialise properties of histogram curve object.
@@ -56,6 +57,9 @@ class Histogram(PlotLineObject):
             `histtype` parameter which is handed to matplotlib.hist() when plotting the
             histograms. Supported values are "bar", "barstacked", "step", "stepfilled".
             By default "step"
+        is_data : bool, optional
+            Decide, if the plot object will be treated as data (black dots,
+            no stacking), by default False
         **kwargs : kwargs
             Keyword arguments passed to `puma.plot_base.PlotLineObject`
 
@@ -86,6 +90,7 @@ class Histogram(PlotLineObject):
         self.flavour = Flavours[flavour] if isinstance(flavour, str) else flavour
         self.add_flavour_label = add_flavour_label
         self.histtype = histtype
+        self.is_data = is_data
 
         # Set histogram attributes to None. They will be defined when the histograms
         # are plotted
@@ -169,6 +174,41 @@ class Histogram(PlotLineObject):
 
         return (ratio, ratio_unc)
 
+    def divide_data_mc(
+        self,
+        ref_hist: np.ndarray,
+        ref_unc: np.ndarray,
+    ) -> tuple:
+        """
+        Similar as divide, but the second item doesn't need to be a histogram object
+
+        Parameters
+        ----------
+        ref_hist : np.ndarray
+            Hist weights of the reference.
+        ref_unc : np.ndarray
+            Uncertainties of the reference
+
+        Returns
+        -------
+        tuple
+            Tuple of the ratios and ratio uncertaintes for the bins
+        """
+        # Bins where the reference histogram is empty/zero, are given a ratio of np.inf
+        # which means that the ratio plot will not have any entry in these bins.
+        ratio, ratio_unc = hist_ratio(
+            numerator=self.hist,
+            denominator=ref_hist,
+            numerator_unc=self.unc,
+            denominator_unc=ref_unc,
+            step=False,
+        )
+        # To use the matplotlib.step() function later on, the first bin is duplicated
+        ratio = np.append(np.array([ratio[0]]), ratio)
+        ratio_unc = np.append(np.array([ratio_unc[0]]), ratio_unc)
+
+        return (ratio, ratio_unc)
+
 
 class HistogramPlot(PlotBase):
     """Histogram plot class."""
@@ -183,6 +223,8 @@ class HistogramPlot(PlotBase):
         bin_width_in_ylabel: bool = False,
         underoverflow: bool = False,
         grid: bool = False,
+        stacked: bool = False,
+        histtype: str = "bar",
         **kwargs,
     ) -> None:
         """histogram plot properties.
@@ -215,7 +257,12 @@ class HistogramPlot(PlotBase):
         underoverflow : bool, optional
             Option to include under- and overflow values in outermost bins.
         grid : bool, optional
-            Set the grid for the plots.
+            Set the grid for the plots, by default False
+        stacked : bool, optional
+            Decide, if all histograms (which are not data) are stacked, by default False
+        histtype : str, optional
+            If stacked is used, define the type of histogram you would like to have,
+            default is "bar"
         **kwargs : kwargs
             Keyword arguments from `puma.PlotObject`
 
@@ -234,10 +281,17 @@ class HistogramPlot(PlotBase):
         self.bin_width_in_ylabel = bin_width_in_ylabel
         self.norm = norm
         self.underoverflow = underoverflow
+        self.stacked = stacked
+        self.histtype = histtype
         self.plot_objects = {}
         self.add_order = []
         self.ratios_objects = {}
         self.reference_object = None
+
+        if self.norm is True and self.stacked is True:
+            raise ValueError(
+                "Stacked plots and normalised plots at the same time are not available."
+            )
 
         if self.n_ratio_panels > 1:
             raise ValueError("Not more than one ratio panel supported.")
@@ -272,7 +326,16 @@ class HistogramPlot(PlotBase):
 
         # Set linestyle
         if histogram.linestyle is None:
-            histogram.linestyle = "-"
+            if histogram.is_data is True:
+                histogram.linestyle = ""
+            else:
+                histogram.linestyle = "-"
+        # Set marker
+        if histogram.marker is None:
+            if histogram.is_data is True:
+                histogram.marker = "."
+            else:
+                histogram.marker = ""
         # Set colours
         if histogram.colour is None:
             histogram.colour = get_good_colours()[len(self.plot_objects)]
@@ -282,6 +345,9 @@ class HistogramPlot(PlotBase):
         # Set linewidth
         if histogram.linewidth is None:
             histogram.linewidth = 1.6
+        # Set markersize
+        if histogram.markersize is None:
+            histogram.markersize = 10
 
         self.plot_objects[key] = histogram
         self.add_order.append(key)
@@ -351,6 +417,16 @@ class HistogramPlot(PlotBase):
 
         # Loop over all plot objects and plot them
         bins = self.bins
+
+        # Stacked dict for the stacked histogram
+        self.stacked_dict = {
+            "x": [],
+            "weights": [],
+            "color": [],
+            "band": None,
+            "unc": None,
+        }
+
         for key in self.add_order:
             elem = self.plot_objects[key]
 
@@ -367,43 +443,129 @@ class HistogramPlot(PlotBase):
                 # bins are recalculated for the discrete values
                 bins = self.get_discrete_values(elem)
 
-            # Plot histogram
-            self.axis_top.hist(
-                x=bins[:-1],
-                bins=bins,
-                weights=elem.hist,
-                histtype=elem.histtype,
-                color=elem.colour,
-                label=elem.label,
-                alpha=elem.alpha,
-                linewidth=elem.linewidth,
-                linestyle=elem.linestyle,
-                **kwargs,
-            )
-
-            # Plot histogram uncertainty
-            if self.draw_errors:
-                self.axis_top.hist(
-                    x=bins[:-1],
-                    bins=bins,
-                    bottom=elem.band,
-                    weights=elem.unc * 2,
-                    **global_config["hist_err_style"],
-                )
-
-            plt_handles.append(
-                mpl.lines.Line2D(
-                    [],
-                    [],
+            # Check if the histogram is data
+            if elem.is_data is True:
+                # Plot data
+                self.axis_top.errorbar(
+                    x=(bins[:-1] + bins[1:]) / 2,
+                    y=elem.hist,
+                    yerr=elem.unc if self.draw_errors else 0,
                     color=elem.colour,
                     label=elem.label,
                     alpha=elem.alpha,
                     linewidth=elem.linewidth,
                     linestyle=elem.linestyle,
+                    marker=elem.marker,
+                    markersize=elem.markersize,
                 )
+
+                plt_handles.append(
+                    mpl.lines.Line2D(
+                        [],
+                        [],
+                        color=elem.colour,
+                        label=elem.label,
+                        alpha=elem.alpha,
+                        linewidth=elem.linewidth,
+                        linestyle=elem.linestyle,
+                        marker=elem.marker,
+                    )
+                )
+
+            else:
+                # If stacking is true, append all needed vars to the dict
+                if self.stacked:
+                    self.stacked_dict["x"].append(bins[:-1])
+                    self.stacked_dict["weights"].append(elem.hist)
+                    self.stacked_dict["color"].append(elem.colour)
+
+                    if self.stacked_dict["band"] is None:
+                        self.stacked_dict["band"] = elem.band
+
+                    else:
+                        self.stacked_dict["band"] += elem.band
+
+                    if self.stacked_dict["unc"] is None:
+                        self.stacked_dict["unc"] = elem.unc
+
+                    else:
+                        self.stacked_dict["unc"] += elem.unc
+
+                    # Add the element to the legend with a "bar"
+                    plt_handles.append(
+                        mpl.patches.Patch(
+                            color=elem.colour,
+                            label=elem.label,
+                            alpha=elem.alpha,
+                        )
+                    )
+
+                else:
+                    # Plot histogram
+                    self.axis_top.hist(
+                        x=bins[:-1],
+                        bins=bins,
+                        weights=elem.hist,
+                        histtype=elem.histtype,
+                        color=elem.colour,
+                        label=elem.label,
+                        alpha=elem.alpha,
+                        linewidth=elem.linewidth,
+                        linestyle=elem.linestyle,
+                        **kwargs,
+                    )
+
+                    # Plot histogram uncertainty
+                    if self.draw_errors:
+                        self.axis_top.hist(
+                            x=bins[:-1],
+                            bins=bins,
+                            bottom=elem.band,
+                            weights=elem.unc * 2,
+                            **global_config["hist_err_style"],
+                        )
+
+                    # Add standard "Line" to legend
+                    plt_handles.append(
+                        mpl.lines.Line2D(
+                            [],
+                            [],
+                            color=elem.colour,
+                            label=elem.label,
+                            alpha=elem.alpha,
+                            linewidth=elem.linewidth,
+                            linestyle=elem.linestyle,
+                            marker=elem.marker,
+                        )
+                    )
+
+        if self.stacked:
+            self.axis_top.hist(
+                x=self.stacked_dict["x"],
+                bins=bins,
+                weights=self.stacked_dict["weights"],
+                color=self.stacked_dict["color"],
+                histtype=self.histtype,
+                alpha=elem.alpha,
+                linewidth=elem.linewidth,
+                linestyle=elem.linestyle,
+                stacked=self.stacked,
+                **kwargs,
             )
 
+        # Check if errors should be drawn
         if self.draw_errors:
+            # If stacked is true, plot the combined uncertainty
+            if self.stacked:
+                self.axis_top.hist(
+                    x=bins[:-1],
+                    bins=bins,
+                    bottom=self.stacked_dict["band"],
+                    weights=self.stacked_dict["unc"] * 2,
+                    **global_config["hist_err_style"],
+                )
+
+            # Add label handle for the uncertainty
             plt_handles.append(
                 mpl.patches.Patch(
                     label="stat. uncertainty", **global_config["hist_err_style"]
@@ -528,10 +690,10 @@ class HistogramPlot(PlotBase):
         ValueError
             If no reference histogram is defined
         """
-        if self.reference_object is None:
-            raise ValueError("Please specify a reference curve.")
-
+        # Check if this is a stacked plot
+        # Plot ratio only between data and the stacked histos
         for key in self.add_order:
+            # Get the object which is to be plotted
             elem = self.plot_objects[key]
 
             if elem.bin_edges is None:
@@ -541,32 +703,72 @@ class HistogramPlot(PlotBase):
                     "plot_ratios() is called."
                 )
 
-            ratio, ratio_unc = elem.divide(self.get_reference_histo(elem))
+            # Check if this is going to be Data/MC (Data/stacked plot)
+            if self.stacked:
+                # Check this is data
+                if not elem.is_data:
+                    continue
 
-            ratio_unc_band_low = np.nan_to_num(ratio - ratio_unc, nan=0, posinf=0)
-            ratio_unc_band_high = np.nan_to_num(ratio + ratio_unc, nan=0, posinf=0)
+                ratio, ratio_unc = elem.divide_data_mc(
+                    ref_hist=self.stacked_dict["band"],
+                    ref_unc=self.stacked_dict["unc"],
+                )
+
+            else:
+                if self.reference_object is None:
+                    raise ValueError("Please specify a reference curve.")
+
+                ratio, ratio_unc = elem.divide(self.get_reference_histo(elem))
 
             # Plot the ratio values with the step function
-            self.ratio_axes[0].step(
-                x=elem.bin_edges,
-                y=ratio,
-                color=elem.colour,
-                linewidth=elem.linewidth,
-                linestyle=elem.linestyle,
-            )
+            if self.stacked:
+                if elem.is_data is True:
+                    self.ratio_axes[0].errorbar(
+                        x=(elem.bin_edges[:-1] + elem.bin_edges[1:]) / 2,
+                        y=ratio[1:],
+                        yerr=ratio_unc[1:] if self.draw_errors else 0,
+                        color=elem.colour,
+                        label=elem.label,
+                        alpha=elem.alpha,
+                        linewidth=elem.linewidth,
+                        linestyle=elem.linestyle,
+                        marker=elem.marker,
+                        markersize=elem.markersize,
+                    )
 
-            # Plot the ratio uncertainty
-            if self.draw_errors:
-                self.ratio_axes[0].fill_between(
+            else:
+                self.ratio_axes[0].step(
                     x=elem.bin_edges,
-                    y1=ratio_unc_band_low,
-                    y2=ratio_unc_band_high,
-                    step="pre",
-                    facecolor="none",
-                    edgecolor=global_config["hist_err_style"]["edgecolor"],
-                    linewidth=global_config["hist_err_style"]["linewidth"],
-                    hatch=global_config["hist_err_style"]["hatch"],
+                    y=ratio,
+                    color=elem.colour,
+                    linewidth=elem.linewidth,
+                    linestyle=elem.linestyle,
                 )
+
+                # Plot the ratio uncertainty
+                if self.draw_errors:
+                    self.ratio_axes[0].fill_between(
+                        x=elem.bin_edges,
+                        y1=np.nan_to_num(ratio - ratio_unc, nan=0, posinf=0),
+                        y2=np.nan_to_num(ratio + ratio_unc, nan=0, posinf=0),
+                        step="pre",
+                        facecolor="none",
+                        edgecolor=global_config["hist_err_style"]["edgecolor"],
+                        linewidth=global_config["hist_err_style"]["linewidth"],
+                        hatch=global_config["hist_err_style"]["hatch"],
+                    )
+
+        if self.stacked and self.draw_errors:
+            self.ratio_axes[0].fill_between(
+                x=elem.bin_edges,
+                y1=np.nan_to_num((ratio - ratio_unc) / ratio, nan=0, posinf=0),
+                y2=np.nan_to_num((ratio + ratio_unc) / ratio, nan=0, posinf=0),
+                step="pre",
+                facecolor="none",
+                edgecolor=global_config["hist_err_style"]["edgecolor"],
+                linewidth=global_config["hist_err_style"]["linewidth"],
+                hatch=global_config["hist_err_style"]["hatch"],
+            )
 
     def add_bin_width_to_ylabel(self):
         """Adds the bin width to the ylabel of a histogram plot. If the bin with is
