@@ -14,6 +14,16 @@ from puma.utils.logging import logger, set_log_level
 
 
 def get_hist_error_style_dict():
+    """
+    Return the histogram error style dict. This is needed
+    to define the style of the error bars around in the
+    histograms
+
+    Returns
+    -------
+    dict
+        Histogram error style dict
+    """
     return {
         "fill": False,
         "linewidth": 0,
