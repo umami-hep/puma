@@ -13,6 +13,25 @@ from puma.utils.generate import get_dummy_2_taggers, get_dummy_multiclass_scores
 from puma.utils.logging import logger, set_log_level
 
 
+def get_hist_error_style_dict():
+    """
+    Return the histogram error style dict. This is needed
+    to define the style of the error bars around in the
+    histograms
+
+    Returns
+    -------
+    dict
+        Histogram error style dict
+    """
+    return {
+        "fill": False,
+        "linewidth": 0,
+        "hatch": "/////",
+        "edgecolor": "#666666",
+    }
+
+
 def set_xaxis_ticklabels_invisible(ax):
     """Helper function to set the ticklabels of the xaxis invisible
 
@@ -222,104 +241,3 @@ def get_good_linestyles(names=None):
             "Invalid type of `names`, has to be a list of strings or a sting."
         )
     return [linestyle_tuples[name] for name in names]
-
-
-# TODO: remove flavour_categories once not used in ummai
-global_config = {
-    "flavour_categories": {
-        "bjets": {
-            "colour": "#1f77b4",  # blue
-            "legend_label": "$b$-jets",
-        },
-        "cjets": {
-            "colour": "#ff7f0e",  # orange
-            "legend_label": "$c$-jets",
-        },
-        "ujets": {
-            "colour": "#2ca02c",  # green
-            "legend_label": "Light-jets",
-        },
-        "taujets": {
-            "colour": "#7c5295",  # purple
-            "legend_label": "$\\tau$-jets",
-        },
-        "singlebjets": {
-            "colour": "#1f77b4",  # blue (like b-jets)
-            "legend_label": "single-$b$ jets",
-        },
-        "bbjets": {
-            "colour": "#8E0024",  # dark red
-            "legend_label": "$bb$-jets",
-        },
-        "singlecjets": {
-            "colour": "#ff7f0e",  # orange (like c-jets)
-            "legend_label": "single-$c$ jets",
-        },
-        "ccjets": {
-            "colour": "#ad4305",
-            "legend_label": "$cc$-jets",
-        },
-        "upjets": {
-            "colour": "#9ed670",
-            "legend_label": "$u$-jets",
-        },
-        "djets": {
-            "colour": "#274e13",
-            "legend_label": "$d$-jets",
-        },
-        "sjets": {
-            "colour": "#00bfaf",
-            "legend_label": "$s$-jets",
-        },
-        "gluonjets": {
-            "colour": "#7b4e24",
-            "legend_label": "gluon-jets",
-        },
-        "lquarkjets": {
-            "colour": "#A05252",
-            "legend_label": "light-fl. jets w/o gluons",
-        },
-        "hadrcbjets": {
-            "colour": "#264653",
-            "legend_label": "hadronic $b$-hadron decay",
-        },
-        "lepcbjets": {
-            "colour": "#190099",
-            "legend_label": "leptonic $b$-hadron decay",
-        },
-        "singleebdecay": {
-            "colour": "#e9c46a",
-            "legend_label": "$e$'s in $b$- or $c$-hadron decay",
-        },
-        "singlemubdecay": {
-            "colour": "#f4a261",
-            "legend_label": "$\\mu$'s in $b$- or $c$-hadron decay",
-        },
-        "singletaubdecay": {
-            "colour": "#e76f51",
-            "legend_label": "$\\tau$'s in $b$- or $c$-hadron decay",
-        },
-        "Hbb": {
-            "colour": "#1f77b4",  # blue
-            "legend_label": "$Hbb$-jets",
-        },
-        "Hcc": {
-            "colour": "#B45F06",  # Tenne (dark orange)
-            "legend_label": "$Hcc$-jets",
-        },
-        "top": {
-            "colour": "#A300A3",  # dark magenta
-            "legend_label": "$Top$-jets",
-        },
-        "QCD": {
-            "colour": "#38761D",  # Bilbao (dark green)
-            "legend_label": "QCD-jets",
-        },
-    },
-    "hist_err_style": {
-        "fill": False,
-        "linewidth": 0,
-        "hatch": "/////",
-        "edgecolor": "#666666",
-    },
-}
