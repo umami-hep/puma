@@ -8,7 +8,7 @@ import pandas as pd
 from ftag import Flavour, Flavours
 
 from puma.plot_base import PlotBase, PlotLineObject
-from puma.utils import get_good_colours, global_config, logger
+from puma.utils import get_good_colours, get_hist_error_style_dict, logger
 from puma.utils.histogram import hist_ratio, hist_w_unc
 
 
@@ -522,7 +522,7 @@ class HistogramPlot(PlotBase):
                             bins=bins,
                             bottom=elem.band,
                             weights=elem.unc * 2,
-                            **global_config["hist_err_style"],
+                            **get_hist_error_style_dict(),
                         )
 
                     # Add standard "Line" to legend
@@ -562,13 +562,14 @@ class HistogramPlot(PlotBase):
                     bins=bins,
                     bottom=self.stacked_dict["band"],
                     weights=self.stacked_dict["unc"] * 2,
-                    **global_config["hist_err_style"],
+                    **get_hist_error_style_dict(),
                 )
 
             # Add label handle for the uncertainty
             plt_handles.append(
                 mpl.patches.Patch(
-                    label="stat. uncertainty", **global_config["hist_err_style"]
+                    label="stat. uncertainty",
+                    **get_hist_error_style_dict(),
                 )
             )
 
@@ -753,9 +754,9 @@ class HistogramPlot(PlotBase):
                         y2=np.nan_to_num(ratio + ratio_unc, nan=0, posinf=0),
                         step="pre",
                         facecolor="none",
-                        edgecolor=global_config["hist_err_style"]["edgecolor"],
-                        linewidth=global_config["hist_err_style"]["linewidth"],
-                        hatch=global_config["hist_err_style"]["hatch"],
+                        edgecolor=get_hist_error_style_dict()["edgecolor"],
+                        linewidth=get_hist_error_style_dict()["linewidth"],
+                        hatch=get_hist_error_style_dict()["hatch"],
                     )
 
         if self.stacked and self.draw_errors:
@@ -765,9 +766,9 @@ class HistogramPlot(PlotBase):
                 y2=np.nan_to_num((ratio + ratio_unc) / ratio, nan=0, posinf=0),
                 step="pre",
                 facecolor="none",
-                edgecolor=global_config["hist_err_style"]["edgecolor"],
-                linewidth=global_config["hist_err_style"]["linewidth"],
-                hatch=global_config["hist_err_style"]["hatch"],
+                edgecolor=get_hist_error_style_dict()["edgecolor"],
+                linewidth=get_hist_error_style_dict()["linewidth"],
+                hatch=get_hist_error_style_dict()["hatch"],
             )
 
     def add_bin_width_to_ylabel(self):
