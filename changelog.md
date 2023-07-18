@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+### [v0.2.7] (2023/07/17)
+
 - Updating ATLAS-FTAG-Tools package [!190](https://github.com/umami-hep/puma/pull/190)
 - Adding Data/MC Plots capabilities to the histogram classes [!187](https://github.com/umami-hep/puma/pull/187) 
 
