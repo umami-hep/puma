@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 """Unit test script for the functions in hlplots/tagger.py."""
-
+import os
 import tempfile
 import unittest
 from pathlib import Path
 
 import numpy as np
 from ftag import get_mock_file
+from matplotlib.testing.compare import compare_images
 
 from puma.hlplots import Results
 from puma.hlplots.tagger import Tagger
@@ -205,8 +206,19 @@ class ResultsPlotsTestCase(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
-            results.plot_fraction_scans(rej=False)
-            self.assertIsFile(results.get_filename("fraction_scan"))
+            results.plot_fraction_scans(rej=False, optimal_fc=True)
+            self.assertEqual(
+                None,
+                compare_images(
+                    os.path.join(
+                        os.path.dirname(__file__),
+                        "..",
+                        "expected_plots/test_bjets_fraction_scan.png",
+                    ),
+                    results.get_filename("fraction_scan"),
+                    tol=5,
+                ),
+            )
 
     def test_plot_fraction_scans_cjets_rej(self):
         """Test that png file is being created."""
@@ -215,5 +227,16 @@ class ResultsPlotsTestCase(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="cjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
-            results.plot_fraction_scans(rej=True)
-            self.assertIsFile(results.get_filename("fraction_scan"))
+            results.plot_fraction_scans(rej=True, optimal_fc=True)
+            self.assertEqual(
+                None,
+                compare_images(
+                    os.path.join(
+                        os.path.dirname(__file__),
+                        "..",
+                        "expected_plots/test_cjets_fraction_scan.png",
+                    ),
+                    results.get_filename("fraction_scan"),
+                    tol=5,
+                ),
+            )

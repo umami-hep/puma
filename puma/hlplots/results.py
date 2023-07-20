@@ -498,7 +498,11 @@ class Results:
             plot_bkg[i].savefig(self.get_filename(plot_base, plot_suffix))
 
     def plot_fraction_scans(
-        self, suffix: str = None, efficiency: float = 0.7, rej: bool = False
+        self,
+        suffix: str = None,
+        efficiency: float = 0.7,
+        rej: bool = False,
+        optimal_fc: bool = False,
     ):
         """Produce fraction scan (fc/fb) iso-efficiency plots.
 
@@ -510,6 +514,8 @@ class Results:
             signal efficiency, by default 0.7
         rej : bool, optional
             if True, plot rejection instead of efficiency, by default False
+        optimal_fc : bool, optional
+            if True, plot optimal fc/fb, by default False
         """
         if self.signal not in (Flavours.bjets, Flavours.cjets):
             raise ValueError("Signal flavour must be bjets or cjets")
@@ -519,17 +525,16 @@ class Results:
         fxs = fraction_scan.get_fx_values()
         plot = Line2DPlot(atlas_second_tag=self.atlas_second_tag)
         eff_or_rej = calc_eff if not rej else calc_rej
-
         for tagger in self.taggers.values():
-            xs = []
-            ys = []
-            for fx in fxs:
-                sig_idx = tagger.is_flav(self.signal)
+            xs = np.zeros(len(fxs))
+            ys = np.zeros(len(fxs))
+            sig_idx = tagger.is_flav(self.signal)
+            bkg_1_idx = tagger.is_flav(self.backgrounds[0])
+            bkg_2_idx = tagger.is_flav(self.backgrounds[1])
+            for i, fx in enumerate(fxs):
                 disc = tagger.discriminant(self.signal, fx=fx)
-                bkg_idx = tagger.is_flav(self.backgrounds[0])
-                xs.append(eff_or_rej(disc[sig_idx], disc[bkg_idx], efficiency))
-                bkg_idx = tagger.is_flav(self.backgrounds[1])
-                ys.append(eff_or_rej(disc[sig_idx], disc[bkg_idx], efficiency))
+                xs[i] = eff_or_rej(disc[sig_idx], disc[bkg_1_idx], efficiency)
+                ys[i] = eff_or_rej(disc[sig_idx], disc[bkg_2_idx], efficiency)
 
             # add curve for this tagger
             tagger_fx = tagger.f_c if self.signal == Flavours.bjets else tagger.f_b
@@ -555,7 +560,21 @@ class Results:
                 ),
                 is_marker=True,
             )
-
+            if optimal_fc:
+                opt_idx, opt_fc = fraction_scan.get_optimal_fc(
+                    np.stack((xs, ys), axis=1), fc_space=fxs, rej=rej
+                )
+                plot.add(
+                    Line2D(
+                        x_values=xs[opt_idx],
+                        y_values=ys[opt_idx],
+                        marker="+",
+                        markersize=15,
+                        markeredgewidth=1,
+                        label=f"Optimal $f_x={opt_fc:.2f}$",
+                    ),
+                    is_marker=True,
+                )
             # Adding labels
             if not rej:
                 plot.xlabel = self.backgrounds[0].eff_str
