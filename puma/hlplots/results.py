@@ -523,7 +523,9 @@ class Results:
             raise ValueError("Only two background flavours are supported")
 
         fxs = fraction_scan.get_fx_values()
-        plot = Line2DPlot(atlas_second_tag=self.atlas_second_tag)
+        tag = self.atlas_second_tag + "\n" if self.atlas_second_tag else ""
+        tag += f"{self.signal.eff_str} = {efficiency:.0%}"
+        plot = Line2DPlot(atlas_second_tag=tag)
         eff_or_rej = calc_eff if not rej else calc_rej
         for tagger in self.taggers.values():
             xs = np.zeros(len(fxs))
@@ -568,7 +570,7 @@ class Results:
                     Line2D(
                         x_values=xs[opt_idx],
                         y_values=ys[opt_idx],
-                        marker="+",
+                        marker="x",
                         markersize=15,
                         markeredgewidth=1,
                         label=f"Optimal $f_x={opt_fc:.2f}$",
