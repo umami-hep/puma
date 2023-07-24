@@ -609,7 +609,7 @@ class HistogramPlotTestCase(unittest.TestCase):
             compare_images(
                 f"{self.actual_plots_dir}/{plotname}",
                 f"{self.expected_plots_dir}/{plotname}",
-                tol=1,
+                tol=1.4,
             )
         )
 

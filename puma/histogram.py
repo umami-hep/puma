@@ -8,7 +8,7 @@ import pandas as pd
 from ftag import Flavour, Flavours
 
 from puma.plot_base import PlotBase, PlotLineObject
-from puma.utils import get_good_colours, get_hist_error_style_dict, logger
+from puma.utils import get_good_colours, logger
 from puma.utils.histogram import hist_ratio, hist_w_unc
 
 
@@ -517,12 +517,18 @@ class HistogramPlot(PlotBase):
 
                     # Plot histogram uncertainty
                     if self.draw_errors:
-                        self.axis_top.hist(
-                            x=bins[:-1],
-                            bins=bins,
-                            bottom=elem.band,
-                            weights=elem.unc * 2,
-                            **get_hist_error_style_dict(),
+                        bottom_error = np.array([elem.band[0], *elem.band.tolist()])
+                        top_error = elem.band + 2 * elem.unc
+                        top_error = np.array([top_error[0], *top_error.tolist()])
+                        self.axis_top.fill_between(
+                            x=elem.bin_edges,
+                            y1=bottom_error,
+                            y2=top_error,
+                            color=elem.colour,
+                            alpha=0.3,
+                            zorder=1,
+                            step="pre",
+                            edgecolor="none",
                         )
 
                     # Add standard "Line" to legend
@@ -554,23 +560,21 @@ class HistogramPlot(PlotBase):
             )
 
         # Check if errors should be drawn
-        if self.draw_errors:
-            # If stacked is true, plot the combined uncertainty
-            if self.stacked:
-                self.axis_top.hist(
-                    x=bins[:-1],
-                    bins=bins,
-                    bottom=self.stacked_dict["band"],
-                    weights=self.stacked_dict["unc"] * 2,
-                    **get_hist_error_style_dict(),
-                )
-
-            # Add label handle for the uncertainty
-            plt_handles.append(
-                mpl.patches.Patch(
-                    label="stat. uncertainty",
-                    **get_hist_error_style_dict(),
-                )
+        # If stacked is true, plot the combined uncertainty
+        if self.draw_errors and self.stacked:
+            bottom_error = self.stacked_dict["band"]
+            bottom_error = np.array([bottom_error[0], *bottom_error.tolist()])
+            top_error = self.stacked_dict["band"] + 2 * self.stacked_dict["unc"]
+            top_error = np.array([top_error[0], *top_error.tolist()])
+            self.axis_top.fill_between(
+                x=elem.bin_edges,
+                y1=bottom_error,
+                y2=top_error,
+                color=elem.colour,
+                alpha=0.3,
+                zorder=1,
+                step="pre",
+                edgecolor="none",
             )
 
         if self.discrete_vals is not None:
@@ -752,11 +756,11 @@ class HistogramPlot(PlotBase):
                         x=elem.bin_edges,
                         y1=np.nan_to_num(ratio - ratio_unc, nan=0, posinf=0),
                         y2=np.nan_to_num(ratio + ratio_unc, nan=0, posinf=0),
+                        color=elem.colour,
+                        alpha=0.3,
+                        zorder=1,
                         step="pre",
-                        facecolor="none",
-                        edgecolor=get_hist_error_style_dict()["edgecolor"],
-                        linewidth=get_hist_error_style_dict()["linewidth"],
-                        hatch=get_hist_error_style_dict()["hatch"],
+                        edgecolor="none",
                     )
 
         if self.stacked and self.draw_errors:
@@ -764,11 +768,11 @@ class HistogramPlot(PlotBase):
                 x=elem.bin_edges,
                 y1=np.nan_to_num((ratio - ratio_unc) / ratio, nan=0, posinf=0),
                 y2=np.nan_to_num((ratio + ratio_unc) / ratio, nan=0, posinf=0),
+                color=elem.colour,
+                alpha=0.3,
+                zorder=1,
                 step="pre",
-                facecolor="none",
-                edgecolor=get_hist_error_style_dict()["edgecolor"],
-                linewidth=get_hist_error_style_dict()["linewidth"],
-                hatch=get_hist_error_style_dict()["hatch"],
+                edgecolor="none",
             )
 
     def add_bin_width_to_ylabel(self):
