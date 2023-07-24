@@ -2,6 +2,9 @@
 
 ### [Latest]
 
+- Add efficiency string to fc plots [!193](https://github.com/umami-hep/puma/pull/193)
+- Add option to deterime optimal fc [!188](https://github.com/umami-hep/puma/pull/188)
+
 ### [v0.2.7] (2023/07/17)
 
 - Updating ATLAS-FTAG-Tools package [!190](https://github.com/umami-hep/puma/pull/190)
