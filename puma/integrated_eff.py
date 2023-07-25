@@ -71,7 +71,6 @@ class IntegratedEfficiencyPlot(PlotBase):
             Keyword arguments from `puma.PlotObject`
         """
         super().__init__(grid=grid, **kwargs)
-        self.test = ""
         self.int_effs = {}
         self.tagger_ls = {}
         self.label_colours = {}
