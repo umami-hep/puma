@@ -99,6 +99,13 @@ class IntegratedEfficiencyPlotTestCase(unittest.TestCase):
             ),
         }
 
+    def test_duplicate_key(self):
+        """Test duplicate key."""
+        plot = IntegratedEfficiencyPlot()
+        plot.add(self.dips_int_effs["b"], key=1)
+        with self.assertRaises(KeyError):
+            plot.add(self.dips_int_effs["c"], key=1)
+
     def test_output_one_tagger(self):
         """Test with one tagger."""
         plot = IntegratedEfficiencyPlot(grid=True)
