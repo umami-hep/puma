@@ -31,6 +31,10 @@ class IntegratedEfficiency(PlotLineObject):
             Discriminant values for background
         key : str
             Identifier for IntegratedEfficiency e.g. tagger, by default None
+        n_vals : int, optional
+            Number of values to calculate the efficiency at, by default 500
+        tagger : str, optional
+            Tagger name, by default None
         **kwargs : kwargs
             Keyword arguments passed to `puma.PlotLineObject`
 
@@ -91,6 +95,8 @@ class IntegratedEfficiencyPlot(PlotBase):
         ----------
         int_effs : puma.IntegratedEfficiency
             IntegratedEfficiency curve
+        key : str, optional
+            Unique identifier for IntegratedEfficiency curve, by default None
         Raises
         ------
         KeyError
