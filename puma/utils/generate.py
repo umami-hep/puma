@@ -46,7 +46,7 @@ def get_dummy_multiclass_scores(
         rng.normal(loc=[0, 0, bjets_mean], scale=2, size=(size_class, 3)), axis=1
     )
     output = np.concatenate((ujets, cjets, bjets))
-    output = u2s(output, dtype=[("ujets", "f4"), ("cjets", "f4"), ("bjets", "f4")])
+    output = u2s(output, dtype=np.dtype([("ujets", "f4"), ("cjets", "f4"), ("bjets", "f4")]))
     labels = np.concatenate(
         (np.zeros(size_class), np.ones(size_class) * 4, np.ones(size_class) * 5)
     )
