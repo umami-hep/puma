@@ -217,7 +217,13 @@ class RocPlot(PlotBase):
         self.legend_flavs = None
         self.leg_rej_loc = "lower left"
 
-    def add_roc(self, roc_curve: object, key: str = None, reference: bool = False, reference_key: str = None):
+    def add_roc(
+        self,
+        roc_curve: object,
+        key: str = None,
+        reference: bool = False,
+        reference_key: str = None
+    ):
         """Adding puma.Roc object to figure.
 
         Parameters
@@ -292,9 +298,7 @@ class RocPlot(PlotBase):
             self.set_roc_reference(key, roc_curve.rej_class)
 
         if reference_key:
-            logger.debug(
-                "Setting roc %s as reference for %s", reference_key, key
-            )
+            logger.debug("Setting roc %s as reference for %s", reference_key, key)
             roc_curve.reference_roc_key = reference_key
 
     def set_roc_reference(self, key: str, rej_class: Flavour):
@@ -407,6 +411,7 @@ class RocPlot(PlotBase):
         for key, elem in self.rocs.items():
             if elem.rej_class != rej_class:
                 continue
+
             if self.reference_roc:
                 ratio_sig_eff, ratio, ratio_err = elem.divide(
                     self.rocs[self.reference_roc[rej_class]]
@@ -416,9 +421,8 @@ class RocPlot(PlotBase):
                     self.rocs[elem.reference_roc_key]
                 )
             else:
-                ratio_sig_eff, ratio, ratio_err = elem.divide(
-                    elem
-                )
+                ratio_sig_eff, ratio, ratio_err = elem.divide(elem)
+
             self.roc_ratios[key] = (ratio_sig_eff, ratio, ratio_err)
             axis.plot(
                 ratio_sig_eff,
