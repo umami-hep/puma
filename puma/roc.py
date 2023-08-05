@@ -222,7 +222,7 @@ class RocPlot(PlotBase):
         roc_curve: object,
         key: str = None,
         reference: bool = False,
-        reference_key: str = None
+        reference_key: str = None,
     ):
         """Adding puma.Roc object to figure.
 
