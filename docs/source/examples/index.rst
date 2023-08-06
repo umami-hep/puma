@@ -10,6 +10,7 @@ can be used as a starting point for your plotting scripts.
    dummy_data.md
    histograms.md
    rocs.md
+   int_eff.md
    var_vs_eff.md
    fraction_scan.md
    pie_charts.md
