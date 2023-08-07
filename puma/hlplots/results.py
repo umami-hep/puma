@@ -584,7 +584,6 @@ class Results:
             else:
                 plot.xlabel = self.backgrounds[0].rej_str
                 plot.ylabel = self.backgrounds[1].rej_str
-
-            # Draw and save the plot
-            plot.draw()
-            plot.savefig(self.get_filename("fraction_scan", suffix))
+        # Draw and save the plot
+        plot.draw()
+        plot.savefig(self.get_filename("fraction_scan", suffix))
