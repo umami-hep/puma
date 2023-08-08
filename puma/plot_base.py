@@ -319,7 +319,7 @@ class PlotBase(PlotObject):
             ratio_height = 1.2
             height = top_height + self.n_ratio_panels * ratio_height
             figsize = (width, height) if self.figsize is None else self.figsize
-            self.fig = Figure(figsize=figsize, layout="constrained")
+            self.fig = Figure(figsize=figsize, constrained_layout=True)
 
             if self.n_ratio_panels == 0:
                 self.axis_top = self.fig.gca()
