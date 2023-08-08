@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import matplotlib as mpl
 import numpy as np
+from ftag import Flavour, Flavours
 
 from puma.metrics import calc_eff
 from puma.plot_base import PlotBase, PlotLineObject
@@ -19,6 +20,7 @@ class IntegratedEfficiency(PlotLineObject):
         key: str = None,
         n_vals: int = 500,
         tagger: str = None,
+        flavour: str | Flavour = None,
         **kwargs,
     ) -> None:
         """Initialise properties of IntegratedEfficiency object.
@@ -35,6 +37,8 @@ class IntegratedEfficiency(PlotLineObject):
             Number of values to calculate the efficiency at, by default 500
         tagger : str, optional
             Tagger name, by default None
+        flavour : str or Flavour, optional
+            Flavour of the jets, by default None
         **kwargs : kwargs
             Keyword arguments passed to `puma.PlotLineObject`
 
@@ -49,6 +53,9 @@ class IntegratedEfficiency(PlotLineObject):
         self.n_vals = n_vals
         self.tagger = tagger
         self.key = key
+        self.flavour = Flavours[flavour] if isinstance(flavour, str) else flavour
+        if self.label is None and self.flavour is not None:
+            self.label = self.flavour.label
         self._calc_profile()
 
     def _calc_profile(self):
@@ -134,11 +141,14 @@ class IntegratedEfficiencyPlot(PlotBase):
 
         # set colours
         if int_eff.label not in self.label_colours:
-            self.label_colours[int_eff.label] = (
-                get_good_colours()[len(self.label_colours)]
-                if int_eff.colour is None
-                else int_eff.colour
-            )
+            if int_eff.flavour is not None:
+                self.label_colours[int_eff.label] = int_eff.flavour.colour
+            else:
+                curr_colours = set(self.label_colours.values())
+                possible_colours = set(get_good_colours()) - curr_colours
+                self.label_colours[int_eff.label] = (
+                    possible_colours.pop() if int_eff.colour is None else int_eff.colour
+                )
         elif (
             int_eff.colour != self.label_colours[int_eff.label]
             and int_eff.colour is not None

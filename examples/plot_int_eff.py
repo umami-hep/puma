@@ -77,32 +77,32 @@ plot = IntegratedEfficiencyPlot(
 )
 plot.add(
     IntegratedEfficiency(
-        rnnip["sig_disc"], rnnip["bkg_disc_b"], label="b-jets", tagger="RRNIP"
+        rnnip["sig_disc"], rnnip["bkg_disc_b"], flavour="bjets", tagger="RRNIP"
     )
 )
 plot.add(
     IntegratedEfficiency(
-        rnnip["sig_disc"], rnnip["bkg_disc_c"], label="c-jets", tagger="RRNIP"
+        rnnip["sig_disc"], rnnip["bkg_disc_c"], flavour="cjets", tagger="RRNIP"
     )
 )
 plot.add(
     IntegratedEfficiency(
-        rnnip["sig_disc"], rnnip["bkg_disc_l"], label="light-jets", tagger="RRNIP"
+        rnnip["sig_disc"], rnnip["bkg_disc_l"], flavour="ujets", tagger="RRNIP"
     )
 )
 plot.add(
     IntegratedEfficiency(
-        dips["sig_disc"], dips["bkg_disc_b"], label="b-jets", tagger="DIPS"
+        dips["sig_disc"], dips["bkg_disc_b"], flavour="bjets", tagger="DIPS"
     )
 )
 plot.add(
     IntegratedEfficiency(
-        dips["sig_disc"], dips["bkg_disc_c"], label="c-jets", tagger="DIPS"
+        dips["sig_disc"], dips["bkg_disc_c"], flavour="cjets", tagger="DIPS"
     )
 )
 plot.add(
     IntegratedEfficiency(
-        dips["sig_disc"], dips["bkg_disc_l"], label="light-jets", tagger="DIPS"
+        dips["sig_disc"], dips["bkg_disc_l"], flavour="ujets", tagger="DIPS"
     )
 )
 

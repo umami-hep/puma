@@ -24,9 +24,16 @@ class IntegratedEfficiencyCase(unittest.TestCase):
         self.disc_sig = np.random.normal(0.7, 1, 100)
         self.disc_rej = np.random.normal(0.4, 1, 100)
 
-    def test_roc_init(self):
-        """Test roc init."""
+    def test_int_eff_init(self):
+        """Test init."""
         IntegratedEfficiency(self.disc_sig, self.disc_rej)
+
+    def test_add_label_flavour(self):
+        """Test both label and flavour"""
+        int_eff = IntegratedEfficiency(
+            self.disc_sig, self.disc_rej, label="b-jets", flavour="ujets"
+        )
+        self.assertEqual(int_eff.label, "b-jets")
 
 
 class IntegratedEfficiencyPlotTestCase(unittest.TestCase):
@@ -58,21 +65,21 @@ class IntegratedEfficiencyPlotTestCase(unittest.TestCase):
                 df["disc_dips"][is_light],
                 n_vals=200,
                 tagger="DIPS",
-                label="light-jets",
+                flavour="ujets",
             ),
             "c": IntegratedEfficiency(
                 df["disc_dips"][is_b],
                 df["disc_dips"][is_c],
                 n_vals=200,
                 tagger="DIPS",
-                label="c-jets",
+                flavour="cjets",
             ),
             "b": IntegratedEfficiency(
                 df["disc_dips"][is_b],
                 df["disc_dips"][is_b],
                 n_vals=200,
                 tagger="DIPS",
-                label="b-jets",
+                flavour="bjets",
             ),
         }
         self.rnnip_int_effs = {
@@ -81,21 +88,21 @@ class IntegratedEfficiencyPlotTestCase(unittest.TestCase):
                 df["disc_rnnip"][is_light],
                 n_vals=200,
                 tagger="RNNIP",
-                label="light-jets",
+                flavour="ujets",
             ),
             "c": IntegratedEfficiency(
                 df["disc_rnnip"][is_b],
                 df["disc_rnnip"][is_c],
                 n_vals=200,
                 tagger="RNNIP",
-                label="c-jets",
+                flavour="cjets",
             ),
             "b": IntegratedEfficiency(
                 df["disc_rnnip"][is_b],
                 df["disc_rnnip"][is_b],
                 n_vals=200,
                 tagger="RNNIP",
-                label="b-jets",
+                flavour="bjets",
             ),
         }
 
