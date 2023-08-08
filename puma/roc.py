@@ -234,6 +234,8 @@ class RocPlot(PlotBase):
             Unique identifier for roc_curve, by default None
         reference : bool, optional
             If roc is used as reference for ratio calculation, by default False
+        reference_key : str, optional
+            Identifier of the reference ROC curve for ratio calculation if the rejection class has no class-wide reference, by default None
 
         Raises
         ------
