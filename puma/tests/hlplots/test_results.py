@@ -216,7 +216,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
                         "expected_plots/test_bjets_fraction_scan.png",
                     ),
                     results.get_filename("fraction_scan"),
-                    tol=5,
+                    tol=1,
                 ),
             )
 
@@ -237,6 +237,6 @@ class ResultsPlotsTestCase(unittest.TestCase):
                         "expected_plots/test_cjets_fraction_scan.png",
                     ),
                     results.get_filename("fraction_scan"),
-                    tol=5,
+                    tol=1,
                 ),
             )
