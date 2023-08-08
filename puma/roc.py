@@ -23,6 +23,7 @@ class Roc(PlotLineObject):
         rej_class: str | Flavour = None,
         signal_class: str = None,
         key: str = None,
+        reference_roc_key: str = None,
         **kwargs,
     ) -> None:
         """Initialise properties of roc curve object.
@@ -65,6 +66,7 @@ class Roc(PlotLineObject):
             Flavours[rej_class] if isinstance(rej_class, str) else rej_class
         )
         self.key = key
+        self.reference_roc_key = reference_roc_key
 
     def binomial_error(self, norm: bool = False, n_test: int = None) -> np.ndarray:
         """Calculate binomial error of roc curve.
@@ -215,7 +217,13 @@ class RocPlot(PlotBase):
         self.legend_flavs = None
         self.leg_rej_loc = "lower left"
 
-    def add_roc(self, roc_curve: object, key: str = None, reference: bool = False):
+    def add_roc(
+        self,
+        roc_curve: object,
+        key: str = None,
+        reference: bool = False,
+        reference_key: str = None,
+    ):
         """Adding puma.Roc object to figure.
 
         Parameters
@@ -226,6 +234,9 @@ class RocPlot(PlotBase):
             Unique identifier for roc_curve, by default None
         reference : bool, optional
             If roc is used as reference for ratio calculation, by default False
+        reference_key : str, optional
+            Identifier of the reference ROC curve for ratio calculation if
+            the rejection class has no class-wide reference, by default None
 
         Raises
         ------
@@ -288,6 +299,10 @@ class RocPlot(PlotBase):
                 "Setting roc %s as reference for %s.", key, roc_curve.rej_class
             )
             self.set_roc_reference(key, roc_curve.rej_class)
+
+        if reference_key:
+            logger.debug("Setting roc %s as reference for %s", reference_key, key)
+            roc_curve.reference_roc_key = reference_key
 
     def set_roc_reference(self, key: str, rej_class: Flavour):
         """Setting the reference roc curves used in the ratios.
@@ -359,7 +374,7 @@ class RocPlot(PlotBase):
         ValueError
             If no ratio classes are set
         """
-        if len(self.reference_roc) != self.n_ratio_panels:
+        if self.reference_roc and len(self.reference_roc) != self.n_ratio_panels:
             raise ValueError(
                 f"{len(self.reference_roc)} reference rocs defined but requested "
                 f"{self.n_ratio_panels} ratio panels."
@@ -399,9 +414,18 @@ class RocPlot(PlotBase):
         for key, elem in self.rocs.items():
             if elem.rej_class != rej_class:
                 continue
-            ratio_sig_eff, ratio, ratio_err = elem.divide(
-                self.rocs[self.reference_roc[rej_class]]
-            )
+
+            if self.reference_roc:
+                ratio_sig_eff, ratio, ratio_err = elem.divide(
+                    self.rocs[self.reference_roc[rej_class]]
+                )
+            elif elem.reference_roc_key:
+                ratio_sig_eff, ratio, ratio_err = elem.divide(
+                    self.rocs[elem.reference_roc_key]
+                )
+            else:
+                ratio_sig_eff, ratio, ratio_err = elem.divide(elem)
+
             self.roc_ratios[key] = (ratio_sig_eff, ratio, ratio_err)
             axis.plot(
                 ratio_sig_eff,
