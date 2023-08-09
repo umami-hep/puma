@@ -3,6 +3,8 @@
 ### [Latest]
 
 - HL fraction scan plot bugfix [!201](https://github.com/umami-hep/puma/pull/201)
+- Support for custom ROC ratio reference [!200](https://github.com/umami-hep/puma/pull/200)
+- Fixes for older numpy version [!198](https://github.com/umami-hep/puma/pull/198), [!199](https://github.com/umami-hep/puma/pull/199)
 - Replace error hatching with filling for histograms [!194](https://github.com/umami-hep/puma/pull/194)
 - Add efficiency string to fc plots [!193](https://github.com/umami-hep/puma/pull/193)
 - Add option to deterime optimal fc [!188](https://github.com/umami-hep/puma/pull/188)
