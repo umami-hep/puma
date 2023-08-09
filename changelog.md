@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+### [v0.2.8] (2023/08/09)
+
 - HL fraction scan plot bugfix [!201](https://github.com/umami-hep/puma/pull/201)
 - Support for custom ROC ratio reference [!200](https://github.com/umami-hep/puma/pull/200)
 - Fixes for older numpy version [!198](https://github.com/umami-hep/puma/pull/198), [!199](https://github.com/umami-hep/puma/pull/199)
