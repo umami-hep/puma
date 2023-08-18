@@ -47,6 +47,11 @@ def select_configs(configs, plt_cfg):
                     if (c['sample'] == plt_cfg.sample
                     and c['args']['signal'] == plt_cfg.signal)]
 
+def get_plot_kwargs(plt_cfg, config, suffix=''):
+    plot_kwargs = config['args'].get('plot_kwargs', {})
+    plot_kwargs['suffix'] = plot_kwargs.get('suffix', '') + suffix
+    return plot_kwargs
+
 def make_fracscan_plots(plt_cfg):
 
     if not plt_cfg.fracscan_plots:
@@ -55,7 +60,6 @@ def make_fracscan_plots(plt_cfg):
     fracscan_plots = select_configs(plt_cfg.fracscan_plots, plt_cfg)
 
     for fracscan in fracscan_plots:
-        plot_kwargs = fracscan['args'].get('plot_kwargs', {})
         # Ideally, long term we'd introduce the ability to also plot tau rejection, in
         # which case we'd be selecting these backgrounds. However, for now they'll always
         # be [cjets, ujets] or [bjets, ujets]
@@ -79,8 +83,8 @@ def make_fracscan_plots(plt_cfg):
         eff_str = str(round(efficiency*100,3)).replace('.', 'p')
         back_str = '_'.join([f.name for f in backgrounds])
         suffix=f"_back_{back_str}_eff_{eff_str}_change_f_{frac_flav}"
-        plot_kwargs['suffix'] = plot_kwargs.get('suffix', '') + suffix
-
+        
+        plot_kwargs = get_plot_kwargs(plt_cfg, fracscan, suffix=suffix)
         # TODO - we have a 'frac flav' which can be used in cases where there are more
         # than 2 backgrounds, such as if we want to extend to tau-jets. It might also be
         # useful for making frac scan plots for X->bb
@@ -100,8 +104,12 @@ def make_roc_plots(plt_cfg):
     for roc in roc_config:
         
         x_range = roc['args'].get('x_range', [0.5, 1.0])
-
-        plot_kwargs = roc['args'].get('plot_kwargs', {})
+        if len(x_range) <= 1 or len(x_range) > 3:
+            raise ValueError(f"Invalid x_range {x_range}")
+        elif len(x_range) == 2:
+            x_range = [x_range[0], x_range[1], 20]
+        
+        plot_kwargs = get_plot_kwargs(plt_cfg, roc)
         plt_cfg.results.sig_eff = np.linspace(*x_range)
         plt_cfg.results.plot_rocs(**plot_kwargs)
 

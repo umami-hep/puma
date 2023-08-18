@@ -57,7 +57,8 @@ fracscan_plots:
       frac_flav: c
       efficiency: 0.70
       backgrounds: [cjets, ujets]
-
+      plot_kwargs:
+        figsize: [8.5, 7.5]
   # ----------------------
   # c-tagging zprime
   # ----------------------
@@ -68,6 +69,9 @@ fracscan_plots:
       frac_flav: b
       efficiency: 0.35
       backgrounds: [bjets, ujets]
+      plot_kwargs:
+        figsize: [8.5, 7.5]
+
 
   # # ----------------------
   # # b-tagging zprime
@@ -79,6 +83,8 @@ fracscan_plots:
       frac_flav: c
       efficiency: 0.35
       backgrounds: [cjets, ujets]
+      plot_kwargs:
+        figsize: [8.5, 7.5]
 
   # ----------------------
   # c-tagging zprime
@@ -90,4 +96,6 @@ fracscan_plots:
       frac_flav: b
       efficiency: 0.35
       backgrounds: [bjets, ujets]
+      plot_kwargs:
+        figsize: [8.5, 7.5]
   
