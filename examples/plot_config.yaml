@@ -1,0 +1,93 @@
+plot_dir: /home/xzcappon/phd/tools/puma/examples/plots
+
+samples:
+  ttbar:
+    sample: ttbar
+    latex: $t\overline{t}$
+    cuts: ["pt > 20000", "pt < 250000", "eta < 2.5", "eta > -2.5"]
+  zprime:
+    sample: zprime
+    latex: Z'
+    cuts: ["pt > 250000", "pt < 5000000",  "eta < 2.5", "eta > -2.5"]
+
+models:
+  - model_1
+  - model_2
+  - model_3
+
+denominator: model_1
+
+models_config: models.yaml
+
+
+roc_plots:
+    
+  - sample:
+      ttbar
+    args:
+      signal: bjets
+      x_range: [0.5, 1.0]
+
+  - sample:
+      ttbar
+    args:
+      signal: cjets
+      x_range: [0.2, 1.0]
+
+  - sample:
+      zprime
+    args:
+      signal: bjets
+      x_range: [0.2, 1.0]
+  - sample:
+      zprime
+    args:
+      signal: cjets
+      x_range: [0.1, 1.0]
+
+
+fracscan_plots:
+    # # ----------------------
+  # # b-tagging ttbar
+  # # ----------------------
+  - sample:
+      ttbar
+    args:
+      signal: bjets
+      frac_flav: c
+      efficiency: 0.70
+      backgrounds: [cjets, ujets]
+
+  # ----------------------
+  # c-tagging zprime
+  # ----------------------
+  - sample:
+      ttbar
+    args:
+      signal: cjets
+      frac_flav: b
+      efficiency: 0.35
+      backgrounds: [bjets, ujets]
+
+  # # ----------------------
+  # # b-tagging zprime
+  # # ----------------------
+  - sample:
+      zprime
+    args:
+      signal: bjets
+      frac_flav: c
+      efficiency: 0.35
+      backgrounds: [cjets, ujets]
+
+  # ----------------------
+  # c-tagging zprime
+  # ----------------------
+  - sample:
+      zprime
+    args:
+      signal: cjets
+      frac_flav: b
+      efficiency: 0.35
+      backgrounds: [bjets, ujets]
+  
