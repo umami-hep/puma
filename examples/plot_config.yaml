@@ -27,6 +27,17 @@ roc_plots:
     args:
       signal: bjets
       x_range: [0.5, 1.0]
+      plot_kwargs:
+        figsize: [8.5, 7.5]
+  - sample:
+      ttbar
+    args:
+      exclude_taggers:
+        - model_3
+      signal: bjets
+      x_range: [0.5, 1.0]
+      plot_kwargs:
+        figsize: [8.5, 7.5]
 
   - sample:
       ttbar
@@ -99,3 +110,33 @@ fracscan_plots:
       plot_kwargs:
         figsize: [8.5, 7.5]
   
+
+disc_plots:
+  - sample:
+      ttbar
+    args:
+      signal: bjets
+      plot_kwargs:
+        wp_vlines: [70, 77, 80]
+    
+  - sample:
+      zprime
+    args:
+      signal: bjets
+      plot_kwargs:
+        wp_vlines: [30, 35, 40]
+
+
+  - sample:
+      ttbar
+    args:
+      signal: cjets
+      plot_kwargs:
+        wp_vlines: [30, 35, 40]
+    
+  - sample:
+      zprime
+    args:
+      signal: cjets
+      plot_kwargs:
+        wp_vlines: [30, 35, 40]

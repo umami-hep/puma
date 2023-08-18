@@ -6,7 +6,7 @@ import numpy as np
 
 from ftag import Cuts, Flavour, Flavours
 
-from puma.yuma import ModelConfig, PlotConfig
+from puma.yuma import (PlotConfig, select_configs, get_plot_kwargs, get_included_taggers)
 from puma.utils import logger, set_log_level
 
 ALL_PLOTS=['roc', 'scan', 'disc', 'prob', 'peff']
@@ -42,15 +42,20 @@ def get_args():
     )
     return args.parse_args()
 
-def select_configs(configs, plt_cfg):
-    return   [c for c in configs 
-                    if (c['sample'] == plt_cfg.sample
-                    and c['args']['signal'] == plt_cfg.signal)]
 
-def get_plot_kwargs(plt_cfg, config, suffix=''):
-    plot_kwargs = config['args'].get('plot_kwargs', {})
-    plot_kwargs['suffix'] = plot_kwargs.get('suffix', '') + suffix
-    return plot_kwargs
+
+
+def make_disc_plots(plt_cfg):
+    if not plt_cfg.disc_plots:
+        logger.warning("No disc plots in config")
+        return
+    disc_plots = select_configs(plt_cfg.disc_plots, plt_cfg)
+
+    for disc in disc_plots:
+        plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(plt_cfg.results, disc)
+        plot_kwargs = get_plot_kwargs(plt_cfg, disc, suffix='_' + inc_str)
+        plt_cfg.results.plot_discs(**plot_kwargs)
+        plt_cfg.results.taggers = all_taggers
 
 def make_fracscan_plots(plt_cfg):
 
@@ -84,13 +89,15 @@ def make_fracscan_plots(plt_cfg):
         back_str = '_'.join([f.name for f in backgrounds])
         suffix=f"_back_{back_str}_eff_{eff_str}_change_f_{frac_flav}"
         
-        plot_kwargs = get_plot_kwargs(plt_cfg, fracscan, suffix=suffix)
+    
         # TODO - we have a 'frac flav' which can be used in cases where there are more
         # than 2 backgrounds, such as if we want to extend to tau-jets. It might also be
         # useful for making frac scan plots for X->bb
+        plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(plt_cfg.results, fracscan)
+        plot_kwargs = get_plot_kwargs(plt_cfg, fracscan, suffix=suffix+'_' + inc_str)
         plt_cfg.results.plot_fraction_scans(efficiency=efficiency, 
                                                                 **plot_kwargs)
-        
+        plt_cfg.results.taggers = all_taggers
         plt_cfg.results.backgrounds = tmp_backgrounds
 
 def make_roc_plots(plt_cfg):
@@ -108,10 +115,14 @@ def make_roc_plots(plt_cfg):
             raise ValueError(f"Invalid x_range {x_range}")
         elif len(x_range) == 2:
             x_range = [x_range[0], x_range[1], 20]
-        
-        plot_kwargs = get_plot_kwargs(plt_cfg, roc)
         plt_cfg.results.sig_eff = np.linspace(*x_range)
+
+        plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(plt_cfg.results, roc)
+        plot_kwargs = get_plot_kwargs(plt_cfg, roc, inc_str)
+
+        
         plt_cfg.results.plot_rocs(**plot_kwargs)
+        plt_cfg.results.taggers = all_taggers
 
 
 def make_plots(args, plt_cfg):
@@ -121,6 +132,9 @@ def make_plots(args, plt_cfg):
     
     if 'scan' in args.plots:
         make_fracscan_plots(plt_cfg)
+    
+    if 'disc' in args.plots:
+        make_disc_plots(plt_cfg)
 
 if __name__ == '__main__':
 

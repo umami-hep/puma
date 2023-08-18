@@ -28,7 +28,7 @@ class Tagger:
     output_nodes: list = field(
         default_factory=lambda: [Flavours.ujets, Flavours.cjets, Flavours.bjets]
     )
-
+    yaml_name: str = None
     disc_cut: float = None
     working_point: float = None
     f_c: float = None

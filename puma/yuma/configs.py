@@ -146,6 +146,7 @@ class ModelConfig:
             reference=plot_config.denominator==self.name,
             output_nodes =self.flavours,
             **self.style,
+            yaml_name=self.name,
         )
 
     @classmethod
@@ -182,7 +183,8 @@ class PlotConfig:
 
     roc_plots: dict[str, dict] = None
     fracscan_plots: dict[str, dict] = None
-
+    disc_plots: dict[str, dict] = None
+    
     signal: str = None
     sample: str = None
 
@@ -220,8 +222,8 @@ class PlotConfig:
 
         OP_INV = { '<' : '>', '>' : '<', '<=' : '>=', '>=' : '<='}
 
-        # Currently only for big two cuts... But, perhaps worth doing a general case, as we
-        # can never have more than 2 cuts on a variables? 
+        # maybe ott, but allows for ' 20 < pT < 250' and '|eta| <2.5' in the same cut string
+        # rather than   'pT < 250, pT > 20, eta > -2.5, eta < 2.5, ...'
         if len(pt_cuts := [cut for cut in sample_cuts if cut.variable == 'pt']) == 1:
             cut_str += f"$p_{{T}}$ {pt_cuts[0].operator} {int(pt_cuts[0].value/1000)} GeV   "
         elif len(pt_cuts) == 2:
