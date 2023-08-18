@@ -56,10 +56,13 @@ def make_fracscan_plots(plt_cfg):
 
     for fracscan in fracscan_plots:
         plot_kwargs = fracscan['args'].get('plot_kwargs', {})
+        # Ideally, long term we'd introduce the ability to also plot tau rejection, in
+        # which case we'd be selecting these backgrounds. However, for now they'll always
+        # be [cjets, ujets] or [bjets, ujets]
         backgrounds = [Flavours[k] for k in fracscan['args'].get('backgrounds', [])]
         if len(backgrounds) != 2:
             raise ValueError(f"Background must be a list of two flavours, got {backgrounds}")
-
+        
         tmp_backgrounds = plt_cfg.results.backgrounds
         plt_cfg.results.backgrounds = backgrounds
 
@@ -67,20 +70,22 @@ def make_fracscan_plots(plt_cfg):
         frac_flav = fracscan['args']['frac_flav']
         if frac_flav not in ['b', 'c']:
             raise ValueError(f"Unknown flavour {frac_flav}")
-        atlas_second_tag = plt_cfg.default_second_atlas_tag + f"\n $f_{frac_flav}$-tagging"
         info_str = (f"$f_{frac_flav}$ scan" 
                             if frac_flav != 'tau' 
                             else "$f_{\\tau}$ scan")
-        info_str += f" {round(efficiency*100)}% {plt_cfg.results.signal.label} WP"
-        plt_cfg.results.second_atlas_tag = atlas_second_tag + "\n" + info_str
+        # info_str += f" {round(efficiency*100)}% {plt_cfg.results.signal.label} WP"
+        plt_cfg.results.atlas_second_tag = plt_cfg.default_second_atlas_tag + "\n" + info_str
 
         eff_str = str(round(efficiency*100,3)).replace('.', 'p')
         back_str = '_'.join([f.name for f in backgrounds])
         suffix=f"_back_{back_str}_eff_{eff_str}_change_f_{frac_flav}"
         plot_kwargs['suffix'] = plot_kwargs.get('suffix', '') + suffix
 
+        # TODO - we have a 'frac flav' which can be used in cases where there are more
+        # than 2 backgrounds, such as if we want to extend to tau-jets. It might also be
+        # useful for making frac scan plots for X->bb
         plt_cfg.results.plot_fraction_scans(efficiency=efficiency, 
-                                                         **plot_kwargs)
+                                                                **plot_kwargs)
         
         plt_cfg.results.backgrounds = tmp_backgrounds
 
