@@ -346,7 +346,7 @@ class Results:
     def plot_rocs(
         self,
         suffix: str = None,
-        args_roc_plot: dict = None,
+        **kwargs,
     ):
         """Plots rocs.
 
@@ -366,8 +366,8 @@ class Results:
             "y_scale": 1.3,
         }
         # TODO: update in python 3.9
-        if args_roc_plot is not None:
-            roc_plot_args.update(args_roc_plot)
+        if kwargs is not None:
+            roc_plot_args.update(kwargs)
         plot_roc = RocPlot(**roc_plot_args)
 
         for tagger in self.taggers.values():
