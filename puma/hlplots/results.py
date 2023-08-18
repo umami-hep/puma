@@ -503,6 +503,7 @@ class Results:
         efficiency: float = 0.7,
         rej: bool = False,
         optimal_fc: bool = False,
+        **kwargs,
     ):
         """Produce fraction scan (fc/fb) iso-efficiency plots.
 
@@ -516,6 +517,7 @@ class Results:
             if True, plot rejection instead of efficiency, by default False
         optimal_fc : bool, optional
             if True, plot optimal fc/fb, by default False
+        **kwargs : kwargs for Line2DPlot
         """
         if self.signal not in (Flavours.bjets, Flavours.cjets):
             raise ValueError("Signal flavour must be bjets or cjets")
@@ -525,7 +527,7 @@ class Results:
         fxs = fraction_scan.get_fx_values()
         tag = self.atlas_second_tag + "\n" if self.atlas_second_tag else ""
         tag += f"{self.signal.eff_str} = {efficiency:.0%}"
-        plot = Line2DPlot(atlas_second_tag=tag)
+        plot = Line2DPlot(atlas_second_tag=tag, **kwargs)
         eff_or_rej = calc_eff if not rej else calc_rej
         for tagger in self.taggers.values():
             xs = np.zeros(len(fxs))
