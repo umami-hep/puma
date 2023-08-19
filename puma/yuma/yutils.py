@@ -1,6 +1,9 @@
 from puma.utils import logger
 
 def select_configs(configs, plt_cfg):
+    '''
+    Selects only configs that match the current sample and signal
+    '''
     return   [c for c in configs 
                     if (c['sample'] == plt_cfg.sample
                     and c['args']['signal'] == plt_cfg.signal)]

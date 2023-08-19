@@ -42,8 +42,69 @@ def get_args():
     )
     return args.parse_args()
 
+def group_eff_vs_var_by_var(sel_configs):
+    '''
+    Sorts eff vs var plots by the variable they plot, so that they can be plotted
+    together
+    '''
+    configs_var = []
+    for c in sel_configs:
+        configs_var.append(c['args'].get('peff_var', 'pt'))
+
+    grouped_configs = {var: [conf for conf in sel_configs if conf['args'].get('peff_var', 'pt') == var] for var in set(configs_var)}
+
+    return grouped_configs
+
+def make_eff_vs_var_plots(plt_cfg):
+
+    if not plt_cfg.eff_vs_var_plots:
+        logger.warning("No eff vs var plots in config")
+        return
+    
+    eff_vs_var_plots = select_configs(plt_cfg.eff_vs_var_plots, plt_cfg)
+
+    grouped_plots = group_eff_vs_var_by_var(eff_vs_var_plots)
+    # Always do pt first, as its whats already been loaded
+    if 'pt' in grouped_plots.keys():
+        for eff_vs_var in grouped_plots['pt']:
+            plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(plt_cfg.results, eff_vs_var)
+            plot_kwargs = get_plot_kwargs(plt_cfg, eff_vs_var, suffix='_' + inc_str + '_pt')
+            if not (bins := eff_vs_var['args'].get('bins', None)):    
+                if plt_cfg.sample == 'ttbar':
+                    bins = [20, 30, 40, 60, 85, 110, 140, 175, 250]
+                elif plt_cfg.sample == 'zprime':
+                    bins =[250, 500, 750, 1000, 1500, 2000, 3000, 4000, 5500]
+                else:
+                    raise ValueError(f"No bins provided, and no default pt bins for sample {plt_cfg.sample}")
+            plt_cfg.results.plot_var_perf(bins=bins, **plot_kwargs)
+            plt_cfg.results.taggers = all_taggers
+    for var, plots in grouped_plots.items():
+        if var == 'pt':
+            continue
+        plt_cfg.get_results(var)
+        for eff_vs_var in plots:
+            plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(plt_cfg.results, eff_vs_var)
+            plot_kwargs = get_plot_kwargs(plt_cfg, eff_vs_var, suffix='_' + inc_str + '_' + var)
+            if not (bins := eff_vs_var['args'].get('bins', None)):
+                raise ValueError("If using custom peff var, bins must be defined")
+            if not 'xlabel' in plot_kwargs:
+                logger.warning("No latex label provided for xaxis in peff plot, using raw string")
+                plot_kwargs['xlabel'] = var
+            plt_cfg.results.plot_var_perf(bins=bins, **plot_kwargs)
+            plt_cfg.results.taggers = all_taggers
 
 
+def make_prob_plots(plt_cfg):
+    if not plt_cfg.prob_plots:
+        logger.warning("No prob plots in config")
+        return
+    prob_plots = select_configs(plt_cfg.prob_plots, plt_cfg)
+
+    for prob in prob_plots:
+        plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(plt_cfg.results, prob)
+        plot_kwargs = get_plot_kwargs(plt_cfg, prob, suffix='_' + inc_str)
+        plt_cfg.results.plot_probs(**plot_kwargs)
+        plt_cfg.results.taggers = all_taggers
 
 def make_disc_plots(plt_cfg):
     if not plt_cfg.disc_plots:
@@ -135,7 +196,12 @@ def make_plots(args, plt_cfg):
     
     if 'disc' in args.plots:
         make_disc_plots(plt_cfg)
+    
+    if 'prob' in args.plots:
+        make_prob_plots(plt_cfg)
 
+    if 'peff' in args.plots:
+        make_eff_vs_var_plots(plt_cfg)
 if __name__ == '__main__':
 
     args = get_args()

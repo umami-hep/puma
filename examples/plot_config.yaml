@@ -1,4 +1,4 @@
-plot_dir: /home/xzcappon/phd/tools/puma/examples/plots
+plot_dir: /home/xzcappon/phd/tools/puma/examples/yuma_plots
 
 samples:
   ttbar:
@@ -56,7 +56,6 @@ roc_plots:
       signal: cjets
       x_range: [0.1, 1.0]
 
-
 fracscan_plots:
     # # ----------------------
   # # b-tagging ttbar
@@ -110,7 +109,6 @@ fracscan_plots:
       plot_kwargs:
         figsize: [8.5, 7.5]
   
-
 disc_plots:
   - sample:
       ttbar
@@ -140,3 +138,73 @@ disc_plots:
       signal: cjets
       plot_kwargs:
         wp_vlines: [30, 35, 40]
+
+prob_plots:
+  - sample:
+      ttbar 
+    args:
+      signal: bjets
+      include_taggers: [model_1, model_2]
+  
+  - sample:
+      zprime 
+    args:
+      signal: bjets
+      include_taggers: [model_1, model_2]
+
+eff_vs_var_plots:
+  - sample:
+      ttbar
+    args:
+      signal: bjets
+      plot_kwargs:
+        fixed_eff_bin: False
+        working_point: 0.7
+
+  - sample:
+      ttbar
+    args:
+      signal: bjets
+      plot_kwargs:
+        fixed_eff_bin: True
+        working_point: 0.7
+      
+  - sample:
+      ttbar
+    args:
+      signal: bjets
+      peff_var: eta
+      bins: [-2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5]
+      plot_kwargs:
+        fixed_eff_bin: True
+        working_point: 0.7
+              
+  - sample:
+      ttbar
+    args:
+      signal: bjets
+      peff_var: eta
+      bins: [-2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5]
+      plot_kwargs:
+        xlabel: $\eta$
+        fixed_eff_bin: False
+        working_point: 0.7
+    
+  - sample:
+      ttbar
+    args:
+      signal: bjets
+      peff_var: n_truth_promptLepton
+      bins: [-0.5, 0.5, 1.5, 2.5]
+      plot_kwargs:
+        fixed_eff_bin: False
+        working_point: 0.7
+  # - sample:
+  #     ttbar
+  #   args:
+  #     signal: bjets
+  #     peff_var: n_truth_promptLepton
+  #     bins: [-1, 1, 2.5]
+  #     plot_kwargs:
+  #       fixed_eff_bin: True
+  #       working_point: 0.7

@@ -184,7 +184,9 @@ class PlotConfig:
     roc_plots: dict[str, dict] = None
     fracscan_plots: dict[str, dict] = None
     disc_plots: dict[str, dict] = None
-    
+    prob_plots: dict[str, dict] = None
+    eff_vs_var_plots: dict[str, dict] = None
+
     signal: str = None
     sample: str = None
 
@@ -250,7 +252,7 @@ class PlotConfig:
                 cut_str += str(cut)
         return cut_str
     
-    def get_results(self):
+    def get_results(self, perf_var='pt'):
         '''Creates the high-level 'Results' object from the config file, using the previously
         set signal and sample. Iterates and loads all models in the config file, and adds them
         '''
@@ -263,7 +265,8 @@ class PlotConfig:
         results = Results(atlas_first_tag="Simulation Internal",
                             atlas_second_tag=self.default_second_atlas_tag,
                           signal=self.signal,
-                          sample=self.sample,)
+                          sample=self.sample,
+                          perf_var=perf_var)
         
         final_plot_dir = self.plot_dir_final / f"{self.signal}_tagging" / self.sample
         final_plot_dir.mkdir(parents=True, exist_ok=True)
