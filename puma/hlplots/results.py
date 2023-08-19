@@ -317,12 +317,15 @@ class Results:
                 continue
             discs = tagger.discriminant(self.signal)
 
+            wp_cuts, wp_labels = [], []
             # get working point
             for wp in wp_vlines:
                 cut = np.percentile(discs[tagger.is_flav(self.signal)], 100 - wp)
                 label = None if i > 0 else f"{wp}%"
-                histo.draw_vlines([cut], labels=[label], linestyle=line_styles[i])
+                wp_cuts.append(cut)
+                wp_labels.append(label)
 
+            histo.draw_vlines(wp_cuts, labels=wp_labels, linestyle=line_styles[i])
             for flav in self.flavours:
                 histo.add(
                     Histogram(
