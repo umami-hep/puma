@@ -17,7 +17,6 @@ models:
     f_b: 0.2
     style:
       label: 'mc23+mc20 isR3 on mc23'
-      colour: orange 
 
   model_2:
     source: salt
@@ -29,7 +28,6 @@ models:
     f_b: *default_fb
     style:
       label: 'mc23+mc20 on mc23'
-      colour: purple
 
   model_3:
     source: pretrained

@@ -11,9 +11,34 @@ from ftag import Cuts, Flavour, Flavours
 from puma.utils import get_good_colours, logger
 from puma.hlplots import Results, Tagger
 
+def fill_colours(colours, warn=True):
+    '''Fills in any colours which are missing with 'good' colours
+    colours should be an array like [red, None, green, None, None],
+    where all 'None' colours will be filled in with good colours.
+
+    Parameters:
+    -----------
+    colours : list[str]
+        List of colours, with None for any missing colours
+    warn : bool, optional
+        If true, will warn the user if there is a mix of defined colours, and None, as this
+        could result in multiple colours similar to each other
+    '''
+    if warn and (not all([c == None for c in colours]) or not all([c != None for c in colours])):
+        logger.warning("Mix of defined colours and None, this could result in multiple colours similar to each other")
+    good_colours = iter(get_good_colours())
+    for i, colour in enumerate(colours):
+        if colour is None:
+
+            colours[i] = next(good_colours)
+    return colours
+            
 @dataclass
 class DatasetConfig:
+
     pass
+
+
 @dataclass
 class VariablePlotConfig:
     pass
@@ -124,8 +149,7 @@ class ModelConfig:
 
     
         return self.eval_path
-    def _load_pretrained_model(self, plot_config : PlotConfig):
-        pass
+
     def load_model(self, plot_config : PlotConfig):
         
         if self.source == "salt":
@@ -136,7 +160,6 @@ class ModelConfig:
             if plot_config.sample not in self.sample_paths:
                 raise ValueError(f"Sample {plot_config.sample} not found in sample paths for model {self.name}")
             self.eval_path = self.sample_paths[plot_config.sample]
-            # return self._load_pretrained_model(sample)
         else:
             raise ValueError(f"Unknown source {self.source}, must be one of 'salt' or 'pretrained'")
         self.tagger = Tagger(
@@ -161,8 +184,11 @@ class ModelConfig:
         if models_to_get:
             models = {key : model for key, model in models.items() if key in models_to_get}
 
-        model_colours = [model.style.get("colour", "auto") for model in models.values()]
-        good_colours = iter(get_good_colours())
+        model_colours = [model.style.get("colour", None) for model in models.values()]
+        model_colours = fill_colours(model_colours)
+        for  (key, model), new_colour  in zip(models.items(), model_colours):
+            model.style["colour"] = model_colours.pop(0)
+
         # TODO auto assign good colours when we load...
         for key, model in models.items():
             if model.save_dir and not model.model_path.exists():
