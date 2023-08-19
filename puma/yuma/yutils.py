@@ -15,7 +15,7 @@ def get_include_exclude_str(include_taggers, all_taggers):
     if len(include_taggers)  == len(all_taggers):
         return ""
 
-    return  '_taggers_' + '_'.join([t.yaml_name for t in include_taggers.values()])
+    return  'taggers_' + '_'.join([t.yaml_name for t in include_taggers.values()])
 
 def get_included_taggers(results, plot_config):
 
