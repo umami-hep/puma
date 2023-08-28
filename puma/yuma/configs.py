@@ -1,15 +1,51 @@
 from __future__ import annotations
 from typing import Literal
+import dataclasses
 from dataclasses import dataclass
 from pathlib import Path
 import yaml
 from datetime import datetime
+from ftag.flavour import FlavourContainer
+from ftag import flavour
 
 import numpy as np
+import h5py 
 
 from ftag import Cuts, Flavour, Flavours
 from puma.utils import get_good_colours, logger
 from puma.hlplots import Results, Tagger
+
+# def get_model_output_path(model_dir, plot_epoch=None, ckpt_info=None, sample='ttbar'):
+
+#     ckpt_dir = Path(model_dir) / 'ckpts'
+#     eval_files = list(ckpt_dir.glob(f'*{sample}*.h5'))
+#     eval_files = [f for f in eval_files if sample in f.name]
+
+#     logger.debug(f"Found {len(eval_files)} eval files for {sample} in {ckpt_dir}")
+
+#     if len(eval_files) == 0:
+#         raise ValueError(f"No eval files found for {sample} in {ckpt_dir}")
+#     elif len(eval_files) == 1:
+#         return eval_files[0]
+#     if plot_epoch:
+#         # TODO - this is dependent on salt outputinng with zfill(5), which is not ideal, maybe regex...
+#         epoch_str = str(plot_epoch).zfill(5)
+#         eval_files = [f for f in eval_files if epoch_str in f.name]
+#         if len(eval_files) == 0:
+#             raise ValueError(f"No eval files found for {sample} in {ckpt_dir} at epoch {plot_epoch}")
+#         elif len(eval_files) == 1:
+#             return eval_files[0]
+#         logger.debug(f"Found {len(eval_files)} eval files for {sample} in {ckpt_dir} at epoch {plot_epoch}")
+
+#     if ckpt_info:
+#         eval_files = [f for f in eval_files if ckpt_info in f.name]
+#         if len(eval_files) == 0:
+#             raise ValueError(f"No eval files found for {sample} in {ckpt_dir} with ckpt_info {ckpt_info}")
+#         elif len(eval_files) == 1:
+#             return eval_files[0]
+        
+#         # logger.debug(f"Found {len(eval_files)} eval files for {sample} in {ckpt_dir} with ckpt_info {ckpt_info}")
+#         raise ValueError(f"Multiple eval files found for {sample} in {ckpt_dir} with ckpt_info {ckpt_info}")
 
 def fill_colours(colours, warn=True):
     '''Fills in any colours which are missing with 'good' colours
@@ -24,58 +60,186 @@ def fill_colours(colours, warn=True):
         If true, will warn the user if there is a mix of defined colours, and None, as this
         could result in multiple colours similar to each other
     '''
-    if warn and (not all([c == None for c in colours]) or not all([c != None for c in colours])):
+    if warn and not (all([c == None for c in colours]) or all([c != None for c in colours])):
+        logger.warning(all([c == None for c in colours]))
+        logger.warning(all([c != None for c in colours]))
         logger.warning("Mix of defined colours and None, this could result in multiple colours similar to each other")
     good_colours = iter(get_good_colours())
     for i, colour in enumerate(colours):
         if colour is None:
-
-            colours[i] = next(good_colours)
+            try:
+                c = next(good_colours)
+                while c in colours:
+                    c = next(good_colours)
+            except StopIteration:
+                raise ValueError(f"Ran out of good colours, need more than {len(colours)} colours")
+            colours[i] = c
     return colours
             
 @dataclass
 class DatasetConfig:
+    name: str
+    
+    path: dict[str, Path]
+    style: dict[str, dict[str, str]] = None
 
-    pass
+    def __post_init__(self):
+        self.path = {k : Path(v) for k, v in self.path.items()}
+        for path in self.path.values():
+            if not path.exists():
+                raise FileNotFoundError(f"For dataset {self.name}, sample path {path} does not exist")
+        if not self.style:
+            self.style = {'label' : self.name}
+    
+    @classmethod
+    def get_datasets(cls, path : Path, datasets_to_get: list[str] = None):
+        if not path.exists():
+            raise FileNotFoundError(f"Config at {path} does not exist")
+        with open(path, "r") as f:
+            config = yaml.safe_load(f)
+        # maybe just config.items() ??
+        logger.info("Loading datasets: ", config["datasets"])
+        datasets = {dataset_key : cls(name=dataset_key, **dataset) for dataset_key, dataset in config["datasets"].items() if dataset_key in datasets_to_get}
+
+        dataset_colours = [model.style.get("colour", None) for model in datasets.values()]
+        dataset_colours = fill_colours(dataset_colours)
+        for  (key, dataset), new_colour  in zip(datasets.items(), dataset_colours):
+            dataset.style["colour"] = new_colour
+
+        return datasets
+    
+    @property
+    def samples(self):
+        if isinstance(self.path, dict):
+            return list(self.path.keys())
+        else:
+            return None
+    
+    def __getitem__(self, sample):
+        if not sample in self.samples:
+            raise ValueError(f"Sample {sample} not found in dataset {self.name}, available samples are {self.samples}")
+        return self.path[sample]
+    
+    def load_sample(self, sample, cuts=None, keys=None, njets=None, flavours=None):
+        '''Loads all of a dataset sample into a dictionary, with keys being the group names.
+        '''
+        path = self[sample]
+        with h5py.File(path, "r") as f:
+            logger.info(f.keys())
+            logger.info(keys)
+            if keys:
+                data = {key : f[key] for key in keys}
+            else:
+                data = {key : f[key] for key in f.keys()}
+            if not njets:
+                njets = data[list(data.keys())[0]].shape[0]
+            # Load everything into numpy array
+            data = {key : np.array(data[key][:njets]) for key in data.keys()}
+        # apply cuts...
+        if cuts:
+            
+            jets = data['jets']
+            idx = cuts.idx(jets)
+            for key, d in data.items():
+                data[key] = d[idx]
+
+        if flavours:
+            jets = data['jets']
+
+            per_flav_idx = {f.name : f.cuts(jets).idx for f in flavours}
+            
+            for key, d in data.items():
+                per_flav = {f.name : d[per_flav_idx[f.name]] for f in flavours}
+                if 'valid' in d.dtype.names:
+                    logger.info(f"Selecting only valid {key}")
+                    for f in flavours:
+                        per_flav[f.name] = per_flav[f.name][per_flav[f.name]['valid']]
+                    
+                data[key] = per_flav
+        else:
+            # select only valid
+            for key in keys:
+                    
+                if 'valid' in data[key].dtype.names:
+                    logger.info(f"Selecting only valid {key}")
+                    data[key] = data[key][data[key]['valid']]
+        return data
+        
+        
+        
 
 
 @dataclass
 class VariablePlotConfig:
-    pass
+    config_path: Path
+    plot_dir: Path
+    plot_timestamp: bool
+    samples: dict[str, dict[str, str]]
+    datasets_config: Path
+    denominator: str
+    variables: dict[str, list[str]]
+    
+    plots : dict[str, dict[str, dict]] 
+
+    flavours: list[Flavour] = None
+    flavours_file: Path = None
+    num_jets: int = None
+    keys: list[str] = None
+
+    plot_dir_final: Path = None
+    sample: str = None
+    datasets: dict[str, DatasetConfig] = None
+    loaded_datasets: dict[str, dict[str, np.ndarray]] = None
+
+    def __post_init__(self):
+        self.plot_dir = Path(self.plot_dir)
+        self.datasets_config = Path(self.datasets_config)
+        if not self.flavours:
+            self.flavours = ["bjets", "cjets", "ujets"]
+
+        if self.flavours_file:
+            with open(self.flavours_file) as f:
+                flavours = yaml.safe_load(f)
+                # flavours_dict = 
+                Flavours = FlavourContainer({f["name"]: Flavour(cuts=Cuts.from_list(f.pop("cuts")), **f) for f in flavours})
+        else:
+            Flavours = flavour.Flavours
+        self.flavours = [Flavours[k] for k in self.flavours]
+        logger.info(f"KEYS: {self.keys}")
+        # if not self.keys:  
+        #     self.keys = ["jets"]
+        if self.plot_timestamp:
+            date_time_file = datetime.now().strftime("%Y%m%d_%H%M%S")
+            plot_dir_name = self.config_path.stem + "_" + date_time_file
+            self.plot_dir_final = Path(self.plot_dir) / plot_dir_name
+        else:
+            self.plot_dir_final = self.plot_dir / self.config_path.stem
+
+    @classmethod
+    def load_config(cls, path : Path):
+        if not path.exists():
+            raise FileNotFoundError(f"Config at {path} does not exist")
+        with open(path, "r") as f:
+            config = yaml.safe_load(f)
+        
+        # If the model config is not an absolute path, assume it is relative to the config file
+        if config["datasets_config"].startswith("/"):
+            config["datasets_config"] = Path(config["datasets_config"])
+        else:
+            config["datasets_config"] = path.parent / config["datasets_config"]
+        
+        return cls(config_path=path, **config)
+
+    def load_datasets(self):
+        if not self.sample:
+            raise ValueError("Must specify sample to load datasets")
+        self.datasets = DatasetConfig.get_datasets(self.datasets_config, self.datasets)
+        logger.info(f"Sample: {self.samples[self.sample]}" )
+        sample_cuts = Cuts.from_list(self.samples[self.sample].get("cuts", []))
+        self.loaded_datasets = {key : dataset.load_sample(self.sample, cuts=sample_cuts, keys=self.keys, njets=self.num_jets, flavours=self.flavours) for key, dataset in self.datasets.items()}
+    
 
 Source = Literal["salt", "pretrained"]
-def get_model_output_path(model_dir, plot_epoch=None, ckpt_info=None, sample='ttbar'):
-
-    ckpt_dir = Path(model_dir) / 'ckpts'
-    eval_files = list(ckpt_dir.glob(f'*{sample}*.h5'))
-    eval_files = [f for f in eval_files if sample in f.name]
-
-    logger.debug(f"Found {len(eval_files)} eval files for {sample} in {ckpt_dir}")
-
-    if len(eval_files) == 0:
-        raise ValueError(f"No eval files found for {sample} in {ckpt_dir}")
-    elif len(eval_files) == 1:
-        return eval_files[0]
-    if plot_epoch:
-        # TODO - this is dependent on salt outputinng with zfill(5), which is not ideal, maybe regex...
-        epoch_str = str(plot_epoch).zfill(5)
-        eval_files = [f for f in eval_files if epoch_str in f.name]
-        if len(eval_files) == 0:
-            raise ValueError(f"No eval files found for {sample} in {ckpt_dir} at epoch {plot_epoch}")
-        elif len(eval_files) == 1:
-            return eval_files[0]
-        logger.debug(f"Found {len(eval_files)} eval files for {sample} in {ckpt_dir} at epoch {plot_epoch}")
-
-    if ckpt_info:
-        eval_files = [f for f in eval_files if ckpt_info in f.name]
-        if len(eval_files) == 0:
-            raise ValueError(f"No eval files found for {sample} in {ckpt_dir} with ckpt_info {ckpt_info}")
-        elif len(eval_files) == 1:
-            return eval_files[0]
-        
-        # logger.debug(f"Found {len(eval_files)} eval files for {sample} in {ckpt_dir} with ckpt_info {ckpt_info}")
-        raise ValueError(f"Multiple eval files found for {sample} in {ckpt_dir} with ckpt_info {ckpt_info}")
-
 @dataclass 
 class ModelConfig:
     name: str
@@ -101,6 +265,7 @@ class ModelConfig:
     
     tagger : Tagger = None
     eval_path : Path = None
+
     @property
     def model_path(self):
         return Path(self.save_dir)/self.id
@@ -116,7 +281,6 @@ class ModelConfig:
         else:
             self.cuts = Cuts.from_list(self.cuts)
     def _get_salt_eval_path(self, plt_cfg : PlotConfig):
-        # self.eval_path = get_model_output_path(self.model_path, self.plot_epoch, self.ckpt_info, plt_cfg.sample)
         ckpt_dir = Path(self.model_path) / 'ckpts'
         eval_files = list(ckpt_dir.glob(f'*{plt_cfg.sample}*.h5'))
         eval_files = [f for f in eval_files if plt_cfg.sample in f.name]
@@ -187,7 +351,7 @@ class ModelConfig:
         model_colours = [model.style.get("colour", None) for model in models.values()]
         model_colours = fill_colours(model_colours)
         for  (key, model), new_colour  in zip(models.items(), model_colours):
-            model.style["colour"] = model_colours.pop(0)
+            model.style["colour"] =new_colour
 
         # TODO auto assign good colours when we load...
         for key, model in models.items():
