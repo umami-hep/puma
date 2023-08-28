@@ -10,7 +10,8 @@ def select_configs(configs, plt_cfg):
 
 def get_plot_kwargs(plt_cfg, config, suffix=''):
     plot_kwargs = config['args'].get('plot_kwargs', {})
-    plot_kwargs['suffix'] = plot_kwargs.get('suffix', '') + suffix
+    chosen_suffix = config['args'].get('suffix', '')
+    plot_kwargs['suffix'] = '_'.join([s for s in [plot_kwargs.get('suffix', ''), suffix, chosen_suffix] if s != ''])
     return plot_kwargs
 
 def get_include_exclude_str(include_taggers, all_taggers):
