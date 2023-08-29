@@ -139,7 +139,7 @@ class DatasetConfig:
         if cuts:
             
             jets = data['jets']
-            idx = cuts.idx(jets)
+            idx = cuts(jets).idx
             for key, d in data.items():
                 data[key] = d[idx]
 
@@ -165,9 +165,6 @@ class DatasetConfig:
                     data[key] = data[key][data[key]['valid']]
         return data
         
-        
-        
-
 
 @dataclass
 class VariablePlotConfig:
@@ -180,6 +177,8 @@ class VariablePlotConfig:
     variables: dict[str, list[str]]
     
     plots : dict[str, dict[str, dict]] 
+
+    global_plot_kwargs : dict[str, dict[str, str]] = None
 
     flavours: list[Flavour] = None
     flavours_file: Path = None
@@ -206,6 +205,8 @@ class VariablePlotConfig:
             Flavours = flavour.Flavours
         self.flavours = [Flavours[k] for k in self.flavours]
         logger.info(f"KEYS: {self.keys}")
+        if not self.global_plot_kwargs:
+            self.global_plot_kwargs = {}
         # if not self.keys:  
         #     self.keys = ["jets"]
         if self.plot_timestamp:
@@ -371,6 +372,9 @@ class PlotConfig:
     models: list[str]
     denominator: str
 
+    global_plot_kwargs : dict[str, dict[str, str]] = None
+
+
     roc_plots: dict[str, dict] = None
     fracscan_plots: dict[str, dict] = None
     disc_plots: dict[str, dict] = None
@@ -392,7 +396,8 @@ class PlotConfig:
         date_time_file = datetime.now().strftime("%Y%m%d_%H%M%S")
         plot_dir_name = self.config_path.stem + "_" + date_time_file
         self.plot_dir_final = Path(self.plot_dir) / plot_dir_name
-
+        if not self.global_plot_kwargs:
+            self.global_plot_kwargs = {}
     @classmethod
     def load_config(cls, path : Path):
         if not path.exists():

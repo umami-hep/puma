@@ -46,6 +46,7 @@ def make_var_hist_plot(plt_cfg, plot_type, var, flavours=None):
         n_ratio_panels=1,
         xlabel=var,
         ylabel="Normalised number of jets",
+        **plt_cfg.global_plot_kwargs
     )
     has_data = False
     ls = list(get_good_linestyles())
@@ -126,6 +127,14 @@ if __name__ == '__main__':
     config_path = Path(args.config)
 
     plt_cfg = VariablePlotConfig.load_config(config_path)
+
+    all_plots = plt_cfg.variables.keys()
+    if args.plots:
+        for p in args.plots:
+            if p not in all_plots:
+                raise ValueError(f"Plot type {p} not in allowed list {all_plots}")
+        all_plots = args.plots
+
     logger.info(f"Making plots for {plt_cfg.sample} with {plt_cfg.num_jets} jets")
     if args.num_jets:
         plt_cfg.num_jets = args.num_jets
