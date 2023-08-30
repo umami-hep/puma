@@ -20,6 +20,8 @@ class Tagger:
     label: str = None
     reference: bool = False
     colour: str = None
+    f_c: float = None
+    f_b: float = None
 
     # commonly set by the Results class
     scores: np.ndarray = None
@@ -31,15 +33,15 @@ class Tagger:
 
     disc_cut: float = None
     working_point: float = None
-    f_c: float = None
-    f_b: float = None
 
     # this is only used by the Results class atm
-    cuts: Cuts | None = None
+    cuts: Cuts | list | None = None
 
     def __post_init__(self):
         if self.label is None:
             self.label = self.name
+        if isinstance(self.cuts, list):
+            self.cuts = Cuts.from_list(self.cuts)
 
     def __repr__(self):
         return f"{self.name} ({self.label})"
