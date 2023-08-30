@@ -460,12 +460,10 @@ class Results:
                 )
             )
 
-        disc_cut_in_kwargs = "disc_cut" in kwargs
-        working_point_in_kwargs = "working_point" in kwargs
         for tagger in self.taggers.values():
-            if not disc_cut_in_kwargs:
+            if "disc_cut" not in kwargs:
                 kwargs["disc_cut"] = tagger.disc_cut
-            if not working_point_in_kwargs:
+            if "working_point" not in kwargs:
                 kwargs["working_point"] = tagger.working_point
 
             discs = tagger.discriminant(self.signal)

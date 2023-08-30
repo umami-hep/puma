@@ -22,6 +22,11 @@ class Tagger:
     colour: str = None
     f_c: float = None
     f_b: float = None
+    disc_cut: float = None
+    working_point: float = None
+
+    # this is only read by the Results class
+    cuts: Cuts | list | None = None
 
     # commonly set by the Results class
     scores: np.ndarray = None
@@ -30,12 +35,6 @@ class Tagger:
     output_nodes: list = field(
         default_factory=lambda: [Flavours.ujets, Flavours.cjets, Flavours.bjets]
     )
-
-    disc_cut: float = None
-    working_point: float = None
-
-    # this is only used by the Results class atm
-    cuts: Cuts | list | None = None
 
     def __post_init__(self):
         if self.label is None:
