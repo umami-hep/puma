@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 import h5py
 import numpy as np
 import pandas as pd
-from ftag import Flavour, Flavours, get_discriminant
+from ftag import Cuts, Flavour, Flavours, get_discriminant
 
 from puma.utils import logger
 
@@ -33,6 +33,9 @@ class Tagger:
     working_point: float = None
     f_c: float = None
     f_b: float = None
+
+    # this is only used by the Results class atm
+    cuts: Cuts | None = None
 
     def __post_init__(self):
         if self.label is None:
