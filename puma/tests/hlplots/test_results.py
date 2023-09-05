@@ -60,6 +60,17 @@ class ResultsTestCase(unittest.TestCase):
         results.add_taggers_from_file(taggers, fname)
         self.assertEqual(list(results.taggers.values()), taggers)
 
+    def test_add_taggers_with_cuts(self):
+        tempfile.TemporaryDirectory()  # pylint: disable=R1732
+        np.random.default_rng(seed=16)
+        fname = get_mock_file()[0]
+        cuts = [("eta", ">", 0)]
+        tagger_cuts = [("pt", ">", 20)]
+        results = Results(signal="bjets", sample="test")
+        taggers = [Tagger("MockTagger", cuts=tagger_cuts)]
+        results.add_taggers_from_file(taggers, fname, cuts=cuts)
+        self.assertEqual(list(results.taggers.values()), taggers)
+
 
 class ResultsPlotsTestCase(unittest.TestCase):
     """Test class for the Results class running plots."""

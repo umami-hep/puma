@@ -19,6 +19,7 @@ from puma import (
     VarVsEff,
     VarVsEffPlot,
 )
+from puma.hlplots.tagger import Tagger
 from puma.metrics import calc_eff, calc_rej
 from puma.utils import get_good_linestyles
 
@@ -87,30 +88,28 @@ class Results:
 
     def add_taggers_from_file(  # pylint: disable=R0913
         self,
-        taggers,
-        file_path,
+        taggers: list[Tagger],
+        file_path: Path | str,
         key="jets",
         label_var="HadronConeExclTruthLabelID",
-        cuts=None,
-        num_jets=None,
-        perf_var=None,
+        cuts: Cuts | list | None = None,
+        num_jets: int | None = None,
+        perf_var: str | None = None,
     ):
-        """Add taggers from file.
-
-        # TODO: proper cuts class implementation
+        """Load one or more taggers from a common file.
 
         Parameters
         ----------
-        taggers : list
+        taggers : list[Tagger]
             List of taggers to add
-        file_path : str
+        file_path : str | Path
             Path to file
         key : str, optional
             Key in file, by default 'jets'
         label_var : str
-            Label variable to use
-        cuts : Cuts | list
-            List of cuts to apply
+            Label variable to use, by default 'HadronConeExclTruthLabelID'
+        cuts : Cuts | list, optional
+            Cuts to apply, by default None
         num_jets : int, optional
             Number of jets to load from the file, by default all jets
         perf_var : np.ndarray, optional
@@ -118,35 +117,48 @@ class Results:
         """
         # set tagger output nodes
         for tagger in taggers:
-            if tagger.output_nodes is None:
-                tagger.output_nodes = self.flavours
+            tagger.output_nodes = self.flavours
 
         # get a list of all variables to be loaded from the file
         if not isinstance(cuts, Cuts):
             cuts = Cuts.empty() if cuts is None else Cuts.from_list(cuts)
         var_list = sum([tagger.variables for tagger in taggers], [label_var])
         var_list += cuts.variables
+        var_list += sum([t.cuts.variables for t in taggers if t.cuts is not None], [])
         var_list = list(set(var_list + [self.perf_var]))
 
         # load data
         reader = H5Reader(file_path, precision="full")
         data = reader.load({key: var_list}, num_jets)[key]
 
-        # apply cuts
-        idx, data = cuts(data)
-        if perf_var is not None:
-            perf_var = perf_var[idx]
+        # apply common cuts
+        if cuts:
+            idx, data = cuts(data)
+            if perf_var is not None:
+                perf_var = perf_var[idx]
 
-        # attach data to tagger objects
+        # for each tagger
         for tagger in taggers:
-            tagger.extract_tagger_scores(data, source_type="structured_array")
-            tagger.labels = np.array(data[label_var], dtype=[(label_var, "i4")])
+            sel_data = data
+            sel_perf_var = perf_var
+
+            # apply tagger specific cuts
+            if tagger.cuts:
+                idx, sel_data = tagger.cuts(data)
+                if perf_var is not None:
+                    sel_perf_var = perf_var[idx]
+
+            # attach data to tagger objects
+            tagger.extract_tagger_scores(sel_data, source_type="structured_array")
+            tagger.labels = np.array(sel_data[label_var], dtype=[(label_var, "i4")])
             if perf_var is None:
-                tagger.perf_var = data[self.perf_var]
+                tagger.perf_var = sel_data[self.perf_var]
                 if any(x in self.perf_var for x in ["pt", "mass"]):
                     tagger.perf_var = tagger.perf_var * 0.001
             else:
-                tagger.perf_var = perf_var
+                tagger.perf_var = sel_perf_var
+
+            # add tagger to results
             self.add(tagger)
 
     def __getitem__(self, tagger_name: str):
@@ -448,12 +460,10 @@ class Results:
                 )
             )
 
-        disc_cut_in_kwargs = "disc_cut" in kwargs
-        working_point_in_kwargs = "working_point" in kwargs
         for tagger in self.taggers.values():
-            if not disc_cut_in_kwargs:
+            if "disc_cut" not in kwargs:
                 kwargs["disc_cut"] = tagger.disc_cut
-            if not working_point_in_kwargs:
+            if "working_point" not in kwargs:
                 kwargs["working_point"] = tagger.working_point
 
             discs = tagger.discriminant(self.signal)

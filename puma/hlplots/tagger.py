@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 import h5py
 import numpy as np
 import pandas as pd
-from ftag import Flavour, Flavours, get_discriminant
+from ftag import Cuts, Flavour, Flavours, get_discriminant
 
 from puma.utils import logger
 
@@ -20,6 +20,13 @@ class Tagger:
     label: str = None
     reference: bool = False
     colour: str = None
+    f_c: float = None
+    f_b: float = None
+    disc_cut: float = None
+    working_point: float = None
+
+    # this is only read by the Results class
+    cuts: Cuts | list | None = None
 
     # commonly set by the Results class
     scores: np.ndarray = None
@@ -29,14 +36,11 @@ class Tagger:
         default_factory=lambda: [Flavours.ujets, Flavours.cjets, Flavours.bjets]
     )
 
-    disc_cut: float = None
-    working_point: float = None
-    f_c: float = None
-    f_b: float = None
-
     def __post_init__(self):
         if self.label is None:
             self.label = self.name
+        if isinstance(self.cuts, list):
+            self.cuts = Cuts.from_list(self.cuts)
 
     def __repr__(self):
         return f"{self.name} ({self.label})"
