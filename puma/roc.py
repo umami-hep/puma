@@ -298,7 +298,8 @@ class RocPlot(PlotBase):
             )
             self.set_roc_reference(key, roc_curve.rej_class, roc_curve.ratio_group)
 
-    def set_roc_reference(self,
+    def set_roc_reference(
+        self,
         key: str,
         rej_class: Flavour,
         ratio_group: str = None,
@@ -321,7 +322,7 @@ class RocPlot(PlotBase):
         """
         if self.reference_roc is None:
             self.reference_roc = {}
-            self.reference_roc[rej_class] = { ratio_group : key  }
+            self.reference_roc[rej_class] = {ratio_group: key  }
         elif rej_class not in self.reference_roc:
             if len(self.reference_roc) >= self.n_ratio_panels:
                 raise ValueError(
@@ -416,7 +417,9 @@ class RocPlot(PlotBase):
             if elem.rej_class != rej_class:
                 continue
 
-            if self.reference_roc and self.reference_roc[rej_class].get(elem.ratio_group):
+            if self.reference_roc and self.reference_roc[rej_class].get(
+                elem.ratio_group
+            ):
                 ratio_sig_eff, ratio, ratio_err = elem.divide(
                     self.rocs[self.reference_roc[rej_class][elem.ratio_group]]
                 )
