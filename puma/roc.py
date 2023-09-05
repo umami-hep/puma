@@ -322,7 +322,7 @@ class RocPlot(PlotBase):
         """
         if self.reference_roc is None:
             self.reference_roc = {}
-            self.reference_roc[rej_class] = {ratio_group: key  }
+            self.reference_roc[rej_class] = {ratio_group: key}
         elif rej_class not in self.reference_roc:
             if len(self.reference_roc) >= self.n_ratio_panels:
                 raise ValueError(
