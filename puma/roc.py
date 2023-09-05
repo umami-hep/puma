@@ -328,7 +328,7 @@ class RocPlot(PlotBase):
                 raise ValueError(
                     "You cannot set more rejection classes than available ratio panels."
                 )
-            self.reference_roc[rej_class][ratio_group] = key
+            self.reference_roc[rej_class] = {ratio_group: key}
         else:
             if self.reference_roc[rej_class].get(ratio_group):
                 logger.warning(
