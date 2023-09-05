@@ -5,11 +5,45 @@ from puma.utils import logger
 from puma.utils.histogram import hist_w_unc, save_divide
 
 
+def weighted_percentile(
+    data: np.ndarray,
+    perc: np.ndarray,
+    weights: np.ndarray = None,
+):
+    """Calculate weighted percentile.
+
+    Parameters
+    ----------
+    data : np.ndarray
+        Data array
+    perc : np.ndarray
+        Percentile array
+    weights : np.ndarray
+        Weights array, by default None
+
+    Returns
+    -------
+    np.ndarray
+        Weighted percentile array
+    """
+    if weights is None:
+        weights = np.ones_like(data)
+    ix = np.argsort(data)
+    data = data[ix]  # sort data
+    weights = weights[ix]  # sort weights
+    cdf = np.cumsum(weights) - 0.5 * weights
+    cdf -= cdf[0]
+    cdf /= cdf[-1]
+    return np.interp(perc, cdf, data)
+
+
 def calc_eff(
     sig_disc: np.ndarray,
     bkg_disc: np.ndarray,
     target_eff,
     return_cuts: bool = False,
+    sig_weights: np.ndarray = None,
+    bkg_weights: np.ndarray = None,
 ):
     """Calculate efficiency.
 
@@ -25,6 +59,10 @@ def calc_eff(
         Specifies if the cut values corresponding to the provided WPs are returned.
         If target_eff is a float, only one cut value will be returned. If target_eff
         is an array, target_eff is an array as well.
+    sig_weights : np.ndarray
+        Weights for signal events
+    bkg_weights : np.ndarray
+        Weights for background events
 
     Returns
     -------
@@ -37,19 +75,25 @@ def calc_eff(
     """
     # TODO: with python 3.10 using type union operator
     # float | np.ndarray for both target_eff and the returned values
+    if isinstance(target_eff, list):
+        target_eff = np.array(target_eff)
+
+    cutvalue = weighted_percentile(sig_disc, 1.0 - target_eff, weights=sig_weights)
     if isinstance(target_eff, float):
-        cutvalue = np.percentile(sig_disc, 100.0 * (1.0 - target_eff))
-        eff = save_divide(len(bkg_disc[bkg_disc > cutvalue]), len(bkg_disc), 0)
+        hist, _ = np.histogram(
+            bkg_disc, (-np.inf, cutvalue, np.inf), weights=bkg_weights
+        )
+        eff = hist[1] / np.sum(hist)
 
         if return_cuts:
             return eff, cutvalue
         return eff
-
-    eff = np.zeros(len(target_eff))
-    cutvalue = np.zeros(len(target_eff))
-    for i, t_eff in enumerate(target_eff):
-        cutvalue[i] = np.percentile(sig_disc, 100.0 * (1.0 - t_eff))
-        eff[i] = save_divide(len(bkg_disc[bkg_disc > cutvalue[i]]), len(bkg_disc), 0)
+    sorted_args = np.argsort(1 - target_eff)
+    hist, _ = np.histogram(
+        bkg_disc, (-np.inf, *cutvalue[sorted_args], np.inf), weights=bkg_weights
+    )
+    eff = hist[::-1].cumsum()[-2::-1] / hist.sum()
+    eff = eff[sorted_args]
     if return_cuts:
         return eff, cutvalue
     return eff
@@ -60,6 +104,8 @@ def calc_rej(
     bkg_disc: np.ndarray,
     target_eff,
     return_cuts: bool = False,
+    sig_weights: np.ndarray = None,
+    bkg_weights: np.ndarray = None,
 ):
     """Calculate efficiency.
 
@@ -75,6 +121,10 @@ def calc_rej(
         Specifies if the cut values corresponding to the provided WPs are returned.
         If target_eff is a float, only one cut value will be returned. If target_eff
         is an array, target_eff is an array as well.
+    sig_weights : np.ndarray
+        Weights for signal events, by default None
+    bkg_weights : np.ndarray
+        Weights for background events, by default None
 
     Returns
     -------
@@ -92,6 +142,8 @@ def calc_rej(
         bkg_disc=bkg_disc,
         target_eff=target_eff,
         return_cuts=return_cuts,
+        sig_weights=sig_weights,
+        bkg_weights=bkg_weights,
     )
     rej = save_divide(1, eff[0] if return_cuts else eff, np.inf)
 
