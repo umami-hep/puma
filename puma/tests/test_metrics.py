@@ -102,15 +102,15 @@ class CalcEffAndRejTestCase(unittest.TestCase):
         )
         # the values here differ slightly from the values of the analytical integral,
         # since we use random numbers
-        np.testing.assert_array_almost_equal(cut, np.array([1.9956997]))
-        np.testing.assert_array_almost_equal(bkg_eff, np.array([0.02367]))
+        self.assertAlmostEqual(cut, 1.9956997)
+        self.assertAlmostEqual(bkg_eff, 0.02367)
 
         # same for rejection, just use rej = 1 / eff
         bkg_rej, cut = calc_rej(
             self.disc_sig, self.disc_bkg, target_eff=0.841345, return_cuts=True
         )
-        np.testing.assert_array_almost_equal(cut, np.array([1.9956997]))
-        np.testing.assert_array_almost_equal(bkg_rej, np.array([1 / 0.02367]))
+        self.assertAlmostEqual(cut, 1.9956997)
+        self.assertAlmostEqual(bkg_rej, 1 / 0.02367)
 
     def test_array_target(self):
         """Test efficiency and cut value calculation for list of target efficiencies."""

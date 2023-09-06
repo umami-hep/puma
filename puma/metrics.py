@@ -71,13 +71,19 @@ def calc_eff(
 
     Returns
     -------
-    eff : np.ndarray
+    eff : float or np.ndarray
         Efficiency.
-    cutvalue : np.ndarray
+        Return float if target_eff is a float, else np.ndarray
+    cutvalue : float or np.ndarray
         Cutvalue if return_cuts is True.
+        Return float if target_eff is a float, else np.ndarray
     """
     # TODO: with python 3.10 using type union operator
     # float | np.ndarray for both target_eff and the returned values
+    return_float = False
+    if isinstance(target_eff, float):
+        return_float = True
+
     target_eff = np.asarray([target_eff]).flatten()
 
     cutvalue = weighted_percentile(sig_disc, 1.0 - target_eff, weights=sig_weights)
@@ -89,6 +95,11 @@ def calc_eff(
     )
     eff = hist[::-1].cumsum()[-2::-1] / hist.sum()
     eff = eff[sorted_args]
+
+    if return_float:
+        eff = eff[0]
+        cutvalue = cutvalue[0]
+
     if return_cuts:
         return eff, cutvalue
     return eff
