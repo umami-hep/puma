@@ -1,4 +1,6 @@
 """Tools for metrics module."""
+from typing import Union
+
 import numpy as np
 
 from puma.utils import logger
@@ -11,6 +13,9 @@ def weighted_percentile(
     weights: np.ndarray = None,
 ):
     """Calculate weighted percentile.
+
+    Implementation according to https://stackoverflow.com/a/29677616/11509698
+    (https://en.wikipedia.org/wiki/Percentile#The_weighted_percentile_method)
 
     Parameters
     ----------
@@ -40,7 +45,7 @@ def weighted_percentile(
 def calc_eff(
     sig_disc: np.ndarray,
     bkg_disc: np.ndarray,
-    target_eff,
+    target_eff: Union[float, list, np.ndarray],
     return_cuts: bool = False,
     sig_weights: np.ndarray = None,
     bkg_weights: np.ndarray = None,
@@ -53,7 +58,7 @@ def calc_eff(
         Signal discriminant
     bkg_disc : np.ndarray
         Background discriminant
-    target_eff : float or list
+    target_eff : float or list or np.ndarray
         Working point which is used for discriminant calculation
     return_cuts : bool
         Specifies if the cut values corresponding to the provided WPs are returned.
@@ -66,29 +71,19 @@ def calc_eff(
 
     Returns
     -------
-    eff : float or np.ndarray
+    eff : np.ndarray
         Efficiency.
-        If target_eff is a float, a float is returned if it's a list a np.ndarray
-    cutvalue : float or np.ndarray
+    cutvalue : np.ndarray
         Cutvalue if return_cuts is True.
-        If target_eff is a float, a float is returned if it's a list a np.ndarray
     """
     # TODO: with python 3.10 using type union operator
     # float | np.ndarray for both target_eff and the returned values
-    if isinstance(target_eff, list):
-        target_eff = np.array(target_eff)
+    target_eff = np.asarray([target_eff]).flatten()
 
     cutvalue = weighted_percentile(sig_disc, 1.0 - target_eff, weights=sig_weights)
-    if isinstance(target_eff, float):
-        hist, _ = np.histogram(
-            bkg_disc, (-np.inf, cutvalue, np.inf), weights=bkg_weights
-        )
-        eff = hist[1] / np.sum(hist)
-
-        if return_cuts:
-            return eff, cutvalue
-        return eff
-    sorted_args = np.argsort(1 - target_eff)
+    sorted_args = np.argsort(
+        1 - target_eff
+    )  # need to sort the cutvalues to get the correct order
     hist, _ = np.histogram(
         bkg_disc, (-np.inf, *cutvalue[sorted_args], np.inf), weights=bkg_weights
     )
