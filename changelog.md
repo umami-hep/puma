@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Add weight support for efficiency calculation [!206](https://github.com/umami-hep/puma/pull/206)
 - Add tagger specific cuts to results [!205](https://github.com/umami-hep/puma/pull/205)
 
 ### [v0.2.8] (2023/08/09)
