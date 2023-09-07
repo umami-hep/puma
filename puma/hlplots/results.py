@@ -525,8 +525,8 @@ class Results:
         h_line: float = None,
         **kwargs,
     ):
-        """Plot signal efficiency as a function of a variable, with a fixed enforce background
-        rejection for each bin
+        """Plot signal efficiency as a function of a variable, with a fixed enforce
+        background rejection for each bin
 
 
         Parameters
@@ -539,7 +539,8 @@ class Results:
         xlabel : regexp, optional
             _description_, by default "$p_{T}$ [GeV]"
         x_var: str, optional
-            The x axis variable, used for providing details to the plot name, default is 'pt'
+            The x axis variable, used for providing details to the plot name,
+            default is 'pt'
         h_line : float, optional
             draws a horizonatal line in the signal efficiency plot
         **kwargs : kwargs
@@ -576,11 +577,12 @@ class Results:
             is_signal = tagger.is_flav(self.signal)
             for i, background in enumerate(self.backgrounds):
                 is_bkg = tagger.is_flav(background)
-                # We want x bins to all have the same background rejection, so we select the
-                # plot mode as 'bkg_eff', and then treat the signal as the background here.
-                # I.e, the API plots 'bkg_eff' on the y axis, while keeping the 'sig_eff' a flat
-                # rate on the x axis, we therefore pass the signal as the background, and the
-                # background as the signal.
+                # We want x bins to all have the same background rejection, so we
+                # select the plot mode as 'bkg_eff', and then treat the signal as
+                # the background here. I.e, the API plots 'bkg_eff' on the y axis,
+                # while keeping the 'sig_eff' a flat rate on the x axis, we therefore
+                # pass the signal as the background, and the background as the
+                # signal.
                 plot_bkg[i].add(
                     VarVsEff(
                         x_var_sig=tagger.perf_var[is_bkg],
@@ -602,7 +604,10 @@ class Results:
             if h_line:
                 plot_bkg[i].draw_hline(h_line)
             plot_details = f"{self.signal}_eff_vs_{x_var}_"
-            plot_base = f"profile_flat_{background}_{int(fixed_rejections[background.name])}_rej_per_bin"
+            plot_base = (
+                f"profile_flat_{background}_"
+                + f"{int(fixed_rejections[background.name])}_rej_per_bin"
+            )
             plot_bkg[i].savefig(
                 self.get_filename(plot_details + plot_base, plot_suffix)
             )
