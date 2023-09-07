@@ -176,9 +176,15 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
             )
 
-            self.assertIsFile(Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_profile_fixed_cut_.png")
-            self.assertIsFile(Path(tmp_file) / "test_bjets_cjets_rej_vs_pt_profile_fixed_cut_.png")
-            self.assertIsFile(Path(tmp_file) / "test_bjets_ujets_rej_vs_pt_profile_fixed_cut_.png")
+            self.assertIsFile(
+                Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_profile_fixed_cut_.png"
+            )
+            self.assertIsFile(
+                Path(tmp_file) / "test_bjets_cjets_rej_vs_pt_profile_fixed_cut_.png"
+            )
+            self.assertIsFile(
+                Path(tmp_file) / "test_bjets_ujets_rej_vs_pt_profile_fixed_cut_.png"
+            )
 
     def test_plot_var_perf_cjets(self):
         """Test that png file is being created."""
@@ -196,9 +202,15 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 h_line=self.dummy_tagger_1.working_point,
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
             )
-            self.assertIsFile(Path(tmp_file) / "test_cjets_cjets_eff_vs_pt_profile_fixed_cut_.png")
-            self.assertIsFile(Path(tmp_file) / "test_cjets_bjets_rej_vs_pt_profile_fixed_cut_.png")
-            self.assertIsFile(Path(tmp_file) / "test_cjets_ujets_rej_vs_pt_profile_fixed_cut_.png")
+            self.assertIsFile(
+                Path(tmp_file) / "test_cjets_cjets_eff_vs_pt_profile_fixed_cut_.png"
+            )
+            self.assertIsFile(
+                Path(tmp_file) / "test_cjets_bjets_rej_vs_pt_profile_fixed_cut_.png"
+            )
+            self.assertIsFile(
+                Path(tmp_file) / "test_cjets_ujets_rej_vs_pt_profile_fixed_cut_.png"
+            )
 
     def test_plot_fraction_scans_hbb_error(self):
         """Test that correct error is raised."""
