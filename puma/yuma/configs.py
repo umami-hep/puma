@@ -12,6 +12,7 @@ import numpy as np
 import h5py 
 
 from ftag import Cuts, Flavour, Flavours
+from ftag.hdf5 import H5Reader
 from puma.utils import get_good_colours, logger
 from puma.hlplots import Results, Tagger
 
@@ -137,12 +138,13 @@ class DatasetConfig:
             data = {key : np.array(data[key][:njets]) for key in data.keys()}
         # apply cuts...
         if cuts:
-            
+            logger.info(cuts)
             jets = data['jets']
             idx = cuts(jets).idx
             for key, d in data.items():
                 data[key] = d[idx]
-
+        else:
+            logger.warning("No cuts applied to dataset")
         if flavours:
             jets = data['jets']
 
@@ -237,7 +239,7 @@ class VariablePlotConfig:
         self.datasets = DatasetConfig.get_datasets(self.datasets_config, self.datasets)
         logger.info(f"Sample: {self.samples[self.sample]}" )
         sample_cuts = Cuts.from_list(self.samples[self.sample].get("cuts", []))
-        self.loaded_datasets = {key : dataset.load_sample(self.sample, cuts=sample_cuts, keys=self.keys, njets=self.num_jets, flavours=self.flavours) for key, dataset in self.datasets.items()}
+        self.loaded_datasets = {key : dataset.load_sample(self.sample, cuts=sample_cuts, keys=set(self.keys+['jets']), njets=self.num_jets, flavours=self.flavours) for key, dataset in self.datasets.items()}
     
 
 Source = Literal["salt", "pretrained"]
@@ -246,11 +248,10 @@ class ModelConfig:
     name: str
     source: Source
     
-    
-    model_key: str
     f_c: float
     f_b: float
     style: dict[str, dict[str, str]]
+    model_key: str = None
 
     # For salt models
     save_dir: str = None
@@ -293,8 +294,8 @@ class ModelConfig:
         elif len(eval_files) == 1:
             return eval_files[0]
         if self.plot_epoch:
-            # TODO - this is dependent on salt outputinng with zfill(5), which is not ideal, maybe regex...
-            epoch_str = str(self.plot_epoch).zfill(5)
+            # TODO - this is dependent on salt outputinng with zfill(3), which is not ideal, maybe regex...
+            epoch_str = str(self.plot_epoch).zfill(3)
             eval_files = [f for f in eval_files if epoch_str in f.name]
             if len(eval_files) == 0:
                 raise ValueError(f"No eval files found for {plt_cfg.sample} in {ckpt_dir} at epoch {self.plot_epoch}")
@@ -315,6 +316,37 @@ class ModelConfig:
     
         return self.eval_path
 
+    def _get_model_key(self, eval_path : Path):
+        if self.model_key:
+            return self.model_key
+        # TODO actually check this works properly
+        reader = H5Reader(eval_path)
+        jet_vars = reader.dtypes()['jets'].names
+        req_keys = [f'_p{flav.name[:-4]}' for flav in self.flavours]
+        # tagger_suffixes = ['_pb', '_pc', '_pu']
+        potential_taggers = {}
+
+        # Identify potential taggers
+        for var in jet_vars:
+            for suffix in req_keys:
+                if var.endswith(suffix):
+                    base_name = var.rsplit(suffix, 1)[0]
+                    if base_name in potential_taggers:
+                        potential_taggers[base_name].append(suffix)
+                    else:
+                        potential_taggers[base_name] = [suffix]
+
+        # Check if any base name has all three suffixes
+        valid_taggers = [base for base, suffixes in potential_taggers.items() if set(suffixes) == set(req_keys)]
+
+        if len(valid_taggers) == 0:
+            raise ValueError("No valid tagger found.")
+        elif len(valid_taggers) > 1:
+            raise ValueError(f"Multiple valid taggers found: {', '.join(valid_taggers)}")
+        else:
+            return valid_taggers[0]
+        
+
     def load_model(self, plot_config : PlotConfig):
         
         if self.source == "salt":
@@ -327,8 +359,11 @@ class ModelConfig:
             self.eval_path = self.sample_paths[plot_config.sample]
         else:
             raise ValueError(f"Unknown source {self.source}, must be one of 'salt' or 'pretrained'")
+        
+        
+        
         self.tagger = Tagger(
-            name = self.model_key,
+            name = self._get_model_key(self.eval_path),
             f_c = self.f_c,
             f_b = self.f_b,
             reference=plot_config.denominator==self.name,
