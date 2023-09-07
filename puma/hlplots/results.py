@@ -431,7 +431,8 @@ class Results:
         xlabel : regexp, optional
             _description_, by default "$p_{T}$ [GeV]"
         x_var: str, optional
-            The x axis variable, used for providing details to the plot name, default is 'pt'
+            The x axis variable, used for providing details to the plot name, default
+            is 'pt'
         h_line : float, optional
             draws a horizonatal line in the signal efficiency plot
         **kwargs : kwargs
