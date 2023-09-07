@@ -510,6 +510,90 @@ class Results:
             plot_details = f"{background}_rej_vs_{x_var}_"
             plot_bkg[i].savefig(self.get_filename(plot_details + plot_base, plot_suffix))
 
+    def plot_flat_rej_var_perf(self,
+            fixed_rejections : dict[Flavour, float],
+            suffix: str = None,
+            xlabel: str = r"$p_{T}$ [GeV]",
+            x_var: str = 'pt',
+            h_line: float = None,
+            **kwargs,
+            ):
+        """Plot signal efficiency as a function of a variable, with a fixed enforce background
+        rejection for each bin
+        
+        Parameters
+        ----------
+        fixed_rejections : dict[Flavour, float]
+            A dictionary of the fixed background rejections for each flavour, eg:
+            fixed_rejections = {cjets : 0.1, ujets : 0.01}
+        suffix : str, optional
+            suffix to add to output file name, by default None
+        xlabel : regexp, optional
+            _description_, by default "$p_{T}$ [GeV]"
+        x_var: str, optional
+            The x axis variable, used for providing details to the plot name, default is 'pt'
+        h_line : float, optional
+            draws a horizonatal line in the signal efficiency plot
+        **kwargs : kwargs
+            key word arguments for `puma.VarVsEff`
+        """
+        assert all([b.name in fixed_rejections.keys() for b in self.backgrounds]), "Not all backgrounds have a fixed rejection"
+        plot_bkg = []
+        print('tag: ', self.atlas_second_tag)
+        for background in self.backgrounds:
+            modified_second_tag = f"{self.atlas_second_tag}\nFixed {background.rej_str} = {fixed_rejections[background.name]} per bin"
+            plot_bkg.append(
+                VarVsEffPlot(
+                    mode="bkg_eff",
+                    ylabel=self.signal.eff_str,
+                    xlabel=xlabel,
+                    logy=False,
+                    atlas_first_tag=self.atlas_first_tag,
+                    atlas_second_tag=modified_second_tag,
+                    n_ratio_panels=1,
+                    y_scale=1.4,
+                )
+            )
+        for tagger in self.taggers.values():
+            if 'disc_cut' in kwargs:
+                raise ValueError("disc_cut should not be set for this plot")
+            if 'working_point' in kwargs:
+                raise ValueError("working_point should not be set for this plot")
+
+            discs = tagger.discriminant(self.signal)
+            is_signal = tagger.is_flav(self.signal)
+            for i, background in enumerate(self.backgrounds):
+                is_bkg = tagger.is_flav(background)
+                # We want x bins to all have the same background rejection, so we select the
+                # plot mode as 'bkg_eff', and then treat the signal as the background here.
+                # I.e, the API plots 'bkg_eff' on the y axis, while keeping the 'sig_eff' a flat
+                # rate on the x axis, we therefore pass the signal as the background, and the
+                # background as the signal.
+                plot_bkg[i].add(
+                    VarVsEff(
+                        x_var_sig=tagger.perf_var[is_bkg],
+                        disc_sig=discs[is_bkg],
+                        x_var_bkg=tagger.perf_var[is_signal],
+                        disc_bkg=discs[is_signal],
+                        label=tagger.label,
+                        colour=tagger.colour,
+                        working_point=1/fixed_rejections[background.name],
+                        fixed_eff_bin=True,
+                        **kwargs,
+                    ),
+                    reference=tagger.reference,
+                )
+
+        
+        plot_suffix = f"_{suffix}" if suffix else ""
+        for i, background in enumerate(self.backgrounds):
+            plot_bkg[i].draw()
+            if h_line:
+                plot_bkg[i].draw_hline(h_line)
+            plot_details = f"{self.signal}_eff_vs_{x_var}_"
+            plot_base = f"profile_flat_{background}_{fixed_rejections[background.name]}_rej_per_bin"
+            plot_bkg[i].savefig(self.get_filename(plot_details + plot_base, plot_suffix))
+
     def plot_fraction_scans(
         self,
         suffix: str = None,
