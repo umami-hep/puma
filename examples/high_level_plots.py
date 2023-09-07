@@ -85,11 +85,9 @@ results.plot_var_perf(
     disc_cut=None,
 )
 # flat rej vs. variable plots, a third tag is added relating to the fixed rejection per bin
-results.atlas_second_tag = (
-    "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$"   
-)
+results.atlas_second_tag = "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$"
 results.plot_flat_rej_var_perf(
-    fixed_rejections={'cjets' : 2.2, 'ujets' : 1.2}, 
+    fixed_rejections={"cjets": 2.2, "ujets": 1.2},
     bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
 )
 

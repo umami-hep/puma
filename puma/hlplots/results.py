@@ -415,7 +415,7 @@ class Results:
         self,
         suffix: str = None,
         xlabel: str = r"$p_{T}$ [GeV]",
-        x_var: str = 'pt',
+        x_var: str = "pt",
         h_line: float = None,
         **kwargs,
     ):
@@ -500,27 +500,34 @@ class Results:
         if h_line:
             plot_sig_eff.draw_hline(h_line)
 
-        
-        plot_base = "profile_flat_per_bin" if kwargs.get("fixed_eff_bin") else "profile_fixed_cut"
+        plot_base = (
+            "profile_flat_per_bin"
+            if kwargs.get("fixed_eff_bin")
+            else "profile_fixed_cut"
+        )
         plot_details = f"{self.signal}_eff_vs_{x_var}_"
         plot_suffix = f"_{suffix}" if suffix else ""
         plot_sig_eff.savefig(self.get_filename(plot_details + plot_base, plot_suffix))
         for i, background in enumerate(self.backgrounds):
             plot_bkg[i].draw()
             plot_details = f"{background}_rej_vs_{x_var}_"
-            plot_bkg[i].savefig(self.get_filename(plot_details + plot_base, plot_suffix))
+            plot_bkg[i].savefig(
+                self.get_filename(plot_details + plot_base, plot_suffix)
+            )
 
-    def plot_flat_rej_var_perf(self,
-            fixed_rejections : dict[Flavour, float],
-            suffix: str = None,
-            xlabel: str = r"$p_{T}$ [GeV]",
-            x_var: str = 'pt',
-            h_line: float = None,
-            **kwargs,
-            ):
+    def plot_flat_rej_var_perf(
+        self,
+        fixed_rejections: dict[Flavour, float],
+        suffix: str = None,
+        xlabel: str = r"$p_{T}$ [GeV]",
+        x_var: str = "pt",
+        h_line: float = None,
+        **kwargs,
+    ):
         """Plot signal efficiency as a function of a variable, with a fixed enforce background
         rejection for each bin
-        
+
+
         Parameters
         ----------
         fixed_rejections : dict[Flavour, float]
@@ -537,11 +544,16 @@ class Results:
         **kwargs : kwargs
             key word arguments for `puma.VarVsEff`
         """
-        assert all([b.name in fixed_rejections.keys() for b in self.backgrounds]), "Not all backgrounds have a fixed rejection"
+        assert all(
+            [b.name in fixed_rejections for b in self.backgrounds]
+        ), "Not all backgrounds have a fixed rejection"
         plot_bkg = []
-        print('tag: ', self.atlas_second_tag)
+        print("tag: ", self.atlas_second_tag)
         for background in self.backgrounds:
-            modified_second_tag = f"{self.atlas_second_tag}\nFixed {background.rej_str} = {fixed_rejections[background.name]} per bin"
+            modified_second_tag = (
+                f"{self.atlas_second_tag}\nFixed {background.rej_str} ="
+                f" {fixed_rejections[background.name]} per bin"
+            )
             plot_bkg.append(
                 VarVsEffPlot(
                     mode="bkg_eff",
@@ -555,9 +567,9 @@ class Results:
                 )
             )
         for tagger in self.taggers.values():
-            if 'disc_cut' in kwargs:
+            if "disc_cut" in kwargs:
                 raise ValueError("disc_cut should not be set for this plot")
-            if 'working_point' in kwargs:
+            if "working_point" in kwargs:
                 raise ValueError("working_point should not be set for this plot")
 
             discs = tagger.discriminant(self.signal)
@@ -577,14 +589,13 @@ class Results:
                         disc_bkg=discs[is_signal],
                         label=tagger.label,
                         colour=tagger.colour,
-                        working_point=1/fixed_rejections[background.name],
+                        working_point=1 / fixed_rejections[background.name],
                         fixed_eff_bin=True,
                         **kwargs,
                     ),
                     reference=tagger.reference,
                 )
 
-        
         plot_suffix = f"_{suffix}" if suffix else ""
         for i, background in enumerate(self.backgrounds):
             plot_bkg[i].draw()
@@ -592,7 +603,9 @@ class Results:
                 plot_bkg[i].draw_hline(h_line)
             plot_details = f"{self.signal}_eff_vs_{x_var}_"
             plot_base = f"profile_flat_{background}_{fixed_rejections[background.name]}_rej_per_bin"
-            plot_bkg[i].savefig(self.get_filename(plot_details + plot_base, plot_suffix))
+            plot_bkg[i].savefig(
+                self.get_filename(plot_details + plot_base, plot_suffix)
+            )
 
     def plot_fraction_scans(
         self,
