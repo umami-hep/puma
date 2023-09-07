@@ -548,7 +548,6 @@ class Results:
             [b.name in fixed_rejections for b in self.backgrounds]
         ), "Not all backgrounds have a fixed rejection"
         plot_bkg = []
-        print("tag: ", self.atlas_second_tag)
         for background in self.backgrounds:
             modified_second_tag = (
                 f"{self.atlas_second_tag}\nFixed {background.rej_str} ="
@@ -602,7 +601,7 @@ class Results:
             if h_line:
                 plot_bkg[i].draw_hline(h_line)
             plot_details = f"{self.signal}_eff_vs_{x_var}_"
-            plot_base = f"profile_flat_{background}_{fixed_rejections[background.name]}_rej_per_bin"
+            plot_base = f"profile_flat_{background}_{int(fixed_rejections[background.name])}_rej_per_bin"
             plot_bkg[i].savefig(
                 self.get_filename(plot_details + plot_base, plot_suffix)
             )
