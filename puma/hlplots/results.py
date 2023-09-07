@@ -502,7 +502,7 @@ class Results:
 
         plot_base = (
             "profile_flat_per_bin"
-            if kwargs.get("fixed_eff_bin")
+            if kwargs.get("flat_eff_bin")
             else "profile_fixed_cut"
         )
         plot_details = f"{self.signal}_eff_vs_{x_var}_"
@@ -590,7 +590,7 @@ class Results:
                         label=tagger.label,
                         colour=tagger.colour,
                         working_point=1 / fixed_rejections[background.name],
-                        fixed_eff_bin=True,
+                        flat_eff_bin=True,
                         **kwargs,
                     ),
                     reference=tagger.reference,
