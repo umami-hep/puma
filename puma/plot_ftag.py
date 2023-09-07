@@ -28,6 +28,11 @@ def get_args():
                         default=['bjets', 'cjets'],
                         help='Signal to plot, by default bjets and cjets',)
     args.add_argument(
+        '--sample',
+        default=None,
+        help='Sample to plot, by default all samples in config are plotted.'
+    )
+    args.add_argument(
         "-n",
         "--num_jets",
         required=False,
@@ -63,6 +68,9 @@ def make_eff_vs_var_plots(plt_cfg):
     
     eff_vs_var_plots = select_configs(plt_cfg.eff_vs_var_plots, plt_cfg)
 
+    # We group plots by the var we care about, we do this so we can just load the variable
+    # data and calculate efficiencies over it once, for all different plots.
+    # We do pT first, as this var is always loaded first by default
     grouped_plots = group_eff_vs_var_by_var(eff_vs_var_plots)
     # Always do pt first, as its whats already been loaded
     if 'pt' in grouped_plots.keys():
@@ -78,6 +86,7 @@ def make_eff_vs_var_plots(plt_cfg):
                     raise ValueError(f"No bins provided, and no default pt bins for sample {plt_cfg.sample}")
             plt_cfg.results.plot_var_perf(bins=bins, **plot_kwargs)
             plt_cfg.results.taggers = all_taggers
+
     for var, plots in grouped_plots.items():
         if var == 'pt':
             continue
@@ -90,6 +99,8 @@ def make_eff_vs_var_plots(plt_cfg):
             if not 'xlabel' in plot_kwargs:
                 logger.warning("No latex label provided for xaxis in peff plot, using raw string")
                 plot_kwargs['xlabel'] = var
+
+            
             plt_cfg.results.plot_var_perf(bins=bins, **plot_kwargs)
             plt_cfg.results.taggers = all_taggers
 
@@ -181,7 +192,6 @@ def make_roc_plots(plt_cfg):
         plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(plt_cfg.results, roc)
         plot_kwargs = get_plot_kwargs(plt_cfg, roc, inc_str)
 
-        
         plt_cfg.results.plot_rocs(**plot_kwargs)
         plt_cfg.results.taggers = all_taggers
 
@@ -202,6 +212,8 @@ def make_plots(args, plt_cfg):
 
     if 'peff' in args.plots:
         make_eff_vs_var_plots(plt_cfg)
+
+        
 if __name__ == '__main__':
 
     args = get_args()
@@ -219,7 +231,9 @@ if __name__ == '__main__':
     plt_cfg = PlotConfig.load_config(config_path)
     if args.num_jets:
         plt_cfg.num_jets = args.num_jets
-
+    if args.sample:
+        assert args.sample in plt_cfg.samples, f"Sample {args.sample} not in config"
+        plt_cfg.samples = {args.sample : plt_cfg.samples[args.sample]}
     for signal in args.signal:
         for sample in plt_cfg.samples:
             logger.info(f"Making {signal}-tagging plots for {sample}")
