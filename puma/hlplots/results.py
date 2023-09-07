@@ -415,6 +415,7 @@ class Results:
         self,
         suffix: str = None,
         xlabel: str = r"$p_{T}$ [GeV]",
+        x_var: str = 'pt',
         h_line: float = None,
         **kwargs,
     ):
@@ -429,6 +430,8 @@ class Results:
             suffix to add to output file name, by default None
         xlabel : regexp, optional
             _description_, by default "$p_{T}$ [GeV]"
+        x_var: str, optional
+            The x axis variable, used for providing details to the plot name, default is 'pt'
         h_line : float, optional
             draws a horizonatal line in the signal efficiency plot
         **kwargs : kwargs
@@ -497,15 +500,15 @@ class Results:
         if h_line:
             plot_sig_eff.draw_hline(h_line)
 
-        plot_base = "profile_flat" if kwargs.get("fixed_eff_bin") else "profile_fixed"
-        plot_suffix = f"{self.signal}_eff_{suffix}" if suffix else f"{self.signal}_eff"
-        plot_sig_eff.savefig(self.get_filename(plot_base, plot_suffix))
+        
+        plot_base = "profile_flat_per_bin" if kwargs.get("fixed_eff_bin") else "profile_fixed_cut"
+        plot_details = f"{self.signal}_eff_vs_{x_var}_"
+        plot_suffix = f"_{suffix}" if suffix else ""
+        plot_sig_eff.savefig(self.get_filename(plot_details + plot_base, plot_suffix))
         for i, background in enumerate(self.backgrounds):
             plot_bkg[i].draw()
-            plot_suffix = (
-                f"{background}_rej_{suffix}" if suffix else f"{background}_rej"
-            )
-            plot_bkg[i].savefig(self.get_filename(plot_base, plot_suffix))
+            plot_details = f"{background}_rej_vs_{x_var}_"
+            plot_bkg[i].savefig(self.get_filename(plot_details + plot_base, plot_suffix))
 
     def plot_fraction_scans(
         self,
