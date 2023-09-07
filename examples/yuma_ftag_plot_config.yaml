@@ -1,4 +1,4 @@
-plot_dir: /home/xzcappon/phd/tools/puma/examples/yuma_plots
+plot_dir: /home/xzcappon/phd/tools/puma/examples/yuma_plots/ftag
 
 samples:
   ttbar:
@@ -18,7 +18,6 @@ models:
 denominator: model_1
 
 models_config: models.yaml
-
 
 roc_plots:
     
