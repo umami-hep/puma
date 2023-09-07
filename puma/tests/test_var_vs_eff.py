@@ -36,21 +36,21 @@ class VarVsEffTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             VarVsEff(np.ones(6), np.ones(6), np.ones(4), np.ones(5))
 
-    def test_var_vs_eff_init_fixed_eff_disc_cut(self):
+    def test_var_vs_eff_init_flat_eff_disc_cut(self):
         """Test var_vs_eff init."""
         with self.assertRaises(ValueError):
             VarVsEff(
                 np.ones(6),
                 np.ones(6),
-                fixed_eff_bin=True,
+                flat_eff_bin=True,
                 disc_cut=1.0,
                 working_point=0.77,
             )
 
-    def test_var_vs_eff_init_fixed_eff_no_wp(self):
+    def test_var_vs_eff_init_flat_eff_no_wp(self):
         """Test var_vs_eff init."""
         with self.assertRaises(ValueError):
-            VarVsEff(np.ones(6), np.ones(6), fixed_eff_bin=True, disc_cut=1.0)
+            VarVsEff(np.ones(6), np.ones(6), flat_eff_bin=True, disc_cut=1.0)
 
     def test_var_vs_eff_init_disc_cut_wp(self):
         """Test var_vs_eff init."""
@@ -93,7 +93,7 @@ class VarVsEffTestCase(unittest.TestCase):
         )
         np.testing.assert_array_almost_equal(var_plot.bin_edges, [-1, 1, 3], decimal=4)
 
-    def test_var_vs_eff_fixed_eff_sig_eff(self):
+    def test_var_vs_eff_flat_eff_sig_eff(self):
         """Test var_vs_eff sig_eff."""
         n_bins = 4
         var_plot = VarVsEff(
@@ -102,14 +102,14 @@ class VarVsEffTestCase(unittest.TestCase):
             x_var_bkg=self.disc_bkg,
             disc_bkg=self.x_var_bkg,
             working_point=self.working_point,
-            fixed_eff_bin=True,
+            flat_eff_bin=True,
             bins=n_bins,
         )
         np.testing.assert_array_almost_equal(
             var_plot.sig_eff[0], [self.working_point] * n_bins, decimal=2
         )
 
-    def test_var_vs_eff_fixed_eff_sig_rej(self):
+    def test_var_vs_eff_flat_eff_sig_rej(self):
         """Test var_vs_eff sig_rej."""
         n_bins = 4
         var_plot = VarVsEff(
@@ -118,7 +118,7 @@ class VarVsEffTestCase(unittest.TestCase):
             x_var_bkg=self.disc_bkg,
             disc_bkg=self.x_var_bkg,
             working_point=self.working_point,
-            fixed_eff_bin=True,
+            flat_eff_bin=True,
             bins=n_bins,
         )
         np.testing.assert_array_almost_equal(
@@ -134,7 +134,7 @@ class VarVsEffTestCase(unittest.TestCase):
             x_var_bkg=self.disc_bkg,
             disc_bkg=self.x_var_bkg,
             working_point=self.working_point,
-            fixed_eff_bin=True,
+            flat_eff_bin=True,
             bins=n_bins,
         )
         var_plot_comp = VarVsEff(
@@ -171,7 +171,7 @@ class VarVsEffTestCase(unittest.TestCase):
             x_var_bkg=self.disc_bkg,
             disc_bkg=self.x_var_bkg,
             working_point=self.working_point,
-            fixed_eff_bin=True,
+            flat_eff_bin=True,
             bins=n_bins,
         )
         var_plot.y_var_mean, var_plot.y_var_std = var_plot.get("sig_eff")
@@ -186,7 +186,7 @@ class VarVsEffTestCase(unittest.TestCase):
             x_var_bkg=self.disc_bkg,
             disc_bkg=self.x_var_bkg,
             working_point=self.working_point,
-            fixed_eff_bin=True,
+            flat_eff_bin=True,
             bins=n_bins,
         )
         with self.assertRaises(ValueError):
@@ -200,7 +200,7 @@ class VarVsEffTestCase(unittest.TestCase):
             x_var_bkg=self.disc_bkg,
             disc_bkg=self.x_var_bkg,
             working_point=self.working_point,
-            fixed_eff_bin=True,
+            flat_eff_bin=True,
             bins=1,
         )
         var_plot_comp = VarVsEff(
@@ -209,7 +209,7 @@ class VarVsEffTestCase(unittest.TestCase):
             x_var_bkg=self.disc_bkg,
             disc_bkg=self.x_var_bkg,
             working_point=self.working_point,
-            fixed_eff_bin=True,
+            flat_eff_bin=True,
             bins=2,
         )
         with self.assertRaises(ValueError):
@@ -231,7 +231,7 @@ class VarVsEffTestCase(unittest.TestCase):
             x_var_bkg=self.disc_bkg,
             disc_bkg=self.x_var_bkg,
             working_point=self.working_point,
-            fixed_eff_bin=True,
+            flat_eff_bin=True,
             bins=1,
         )
         mode_options = ["sig_eff", "bkg_eff", "sig_rej", "bkg_rej"]
@@ -297,8 +297,8 @@ class VarVsEffOutputTestCase(unittest.TestCase):
                 figsize=(9, 6),
             )
 
-    def test_output_plot_fixed_eff_bin_bkg_rejection(self):
-        """Test output plot with fixed eff per bin - bkg rejection."""
+    def test_output_plot_flat_eff_bin_bkg_rejection(self):
+        """Test output plot with flat eff per bin - bkg rejection."""
         # define the curves
         ref_light = VarVsEff(
             x_var_sig=self.x_var_sig_1,
@@ -308,7 +308,7 @@ class VarVsEffOutputTestCase(unittest.TestCase):
             bins=self.bins,
             working_point=0.5,
             disc_cut=None,
-            fixed_eff_bin=True,
+            flat_eff_bin=True,
             label="reference model",
         )
         better_light = VarVsEff(
@@ -319,7 +319,7 @@ class VarVsEffOutputTestCase(unittest.TestCase):
             bins=self.bins,
             working_point=0.5,
             disc_cut=None,
-            fixed_eff_bin=True,
+            flat_eff_bin=True,
             linestyle="dashed",
             label="better model (by construction better for $p_T$ > 110)",
         )
@@ -357,8 +357,8 @@ class VarVsEffOutputTestCase(unittest.TestCase):
             ),
         )
 
-    def test_output_plot_fixed_eff_bin_bkg_efficiency(self):
-        """Test output plot with fixed eff per bin."""
+    def test_output_plot_flat_eff_bin_bkg_efficiency(self):
+        """Test output plot with flat eff per bin."""
         # define the curves
         ref_light = VarVsEff(
             x_var_sig=self.x_var_sig_1,
@@ -368,7 +368,7 @@ class VarVsEffOutputTestCase(unittest.TestCase):
             bins=self.bins,
             working_point=0.5,
             disc_cut=None,
-            fixed_eff_bin=True,
+            flat_eff_bin=True,
             label="reference model",
         )
         better_light = VarVsEff(
@@ -379,7 +379,7 @@ class VarVsEffOutputTestCase(unittest.TestCase):
             bins=self.bins,
             working_point=0.5,
             disc_cut=None,
-            fixed_eff_bin=True,
+            flat_eff_bin=True,
             label="better model (by construction better for $p_T$ > 110)",
         )
         plot_bkg_rej = VarVsEffPlot(
