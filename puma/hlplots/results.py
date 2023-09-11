@@ -19,6 +19,7 @@ from puma import (
     VarVsEff,
     VarVsEffPlot,
 )
+from puma.hlplots.tagger import Tagger
 from puma.metrics import calc_eff, calc_rej
 from puma.utils import get_good_linestyles
 
@@ -87,30 +88,28 @@ class Results:
 
     def add_taggers_from_file(  # pylint: disable=R0913
         self,
-        taggers,
-        file_path,
+        taggers: list[Tagger],
+        file_path: Path | str,
         key="jets",
         label_var="HadronConeExclTruthLabelID",
-        cuts=None,
-        num_jets=None,
-        perf_var=None,
+        cuts: Cuts | list | None = None,
+        num_jets: int | None = None,
+        perf_var: str | None = None,
     ):
-        """Add taggers from file.
-
-        # TODO: proper cuts class implementation
+        """Load one or more taggers from a common file.
 
         Parameters
         ----------
-        taggers : list
+        taggers : list[Tagger]
             List of taggers to add
-        file_path : str
+        file_path : str | Path
             Path to file
         key : str, optional
             Key in file, by default 'jets'
         label_var : str
-            Label variable to use
-        cuts : Cuts | list
-            List of cuts to apply
+            Label variable to use, by default 'HadronConeExclTruthLabelID'
+        cuts : Cuts | list, optional
+            Cuts to apply, by default None
         num_jets : int, optional
             Number of jets to load from the file, by default all jets
         perf_var : np.ndarray, optional
@@ -118,35 +117,48 @@ class Results:
         """
         # set tagger output nodes
         for tagger in taggers:
-            if tagger.output_nodes is None:
-                tagger.output_nodes = self.flavours
+            tagger.output_nodes = self.flavours
 
         # get a list of all variables to be loaded from the file
         if not isinstance(cuts, Cuts):
             cuts = Cuts.empty() if cuts is None else Cuts.from_list(cuts)
         var_list = sum([tagger.variables for tagger in taggers], [label_var])
         var_list += cuts.variables
+        var_list += sum([t.cuts.variables for t in taggers if t.cuts is not None], [])
         var_list = list(set(var_list + [self.perf_var]))
 
         # load data
         reader = H5Reader(file_path, precision="full")
         data = reader.load({key: var_list}, num_jets)[key]
 
-        # apply cuts
-        idx, data = cuts(data)
-        if perf_var is not None:
-            perf_var = perf_var[idx]
+        # apply common cuts
+        if cuts:
+            idx, data = cuts(data)
+            if perf_var is not None:
+                perf_var = perf_var[idx]
 
-        # attach data to tagger objects
+        # for each tagger
         for tagger in taggers:
-            tagger.extract_tagger_scores(data, source_type="structured_array")
-            tagger.labels = np.array(data[label_var], dtype=[(label_var, "i4")])
+            sel_data = data
+            sel_perf_var = perf_var
+
+            # apply tagger specific cuts
+            if tagger.cuts:
+                idx, sel_data = tagger.cuts(data)
+                if perf_var is not None:
+                    sel_perf_var = perf_var[idx]
+
+            # attach data to tagger objects
+            tagger.extract_tagger_scores(sel_data, source_type="structured_array")
+            tagger.labels = np.array(sel_data[label_var], dtype=[(label_var, "i4")])
             if perf_var is None:
-                tagger.perf_var = data[self.perf_var]
+                tagger.perf_var = sel_data[self.perf_var]
                 if any(x in self.perf_var for x in ["pt", "mass"]):
                     tagger.perf_var = tagger.perf_var * 0.001
             else:
-                tagger.perf_var = perf_var
+                tagger.perf_var = sel_perf_var
+
+            # add tagger to results
             self.add(tagger)
 
     def __getitem__(self, tagger_name: str):
@@ -406,6 +418,7 @@ class Results:
         self,
         suffix: str = None,
         xlabel: str = r"$p_{T}$ [GeV]",
+        x_var: str = "pt",
         h_line: float = None,
         **kwargs,
     ):
@@ -420,6 +433,9 @@ class Results:
             suffix to add to output file name, by default None
         xlabel : regexp, optional
             _description_, by default "$p_{T}$ [GeV]"
+        x_var: str, optional
+            The x axis variable, used for providing details to the plot name, default
+            is 'pt'
         h_line : float, optional
             draws a horizonatal line in the signal efficiency plot
         **kwargs : kwargs
@@ -451,12 +467,10 @@ class Results:
                 )
             )
 
-        disc_cut_in_kwargs = "disc_cut" in kwargs
-        working_point_in_kwargs = "working_point" in kwargs
         for tagger in self.taggers.values():
-            if not disc_cut_in_kwargs:
+            if "disc_cut" not in kwargs:
                 kwargs["disc_cut"] = tagger.disc_cut
-            if not working_point_in_kwargs:
+            if "working_point" not in kwargs:
                 kwargs["working_point"] = tagger.working_point
 
             discs = tagger.discriminant(self.signal)
@@ -490,15 +504,116 @@ class Results:
         if h_line:
             plot_sig_eff.draw_hline(h_line)
 
-        plot_base = "profile_flat" if kwargs.get("fixed_eff_bin") else "profile_fixed"
-        plot_suffix = f"{self.signal}_eff_{suffix}" if suffix else f"{self.signal}_eff"
-        plot_sig_eff.savefig(self.get_filename(plot_base, plot_suffix))
+        plot_base = (
+            "profile_flat_per_bin"
+            if kwargs.get("flat_eff_bin")
+            else "profile_fixed_cut"
+        )
+        plot_details = f"{self.signal}_eff_vs_{x_var}_"
+        plot_suffix = f"_{suffix}" if suffix else ""
+        plot_sig_eff.savefig(self.get_filename(plot_details + plot_base, plot_suffix))
         for i, background in enumerate(self.backgrounds):
             plot_bkg[i].draw()
-            plot_suffix = (
-                f"{background}_rej_{suffix}" if suffix else f"{background}_rej"
+            plot_details = f"{background}_rej_vs_{x_var}_"
+            plot_bkg[i].savefig(
+                self.get_filename(plot_details + plot_base, plot_suffix)
             )
-            plot_bkg[i].savefig(self.get_filename(plot_base, plot_suffix))
+
+    def plot_flat_rej_var_perf(
+        self,
+        fixed_rejections: dict[Flavour, float],
+        suffix: str = None,
+        xlabel: str = r"$p_{T}$ [GeV]",
+        x_var: str = "pt",
+        h_line: float = None,
+        **kwargs,
+    ):
+        """Plot signal efficiency as a function of a variable, with a fixed enforce
+        background rejection for each bin
+
+
+        Parameters
+        ----------
+        fixed_rejections : dict[Flavour, float]
+            A dictionary of the fixed background rejections for each flavour, eg:
+            fixed_rejections = {cjets : 0.1, ujets : 0.01}
+        suffix : str, optional
+            suffix to add to output file name, by default None
+        xlabel : regexp, optional
+            _description_, by default "$p_{T}$ [GeV]"
+        x_var: str, optional
+            The x axis variable, used for providing details to the plot name,
+            default is 'pt'
+        h_line : float, optional
+            draws a horizonatal line in the signal efficiency plot
+        **kwargs : kwargs
+            key word arguments for `puma.VarVsEff`
+        """
+        assert all(
+            [b.name in fixed_rejections for b in self.backgrounds]
+        ), "Not all backgrounds have a fixed rejection"
+        plot_bkg = []
+        for background in self.backgrounds:
+            modified_second_tag = (
+                f"{self.atlas_second_tag}\nFixed {background.rej_str} ="
+                f" {fixed_rejections[background.name]} per bin"
+            )
+            plot_bkg.append(
+                VarVsEffPlot(
+                    mode="bkg_eff",
+                    ylabel=self.signal.eff_str,
+                    xlabel=xlabel,
+                    logy=False,
+                    atlas_first_tag=self.atlas_first_tag,
+                    atlas_second_tag=modified_second_tag,
+                    n_ratio_panels=1,
+                    y_scale=1.4,
+                )
+            )
+        for tagger in self.taggers.values():
+            if "disc_cut" in kwargs:
+                raise ValueError("disc_cut should not be set for this plot")
+            if "working_point" in kwargs:
+                raise ValueError("working_point should not be set for this plot")
+
+            discs = tagger.discriminant(self.signal)
+            is_signal = tagger.is_flav(self.signal)
+            for i, background in enumerate(self.backgrounds):
+                is_bkg = tagger.is_flav(background)
+                # We want x bins to all have the same background rejection, so we
+                # select the plot mode as 'bkg_eff', and then treat the signal as
+                # the background here. I.e, the API plots 'bkg_eff' on the y axis,
+                # while keeping the 'sig_eff' a flat rate on the x axis, we therefore
+                # pass the signal as the background, and the background as the
+                # signal.
+                plot_bkg[i].add(
+                    VarVsEff(
+                        x_var_sig=tagger.perf_var[is_bkg],
+                        disc_sig=discs[is_bkg],
+                        x_var_bkg=tagger.perf_var[is_signal],
+                        disc_bkg=discs[is_signal],
+                        label=tagger.label,
+                        colour=tagger.colour,
+                        working_point=1 / fixed_rejections[background.name],
+                        flat_eff_bin=True,
+                        **kwargs,
+                    ),
+                    reference=tagger.reference,
+                )
+
+        plot_suffix = f"_{suffix}" if suffix else ""
+        for i, background in enumerate(self.backgrounds):
+            plot_bkg[i].draw()
+            if h_line:
+                plot_bkg[i].draw_hline(h_line)
+            plot_details = f"{self.signal}_eff_vs_{x_var}_"
+            plot_base = (
+                f"profile_flat_{background}_"
+                + f"{int(fixed_rejections[background.name])}_rej_per_bin"
+            )
+            plot_bkg[i].savefig(
+                self.get_filename(plot_details + plot_base, plot_suffix)
+            )
 
     def plot_fraction_scans(
         self,

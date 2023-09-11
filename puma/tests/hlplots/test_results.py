@@ -60,6 +60,17 @@ class ResultsTestCase(unittest.TestCase):
         results.add_taggers_from_file(taggers, fname)
         self.assertEqual(list(results.taggers.values()), taggers)
 
+    def test_add_taggers_with_cuts(self):
+        tempfile.TemporaryDirectory()  # pylint: disable=R1732
+        np.random.default_rng(seed=16)
+        fname = get_mock_file()[0]
+        cuts = [("eta", ">", 0)]
+        tagger_cuts = [("pt", ">", 20)]
+        results = Results(signal="bjets", sample="test")
+        taggers = [Tagger("MockTagger", cuts=tagger_cuts)]
+        results.add_taggers_from_file(taggers, fname, cuts=cuts)
+        self.assertEqual(list(results.taggers.values()), taggers)
+
 
 class ResultsPlotsTestCase(unittest.TestCase):
     """Test class for the Results class running plots."""
@@ -165,9 +176,15 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
             )
 
-            self.assertIsFile(Path(tmp_file) / "test_bjets_profile_fixed_bjets_eff.png")
-            self.assertIsFile(Path(tmp_file) / "test_bjets_profile_fixed_cjets_rej.png")
-            self.assertIsFile(Path(tmp_file) / "test_bjets_profile_fixed_ujets_rej.png")
+            self.assertIsFile(
+                Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_profile_fixed_cut_.png"
+            )
+            self.assertIsFile(
+                Path(tmp_file) / "test_bjets_cjets_rej_vs_pt_profile_fixed_cut_.png"
+            )
+            self.assertIsFile(
+                Path(tmp_file) / "test_bjets_ujets_rej_vs_pt_profile_fixed_cut_.png"
+            )
 
     def test_plot_var_perf_cjets(self):
         """Test that png file is being created."""
@@ -185,9 +202,15 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 h_line=self.dummy_tagger_1.working_point,
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
             )
-            self.assertIsFile(Path(tmp_file) / "test_cjets_profile_fixed_cjets_eff.png")
-            self.assertIsFile(Path(tmp_file) / "test_cjets_profile_fixed_bjets_rej.png")
-            self.assertIsFile(Path(tmp_file) / "test_cjets_profile_fixed_ujets_rej.png")
+            self.assertIsFile(
+                Path(tmp_file) / "test_cjets_cjets_eff_vs_pt_profile_fixed_cut_.png"
+            )
+            self.assertIsFile(
+                Path(tmp_file) / "test_cjets_bjets_rej_vs_pt_profile_fixed_cut_.png"
+            )
+            self.assertIsFile(
+                Path(tmp_file) / "test_cjets_ujets_rej_vs_pt_profile_fixed_cut_.png"
+            )
 
     def test_plot_fraction_scans_hbb_error(self):
         """Test that correct error is raised."""

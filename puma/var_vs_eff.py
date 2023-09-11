@@ -23,7 +23,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         bins=10,
         working_point: float = None,
         disc_cut=None,
-        fixed_eff_bin: bool = False,
+        flat_eff_bin: bool = False,
         key: str = None,
         **kwargs,
     ) -> None:
@@ -49,7 +49,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         disc_cut : float or  sequence of floats, optional
             Cut value for discriminant, if it is a sequence it has to have the same
             length as number of bins, by default None
-        fixed_eff_bin : bool, optional
+        flat_eff_bin : bool, optional
             If True and no `disc_cut` is given the signal efficiency is held constant
             in each bin, by default False
         key : str, optional
@@ -79,14 +79,14 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         # the arguments to init e.g. `set_method`
         if working_point is None and disc_cut is None:
             raise ValueError("Either `wp` or `disc_cut` needs to be specified.")
-        if fixed_eff_bin:
+        if flat_eff_bin:
             if disc_cut is not None:
                 raise ValueError(
-                    "You cannot specify `disc_cut` when `fixed_eff_bin` is set to True."
+                    "You cannot specify `disc_cut` when `flat_eff_bin` is set to True."
                 )
             if working_point is None:
                 raise ValueError(
-                    "You need to specify a working point `wp`, when `fixed_eff_bin` is"
+                    "You need to specify a working point `wp`, when `flat_eff_bin` is"
                     " set to True."
                 )
         self.x_var_sig = np.array(x_var_sig)
@@ -95,7 +95,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         self.disc_bkg = None if disc_bkg is None else np.array(disc_bkg)
         self.working_point = working_point
         self.disc_cut = disc_cut
-        self.fixed_eff_bin = fixed_eff_bin
+        self.flat_eff_bin = flat_eff_bin
         # Binning related variables
         self.n_bins = None
         self.bn_edges = None
@@ -200,7 +200,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             self.disc_cut = [self.disc_cut] * self.n_bins
         elif isinstance(self.disc_cut, (list, np.ndarray)):
             self.disc_cut = self.disc_cut
-        elif self.fixed_eff_bin:
+        elif self.flat_eff_bin:
             self.disc_cut = list(
                 map(
                     lambda x: np.percentile(x, (1 - self.working_point) * 100),
@@ -339,7 +339,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
                 and np.all(self.bn_edges == other.bn_edges)
                 and self.working_point == other.working_point
                 and np.all(self.disc_cut == other.disc_cut)
-                and self.fixed_eff_bin == other.fixed_eff_bin
+                and self.flat_eff_bin == other.flat_eff_bin
                 and self.key == other.key
             )
         return False
