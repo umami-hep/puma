@@ -3,6 +3,7 @@
 ### [Latest]
 
 - Add tagger specific cuts to results [!205](https://github.com/umami-hep/puma/pull/205)
+- Generalise ROC curve ratio grouping [!202](https://github.com/umami-hep/puma/pull/202)
 
 ### [v0.2.8] (2023/08/09)
 
