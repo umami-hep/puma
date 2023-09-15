@@ -71,7 +71,7 @@ results.atlas_second_tag = "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$\n70% WP
 results.plot_var_perf(
     working_point=0.7,
     bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
-    flat_eff_bin=False,
+    flat_per_bin=False,
 )
 
 results.atlas_second_tag = (
@@ -79,7 +79,7 @@ results.atlas_second_tag = (
 )
 results.plot_var_perf(
     bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
-    flat_eff_bin=True,
+    flat_per_bin=True,
     working_point=0.7,
     h_line=0.7,
     disc_cut=None,
