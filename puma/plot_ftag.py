@@ -84,7 +84,10 @@ def make_eff_vs_var_plots(plt_cfg):
                     bins =[250, 500, 750, 1000, 1500, 2000, 3000, 4000, 5500]
                 else:
                     raise ValueError(f"No bins provided, and no default pt bins for sample {plt_cfg.sample}")
-            plt_cfg.results.plot_var_perf(bins=bins, **plot_kwargs)
+            if plot_kwargs.get('fixed_rejections', False):
+                plt_cfg.results.plot_flat_rej_var_perf(bins=bins, **plot_kwargs)
+            else:
+                plt_cfg.results.plot_var_perf(bins=bins, **plot_kwargs)
             plt_cfg.results.taggers = all_taggers
 
     for var, plots in grouped_plots.items():
@@ -101,7 +104,10 @@ def make_eff_vs_var_plots(plt_cfg):
                 plot_kwargs['xlabel'] = var
 
             
-            plt_cfg.results.plot_var_perf(bins=bins, **plot_kwargs)
+            if plot_kwargs.get('fixed_rejections', False):
+                plt_cfg.results.plot_flat_rej_var_perf(bins=bins, **plot_kwargs)
+            else:
+                plt_cfg.results.plot_var_perf(bins=bins, **plot_kwargs)
             plt_cfg.results.taggers = all_taggers
 
 
