@@ -421,6 +421,19 @@ class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
             elem.y_var_mean = y_value
             elem.y_var_std = y_error
 
+    def apply_modified_atlas_second_tag(self, flavour):
+        '''Modifies the atlas_second_tag to include info on the type of p-eff plot
+        being displayed
+        '''
+        if self.mode == 'sig_eff':
+            self.atlas_second_tag = f'{self.atlas_second_tag} {flavour} p-eff'
+        elif self.mode == 'bkg_eff':
+            self.atlas_second_tag = f'{self.atlas_second_tag} {flavour} b-eff'
+        elif self.mode == 'sig_rej':
+            self.atlas_second_tag = f'{self.atlas_second_tag} {flavour} p-rej'
+        elif self.mode == 'bkg_rej':
+            self.atlas_second_tag = f'{self.atlas_second_tag} {flavour} b-rej'
+
     def plot(self, **kwargs):
         """Plotting curves.
 
