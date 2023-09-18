@@ -48,8 +48,8 @@ class IntegratedEfficiency(PlotLineObject):
             If `sig_eff` and `bkg_rej` have a different shape
         """
         super().__init__(**kwargs)
-        self.disc_sig = disc_sig
-        self.disc_bkg = disc_bkg
+        self.disc_sig = np.asarray(disc_sig)
+        self.disc_bkg = np.asarray(disc_bkg)
         self.n_vals = n_vals
         self.tagger = tagger
         self.key = key
