@@ -552,7 +552,7 @@ class Results:
         plot_bkg = []
         for background in self.backgrounds:
             modified_second_tag = (
-                f"{self.atlas_second_tag}\nFixed {background.rej_str} ="
+                f"{self.atlas_second_tag}\nFixed {background.rej_str} of"
                 f" {fixed_rejections[background.name]} per bin"
             )
             plot_bkg.append(
