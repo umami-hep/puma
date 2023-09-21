@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Update linters [!210](https://github.com/umami-hep/puma/pull/210)
 - Fix tagger discriminant bug, add future imports [!209](https://github.com/umami-hep/puma/pull/209)
 - Add weight support for efficiency calculation [!206](https://github.com/umami-hep/puma/pull/206)
 - Add tagger specific cuts to results [!205](https://github.com/umami-hep/puma/pull/205)
