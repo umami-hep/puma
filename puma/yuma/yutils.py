@@ -1,12 +1,26 @@
 from puma.utils import logger
 
+def get_signals(plt_cfg):
+    """Iterates all plots in the config and returns a list of all signals.
+    """
+    all_plots = [
+        *plt_cfg.roc_plots,
+        *plt_cfg.fracscan_plots,
+        *plt_cfg.disc_plots,
+        *plt_cfg.prob_plots,
+        *plt_cfg.eff_vs_var_plots,
+    ]
+    all_sig = list(set([p['args']['signal'] for p in all_plots]))
+    return all_sig
+
 def select_configs(configs, plt_cfg):
     '''
     Selects only configs that match the current sample and signal
     '''
+    # return configs
     return   [c for c in configs 
-                    if (c['sample'] == plt_cfg.sample
-                    and c['args']['signal'] == plt_cfg.signal)]
+                    if c['args']['signal'] == plt_cfg.signal]
+    #                 and c['args']['signal'] == plt_cfg.signal)]
 
 def get_plot_kwargs(plt_cfg, config, suffix=''):
     plot_kwargs = config['args'].get('plot_kwargs', {})

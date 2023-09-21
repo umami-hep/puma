@@ -42,6 +42,9 @@ class Tagger:
     f_c: float = None
     f_b: float = None
 
+    # Used only by YUMA
+    yaml_name: str = None
+
     def __post_init__(self):
         if self.label is None:
             self.label = self.name

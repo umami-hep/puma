@@ -6,7 +6,7 @@ import numpy as np
 
 from ftag import Cuts, Flavour, Flavours
 
-from puma.yuma import (PlotConfig, select_configs, get_plot_kwargs, get_included_taggers)
+from puma.yuma import (PlotConfig, select_configs, get_plot_kwargs, get_included_taggers, get_signals)
 from puma.utils import logger, set_log_level
 
 ALL_PLOTS=['roc', 'scan', 'disc', 'prob', 'peff']
@@ -22,11 +22,10 @@ def get_args():
                         help=f'Plot types to make. Allowed are: {ALL_PLOTS} ',
                         )
     args.add_argument(
-                        '-s',''
-                        '--signal',
+                        '-s',
+                        '--signals',
                         nargs='+',
-                        default=['bjets', 'cjets'],
-                        help='Signal to plot, by default bjets and cjets',)
+                        help='Signals to plot',)
     args.add_argument(
         '--sample',
         default=None,
@@ -78,9 +77,9 @@ def make_eff_vs_var_plots(plt_cfg):
             plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(plt_cfg.results, eff_vs_var)
             plot_kwargs = get_plot_kwargs(plt_cfg, eff_vs_var, suffix='_' + inc_str + '_pt')
             if not (bins := eff_vs_var['args'].get('bins', None)):    
-                if plt_cfg.sample == 'ttbar':
+                if plt_cfg.sample['name'] == 'ttbar':
                     bins = [20, 30, 40, 60, 85, 110, 140, 175, 250]
-                elif plt_cfg.sample == 'zprime':
+                elif plt_cfg.sample['name'] == 'zprime':
                     bins =[250, 500, 750, 1000, 1500, 2000, 3000, 4000, 5500]
                 else:
                     raise ValueError(f"No bins provided, and no default pt bins for sample {plt_cfg.sample}")
@@ -96,12 +95,13 @@ def make_eff_vs_var_plots(plt_cfg):
         plt_cfg.get_results(var)
         for eff_vs_var in plots:
             plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(plt_cfg.results, eff_vs_var)
-            plot_kwargs = get_plot_kwargs(plt_cfg, eff_vs_var, suffix='_' + inc_str + '_' + var)
+            plot_kwargs = get_plot_kwargs(plt_cfg, eff_vs_var, suffix='_' + inc_str)
             if not (bins := eff_vs_var['args'].get('bins', None)):
                 raise ValueError("If using custom peff var, bins must be defined")
             if not 'xlabel' in plot_kwargs:
                 logger.warning("No latex label provided for xaxis in peff plot, using raw string")
                 plot_kwargs['xlabel'] = var
+            plot_kwargs['x_var'] = var
 
             
             if plot_kwargs.get('fixed_rejections', False):
@@ -225,6 +225,7 @@ if __name__ == '__main__':
     args = get_args()
     if args.debug:
         set_log_level(logger, 'DEBUG')
+        
     if args.plots:
         for p in args.plots:
             if p not in ALL_PLOTS:
@@ -233,18 +234,24 @@ if __name__ == '__main__':
         args.plots = ALL_PLOTS
 
     config_path = Path(args.config)
-
     plt_cfg = PlotConfig.load_config(config_path)
+
+    signals = get_signals(plt_cfg)
+    
+    if args.signals:
+        assert all([s in signals for s in args.signals]), f"Signal {args.signals} not in config"
+    else:
+        args.signals = signals
+    
     if args.num_jets:
         plt_cfg.num_jets = args.num_jets
+
+    logger.info(f"Plotting in {plt_cfg.plot_dir}")
     if args.sample:
         assert args.sample in plt_cfg.samples, f"Sample {args.sample} not in config"
         plt_cfg.samples = {args.sample : plt_cfg.samples[args.sample]}
-    for signal in args.signal:
-        for sample in plt_cfg.samples:
-            logger.info(f"Making {signal}-tagging plots for {sample}")
-            plt_cfg.sample = sample
-            plt_cfg.signal = signal
-            plt_cfg.get_results()
-            make_plots(args, plt_cfg)
-    
+
+    for signal in args.signals:
+        plt_cfg.signal = signal
+        plt_cfg.get_results()
+        make_plots(args, plt_cfg)
