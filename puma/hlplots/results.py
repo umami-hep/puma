@@ -96,15 +96,14 @@ class Results:
         tagger_paths = list(set([tagger.sample_path for tagger in req_load]))
         for tp in tagger_paths:
             tp_taggers = [tagger for tagger in req_load if tagger.sample_path == tp]
-            self.add_taggers_from_file(
+            self.load_taggers_from_file(
                 tp_taggers, 
                 tp,
                 cuts=self.global_cuts,
                 num_jets=self.num_jets,)
             
 
-
-    def add_taggers_from_file(  # pylint: disable=R0913
+    def add_taggers_from_file(
         self,
         taggers: list[Tagger],
         file_path: Path | str,
@@ -114,7 +113,37 @@ class Results:
         num_jets: int | None = None,
         perf_var: str | None = None,
     ):
-        """Load one or more taggers from a common file.
+        """Load one or more taggers from a common file, and adds them to this 
+        results class
+        
+        Parameters:
+            @self.load_taggers_from_file
+        """
+        self.load_taggers_from_file(
+            taggers,
+            file_path,
+            key=key,
+            label_var=label_var,
+            cuts=cuts,
+            num_jets=num_jets,
+            perf_var=perf_var,
+        )
+
+        for tagger in taggers:
+            self.add(tagger)
+        
+    def load_taggers_from_file(  # pylint: disable=R0913
+        self,
+        taggers: list[Tagger],
+        file_path: Path | str,
+        key="jets",
+        label_var="HadronConeExclTruthLabelID",
+        cuts: Cuts | list | None = None,
+        num_jets: int | None = None,
+        perf_var: str | None = None,
+    ):
+        """Load one or more taggers from a common file. But assumes all taggers
+        already been added.
 
         Parameters
         ----------
@@ -175,9 +204,6 @@ class Results:
                     tagger.perf_var = tagger.perf_var * 0.001
             else:
                 tagger.perf_var = sel_perf_var
-
-            # add tagger to results
-            self.add(tagger)
 
     def __getitem__(self, tagger_name: str):
         """Retrieve Tagger object.
@@ -604,11 +630,6 @@ class Results:
                 # while keeping the 'sig_eff' a flat rate on the x axis, we therefore
                 # pass the signal as the background, and the background as the
                 # signal.
-                print(background, tagger.perf_var[is_bkg],)
-                print(sum(tagger.perf_var[is_bkg] == 0))
-                print(sum(tagger.perf_var[is_bkg] == 4))
-                print(sum(tagger.perf_var[is_bkg] != 0))
-                # print(all(tagger.perf_var[is_bkg] == 0))
                 plot_bkg[i].add(
                     VarVsEff(
                         x_var_sig=tagger.perf_var[is_bkg],
