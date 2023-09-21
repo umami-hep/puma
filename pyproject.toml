@@ -11,6 +11,9 @@ select = ["I", "E", "W", "F", "B", "UP", "ARG", "SIM", "TID", "RUF", "D2", "D3",
 ignore = ["D211", "D213", "RUF005", "D401", "D205", "D403", "D400", "D404", "SIM117"]
 line-length = 88
 
+[tool.ruff.isort]
+required-imports = ["from __future__ import annotations"]
+
 [tool.ruff.pydocstyle]
 convention = "numpy"  # Accepts: "google", "numpy", or "pep257".
 
