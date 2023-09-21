@@ -1,4 +1,5 @@
 """Plotting bases for specialised plotting."""
+from __future__ import annotations
 
 from dataclasses import dataclass
 

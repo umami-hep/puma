@@ -7,6 +7,8 @@ to install the package.
 """
 
 # read the contents of the README.md file
+from __future__ import annotations
+
 from pathlib import Path
 
 from setuptools import setup

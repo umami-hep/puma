@@ -7,6 +7,7 @@ the fact that this button prefers urls instead of local filenames).
 
 This script has to be executed in the root of the repository!
 """
+from __future__ import annotations
 
 import json
 import os

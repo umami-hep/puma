@@ -1,4 +1,6 @@
 """Example script that demonstrates Data/MC plots."""
+from __future__ import annotations
+
 import numpy as np
 
 from puma import Histogram, HistogramPlot

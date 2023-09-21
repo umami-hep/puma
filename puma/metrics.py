@@ -1,5 +1,5 @@
 """Tools for metrics module."""
-from typing import Union
+from __future__ import annotations
 
 import numpy as np
 
@@ -45,7 +45,7 @@ def weighted_percentile(
 def calc_eff(
     sig_disc: np.ndarray,
     bkg_disc: np.ndarray,
-    target_eff: Union[float, list, np.ndarray],
+    target_eff: float | list | np.ndarray,
     return_cuts: bool = False,
     sig_weights: np.ndarray = None,
     bkg_weights: np.ndarray = None,

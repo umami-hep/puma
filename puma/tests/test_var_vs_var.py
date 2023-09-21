@@ -2,6 +2,7 @@
 
 
 """Unit test script for the functions in var_vs_var.py."""
+from __future__ import annotations
 
 import os
 import tempfile

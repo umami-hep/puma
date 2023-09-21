@@ -1,3 +1,10 @@
+[project]
+name = "puma"
+description = "ATLAS Flavour Tagging Plotting Code"
+dynamic = ["version"]
+readme = "README.md"
+requires-python = ">=3.8"
+
 [build-system]
 requires = ["setuptools", "wheel"]
 

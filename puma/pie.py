@@ -1,4 +1,6 @@
 """Pie plot functions."""
+from __future__ import annotations
+
 import matplotlib as mpl
 
 from puma.plot_base import PlotBase
