@@ -1,4 +1,5 @@
 """Produce histogram of discriminant from tagger output and labels."""
+from __future__ import annotations
 
 import numpy as np
 from ftag import Flavours

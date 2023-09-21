@@ -1,4 +1,6 @@
 """Efficiency plots vs. specific variable."""
+from __future__ import annotations
+
 import numpy as np
 
 # TODO: fix the import below

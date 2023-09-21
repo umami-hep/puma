@@ -1,4 +1,6 @@
 """Discriminant calculation for flavour tagging."""
+from __future__ import annotations
+
 import numpy as np
 from numpy.lib.recfunctions import structured_to_unstructured as s2u
 

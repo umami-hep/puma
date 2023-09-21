@@ -1,4 +1,6 @@
 """Classes for 2D line plots."""
+from __future__ import annotations
+
 import matplotlib as mpl
 import numpy as np
 import pandas as pd

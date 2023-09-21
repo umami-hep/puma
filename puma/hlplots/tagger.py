@@ -32,7 +32,7 @@ class Tagger:
     scores: np.ndarray = None
     labels: np.ndarray = None
     perf_var: np.ndarray = None
-    output_nodes: list = field(
+    output_flavours: list = field(
         default_factory=lambda: [Flavours.ujets, Flavours.cjets, Flavours.bjets]
     )
 
@@ -70,7 +70,7 @@ class Tagger:
         list
             List of probability names
         """
-        return [flav.px for flav in self.output_nodes]
+        return [flav.px for flav in self.output_flavours]
 
     @property
     def variables(self):
@@ -210,5 +210,6 @@ class Tagger:
         if Flavours[signal] == Flavours.cjets:
             return get_discriminant(self.scores, self.name, signal, fx)
         if Flavours[signal] in (Flavours.hbb, Flavours.hcc):
-            return self.scores[signal.px]
+            sig_var = self.variables[self.output_flavours.index(Flavours[signal])]
+            return self.scores[sig_var]
         raise ValueError(f"No discriminant defined for {signal} signal.")

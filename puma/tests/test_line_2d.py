@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 """Unit test script for the functions in line_plot_2d.py."""
+from __future__ import annotations
 
 import os
 import tempfile

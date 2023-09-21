@@ -1,4 +1,6 @@
 """Variable vs another variable plot."""
+from __future__ import annotations
+
 import matplotlib as mpl
 import numpy as np
 from matplotlib.patches import Rectangle

@@ -1,4 +1,6 @@
 """Produce Integrated Efficiency curves from tagger output and labels."""
+from __future__ import annotations
+
 import numpy as np
 
 from puma import IntegratedEfficiency, IntegratedEfficiencyPlot
