@@ -178,7 +178,7 @@ class TaggerTestCase(unittest.TestCase):
         """Test hbb-disc calculation."""
         tagger = Tagger("dummy")
         tagger.scores = u2s(
-            np.column_stack((np.ones(10), np.ones(10), np.ones(10)), np.ones(10)),
+            np.column_stack((np.ones(10), np.ones(10), np.ones(10), np.ones(10))),
             dtype=[
                 ("dummy_hbb", "f4"),
                 ("dummy_hcc", "f4"),
