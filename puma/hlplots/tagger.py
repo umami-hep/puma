@@ -210,5 +210,6 @@ class Tagger:
         if Flavours[signal] == Flavours.cjets:
             return get_discriminant(self.scores, self.name, signal, fx)
         if Flavours[signal] in (Flavours.hbb, Flavours.hcc):
-            return self.scores[signal.px]
+            sig_var = self.variables[self.output_nodes.index(signal)]
+            return self.scores[sig_var]
         raise ValueError(f"No discriminant defined for {signal} signal.")

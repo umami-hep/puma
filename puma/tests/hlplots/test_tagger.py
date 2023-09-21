@@ -172,5 +172,19 @@ class TaggerTestCase(unittest.TestCase):
         tagger = Tagger("dummy", f_b=0.5)
         tagger.scores = self.scores
         discs = tagger.discriminant("cjets")
-
         np.testing.assert_array_equal(discs, np.zeros(10))
+
+    def test_disc_hbb_calc(self):
+        """Test hbb-disc calculation."""
+        tagger = Tagger("dummy")
+        tagger.scores = u2s(
+            np.column_stack((np.ones(10), np.ones(10), np.ones(10)), np.ones(10)),
+            dtype=[
+                ("dummy_hbb", "f4"),
+                ("dummy_hcc", "f4"),
+                ("dummy_top", "f4"),
+                ("dummy_qcd", "f4"),
+            ],
+        )
+        discs = tagger.discriminant("hbb")
+        np.testing.assert_array_equal(discs, np.ones(10))
