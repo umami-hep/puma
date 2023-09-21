@@ -5,6 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import h5py
 import numpy as np
 from ftag import get_mock_file
 from matplotlib.testing.compare import compare_images
@@ -52,7 +53,6 @@ class ResultsTestCase(unittest.TestCase):
 
     def test_add_taggers_from_file(self):
         """Test for Results.add_taggers_from_file function."""
-        tempfile.TemporaryDirectory()  # pylint: disable=R1732
         np.random.default_rng(seed=16)
         fname = get_mock_file()[0]
         results = Results(signal="bjets", sample="test")
@@ -61,7 +61,6 @@ class ResultsTestCase(unittest.TestCase):
         self.assertEqual(list(results.taggers.values()), taggers)
 
     def test_add_taggers_with_cuts(self):
-        tempfile.TemporaryDirectory()  # pylint: disable=R1732
         np.random.default_rng(seed=16)
         fname = get_mock_file()[0]
         cuts = [("eta", ">", 0)]
@@ -70,6 +69,47 @@ class ResultsTestCase(unittest.TestCase):
         taggers = [Tagger("MockTagger", cuts=tagger_cuts)]
         results.add_taggers_from_file(taggers, fname, cuts=cuts)
         self.assertEqual(list(results.taggers.values()), taggers)
+
+    def test_add_taggers_hbb(self):
+        # TODO: delete this when we bump the tools version
+        def structured_from_dict(d: dict[str, np.ndarray]) -> np.ndarray:
+            """Convert a dict to a structured array.
+
+            Parameters
+            ----------
+            d : dict
+                Input dict of numpy arrays
+
+            Returns
+            -------
+            np.ndarray
+                Structured array
+            """
+            from numpy.lib.recfunctions import unstructured_to_structured as u2s
+
+            arrays = np.column_stack(list(d.values()))
+            dtypes = np.dtype([(k, v.dtype) for k, v in d.items()])
+            return u2s(arrays, dtype=dtypes)
+
+        # get mock file and rename variables match hbb
+        f = get_mock_file()[1]
+        d = {}
+        d["R10TruthLabel"] = f["jets"]["HadronConeExclTruthLabelID"]
+        d["MockTagger_phbb"] = f["jets"]["MockTagger_pb"]
+        d["MockTagger_phcc"] = f["jets"]["MockTagger_pc"]
+        d["MockTagger_ptop"] = f["jets"]["MockTagger_pu"]
+        d["MockTagger_pqcd"] = f["jets"]["MockTagger_pu"]
+        d["pt"] = f["jets"]["pt"]
+        array = structured_from_dict(d)
+        with tempfile.TemporaryDirectory() as tmp_file:
+            fname = Path(tmp_file) / "test.h5"
+            with h5py.File(fname, "w") as f:
+                f.create_dataset("jets", data=array)
+
+            results = Results(signal="hbb", sample="test")
+            results.add_taggers_from_file(
+                [Tagger("MockTagger")], fname, label_var="R10TruthLabel"
+            )
 
 
 class ResultsPlotsTestCase(unittest.TestCase):
