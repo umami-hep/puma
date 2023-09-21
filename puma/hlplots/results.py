@@ -176,7 +176,7 @@ class Results:
         """
         return self.taggers[tagger_name]
 
-    def get_filename(self, plot_name: str, suffix: str = None):
+    def get_filename(self, plot_name: str, suffix: str | None = None):
         """Get output name.
 
         Parameters
@@ -198,7 +198,7 @@ class Results:
 
     def plot_probs(
         self,
-        suffix: str = None,
+        suffix: str | None = None,
         **kwargs,
     ):
         """Plot probability distributions.
@@ -285,10 +285,10 @@ class Results:
 
     def plot_discs(
         self,
-        suffix: str = None,
-        exclude_tagger: list = None,
-        xlabel: str = None,
-        wp_vlines: list = None,
+        suffix: str | None = None,
+        exclude_tagger: list | None = None,
+        xlabel: str | None = None,
+        wp_vlines: list | None = None,
         **kwargs,
     ):
         """Plot discriminant distributions.
@@ -357,8 +357,8 @@ class Results:
 
     def plot_rocs(
         self,
-        suffix: str = None,
-        args_roc_plot: dict = None,
+        suffix: str | None = None,
+        args_roc_plot: dict | None = None,
     ):
         """Plots rocs.
 
@@ -413,9 +413,9 @@ class Results:
 
     def plot_var_perf(  # pylint: disable=too-many-locals
         self,
-        suffix: str = None,
+        suffix: str | None = None,
         xlabel: str = r"$p_{T}$ [GeV]",
-        h_line: float = None,
+        h_line: float | None = None,
         **kwargs,
     ):
         """Variable vs efficiency/rejection plot.
@@ -509,7 +509,7 @@ class Results:
 
     def plot_fraction_scans(
         self,
-        suffix: str = None,
+        suffix: str | None = None,
         efficiency: float = 0.7,
         rej: bool = False,
         optimal_fc: bool = False,

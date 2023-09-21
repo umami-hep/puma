@@ -23,10 +23,10 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         x_var_bkg: np.ndarray = None,
         disc_bkg: np.ndarray = None,
         bins=10,
-        working_point: float = None,
+        working_point: float | None = None,
         disc_cut=None,
         fixed_eff_bin: bool = False,
-        key: str = None,
+        key: str | None = None,
         **kwargs,
     ) -> None:
         """Initialise properties of roc curve object.

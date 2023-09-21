@@ -17,9 +17,9 @@ class IntegratedEfficiency(PlotLineObject):
         self,
         disc_sig: np.ndarray,
         disc_bkg: np.ndarray,
-        key: str = None,
+        key: str | None = None,
         n_vals: int = 500,
-        tagger: str = None,
+        tagger: str | None = None,
         flavour: str | Flavour = None,
         **kwargs,
     ) -> None:
@@ -95,7 +95,7 @@ class IntegratedEfficiencyPlot(PlotBase):
         self.ymin = 0
         self.ymax = 1.2
 
-    def add(self, int_eff: object, key: str = None):
+    def add(self, int_eff: object, key: str | None = None):
         """Adding puma.Roc object to figure.
 
         Parameters
@@ -104,6 +104,7 @@ class IntegratedEfficiencyPlot(PlotBase):
             IntegratedEfficiency curve
         key : str, optional
             Unique identifier for IntegratedEfficiency curve, by default None
+
         Raises
         ------
         KeyError
@@ -129,11 +130,9 @@ class IntegratedEfficiencyPlot(PlotBase):
             and int_eff.linestyle is not None
         ):
             logger.warning(
-                (
-                    "You specified a different linestyle for the same tagger"
-                    " %s. This will lead to a mismatch in the line colours"
-                    " and the legend."
-                ),
+                "You specified a different linestyle for the same tagger"
+                " %s. This will lead to a mismatch in the line colours"
+                " and the legend.",
                 int_eff.tagger,
             )
         if int_eff.linestyle is None:
@@ -154,11 +153,9 @@ class IntegratedEfficiencyPlot(PlotBase):
             and int_eff.colour is not None
         ):
             logger.warning(
-                (
-                    "You specified a different colour for the same label"
-                    " %s. This will lead to a mismatch in the line colours"
-                    " and the legend."
-                ),
+                "You specified a different colour for the same label"
+                " %s. This will lead to a mismatch in the line colours"
+                " and the legend.",
                 int_eff.label,
             )
         if int_eff.colour is None:
