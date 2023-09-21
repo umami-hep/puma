@@ -38,7 +38,7 @@ class TaggerBasisTestCase(unittest.TestCase):
 
     def test_n_jets(self):
         """Test if number of n_jets correctly calculated."""
-        tagger = Tagger("dummy", output_nodes=["ujets", "cjets", "bjets"])
+        tagger = Tagger("dummy", output_flavours=["ujets", "cjets", "bjets"])
         labels = np.concatenate([np.zeros(80), np.ones(5) * 4, np.ones(15) * 5])
         tagger.labels = np.array(labels, dtype=[("HadronConeExclTruthLabelID", "i4")])
         with self.subTest():
@@ -176,14 +176,18 @@ class TaggerTestCase(unittest.TestCase):
 
     def test_disc_hbb_calc(self):
         """Test hbb-disc calculation."""
-        tagger = Tagger("dummy")
+        from ftag import Flavours as F
+
+        tagger = Tagger(
+            "dummy", output_flavours=[F["hbb"], F["hcc"], F["top"], F["qcd"]]
+        )
         tagger.scores = u2s(
             np.column_stack((np.ones(10), np.ones(10), np.ones(10), np.ones(10))),
             dtype=[
-                ("dummy_hbb", "f4"),
-                ("dummy_hcc", "f4"),
-                ("dummy_top", "f4"),
-                ("dummy_qcd", "f4"),
+                ("dummy_phbb", "f4"),
+                ("dummy_phcc", "f4"),
+                ("dummy_ptop", "f4"),
+                ("dummy_pqcd", "f4"),
             ],
         )
         discs = tagger.discriminant("hbb")

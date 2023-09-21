@@ -82,8 +82,8 @@ class Results:
         """
         if str(tagger) in self.taggers:
             raise KeyError(f"{tagger} was already added.")
-        if tagger.output_nodes is None:
-            tagger.output_nodes = self.flavours
+        if tagger.output_flavours is None:
+            tagger.output_flavours = self.flavours
         self.taggers[str(tagger)] = tagger
 
     def add_taggers_from_file(  # pylint: disable=R0913
@@ -117,7 +117,7 @@ class Results:
         """
         # set tagger output nodes
         for tagger in taggers:
-            tagger.output_nodes = self.flavours
+            tagger.output_flavours = self.flavours
 
         # get a list of all variables to be loaded from the file
         if not isinstance(cuts, Cuts):
