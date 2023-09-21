@@ -54,29 +54,49 @@ def make_var_hist_plot(plt_cfg, plot_type, var, flavours=None):
     flavour_str = '' if flavours is None else '_' + '_'.join(flavours)
     if flavours is None:
         flavours = [f.name for f in plt_cfg.flavours]
-        
+        sum_flavs = False
+    elif flavours[0] == 'all':
+        flavours = [f.name for f in plt_cfg.flavours]
+        sum_flavs = True
+    else:
+        sum_flavs = False
     
     for i, dset in enumerate(plt_cfg.datasets.keys()):
         style = plt_cfg.datasets[dset].style
         data = plt_cfg.loaded_datasets[dset][plot_type]
 
+        if sum_flavs: 
+            sum_data = None
         for j, flav in enumerate(flavours):
             # data[flav][var] = data[flav][var][~np.isnan(data[flav][var])]
             no_nan = data[flav][var][~np.isnan(data[flav][var])]
             if len(no_nan) == 0:
                 logger.warning(f"No data for {dset} {flav} {var}")
                 continue
+            has_data = True
+            if sum_flavs:
+                sum_data = no_nan if sum_data is None else np.concatenate((sum_data, no_nan))
+            else:
+                hist_plt = Histogram(
+                    no_nan,
+                    label=style['label'] if j == 0 else None,
+                    ratio_group=flav ,
+                    colour=style['colour'], 
+                    linestyle=ls[j])
 
+                histo.add(hist_plt,
+                        reference=dset == plt_cfg.denominator,)
+        
+        if sum_flavs:
             hist_plt = Histogram(
-                no_nan,
-                label=style['label'] if j == 0 else None,
-                ratio_group=flav ,
-                colour=style['colour'], 
-                linestyle=ls[j])
+                    sum_data,
+                    label=style['label'],
+                    ratio_group=flav ,
+                    colour=style['colour'], 
+                    )
 
             histo.add(hist_plt,
-                      reference=dset == plt_cfg.denominator,)
-            has_data = True
+                        reference=dset == plt_cfg.denominator,)
     
     if not has_data:
         logger.warning(f"No data for {plot_type}/{var} {flavour_str}")
@@ -92,7 +112,7 @@ def make_var_hist_plot(plt_cfg, plot_type, var, flavours=None):
 
 def make_plot(plt_cfg, plot):
     plt_type, plt_var = plot['var'].split('/')    
-    flavours = [[f.name] for f in plt_cfg.flavours] + [None]
+    flavours = [[f.name] for f in plt_cfg.flavours] + [None] + [['all']]
 
     for f in flavours:
         if plot['type'] == 'histogram':
