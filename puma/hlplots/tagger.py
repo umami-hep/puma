@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import h5py
 import numpy as np
@@ -24,6 +25,7 @@ class Tagger:
     f_b: float = None
     disc_cut: float = None
     working_point: float = None
+    sample_path: Path = None
 
     # this is only read by the Results class
     cuts: Cuts | list | None = None
@@ -35,7 +37,6 @@ class Tagger:
     output_nodes: list = field(
         default_factory=lambda: [Flavours.ujets, Flavours.cjets, Flavours.bjets]
     )
-    yaml_name: str = None
     disc_cut: float = None
     working_point: float = None
     f_c: float = None
@@ -46,6 +47,8 @@ class Tagger:
             self.label = self.name
         if isinstance(self.cuts, list):
             self.cuts = Cuts.from_list(self.cuts)
+        if self.sample_path is not None:
+            self.sample_path = Path(self.sample_path)
 
     def __repr__(self):
         return f"{self.name} ({self.label})"

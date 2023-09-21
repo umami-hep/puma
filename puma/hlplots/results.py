@@ -38,6 +38,8 @@ class Results:
     perf_var: str = "pt"
     output_dir: str | Path = "."
     extension: str = "png"
+    global_cuts: Cuts | list | None = None
+    num_jets: int | None = None
 
     def __post_init__(self):
         if isinstance(self.signal, str):
@@ -85,6 +87,22 @@ class Results:
         if tagger.output_nodes is None:
             tagger.output_nodes = self.flavours
         self.taggers[str(tagger)] = tagger
+    
+    def load(self):
+        '''
+        Iterates all taggers, and loads data if it hasn't already been loaded
+        '''
+        req_load = [tagger for tagger in self.taggers.values() if tagger.scores is None]
+        tagger_paths = list(set([tagger.sample_path for tagger in req_load]))
+        for tp in tagger_paths:
+            tp_taggers = [tagger for tagger in req_load if tagger.sample_path == tp]
+            self.add_taggers_from_file(
+                tp_taggers, 
+                tp,
+                cuts=self.global_cuts,
+                num_jets=self.num_jets,)
+            
+
 
     def add_taggers_from_file(  # pylint: disable=R0913
         self,
@@ -384,7 +402,7 @@ class Results:
         if kwargs is not None:
             roc_plot_args.update(kwargs)
         plot_roc = RocPlot(**roc_plot_args)
-
+        
         for tagger in self.taggers.values():
             discs = tagger.discriminant(self.signal)
             for background in self.backgrounds:
@@ -586,6 +604,11 @@ class Results:
                 # while keeping the 'sig_eff' a flat rate on the x axis, we therefore
                 # pass the signal as the background, and the background as the
                 # signal.
+                print(background, tagger.perf_var[is_bkg],)
+                print(sum(tagger.perf_var[is_bkg] == 0))
+                print(sum(tagger.perf_var[is_bkg] == 4))
+                print(sum(tagger.perf_var[is_bkg] != 0))
+                # print(all(tagger.perf_var[is_bkg] == 0))
                 plot_bkg[i].add(
                     VarVsEff(
                         x_var_sig=tagger.perf_var[is_bkg],
