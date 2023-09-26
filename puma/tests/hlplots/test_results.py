@@ -132,6 +132,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def assertIsFile(self, path: str):
         """Check for file to exist.
         Taken from https://stackoverflow.com/a/59198749/10896585
+
         Parameters
         ----------
         path : str

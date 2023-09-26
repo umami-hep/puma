@@ -19,11 +19,11 @@ class Roc(PlotLineObject):
         self,
         sig_eff: np.ndarray,
         bkg_rej: np.ndarray,
-        n_test: int = None,
+        n_test: int | None = None,
         rej_class: str | Flavour = None,
-        signal_class: str = None,
-        key: str = None,
-        ratio_group: str = None,
+        signal_class: str | None = None,
+        key: str | None = None,
+        ratio_group: str | None = None,
         **kwargs,
     ) -> None:
         """Initialise properties of roc curve object.
@@ -70,7 +70,9 @@ class Roc(PlotLineObject):
         self.key = key
         self.ratio_group = ratio_group if ratio_group else str(rej_class)
 
-    def binomial_error(self, norm: bool = False, n_test: int = None) -> np.ndarray:
+    def binomial_error(
+        self, norm: bool = False, n_test: int | None = None
+    ) -> np.ndarray:
         """Calculate binomial error of roc curve.
 
         Parameters
@@ -222,7 +224,7 @@ class RocPlot(PlotBase):
     def add_roc(
         self,
         roc_curve: object,
-        key: str = None,
+        key: str | None = None,
         reference: bool = False,
     ):
         """Adding puma.Roc object to figure.
@@ -261,10 +263,8 @@ class RocPlot(PlotBase):
             and roc_curve.linestyle is not None
         ):
             logger.warning(
-                (
-                    "You specified a different linestyle for the same rejection class "
-                    "%s. Will keep the linestyle defined first."
-                ),
+                "You specified a different linestyle for the same rejection class "
+                "%s. Will keep the linestyle defined first.",
                 roc_curve.rej_class,
             )
         if roc_curve.linestyle is None:
@@ -282,11 +282,9 @@ class RocPlot(PlotBase):
             and roc_curve.colour is not None
         ):
             logger.warning(
-                (
-                    "You specified a different colour for the same label"
-                    " %s. This will lead to a mismatch in the line colours"
-                    " and the legend."
-                ),
+                "You specified a different colour for the same label"
+                " %s. This will lead to a mismatch in the line colours"
+                " and the legend.",
                 roc_curve.label,
             )
         if roc_curve.colour is None:
@@ -302,7 +300,7 @@ class RocPlot(PlotBase):
         self,
         key: str,
         rej_class: Flavour,
-        ratio_group: str = None,
+        ratio_group: str | None = None,
     ):
         """Setting the reference roc curves used in the ratios.
 
@@ -332,10 +330,8 @@ class RocPlot(PlotBase):
         else:
             if self.reference_roc[rej_class].get(ratio_group):
                 logger.warning(
-                    (
-                        "You specified a second roc curve %s as reference for ratio. "
-                        "Using it as new reference instead of %s."
-                    ),
+                    "You specified a second roc curve %s as reference for ratio. "
+                    "Using it as new reference instead of %s.",
                     key,
                     self.reference_roc[rej_class][ratio_group],
                 )
@@ -542,7 +538,7 @@ class RocPlot(PlotBase):
 
     def draw(
         self,
-        labelpad: int = None,
+        labelpad: int | None = None,
     ):
         """Draw plotting.
 

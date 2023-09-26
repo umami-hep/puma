@@ -128,7 +128,7 @@ class Line2DPlot(PlotBase):
     def add(
         self,
         curve: object,
-        key: str = None,
+        key: str | None = None,
         is_marker: bool = False,
     ):
         """Adding `puma.Line2D` object to figure.

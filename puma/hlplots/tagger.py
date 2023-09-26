@@ -84,7 +84,7 @@ class Tagger:
         return [f"{self.name}_{prob}" for prob in self.probabilities]
 
     def extract_tagger_scores(
-        self, source: object, source_type: str = "data_frame", key: str = None
+        self, source: object, source_type: str = "data_frame", key: str | None = None
     ):
         """Extract tagger scores from data frame or file.
 
@@ -103,6 +103,7 @@ class Tagger:
         key : str, optional
             Key within h5 file, needs to be provided when using the `source_type`
             `data_frame_path` or `numpy_structured`, by default None
+
         Raises
         ------
         ValueError
@@ -181,7 +182,7 @@ class Tagger:
             f"{self.name}_{prob_flavour.px}"
         ]
 
-    def discriminant(self, signal: Flavour, fx: float = None):
+    def discriminant(self, signal: Flavour, fx: float | None = None):
         """Retrieve the discriminant for a given signal class.
 
         Parameters

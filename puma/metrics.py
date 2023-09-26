@@ -259,7 +259,7 @@ def calc_separation(
     values_a: np.ndarray,
     values_b: np.ndarray,
     bins: int = 100,
-    bins_range: tuple = None,
+    bins_range: tuple | None = None,
     return_hist: bool = False,
 ) -> float:
     """Calculates the separation of two distributions.

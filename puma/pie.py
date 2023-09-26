@@ -13,11 +13,11 @@ class PiePlot(PlotBase):
     def __init__(
         self,
         wedge_sizes,
-        colours: list = None,
-        colour_scheme: str = None,
-        labels: list = None,
+        colours: list | None = None,
+        colour_scheme: str | None = None,
+        labels: list | None = None,
         draw_legend: bool = False,
-        mpl_pie_kwargs: dict = None,
+        mpl_pie_kwargs: dict | None = None,
         **kwargs,
     ):
         """Initialise the pie plot.

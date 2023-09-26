@@ -9,8 +9,8 @@ from puma.utils.histogram import save_divide
 
 def calc_disc(
     scores: np.ndarray,
-    flvs: list = None,
-    flv_map: dict = None,
+    flvs: list | None = None,
+    flv_map: dict | None = None,
     epsilon: float = 1e-10,
 ) -> np.ndarray:
     """Calculate arbitrary flavour tagging score.
@@ -156,6 +156,7 @@ def calc_disc_c(
     -------
     np.ndarray
         b-tagging discriminant
+
     Raises
     ------
     ValueError
