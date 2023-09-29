@@ -246,7 +246,7 @@ if __name__ == '__main__':
     if args.num_jets:
         plt_cfg.num_jets = args.num_jets
 
-    logger.info(f"Plotting in {plt_cfg.plot_dir}")
+    logger.info(f"Plotting in {plt_cfg.plot_dir_final}")
     if args.sample:
         assert args.sample in plt_cfg.samples, f"Sample {args.sample} not in config"
         plt_cfg.samples = {args.sample : plt_cfg.samples[args.sample]}

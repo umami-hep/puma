@@ -220,7 +220,8 @@ class PlotConfig:
 
     sample: dict[str, str] 
 
-    global_plot_kwargs : dict[str, dict[str, str]] = None
+    # global_plot_kwargs : dict[str, dict[str, str]] = None
+    results_default : dict[str, dict[str, str]] = None
     timestamp: bool = True
 
     roc_plots: dict[str, dict] = None
@@ -244,12 +245,13 @@ class PlotConfig:
             date_time_file = datetime.now().strftime("%Y%m%d_%H%M%S")
             plot_dir_name += "_" + date_time_file
         self.plot_dir_final = Path(self.plot_dir) / plot_dir_name
-        if not self.global_plot_kwargs:
-            self.global_plot_kwargs = {}
+        if not self.results_default:
+            self.results_default = {}
         
         with open(self.taggers_config) as f:
             self.taggers_config = yaml.safe_load(f)
         tagger_defaults = self.taggers_config.get("tagger_defaults", {})
+        # print(self.taggers_config.get("taggers", {}))
         taggers = self.taggers_config.get("taggers", {})
         assert (self.reference_tagger in taggers), (
                 f"Reference tagger {self.reference_tagger} not in taggers config"
@@ -259,7 +261,7 @@ class PlotConfig:
             **t, 
             "reference" : k==self.reference_tagger,
             "yaml_name" : k,
-        } for k, t in taggers.items()}
+        } for k, t in taggers.items() if k in self.taggers}
 
 
 
@@ -289,8 +291,19 @@ class PlotConfig:
         '''Creates the high-level 'Results' object from the config file, using the previously
         set signal and sample. Iterates and loads all models in the config file, and adds them
         '''
-        self.default_second_atlas_tag = self.sample.get("str", "")
+        results_default = {
+            'atlas_first_tag' : "Simulation Internal",
+            'atlas_second_tag' : "$\sqrt{s} = 13.0 $ TeV",
+            'global_cuts' : Cuts.empty(),
+        }
+        results_default.update(self.results_default)
+        
+        results_default['atlas_second_tag']  += '\n'+self.sample.get("str", "")
+        # Store default tag incase other plots need to temporarily modify it
+        self.default_second_atlas_tag = results_default['atlas_second_tag']
+
         sample_cuts = Cuts.from_list(self.sample.get("cuts", []))
+        results_default['global_cuts'] = results_default['global_cuts'] + sample_cuts
 
         results = Results(atlas_first_tag="Simulation Internal",
                             atlas_second_tag=self.default_second_atlas_tag,
@@ -300,12 +313,19 @@ class PlotConfig:
                           global_cuts=sample_cuts,
                           num_jets=self.num_jets)
         
+        good_colours = get_good_colours()
+        col_idx = 0
         # Add taggers to results, then bulk load
         for t in self.taggers.values():
+            # Allows automatic selection of tagger name in eval files
             t['name'] = _get_tagger_name(
                 t.get("name", None), 
                 t['sample_path'], 
                 results.flavours)
+            # Enforces a tagger to have same colour across multiple plots
+            if 'colour' not in t:
+                t['colour'] = good_colours[col_idx]
+                col_idx += 1
             results.add(Tagger(**t))
 
         results.load()
