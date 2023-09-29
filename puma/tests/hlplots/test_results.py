@@ -224,15 +224,16 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
             results.plot_flat_rej_var_perf(
-                fixed_rejections={'cjets' : 10, 'ujets' : 100},
+                fixed_rejections={"cjets": 10, "ujets": 100},
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
             )
             self.assertIsFile(
-                                           
-                Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_profile_flat_cjets_10_rej_per_bin_.png"
+                Path(tmp_file)
+                / "test_bjets_bjets_eff_vs_pt_profile_flat_cjets_10_rej_per_bin_.png"
             )
             self.assertIsFile(
-                Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_profile_flat_ujets_100_rej_per_bin_.png"
+                Path(tmp_file)
+                / "test_bjets_bjets_eff_vs_pt_profile_flat_ujets_100_rej_per_bin_.png"
             )
 
     def test_plot_ceff_vs_flat_rej(self):
@@ -247,17 +248,17 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results = Results(signal="cjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
             results.plot_flat_rej_var_perf(
-                fixed_rejections={'bjets' : 10, 'ujets' : 100},
+                fixed_rejections={"bjets": 10, "ujets": 100},
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
             )
             self.assertIsFile(
-                                           
-                Path(tmp_file) / "test_cjets_cjets_eff_vs_pt_profile_flat_bjets_10_rej_per_bin_.png"
+                Path(tmp_file)
+                / "test_cjets_cjets_eff_vs_pt_profile_flat_bjets_10_rej_per_bin_.png"
             )
             self.assertIsFile(
-                Path(tmp_file) / "test_cjets_cjets_eff_vs_pt_profile_flat_ujets_100_rej_per_bin_.png"
+                Path(tmp_file)
+                / "test_cjets_cjets_eff_vs_pt_profile_flat_ujets_100_rej_per_bin_.png"
             )
-
 
     def test_plot_fraction_scans_hbb_error(self):
         """Test that correct error is raised."""

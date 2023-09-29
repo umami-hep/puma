@@ -465,7 +465,8 @@ class Results:
             self.signal,
             working_point=working_point,
             disc_cut=disc_cut,
-            flat_per_bin=kwargs.get("flat_per_bin", False),)
+            flat_per_bin=kwargs.get("flat_per_bin", False),
+        )
         plot_bkg = []
         for background in self.backgrounds:
             plot_bkg.append(
@@ -481,14 +482,13 @@ class Results:
                 )
             )
             plot_bkg[-1].apply_modified_atlas_second_tag(
-                    self.signal,
-                    working_point=working_point,
-                    disc_cut=disc_cut,
-                    flat_per_bin=kwargs.get("flat_per_bin", False),
-                )
+                self.signal,
+                working_point=working_point,
+                disc_cut=disc_cut,
+                flat_per_bin=kwargs.get("flat_per_bin", False),
+            )
 
         for tagger in self.taggers.values():
-
             discs = tagger.discriminant(self.signal)
             is_signal = tagger.is_flav(self.signal)
             plot_sig_eff.add(

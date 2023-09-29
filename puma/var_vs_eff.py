@@ -422,25 +422,22 @@ class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
             elem.y_var_std = y_error
 
     def apply_modified_atlas_second_tag(
-            self, 
-            signal,
-            working_point=None,
-            disc_cut=None,
-            flat_per_bin=False,):
-        '''Modifies the atlas_second_tag to include info on the type of p-eff plot
+        self,
+        signal,
+        working_point=None,
+        disc_cut=None,
+        flat_per_bin=False,
+    ):
+        """Modifies the atlas_second_tag to include info on the type of p-eff plot
         being displayed
-        '''
-        
+        """
         if working_point:
-            mid_str = f"{round(working_point*100, 3)}% "+ signal.eff_str
+            mid_str = f"{round(working_point*100, 3)}% " + signal.eff_str
         elif disc_cut:
             mid_str = rf"$D_{{{signal.name.rstrip('jets')}}}$ > {disc_cut}"
-        if flat_per_bin:
-            tag = f"Flat {mid_str} per bin"
-        else:
-            tag = f"{mid_str}"
+        tag = f"Flat {mid_str} per bin" if flat_per_bin else f"{mid_str}"
         self.atlas_second_tag = f"{self.atlas_second_tag}\n{tag}"
-            
+
     def plot(self, **kwargs):
         """Plotting curves.
 

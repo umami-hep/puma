@@ -71,9 +71,7 @@ results.plot_var_perf(
     flat_per_bin=False,
 )
 
-results.atlas_second_tag = (
-    "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$"
-)
+results.atlas_second_tag = "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$"
 results.plot_var_perf(
     bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
     flat_per_bin=True,
