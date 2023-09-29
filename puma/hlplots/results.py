@@ -723,6 +723,7 @@ class Results:
                     marker="x",
                     markersize=15,
                     markeredgewidth=2,
+                    colour=tagger.colour,
                 ),
                 is_marker=True,
             )
