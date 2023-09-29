@@ -417,6 +417,8 @@ class Results:
         xlabel: str = r"$p_{T}$ [GeV]",
         x_var: str = "pt",
         h_line: float = None,
+        working_point: float = None,
+        disc_cut: float = None,
         **kwargs,
     ):
         """Variable vs efficiency/rejection plot.
@@ -435,9 +437,19 @@ class Results:
             is 'pt'
         h_line : float, optional
             draws a horizonatal line in the signal efficiency plot
+        working_point: float, optional
+            The working point to use for the plot, either this, OR disc_cut must be
+            set, but not both. Default is None
+        disc_cut: float, optional
+            The cut on the discriminant to use for the plot, either this, OR
+            working_point must be set, but not both. Default is None
         **kwargs : kwargs
             key word arguments for `puma.VarVsEff`
         """
+        if all([working_point, disc_cut]):
+            raise ValueError("Only one of working_point or disc_cut can be set")
+        if not any([working_point, disc_cut]):
+            raise ValueError("Either working_point or disc_cut must be set")
         # define the curves
         plot_sig_eff = VarVsEffPlot(
             mode="sig_eff",
@@ -449,6 +461,11 @@ class Results:
             n_ratio_panels=1,
             y_scale=1.4,
         )
+        plot_sig_eff.apply_modified_atlas_second_tag(
+            self.signal,
+            working_point=working_point,
+            disc_cut=disc_cut,
+            flat_per_bin=kwargs.get("flat_per_bin", False),)
         plot_bkg = []
         for background in self.backgrounds:
             plot_bkg.append(
@@ -463,12 +480,14 @@ class Results:
                     y_scale=1.4,
                 )
             )
+            plot_bkg[-1].apply_modified_atlas_second_tag(
+                    self.signal,
+                    working_point=working_point,
+                    disc_cut=disc_cut,
+                    flat_per_bin=kwargs.get("flat_per_bin", False),
+                )
 
         for tagger in self.taggers.values():
-            if "disc_cut" not in kwargs:
-                kwargs["disc_cut"] = tagger.disc_cut
-            if "working_point" not in kwargs:
-                kwargs["working_point"] = tagger.working_point
 
             discs = tagger.discriminant(self.signal)
             is_signal = tagger.is_flav(self.signal)
@@ -478,6 +497,8 @@ class Results:
                     disc_sig=discs[is_signal],
                     label=tagger.label,
                     colour=tagger.colour,
+                    working_point=working_point,
+                    disc_cut=disc_cut,
                     **kwargs,
                 ),
                 reference=tagger.reference,
@@ -492,6 +513,8 @@ class Results:
                         disc_bkg=discs[is_bkg],
                         label=tagger.label,
                         colour=tagger.colour,
+                        working_point=working_point,
+                        disc_cut=disc_cut,
                         **kwargs,
                     ),
                     reference=tagger.reference,
@@ -552,7 +575,7 @@ class Results:
         plot_bkg = []
         for background in self.backgrounds:
             modified_second_tag = (
-                f"{self.atlas_second_tag}\nFixed {background.rej_str} of"
+                f"{self.atlas_second_tag}\nFlat {background.rej_str} of"
                 f" {fixed_rejections[background.name]} per bin"
             )
             plot_bkg.append(

@@ -61,11 +61,8 @@ results.plot_rocs()
 
 # eff/rej vs. variable plots
 logger.info("Plotting efficiency/rejection vs pT curves.")
-results.atlas_second_tag = "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$\n70% WP"
+results.atlas_second_tag = "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$"
 
-# you can either specify a WP per tagger, e.g.
-# dips.working_point = 0.7
-# rnnip.working_point = 0.7
 # or alternatively also pass the argument `working_point` to the plot_var_perf function.
 # specifying the `disc_cut` per tagger is also possible.
 results.plot_var_perf(
@@ -75,7 +72,7 @@ results.plot_var_perf(
 )
 
 results.atlas_second_tag = (
-    "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$\n70% WP per bin"
+    "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$"
 )
 results.plot_var_perf(
     bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
