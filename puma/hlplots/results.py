@@ -416,9 +416,9 @@ class Results:
         suffix: str | None = None,
         xlabel: str = r"$p_{T}$ [GeV]",
         x_var: str = "pt",
-        h_line: float = None,
-        working_point: float = None,
-        disc_cut: float = None,
+        h_line: float | None = None,
+        working_point: float | None = None,
+        disc_cut: float | None = None,
         **kwargs,
     ):
         """Variable vs efficiency/rejection plot.
@@ -542,10 +542,10 @@ class Results:
     def plot_flat_rej_var_perf(
         self,
         fixed_rejections: dict[Flavour, float],
-        suffix: str = None,
+        suffix: str | None = None,
         xlabel: str = r"$p_{T}$ [GeV]",
         x_var: str = "pt",
-        h_line: float = None,
+        h_line: float | None = None,
         **kwargs,
     ):
         """Plot signal efficiency as a function of a variable, with a fixed enforce

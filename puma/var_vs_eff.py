@@ -1,6 +1,8 @@
 """Efficiency plots vs. specific variable."""
 from __future__ import annotations
 
+from typing import ClassVar
+
 import numpy as np
 
 # TODO: fix the import below
@@ -26,7 +28,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         working_point: float | None = None,
         disc_cut=None,
         flat_per_bin: bool = False,
-        key: str = None,
+        key: str | None = None,
         **kwargs,
     ) -> None:
         """Initialise properties of roc curve object.
@@ -264,7 +266,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             return np.nan, np.nan
         rej_error = rej_err(rej, len(arr))
         return rej, rej_error
-    
+
     @property
     def bkg_eff_sig_err(self):
         """Calculate signal efficiency per bin, assuming a flat background per
@@ -272,11 +274,14 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         background error per bin.
         """
         logger.debug("Calculating signal efficiency.")
-        eff = np.array(list(map(self.efficiency, self.disc_binned_bkg, self.disc_cut)))[:,0]
-        err = np.array(list(map(self.efficiency, self.disc_binned_sig, self.disc_cut)))[:,1]
+        eff = np.array(list(map(self.efficiency, self.disc_binned_bkg, self.disc_cut)))[
+            :, 0
+        ]
+        err = np.array(list(map(self.efficiency, self.disc_binned_sig, self.disc_cut)))[
+            :, 1
+        ]
         logger.debug("Retrieved signal efficiencies: %s", eff)
         return eff, err
-
 
     @property
     def sig_eff(self):
@@ -363,7 +368,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         Parameters
         ----------
         mode : str
-            Can be "sig_eff", "bkg_eff", "sig_rej", "bkg_rej", or 
+            Can be "sig_eff", "bkg_eff", "sig_rej", "bkg_rej", or
             "bkg_eff_sig_err"
         inverse_cut : bool, optional
             Inverts the discriminant cut, which will yield the efficiency or rejection
@@ -381,7 +386,6 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         ValueError
             If mode not supported
         """
-        
         self.inverse_cut = inverse_cut
         # TODO: python 3.10 switch to cases syntax
         if mode == "sig_eff":
@@ -405,8 +409,13 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
 class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attributes
     """var_vs_eff plot class"""
 
-    mode_options = ["sig_eff", "bkg_eff", "sig_rej", "bkg_rej",
-                    "bkg_eff_sig_err"]
+    mode_options: ClassVar[list[str]] = [
+        "sig_eff",
+        "bkg_eff",
+        "sig_rej",
+        "bkg_rej",
+        "bkg_eff_sig_err",
+    ]
 
     def __init__(self, mode, grid: bool = False, **kwargs) -> None:
         """var_vs_eff plot properties.

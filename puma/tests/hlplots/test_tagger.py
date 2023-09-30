@@ -134,7 +134,6 @@ class TaggerTestCase(unittest.TestCase):
             dtype=[("dummy_pu", "f4"), ("dummy_pc", "f4"), ("dummy_pb", "f4")],
         )
 
-
     def test_errors(self):
         tagger = Tagger("dummy")
         tagger.scores = self.scores
