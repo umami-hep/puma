@@ -262,6 +262,19 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             return np.nan, np.nan
         rej_error = rej_err(rej, len(arr))
         return rej, rej_error
+    
+    @property
+    def bkg_eff_sig_err(self):
+        """Calculate signal efficiency per bin, assuming a flat background per
+        bin. This results in returning the signal efficiency per bin, but the
+        background error per bin.
+        """
+        logger.debug("Calculating signal efficiency.")
+        eff = np.array(list(map(self.efficiency, self.disc_binned_bkg, self.disc_cut)))[:,0]
+        err = np.array(list(map(self.efficiency, self.disc_binned_sig, self.disc_cut)))[:,1]
+        logger.debug("Retrieved signal efficiencies: %s", eff)
+        return eff, err
+
 
     @property
     def sig_eff(self):
@@ -348,7 +361,8 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         Parameters
         ----------
         mode : str
-            Can be "sig_eff", "bkg_eff", "sig_rej", "bkg_rej"
+            Can be "sig_eff", "bkg_eff", "sig_rej", "bkg_rej", or 
+            "bkg_eff_sig_err"
         inverse_cut : bool, optional
             Inverts the discriminant cut, which will yield the efficiency or rejection
             of the jets not passing the working point, by default False
@@ -365,7 +379,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         ValueError
             If mode not supported
         """
-        mode_options = ["sig_eff", "bkg_eff", "sig_rej", "bkg_rej"]
+        
         self.inverse_cut = inverse_cut
         # TODO: python 3.10 switch to cases syntax
         if mode == "sig_eff":
@@ -376,16 +390,21 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             return self.sig_rej
         if mode == "bkg_rej":
             return self.bkg_rej
+        if mode == "bkg_eff_sig_err":
+            return self.bkg_eff_sig_err
         # setting class variable again to False
         self.inverse_cut = False
         raise ValueError(
             f"The selected mode {mode} is not supported. Use one of the following:"
-            f" {mode_options}."
+            f" {self.mode_options}."
         )
 
 
 class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attributes
     """var_vs_eff plot class"""
+
+    mode_options = ["sig_eff", "bkg_eff", "sig_rej", "bkg_rej",
+                    "bkg_eff_sig_err"]
 
     def __init__(self, mode, grid: bool = False, **kwargs) -> None:
         """var_vs_eff plot properties.
@@ -394,7 +413,7 @@ class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
         ----------
         mode : str
             Defines which quantity is plotted, the following options ar available:
-            "sig_eff", "bkg_eff", "sig_rej" or "bkg_rej"
+            "sig_eff", "bkg_eff", "sig_rej", "bkg_rej", or "bkg_eff_sig_err"
         grid : bool, optional
             Set the grid for the plots.
         **kwargs : kwargs
@@ -406,11 +425,10 @@ class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
             If incompatible mode given or more than 1 ratio panel requested
         """
         super().__init__(grid=grid, **kwargs)
-        mode_options = ["sig_eff", "bkg_eff", "sig_rej", "bkg_rej"]
-        if mode not in mode_options:
+        if mode not in self.mode_options:
             raise ValueError(
                 f"The selected mode {mode} is not supported. Use one of the following: "
-                f"{mode_options}."
+                f"{self.mode_options}."
             )
         self.mode = mode
 

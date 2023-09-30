@@ -580,7 +580,7 @@ class Results:
             )
             plot_bkg.append(
                 VarVsEffPlot(
-                    mode="bkg_eff",
+                    mode="bkg_eff_sig_err",
                     ylabel=self.signal.eff_str,
                     xlabel=xlabel,
                     logy=False,
