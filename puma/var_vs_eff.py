@@ -427,13 +427,13 @@ class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
                 sig_eff - Plots signal efficiency vs. variable, with statistical error
                     on N signal per bin
                 bkg_eff - Plots background efficiency vs. variable, with statistical
-                    error on N background per bin    
+                    error on N background per bin
                 sig_rej - Plots signal rejection vs. variable, with statistical error
                     on N signal per bin
                 bkg_rej - Plots background rejection vs. variable, with statistical
                     error on N background per bin
                 bkg_eff_sig_err - Plots background efficiency vs. variable, with
-                    statistical error on N signal per bin. 
+                    statistical error on N signal per bin.
         grid : bool, optional
             Set the grid for the plots.
         **kwargs : kwargs
