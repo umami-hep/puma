@@ -203,6 +203,54 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results.plot_rocs()
             self.assertIsFile(results.get_filename("roc"))
 
+    def test_plot_var_perf_err(self):
+        """Tests the performance plots throws errors with invalid inputs"""
+        self.dummy_tagger_1.reference = True
+        self.dummy_tagger_1.f_c = 0.05
+        self.dummy_tagger_1.disc_cut = 2
+        rng = np.random.default_rng(seed=16)
+        self.dummy_tagger_1.perf_var = rng.exponential(
+            100, size=len(self.dummy_tagger_1.scores)
+        )
+        with tempfile.TemporaryDirectory() as tmp_file:
+            results = Results(signal="bjets", sample="test", output_dir=tmp_file)
+            results.add(self.dummy_tagger_1)
+            with self.assertRaises(ValueError):
+                results.plot_var_perf(
+                    bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
+                )
+            with self.assertRaises(ValueError):
+                results.plot_var_perf(
+                    bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
+                    disc_cut=1,
+                    working_point=0.5,
+                )
+
+    def test_plot_var_eff_per_flat_rej_err(self):
+        """Tests the performance vs flat rejection plots throws errors
+        with invalid inputs
+        """
+        self.dummy_tagger_1.reference = True
+        self.dummy_tagger_1.f_c = 0.05
+        self.dummy_tagger_1.disc_cut = 2
+        rng = np.random.default_rng(seed=16)
+        self.dummy_tagger_1.perf_var = rng.exponential(
+            100, size=len(self.dummy_tagger_1.scores)
+        )
+        with tempfile.TemporaryDirectory() as tmp_file:
+            with self.assertRaises(ValueError):
+                results = Results(signal="bjets", sample="test", output_dir=tmp_file)
+                results.plot_flat_rej_var_perf(
+                    bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
+                    fixed_rejections={"cjets": 10, "ujets": 100},
+                    working_point=0.5,
+                )
+                results.plot_flat_rej_var_perf(
+                    bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
+                    fixed_rejections={"cjets": 10, "ujets": 100},
+                    disc_cut=0.5,
+                )
+
     def test_plot_var_perf_bjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
@@ -217,11 +265,18 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results.add(self.dummy_tagger_1)
             results.plot_var_perf(
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
+                working_point=0.7,
             )
 
-            self.assertIsFile(Path(tmp_file) / "test_bjets_profile_fixed_bjets_eff.png")
-            self.assertIsFile(Path(tmp_file) / "test_bjets_profile_fixed_cjets_rej.png")
-            self.assertIsFile(Path(tmp_file) / "test_bjets_profile_fixed_ujets_rej.png")
+            self.assertIsFile(
+                Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_profile_fixed_cut_.png"
+            )
+            self.assertIsFile(
+                Path(tmp_file) / "test_bjets_cjets_rej_vs_pt_profile_fixed_cut_.png"
+            )
+            self.assertIsFile(
+                Path(tmp_file) / "test_bjets_ujets_rej_vs_pt_profile_fixed_cut_.png"
+            )
 
     def test_plot_var_perf_cjets(self):
         """Test that png file is being created."""
@@ -238,10 +293,66 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results.plot_var_perf(
                 h_line=self.dummy_tagger_1.working_point,
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
+                working_point=0.7,
             )
-            self.assertIsFile(Path(tmp_file) / "test_cjets_profile_fixed_cjets_eff.png")
-            self.assertIsFile(Path(tmp_file) / "test_cjets_profile_fixed_bjets_rej.png")
-            self.assertIsFile(Path(tmp_file) / "test_cjets_profile_fixed_ujets_rej.png")
+            self.assertIsFile(
+                Path(tmp_file) / "test_cjets_cjets_eff_vs_pt_profile_fixed_cut_.png"
+            )
+            self.assertIsFile(
+                Path(tmp_file) / "test_cjets_bjets_rej_vs_pt_profile_fixed_cut_.png"
+            )
+            self.assertIsFile(
+                Path(tmp_file) / "test_cjets_ujets_rej_vs_pt_profile_fixed_cut_.png"
+            )
+
+    def test_plot_beff_vs_flat_rej(self):
+        self.dummy_tagger_1.reference = True
+        self.dummy_tagger_1.f_c = 0.05
+        self.dummy_tagger_1.working_point = 0.5
+        rng = np.random.default_rng(seed=16)
+        self.dummy_tagger_1.perf_var = rng.exponential(
+            100, size=len(self.dummy_tagger_1.scores)
+        )
+        with tempfile.TemporaryDirectory() as tmp_file:
+            results = Results(signal="bjets", sample="test", output_dir=tmp_file)
+            results.add(self.dummy_tagger_1)
+            results.plot_flat_rej_var_perf(
+                fixed_rejections={"cjets": 10, "ujets": 100},
+                bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
+                h_line=0.5,
+            )
+            self.assertIsFile(
+                Path(tmp_file)
+                / "test_bjets_bjets_eff_vs_pt_profile_flat_cjets_10_rej_per_bin_.png"
+            )
+            self.assertIsFile(
+                Path(tmp_file)
+                / "test_bjets_bjets_eff_vs_pt_profile_flat_ujets_100_rej_per_bin_.png"
+            )
+
+    def test_plot_ceff_vs_flat_rej(self):
+        self.dummy_tagger_1.reference = True
+        self.dummy_tagger_1.f_b = 0.05
+        self.dummy_tagger_1.working_point = 0.5
+        rng = np.random.default_rng(seed=16)
+        self.dummy_tagger_1.perf_var = rng.exponential(
+            100, size=len(self.dummy_tagger_1.scores)
+        )
+        with tempfile.TemporaryDirectory() as tmp_file:
+            results = Results(signal="cjets", sample="test", output_dir=tmp_file)
+            results.add(self.dummy_tagger_1)
+            results.plot_flat_rej_var_perf(
+                fixed_rejections={"bjets": 10, "ujets": 100},
+                bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
+            )
+            self.assertIsFile(
+                Path(tmp_file)
+                / "test_cjets_cjets_eff_vs_pt_profile_flat_bjets_10_rej_per_bin_.png"
+            )
+            self.assertIsFile(
+                Path(tmp_file)
+                / "test_cjets_cjets_eff_vs_pt_profile_flat_ujets_100_rej_per_bin_.png"
+            )
 
     def test_plot_fraction_scans_hbb_error(self):
         """Test that correct error is raised."""

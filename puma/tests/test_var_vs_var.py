@@ -119,11 +119,11 @@ class VarVsVarPlotTestCase(unittest.TestCase):
         # background (same for both taggers)
         self.x_var = np.linspace(0, 250, num=n_random)
         self.y_var_mean = np.exp(-self.x_var / 200) * 10
-        self.y_var_std = np.sin(self.y_var_mean)
+        self.y_var_std = np.abs(np.sin(self.y_var_mean))
         self.x_var_widths = np.ones_like(self.x_var) * 5
 
         self.y_var_mean_2 = np.exp(-self.x_var / 100) * 10
-        self.y_var_std_2 = np.sin(self.y_var_mean_2)
+        self.y_var_std_2 = np.abs(np.sin(self.y_var_mean_2))
 
         self.test = VarVsVar(
             x_var=self.x_var,

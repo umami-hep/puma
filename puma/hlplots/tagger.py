@@ -22,8 +22,6 @@ class Tagger:
     colour: str = None
     f_c: float = None
     f_b: float = None
-    disc_cut: float = None
-    working_point: float = None
 
     # this is only read by the Results class
     cuts: Cuts | list | None = None

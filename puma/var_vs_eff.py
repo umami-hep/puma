@@ -1,6 +1,8 @@
 """Efficiency plots vs. specific variable."""
 from __future__ import annotations
 
+from typing import ClassVar
+
 import numpy as np
 
 # TODO: fix the import below
@@ -25,7 +27,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         bins=10,
         working_point: float | None = None,
         disc_cut=None,
-        fixed_eff_bin: bool = False,
+        flat_per_bin: bool = False,
         key: str | None = None,
         **kwargs,
     ) -> None:
@@ -51,7 +53,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         disc_cut : float or  sequence of floats, optional
             Cut value for discriminant, if it is a sequence it has to have the same
             length as number of bins, by default None
-        fixed_eff_bin : bool, optional
+        flat_per_bin : bool, optional
             If True and no `disc_cut` is given the signal efficiency is held constant
             in each bin, by default False
         key : str, optional
@@ -81,14 +83,14 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         # the arguments to init e.g. `set_method`
         if working_point is None and disc_cut is None:
             raise ValueError("Either `wp` or `disc_cut` needs to be specified.")
-        if fixed_eff_bin:
+        if flat_per_bin:
             if disc_cut is not None:
                 raise ValueError(
-                    "You cannot specify `disc_cut` when `fixed_eff_bin` is set to True."
+                    "You cannot specify `disc_cut` when `flat_per_bin` is set to True."
                 )
             if working_point is None:
                 raise ValueError(
-                    "You need to specify a working point `wp`, when `fixed_eff_bin` is"
+                    "You need to specify a working point `wp`, when `flat_per_bin` is"
                     " set to True."
                 )
         self.x_var_sig = np.array(x_var_sig)
@@ -97,7 +99,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         self.disc_bkg = None if disc_bkg is None else np.array(disc_bkg)
         self.working_point = working_point
         self.disc_cut = disc_cut
-        self.fixed_eff_bin = fixed_eff_bin
+        self.flat_per_bin = flat_per_bin
         # Binning related variables
         self.n_bins = None
         self.bn_edges = None
@@ -202,7 +204,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             self.disc_cut = [self.disc_cut] * self.n_bins
         elif isinstance(self.disc_cut, (list, np.ndarray)):
             self.disc_cut = self.disc_cut
-        elif self.fixed_eff_bin:
+        elif self.flat_per_bin:
             self.disc_cut = list(
                 map(
                     lambda x: np.percentile(x, (1 - self.working_point) * 100),
@@ -264,6 +266,22 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             return np.nan, np.nan
         rej_error = rej_err(rej, len(arr))
         return rej, rej_error
+
+    @property
+    def bkg_eff_sig_err(self):
+        """Calculate signal efficiency per bin, assuming a flat background per
+        bin. This results in returning the signal efficiency per bin, but the
+        background error per bin.
+        """
+        logger.debug("Calculating signal efficiency.")
+        eff = np.array(list(map(self.efficiency, self.disc_binned_bkg, self.disc_cut)))[
+            :, 0
+        ]
+        err = np.array(list(map(self.efficiency, self.disc_binned_sig, self.disc_cut)))[
+            :, 1
+        ]
+        logger.debug("Retrieved signal efficiencies: %s", eff)
+        return eff, err
 
     @property
     def sig_eff(self):
@@ -339,7 +357,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
                 and np.all(self.bn_edges == other.bn_edges)
                 and self.working_point == other.working_point
                 and np.all(self.disc_cut == other.disc_cut)
-                and self.fixed_eff_bin == other.fixed_eff_bin
+                and self.flat_per_bin == other.flat_per_bin
                 and self.key == other.key
             )
         return False
@@ -350,7 +368,8 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         Parameters
         ----------
         mode : str
-            Can be "sig_eff", "bkg_eff", "sig_rej", "bkg_rej"
+            Can be "sig_eff", "bkg_eff", "sig_rej", "bkg_rej", or
+            "bkg_eff_sig_err"
         inverse_cut : bool, optional
             Inverts the discriminant cut, which will yield the efficiency or rejection
             of the jets not passing the working point, by default False
@@ -367,7 +386,6 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         ValueError
             If mode not supported
         """
-        mode_options = ["sig_eff", "bkg_eff", "sig_rej", "bkg_rej"]
         self.inverse_cut = inverse_cut
         # TODO: python 3.10 switch to cases syntax
         if mode == "sig_eff":
@@ -378,16 +396,26 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             return self.sig_rej
         if mode == "bkg_rej":
             return self.bkg_rej
+        if mode == "bkg_eff_sig_err":
+            return self.bkg_eff_sig_err
         # setting class variable again to False
         self.inverse_cut = False
         raise ValueError(
             f"The selected mode {mode} is not supported. Use one of the following:"
-            f" {mode_options}."
+            f" {VarVsEffPlot.mode_options}."
         )
 
 
 class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attributes
     """var_vs_eff plot class"""
+
+    mode_options: ClassVar[list[str]] = [
+        "sig_eff",
+        "bkg_eff",
+        "sig_rej",
+        "bkg_rej",
+        "bkg_eff_sig_err",
+    ]
 
     def __init__(self, mode, grid: bool = False, **kwargs) -> None:
         """var_vs_eff plot properties.
@@ -396,7 +424,16 @@ class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
         ----------
         mode : str
             Defines which quantity is plotted, the following options ar available:
-            "sig_eff", "bkg_eff", "sig_rej" or "bkg_rej"
+                sig_eff - Plots signal efficiency vs. variable, with statistical error
+                    on N signal per bin
+                bkg_eff - Plots background efficiency vs. variable, with statistical
+                    error on N background per bin
+                sig_rej - Plots signal rejection vs. variable, with statistical error
+                    on N signal per bin
+                bkg_rej - Plots background rejection vs. variable, with statistical
+                    error on N background per bin
+                bkg_eff_sig_err - Plots background efficiency vs. variable, with
+                    statistical error on N signal per bin.
         grid : bool, optional
             Set the grid for the plots.
         **kwargs : kwargs
@@ -408,11 +445,10 @@ class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
             If incompatible mode given or more than 1 ratio panel requested
         """
         super().__init__(grid=grid, **kwargs)
-        mode_options = ["sig_eff", "bkg_eff", "sig_rej", "bkg_rej"]
-        if mode not in mode_options:
+        if mode not in self.mode_options:
             raise ValueError(
                 f"The selected mode {mode} is not supported. Use one of the following: "
-                f"{mode_options}."
+                f"{self.mode_options}."
             )
         self.mode = mode
 
@@ -422,6 +458,26 @@ class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
             y_value, y_error = elem.get(self.mode, inverse_cut=self.inverse_cut)
             elem.y_var_mean = y_value
             elem.y_var_std = y_error
+
+    def apply_modified_atlas_second_tag(
+        self,
+        signal,
+        working_point=None,
+        disc_cut=None,
+        flat_per_bin=False,
+    ):
+        """Modifies the atlas_second_tag to include info on the type of p-eff plot
+        being displayed
+        """
+        if working_point:
+            mid_str = f"{round(working_point*100, 3)}% " + signal.eff_str
+        elif disc_cut:
+            mid_str = rf"$D_{{{signal.name.rstrip('jets')}}}$ > {disc_cut}"
+        tag = f"Flat {mid_str} per bin" if flat_per_bin else f"{mid_str}"
+        if self.atlas_second_tag:
+            self.atlas_second_tag = f"{self.atlas_second_tag}\n{tag}"
+        else:
+            self.atlas_second_tag = tag
 
     def plot(self, **kwargs):
         """Plotting curves.
