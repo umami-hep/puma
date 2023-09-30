@@ -396,7 +396,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         self.inverse_cut = False
         raise ValueError(
             f"The selected mode {mode} is not supported. Use one of the following:"
-            f" {self.mode_options}."
+            f" {VarVsEffPlot.mode_options}."
         )
 
 
