@@ -22,7 +22,7 @@ class Histogram(PlotLineObject):
         self,
         values: np.ndarray,
         weights: np.ndarray = None,
-        ratio_group: str = None,
+        ratio_group: str | None = None,
         flavour: str | Flavour = None,
         add_flavour_label: bool = True,
         histtype: str = "step",
@@ -136,6 +136,7 @@ class Histogram(PlotLineObject):
             Ratio
         np.ndarray
             Ratio error
+
         Raises
         ------
         ValueError
@@ -216,8 +217,8 @@ class HistogramPlot(PlotBase):
     def __init__(
         self,
         bins=40,
-        bins_range: tuple = None,
-        discrete_vals: list = None,
+        bins_range: tuple | None = None,
+        discrete_vals: list | None = None,
         norm: bool = True,
         logy: bool = False,
         bin_width_in_ylabel: bool = False,
@@ -297,7 +298,7 @@ class HistogramPlot(PlotBase):
             raise ValueError("Not more than one ratio panel supported.")
         self.initialise_figure()
 
-    def add(self, histogram: object, key: str = None, reference: bool = False):
+    def add(self, histogram: object, key: str | None = None, reference: bool = False):
         """Adding histogram object to figure.
 
         Parameters
@@ -797,7 +798,7 @@ class HistogramPlot(PlotBase):
             self.ylabel = f"{self.ylabel} / {bin_width:.2f}"
         self.set_ylabel(self.axis_top)
 
-    def draw(self, labelpad: int = None):
+    def draw(self, labelpad: int | None = None):
         """Draw figure.
 
         Parameters

@@ -19,11 +19,11 @@ class Roc(PlotLineObject):
         self,
         sig_eff: np.ndarray,
         bkg_rej: np.ndarray,
-        n_test: int = None,
+        n_test: int | None = None,
         rej_class: str | Flavour = None,
-        signal_class: str = None,
-        key: str = None,
-        reference_roc_key: str = None,
+        signal_class: str | None = None,
+        key: str | None = None,
+        ratio_group: str | None = None,
         **kwargs,
     ) -> None:
         """Initialise properties of roc curve object.
@@ -44,6 +44,8 @@ class Roc(PlotLineObject):
             by default None
         key : str
             Identifier for roc curve e.g. tagger, by default None
+        ratio_group : str, optional
+            Identifies the reference ROC group for ratio calculation, by default None
         **kwargs : kwargs
             Keyword arguments passed to `puma.PlotLineObject`
 
@@ -66,9 +68,11 @@ class Roc(PlotLineObject):
             Flavours[rej_class] if isinstance(rej_class, str) else rej_class
         )
         self.key = key
-        self.reference_roc_key = reference_roc_key
+        self.ratio_group = ratio_group if ratio_group else str(rej_class)
 
-    def binomial_error(self, norm: bool = False, n_test: int = None) -> np.ndarray:
+    def binomial_error(
+        self, norm: bool = False, n_test: int | None = None
+    ) -> np.ndarray:
         """Calculate binomial error of roc curve.
 
         Parameters
@@ -220,9 +224,8 @@ class RocPlot(PlotBase):
     def add_roc(
         self,
         roc_curve: object,
-        key: str = None,
+        key: str | None = None,
         reference: bool = False,
-        reference_key: str = None,
     ):
         """Adding puma.Roc object to figure.
 
@@ -234,9 +237,6 @@ class RocPlot(PlotBase):
             Unique identifier for roc_curve, by default None
         reference : bool, optional
             If roc is used as reference for ratio calculation, by default False
-        reference_key : str, optional
-            Identifier of the reference ROC curve for ratio calculation if
-            the rejection class has no class-wide reference, by default None
 
         Raises
         ------
@@ -263,10 +263,8 @@ class RocPlot(PlotBase):
             and roc_curve.linestyle is not None
         ):
             logger.warning(
-                (
-                    "You specified a different linestyle for the same rejection class "
-                    "%s. Will keep the linestyle defined first."
-                ),
+                "You specified a different linestyle for the same rejection class "
+                "%s. Will keep the linestyle defined first.",
                 roc_curve.rej_class,
             )
         if roc_curve.linestyle is None:
@@ -284,11 +282,9 @@ class RocPlot(PlotBase):
             and roc_curve.colour is not None
         ):
             logger.warning(
-                (
-                    "You specified a different colour for the same label"
-                    " %s. This will lead to a mismatch in the line colours"
-                    " and the legend."
-                ),
+                "You specified a different colour for the same label"
+                " %s. This will lead to a mismatch in the line colours"
+                " and the legend.",
                 roc_curve.label,
             )
         if roc_curve.colour is None:
@@ -298,13 +294,14 @@ class RocPlot(PlotBase):
             logger.debug(
                 "Setting roc %s as reference for %s.", key, roc_curve.rej_class
             )
-            self.set_roc_reference(key, roc_curve.rej_class)
+            self.set_roc_reference(key, roc_curve.rej_class, roc_curve.ratio_group)
 
-        if reference_key:
-            logger.debug("Setting roc %s as reference for %s", reference_key, key)
-            roc_curve.reference_roc_key = reference_key
-
-    def set_roc_reference(self, key: str, rej_class: Flavour):
+    def set_roc_reference(
+        self,
+        key: str,
+        rej_class: Flavour,
+        ratio_group: str | None = None,
+    ):
         """Setting the reference roc curves used in the ratios.
 
         Parameters
@@ -313,6 +310,8 @@ class RocPlot(PlotBase):
             Unique identifier of roc object
         rej_class : str
             Rejection class encoded in roc curve
+        ratio_group : str
+            Ratio group this roc is reference for, by default None
 
         Raises
         ------
@@ -321,23 +320,22 @@ class RocPlot(PlotBase):
         """
         if self.reference_roc is None:
             self.reference_roc = {}
-            self.reference_roc[rej_class] = key
+            self.reference_roc[rej_class] = {ratio_group: key}
         elif rej_class not in self.reference_roc:
             if len(self.reference_roc) >= self.n_ratio_panels:
                 raise ValueError(
                     "You cannot set more rejection classes than available ratio panels."
                 )
-            self.reference_roc[rej_class] = key
+            self.reference_roc[rej_class] = {ratio_group: key}
         else:
-            logger.warning(
-                (
+            if self.reference_roc[rej_class].get(ratio_group):
+                logger.warning(
                     "You specified a second roc curve %s as reference for ratio. "
-                    "Using it as new reference instead of %s."
-                ),
-                key,
-                self.reference_roc[rej_class],
-            )
-            self.reference_roc[rej_class] = key
+                    "Using it as new reference instead of %s.",
+                    key,
+                    self.reference_roc[rej_class][ratio_group],
+                )
+            self.reference_roc[rej_class][ratio_group] = key
 
     def set_ratio_class(self, ratio_panel: int, rej_class: str | Flavour):
         """Associate the rejection class to a ratio panel adn set the legend label.
@@ -415,13 +413,11 @@ class RocPlot(PlotBase):
             if elem.rej_class != rej_class:
                 continue
 
-            if self.reference_roc:
+            if self.reference_roc and self.reference_roc[rej_class].get(
+                elem.ratio_group
+            ):
                 ratio_sig_eff, ratio, ratio_err = elem.divide(
-                    self.rocs[self.reference_roc[rej_class]]
-                )
-            elif elem.reference_roc_key:
-                ratio_sig_eff, ratio, ratio_err = elem.divide(
-                    self.rocs[elem.reference_roc_key]
+                    self.rocs[self.reference_roc[rej_class][elem.ratio_group]]
                 )
             else:
                 ratio_sig_eff, ratio, ratio_err = elem.divide(elem)
@@ -542,7 +538,7 @@ class RocPlot(PlotBase):
 
     def draw(
         self,
-        labelpad: int = None,
+        labelpad: int | None = None,
     ):
         """Draw plotting.
 

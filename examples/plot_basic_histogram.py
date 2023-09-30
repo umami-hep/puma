@@ -1,4 +1,5 @@
 """Example of histogram plot that deviates from puma default plots."""
+from __future__ import annotations
 
 import numpy as np
 

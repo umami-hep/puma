@@ -1,6 +1,9 @@
 """Configuration for logger of puma."""
+from __future__ import annotations
+
 import logging
 import os
+from typing import ClassVar
 
 
 class CustomFormatter(logging.Formatter):
@@ -21,7 +24,7 @@ class CustomFormatter(logging.Formatter):
     )
     date_format = "%(levelname)s:%(name)s: %(message)s"
 
-    FORMATS = {
+    formats: ClassVar = {
         logging.DEBUG: grey + debugformat + reset,
         logging.INFO: green + date_format + reset,
         logging.WARNING: yellow + date_format + reset,
@@ -30,7 +33,7 @@ class CustomFormatter(logging.Formatter):
     }
 
     def format(self, record):
-        log_fmt = self.FORMATS.get(record.levelno)
+        log_fmt = self.formats.get(record.levelno)
         formatter = logging.Formatter(log_fmt)
         return formatter.format(record)
 
@@ -69,7 +72,7 @@ def get_log_level(
 
 
 def initialise_logger(
-    log_level: str = None,
+    log_level: str | None = None,
 ):
     """Initialise.
 

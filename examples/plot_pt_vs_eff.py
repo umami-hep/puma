@@ -1,4 +1,6 @@
 """Produce pT vs efficiency plot from tagger output and labels."""
+from __future__ import annotations
+
 import numpy as np
 
 from puma import VarVsEff, VarVsEffPlot

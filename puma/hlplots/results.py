@@ -82,8 +82,8 @@ class Results:
         """
         if str(tagger) in self.taggers:
             raise KeyError(f"{tagger} was already added.")
-        if tagger.output_nodes is None:
-            tagger.output_nodes = self.flavours
+        if tagger.output_flavours is None:
+            tagger.output_flavours = self.flavours
         self.taggers[str(tagger)] = tagger
 
     def add_taggers_from_file(  # pylint: disable=R0913
@@ -117,7 +117,7 @@ class Results:
         """
         # set tagger output nodes
         for tagger in taggers:
-            tagger.output_nodes = self.flavours
+            tagger.output_flavours = self.flavours
 
         # get a list of all variables to be loaded from the file
         if not isinstance(cuts, Cuts):
@@ -176,7 +176,7 @@ class Results:
         """
         return self.taggers[tagger_name]
 
-    def get_filename(self, plot_name: str, suffix: str = None):
+    def get_filename(self, plot_name: str, suffix: str | None = None):
         """Get output name.
 
         Parameters
@@ -198,7 +198,7 @@ class Results:
 
     def plot_probs(
         self,
-        suffix: str = None,
+        suffix: str | None = None,
         **kwargs,
     ):
         """Plot probability distributions.
@@ -285,10 +285,10 @@ class Results:
 
     def plot_discs(
         self,
-        suffix: str = None,
-        exclude_tagger: list = None,
-        xlabel: str = None,
-        wp_vlines: list = None,
+        suffix: str | None = None,
+        exclude_tagger: list | None = None,
+        xlabel: str | None = None,
+        wp_vlines: list | None = None,
         **kwargs,
     ):
         """Plot discriminant distributions.
@@ -357,8 +357,8 @@ class Results:
 
     def plot_rocs(
         self,
-        suffix: str = None,
-        args_roc_plot: dict = None,
+        suffix: str | None = None,
+        args_roc_plot: dict | None = None,
     ):
         """Plots rocs.
 
@@ -413,7 +413,7 @@ class Results:
 
     def plot_var_perf(  # pylint: disable=too-many-locals
         self,
-        suffix: str = None,
+        suffix: str | None = None,
         xlabel: str = r"$p_{T}$ [GeV]",
         x_var: str = "pt",
         h_line: float = None,
@@ -637,7 +637,7 @@ class Results:
 
     def plot_fraction_scans(
         self,
-        suffix: str = None,
+        suffix: str | None = None,
         efficiency: float = 0.7,
         rej: bool = False,
         optimal_fc: bool = False,

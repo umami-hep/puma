@@ -1,4 +1,5 @@
 """Example plot script for flavour probability comparison."""
+from __future__ import annotations
 
 from puma import Histogram, HistogramPlot
 from puma.utils import get_dummy_2_taggers

@@ -1,4 +1,6 @@
 """Dummy data generation for plotting."""
+from __future__ import annotations
+
 from tempfile import NamedTemporaryFile
 
 import h5py

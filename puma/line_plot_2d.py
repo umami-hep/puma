@@ -1,4 +1,6 @@
 """Classes for 2D line plots."""
+from __future__ import annotations
+
 import matplotlib as mpl
 import numpy as np
 import pandas as pd
@@ -126,7 +128,7 @@ class Line2DPlot(PlotBase):
     def add(
         self,
         curve: object,
-        key: str = None,
+        key: str | None = None,
         is_marker: bool = False,
     ):
         """Adding `puma.Line2D` object to figure.

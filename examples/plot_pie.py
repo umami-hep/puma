@@ -1,4 +1,6 @@
 """Example plotting script for the puma.PiePlot class."""
+from __future__ import annotations
+
 from ftag import Flavours
 
 from puma.pie import PiePlot

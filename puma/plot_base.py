@@ -1,4 +1,5 @@
 """Plotting bases for specialised plotting."""
+from __future__ import annotations
 
 from dataclasses import dataclass
 
@@ -256,6 +257,7 @@ class PlotObject:
         ----------
         yratio : list
             List of min or max limits of ratio plots
+
         Raises
         ------
         ValueError
@@ -298,11 +300,9 @@ class PlotBase(PlotObject):
         if self.vertical_split:  # split figure vertically instead of horizonally
             if self.n_ratio_panels >= 1:
                 logger.warning(
-                    (
-                        "You set the number of ratio panels to %i but also set the"
-                        " vertical splitting to True. Therefore no ratiopanels are"
-                        " created."
-                    ),
+                    "You set the number of ratio panels to %i but also set the"
+                    " vertical splitting to True. Therefore no ratiopanels are"
+                    " created.",
                     self.n_ratio_panels,
                 )
             self.fig = Figure(
@@ -346,8 +346,8 @@ class PlotBase(PlotObject):
     def draw_vlines(
         self,
         xs: list,
-        labels: list = None,
-        ys: list = None,
+        labels: list | None = None,
+        ys: list | None = None,
         same_height: bool = False,
         colour: str = "#000000",
         linestyle: str = "dashed",
@@ -402,7 +402,7 @@ class PlotBase(PlotObject):
                     x=vline_x, color=colour, linestyle=linestyle, linewidth=1.0
                 )
 
-    def set_title(self, title: str = None, **kwargs):
+    def set_title(self, title: str | None = None, **kwargs):
         """Set title of top panel.
 
         Parameters
@@ -462,7 +462,9 @@ class PlotBase(PlotObject):
                 ymax = self.ymax_ratio[i] if self.ymax_ratio[i] else ymax
                 ratio_axis.set_ylim(bottom=ymin, top=ymax)
 
-    def set_ylabel(self, ax_mpl, label: str = None, align_right: bool = True, **kwargs):
+    def set_ylabel(
+        self, ax_mpl, label: str | None = None, align_right: bool = True, **kwargs
+    ):
         """Set y-axis label.
 
         Parameters
@@ -495,7 +497,7 @@ class PlotBase(PlotObject):
         )
         self.fig.align_labels()
 
-    def set_xlabel(self, label: str = None, **kwargs):
+    def set_xlabel(self, label: str | None = None, **kwargs):
         """Set x-axis label.
 
         Parameters
@@ -516,7 +518,7 @@ class PlotBase(PlotObject):
         if self.n_ratio_panels > 0:
             self.ratio_axes[-1].set_xlabel(**xlabel_args, **kwargs)
 
-    def set_tick_params(self, labelsize: int = None, **kwargs):
+    def set_tick_params(self, labelsize: int | None = None, **kwargs):
         """Set x-axis label.
 
         Parameters
@@ -536,7 +538,7 @@ class PlotBase(PlotObject):
             if i == self.n_ratio_panels - 1:
                 ratio_axis.tick_params(axis="x", labelsize=labelsize, **kwargs)
 
-    def set_xlim(self, xmin: float = None, xmax: float = None, **kwargs):
+    def set_xlim(self, xmin: float | None = None, xmax: float | None = None, **kwargs):
         """Set limits of x-axis.
 
         Parameters
@@ -557,8 +559,8 @@ class PlotBase(PlotObject):
     def savefig(
         self,
         plot_name: str,
-        transparent: bool = None,
-        dpi: int = None,
+        transparent: bool | None = None,
+        dpi: int | None = None,
         **kwargs,
     ):
         """Save plot to disk.
@@ -636,7 +638,9 @@ class PlotBase(PlotObject):
                         " False."
                     )
 
-    def make_legend(self, handles: list, ax_mpl: axis, labels: list = None, **kwargs):
+    def make_legend(
+        self, handles: list, ax_mpl: axis, labels: list | None = None, **kwargs
+    ):
         """Drawing legend on axis.
 
         Parameters
@@ -673,8 +677,8 @@ class PlotBase(PlotObject):
         self,
         linestyles: list,
         labels: list,
-        loc: str = None,
-        bbox_to_anchor: tuple = None,
+        loc: str | None = None,
+        bbox_to_anchor: tuple | None = None,
         axis_for_legend=None,
     ):
         """Create a legend to indicate what different linestyles correspond to.

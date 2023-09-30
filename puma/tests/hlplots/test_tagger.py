@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 """Unit test script for the functions in hlplots/tagger.py."""
+from __future__ import annotations
+
 import tempfile
 import unittest
 
@@ -38,7 +40,7 @@ class TaggerBasisTestCase(unittest.TestCase):
 
     def test_n_jets(self):
         """Test if number of n_jets correctly calculated."""
-        tagger = Tagger("dummy", output_nodes=["ujets", "cjets", "bjets"])
+        tagger = Tagger("dummy", output_flavours=["ujets", "cjets", "bjets"])
         labels = np.concatenate([np.zeros(80), np.ones(5) * 4, np.ones(15) * 5])
         tagger.labels = np.array(labels, dtype=[("HadronConeExclTruthLabelID", "i4")])
         with self.subTest():
@@ -167,5 +169,23 @@ class TaggerTestCase(unittest.TestCase):
         tagger = Tagger("dummy", f_b=0.5)
         tagger.scores = self.scores
         discs = tagger.discriminant("cjets")
-
         np.testing.assert_array_equal(discs, np.zeros(10))
+
+    def test_disc_hbb_calc(self):
+        """Test hbb-disc calculation."""
+        from ftag import Flavours as F
+
+        tagger = Tagger(
+            "dummy", output_flavours=[F["hbb"], F["hcc"], F["top"], F["qcd"]]
+        )
+        tagger.scores = u2s(
+            np.column_stack((np.ones(10), np.ones(10), np.ones(10), np.ones(10))),
+            dtype=[
+                ("dummy_phbb", "f4"),
+                ("dummy_phcc", "f4"),
+                ("dummy_ptop", "f4"),
+                ("dummy_pqcd", "f4"),
+            ],
+        )
+        discs = tagger.discriminant("hbb")
+        np.testing.assert_array_equal(discs, np.ones(10))
