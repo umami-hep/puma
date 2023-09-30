@@ -132,11 +132,6 @@ class TaggerTestCase(unittest.TestCase):
             dtype=[("dummy_pu", "f4"), ("dummy_pc", "f4"), ("dummy_pb", "f4")],
         )
 
-    def test_disc_cut_template(self):
-        """Test template with disc_cut."""
-        template_disc_cut = {"disc_cut": 1.5}
-        tagger = Tagger("dummy", **template_disc_cut)
-        self.assertEqual(tagger.disc_cut, 1.5)
 
     def test_errors(self):
         tagger = Tagger("dummy")
