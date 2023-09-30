@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Various improvements for efficiency profile plots [!208](https://github.com/umami-hep/puma/pull/208)
 - Adding documentation for Data/MC plots [!211](https://github.com/umami-hep/puma/pull/211)
 - Update linters [!210](https://github.com/umami-hep/puma/pull/210)
 - Fix tagger discriminant bug, add future imports [!209](https://github.com/umami-hep/puma/pull/209)
