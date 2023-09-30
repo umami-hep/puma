@@ -227,8 +227,9 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 )
 
     def test_plot_var_eff_per_flat_rej_err(self):
-        """Tests the performance vs flat rejection plots throws errors 
-        with invalid inputs"""
+        """Tests the performance vs flat rejection plots throws errors
+        with invalid inputs
+        """
         self.dummy_tagger_1.reference = True
         self.dummy_tagger_1.f_c = 0.05
         self.dummy_tagger_1.disc_cut = 2
@@ -318,7 +319,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results.plot_flat_rej_var_perf(
                 fixed_rejections={"cjets": 10, "ujets": 100},
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
-                h_line=0.5
+                h_line=0.5,
             )
             self.assertIsFile(
                 Path(tmp_file)

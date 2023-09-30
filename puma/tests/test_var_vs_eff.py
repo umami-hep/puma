@@ -9,8 +9,8 @@ import tempfile
 import unittest
 
 import numpy as np
+from ftag import Flavours
 from matplotlib.testing.compare import compare_images
-from ftag import Flavour, Flavours
 
 from puma import VarVsEff, VarVsEffPlot
 from puma.utils.logging import logger, set_log_level
@@ -82,9 +82,6 @@ class VarVsEffTestCase(unittest.TestCase):
             x_var_sig=[0, 1, 2], disc_sig=[3, 4, 5], bins=2, working_point=0.7
         )
         np.testing.assert_array_almost_equal(var_plot.bin_edges, [0, 1, 2], decimal=4)
-
-    
-        
 
     def test_var_vs_eff_set_bin_edges(self):
         """Test var_vs_eff _set_bin_edges."""
@@ -424,48 +421,37 @@ class VarVsEffOutputTestCase(unittest.TestCase):
         )
 
     def test_var_vs_eff_info_str_fixed_eff(self):
-        
         flat_wp_plot = VarVsEffPlot(
             mode="bkg_eff",
         )
-        signal = Flavours['bjets']
+        signal = Flavours["bjets"]
 
-        flat_wp_plot.apply_modified_atlas_second_tag(
-            signal=signal,
-            working_point=0.7
-        )
+        flat_wp_plot.apply_modified_atlas_second_tag(signal=signal, working_point=0.7)
 
-        expected_tag = f"70.0% $b$-jet efficiency"
+        expected_tag = "70.0% $b$-jet efficiency"
         self.assertEqual(flat_wp_plot.atlas_second_tag, expected_tag)
+
     def test_var_vs_eff_info_str_flat_wp(self):
-        
         flat_wp_plot = VarVsEffPlot(
             mode="bkg_eff",
             atlas_second_tag="test",
         )
-        signal = Flavours['bjets']
+        signal = Flavours["bjets"]
 
         flat_wp_plot.apply_modified_atlas_second_tag(
-            signal=signal,
-            working_point=0.7,
-            flat_per_bin=True
+            signal=signal, working_point=0.7, flat_per_bin=True
         )
 
-        expected_tag = f"test\nFlat 70.0% $b$-jet efficiency per bin"
+        expected_tag = "test\nFlat 70.0% $b$-jet efficiency per bin"
         self.assertEqual(flat_wp_plot.atlas_second_tag, expected_tag)
+
     def test_var_vs_eff_info_str_fixed_disc(self):
-        
         flat_wp_plot = VarVsEffPlot(
             mode="bkg_eff",
         )
-        signal = Flavours['bjets']
+        signal = Flavours["bjets"]
 
-        flat_wp_plot.apply_modified_atlas_second_tag(
-            signal=signal,
-            disc_cut=3.0
-        )
+        flat_wp_plot.apply_modified_atlas_second_tag(signal=signal, disc_cut=3.0)
 
         expected_tag = "$D_{b}$ > 3.0"
         self.assertEqual(flat_wp_plot.atlas_second_tag, expected_tag)
-
-        
