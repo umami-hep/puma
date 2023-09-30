@@ -465,7 +465,10 @@ class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
         elif disc_cut:
             mid_str = rf"$D_{{{signal.name.rstrip('jets')}}}$ > {disc_cut}"
         tag = f"Flat {mid_str} per bin" if flat_per_bin else f"{mid_str}"
-        self.atlas_second_tag = f"{self.atlas_second_tag}\n{tag}"
+        if self.atlas_second_tag:
+            self.atlas_second_tag = f"{self.atlas_second_tag}\n{tag}"
+        else:
+            self.atlas_second_tag = tag
 
     def plot(self, **kwargs):
         """Plotting curves.
