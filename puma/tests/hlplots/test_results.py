@@ -160,6 +160,29 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results.plot_rocs()
             self.assertIsFile(results.get_filename("roc"))
 
+    def test_plot_var_perf_err(self):
+        """Tests the performance plots throws errors with invalid inputs"""
+        self.dummy_tagger_1.reference = True
+        self.dummy_tagger_1.f_c = 0.05
+        self.dummy_tagger_1.disc_cut = 2
+        rng = np.random.default_rng(seed=16)
+        self.dummy_tagger_1.perf_var = rng.exponential(
+            100, size=len(self.dummy_tagger_1.scores)
+        )
+        with tempfile.TemporaryDirectory() as tmp_file:
+            results = Results(signal="bjets", sample="test", output_dir=tmp_file)
+            results.add(self.dummy_tagger_1)
+            with self.assertRaises(ValueError):
+                results.plot_var_perf(
+                    bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
+                )
+            with self.assertRaises(ValueError):
+                results.plot_var_perf(
+                    bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
+                    disc_cut=1,
+                    working_point=0.5,
+                )
+
     def test_plot_var_perf_bjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
@@ -174,6 +197,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results.add(self.dummy_tagger_1)
             results.plot_var_perf(
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
+                working_point=0.7,
             )
 
             self.assertIsFile(
@@ -201,6 +225,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results.plot_var_perf(
                 h_line=self.dummy_tagger_1.working_point,
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
+                working_point=0.7,
             )
             self.assertIsFile(
                 Path(tmp_file) / "test_cjets_cjets_eff_vs_pt_profile_fixed_cut_.png"
