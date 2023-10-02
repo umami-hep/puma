@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Make fc plots configurable and default to logscale [!214](https://github.com/umami-hep/puma/pull/214)
 - Various improvements for efficiency profile plots [!208](https://github.com/umami-hep/puma/pull/208)
 - Adding documentation for Data/MC plots [!211](https://github.com/umami-hep/puma/pull/211)
 - Update linters [!210](https://github.com/umami-hep/puma/pull/210)
