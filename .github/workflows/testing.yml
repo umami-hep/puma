@@ -54,24 +54,34 @@ jobs:
           BRANCH: examples-material
           FOLDER: plots
 
+jobs:
+  pypi-publish:
+    name: Upload release to PyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/<your-pypi-project-name>
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+    steps:
+    # retrieve your distributions here
+
+    - name: Publish package distributions to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+
   publish:
     name: Upload release to PyPI
     needs: [unit_tests]
     # Only run for a tagged commit
     if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
     runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/p/puma-hep/
     permissions:
       id-token: write # IMPORTANT: this permission is mandatory for trusted publishing
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Set up Python 3.8
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.8
+        uses: actions/setup-python@v4
       - name: Build package
         run: |
           python -m pip install -U pip build
