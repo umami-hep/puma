@@ -42,7 +42,7 @@ def build_docs_version(version):
 
     # build the docs for this version
     run(
-        f"sphinx-build -b html docs/source docs/_build/html/{version}",
+        f" python -m sphinx.cmd.build -b html docs/source docs/_build/html/{version}",
         shell=True,
         check=True,
     )
