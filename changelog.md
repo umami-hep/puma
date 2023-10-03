@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+### [v0.3.0] (2023/10/03)
+
 - Fix docs build [!215](https://github.com/umami-hep/puma/pull/215)
 - Make fc plots configurable and default to logscale [!214](https://github.com/umami-hep/puma/pull/214)
 - Various improvements for efficiency profile plots [!208](https://github.com/umami-hep/puma/pull/208)
