@@ -79,10 +79,10 @@ jobs:
 
   publish-to-testpypi:
     name: Publish Python 🐍 distribution 📦 to TestPyPI
-    needs:
-      - build
+    needs: [unit_tests, example_tests]
     runs-on: ubuntu-latest
-
+    # Only run for a tagged commit
+    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
     environment:
       name: testpypi
       url: https://test.pypi.org/p/<package-name>
