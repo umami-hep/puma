@@ -9,7 +9,6 @@ This script has to be executed in the root of the repository!
 """
 from __future__ import annotations
 
-import json
 import os
 from shutil import copy
 from subprocess import run
@@ -42,7 +41,7 @@ def build_docs_version(version):
 
     # build the docs for this version
     run(
-        f"sphinx-build -b html docs/source docs/_build/html/{version}",
+        f" python -m sphinx.cmd.build -b html docs/source docs/_build/html/{version}",
         shell=True,
         check=True,
     )
@@ -51,9 +50,6 @@ def build_docs_version(version):
 
 def main():
     """main function that is executed when the script is called."""
-    with open("docs/source/_static/switcher.json") as f:
-        version_switcher = json.load(f)
-
     # get currently active branch
     command = "git rev-parse --abbrev-ref HEAD".split()
     initial_branch = (
@@ -64,16 +60,8 @@ def main():
     # docs versions that are built
     copy("docs/source/conf.py", "./conf_latest.py")
 
-    # build docs for main branch no matter what versions are present in the switcher
-    # (this is kind of a safety measure to make sure the main branch docs are built
-    # even if the version switcher is messed up)
+    # build docs for main branch
     build_docs_version("main")
-
-    # build docs for the versions that are listed in the version switcher
-    for entry in version_switcher:
-        if entry["version"] == "main":
-            continue
-        build_docs_version(entry["version"])
 
     # checkout initial branch for following steps
     run(f"git checkout {initial_branch}", shell=True, check=True)
