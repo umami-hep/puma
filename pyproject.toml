@@ -1,5 +1,5 @@
 [project]
-name = "puma"
+name = "puma-hep"
 description = "ATLAS Flavour Tagging Plotting Code"
 dynamic = ["version"]
 readme = "README.md"
