@@ -1,4 +1,6 @@
 """Produce pT vs efficiency plot from tagger output and labels."""
+from __future__ import annotations
+
 import numpy as np
 
 from puma import VarVsEff, VarVsEffPlot
@@ -76,7 +78,7 @@ rnnip_light = VarVsEff(
     bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
     working_point=0.7,
     disc_cut=None,
-    flat_eff_bin=False,
+    flat_per_bin=False,
     label="RNNIP",
 )
 dips_light = VarVsEff(
@@ -87,7 +89,7 @@ dips_light = VarVsEff(
     bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
     working_point=0.7,
     disc_cut=None,
-    flat_eff_bin=False,
+    flat_per_bin=False,
     label="DIPS",
 )
 

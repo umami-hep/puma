@@ -84,8 +84,8 @@ class Results:
         """
         if str(tagger) in self.taggers:
             raise KeyError(f"{tagger} was already added.")
-        if tagger.output_nodes is None:
-            tagger.output_nodes = self.flavours
+        if tagger.output_flavours is None:
+            tagger.output_flavours = self.flavours
         self.taggers[str(tagger)] = tagger
     
     def load(self):
@@ -164,7 +164,7 @@ class Results:
         """
         # set tagger output nodes
         for tagger in taggers:
-            tagger.output_nodes = self.flavours
+            tagger.output_flavours = self.flavours
 
         # get a list of all variables to be loaded from the file
         if not isinstance(cuts, Cuts):
@@ -220,7 +220,7 @@ class Results:
         """
         return self.taggers[tagger_name]
 
-    def get_filename(self, plot_name: str, suffix: str = None):
+    def get_filename(self, plot_name: str, suffix: str | None = None):
         """Get output name.
 
         Parameters
@@ -242,7 +242,7 @@ class Results:
 
     def plot_probs(
         self,
-        suffix: str = None,
+        suffix: str | None = None,
         **kwargs,
     ):
         """Plot probability distributions.
@@ -329,10 +329,10 @@ class Results:
 
     def plot_discs(
         self,
-        suffix: str = None,
-        exclude_tagger: list = None,
-        xlabel: str = None,
-        wp_vlines: list = None,
+        suffix: str | None = None,
+        exclude_tagger: list | None = None,
+        xlabel: str | None = None,
+        wp_vlines: list | None = None,
         **kwargs,
     ):
         """Plot discriminant distributions.
@@ -404,8 +404,9 @@ class Results:
 
     def plot_rocs(
         self,
-        suffix: str = None,
-        **kwargs,
+        suffix: str | None = None,
+        args_roc_plot: dict | None = None,
+        **kwargs
     ):
         """Plots rocs.
 
@@ -460,10 +461,12 @@ class Results:
 
     def plot_var_perf(  # pylint: disable=too-many-locals
         self,
-        suffix: str = None,
+        suffix: str | None = None,
         xlabel: str = r"$p_{T}$ [GeV]",
         x_var: str = "pt",
-        h_line: float = None,
+        h_line: float | None = None,
+        working_point: float | None = None,
+        disc_cut: float | None = None,
         **kwargs,
     ):
         """Variable vs efficiency/rejection plot.
@@ -482,9 +485,19 @@ class Results:
             is 'pt'
         h_line : float, optional
             draws a horizonatal line in the signal efficiency plot
+        working_point: float, optional
+            The working point to use for the plot, either this, OR disc_cut must be
+            set, but not both. Default is None
+        disc_cut: float, optional
+            The cut on the discriminant to use for the plot, either this, OR
+            working_point must be set, but not both. Default is None
         **kwargs : kwargs
             key word arguments for `puma.VarVsEff`
         """
+        if all([working_point, disc_cut]):
+            raise ValueError("Only one of working_point or disc_cut can be set")
+        if not any([working_point, disc_cut]):
+            raise ValueError("Either working_point or disc_cut must be set")
         # define the curves
         plot_sig_eff = VarVsEffPlot(
             mode="sig_eff",
@@ -495,6 +508,12 @@ class Results:
             atlas_second_tag=self.atlas_second_tag,
             n_ratio_panels=1,
             y_scale=1.4,
+        )
+        plot_sig_eff.apply_modified_atlas_second_tag(
+            self.signal,
+            working_point=working_point,
+            disc_cut=disc_cut,
+            flat_per_bin=kwargs.get("flat_per_bin", False),
         )
         plot_bkg = []
         for background in self.backgrounds:
@@ -510,13 +529,14 @@ class Results:
                     y_scale=1.4,
                 )
             )
+            plot_bkg[-1].apply_modified_atlas_second_tag(
+                self.signal,
+                working_point=working_point,
+                disc_cut=disc_cut,
+                flat_per_bin=kwargs.get("flat_per_bin", False),
+            )
 
         for tagger in self.taggers.values():
-            if "disc_cut" not in kwargs:
-                kwargs["disc_cut"] = tagger.disc_cut
-            if "working_point" not in kwargs:
-                kwargs["working_point"] = tagger.working_point
-
             discs = tagger.discriminant(self.signal)
             is_signal = tagger.is_flav(self.signal)
             plot_sig_eff.add(
@@ -525,6 +545,8 @@ class Results:
                     disc_sig=discs[is_signal],
                     label=tagger.label,
                     colour=tagger.colour,
+                    working_point=working_point,
+                    disc_cut=disc_cut,
                     **kwargs,
                 ),
                 reference=tagger.reference,
@@ -539,6 +561,8 @@ class Results:
                         disc_bkg=discs[is_bkg],
                         label=tagger.label,
                         colour=tagger.colour,
+                        working_point=working_point,
+                        disc_cut=disc_cut,
                         **kwargs,
                     ),
                     reference=tagger.reference,
@@ -602,12 +626,12 @@ class Results:
         plot_bkg = []
         for background in self.backgrounds:
             modified_second_tag = (
-                f"{self.atlas_second_tag}\nFixed {background.rej_str} ="
+                f"{self.atlas_second_tag}\nFlat {background.rej_str} of"
                 f" {fixed_rejections[background.name]} per bin"
             )
             plot_bkg.append(
                 VarVsEffPlot(
-                    mode="bkg_eff",
+                    mode="bkg_eff_sig_err",
                     ylabel=self.signal.eff_str,
                     xlabel=xlabel,
                     logy=False,
@@ -642,7 +666,7 @@ class Results:
                         label=tagger.label,
                         colour=tagger.colour,
                         working_point=1 / fixed_rejections[background.name],
-                        flat_eff_bin=True,
+                        flat_per_bin=True,
                         **kwargs,
                     ),
                     reference=tagger.reference,
@@ -664,7 +688,7 @@ class Results:
 
     def plot_fraction_scans(
         self,
-        suffix: str = None,
+        suffix: str | None = None,
         efficiency: float = 0.7,
         rej: bool = False,
         optimal_fc: bool = False,
@@ -682,12 +706,19 @@ class Results:
             if True, plot rejection instead of efficiency, by default False
         optimal_fc : bool, optional
             if True, plot optimal fc/fb, by default False
-        **kwargs : kwargs for Line2DPlot
+        **kwargs
+            Keyword arguments for `puma.Line2DPlot
         """
         if self.signal not in (Flavours.bjets, Flavours.cjets):
             raise ValueError("Signal flavour must be bjets or cjets")
         if len(self.backgrounds) != 2:
             raise ValueError("Only two background flavours are supported")
+
+        # set defaults
+        if "logx" not in kwargs:
+            kwargs["logx"] = True
+        if "logy" not in kwargs:
+            kwargs["logy"] = True
 
         fxs = fraction_scan.get_fx_values()
         tag = self.atlas_second_tag + "\n" if self.atlas_second_tag else ""

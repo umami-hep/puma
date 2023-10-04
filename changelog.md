@@ -2,7 +2,18 @@
 
 ### [Latest]
 
+### [v0.3.0] (2023/10/03)
+
+- Fix publish workflow, update tools package
+- Fix docs build [!215](https://github.com/umami-hep/puma/pull/215)
+- Make fc plots configurable and default to logscale [!214](https://github.com/umami-hep/puma/pull/214)
+- Various improvements for efficiency profile plots [!208](https://github.com/umami-hep/puma/pull/208)
+- Adding documentation for Data/MC plots [!211](https://github.com/umami-hep/puma/pull/211)
+- Update linters [!210](https://github.com/umami-hep/puma/pull/210)
+- Fix tagger discriminant bug, add future imports [!209](https://github.com/umami-hep/puma/pull/209)
+- Add weight support for efficiency calculation [!206](https://github.com/umami-hep/puma/pull/206)
 - Add tagger specific cuts to results [!205](https://github.com/umami-hep/puma/pull/205)
+- Generalise ROC curve ratio grouping [!202](https://github.com/umami-hep/puma/pull/202)
 
 ### [v0.2.8] (2023/08/09)
 

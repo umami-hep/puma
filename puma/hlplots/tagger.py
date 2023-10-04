@@ -34,7 +34,7 @@ class Tagger:
     scores: np.ndarray = None
     labels: np.ndarray = None
     perf_var: np.ndarray = None
-    output_nodes: list = field(
+    output_flavours: list = field(
         default_factory=lambda: [Flavours.ujets, Flavours.cjets, Flavours.bjets]
     )
     disc_cut: float = None
@@ -81,7 +81,7 @@ class Tagger:
         list
             List of probability names
         """
-        return [flav.px for flav in self.output_nodes]
+        return [flav.px for flav in self.output_flavours]
 
     @property
     def variables(self):
@@ -95,7 +95,7 @@ class Tagger:
         return [f"{self.name}_{prob}" for prob in self.probabilities]
 
     def extract_tagger_scores(
-        self, source: object, source_type: str = "data_frame", key: str = None
+        self, source: object, source_type: str = "data_frame", key: str | None = None
     ):
         """Extract tagger scores from data frame or file.
 
@@ -114,6 +114,7 @@ class Tagger:
         key : str, optional
             Key within h5 file, needs to be provided when using the `source_type`
             `data_frame_path` or `numpy_structured`, by default None
+
         Raises
         ------
         ValueError
@@ -192,7 +193,7 @@ class Tagger:
             f"{self.name}_{prob_flavour.px}"
         ]
 
-    def discriminant(self, signal: Flavour, fx: float = None):
+    def discriminant(self, signal: Flavour, fx: float | None = None):
         """Retrieve the discriminant for a given signal class.
 
         Parameters
@@ -221,5 +222,6 @@ class Tagger:
         if Flavours[signal] == Flavours.cjets:
             return get_discriminant(self.scores, self.name, signal, fx)
         if Flavours[signal] in (Flavours.hbb, Flavours.hcc):
-            return self.scores[signal.px]
+            sig_var = self.variables[self.output_flavours.index(Flavours[signal])]
+            return self.scores[sig_var]
         raise ValueError(f"No discriminant defined for {signal} signal.")

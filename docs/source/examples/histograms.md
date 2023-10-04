@@ -57,3 +57,19 @@ underflow/overflow bins.
 ```py
 §§§examples/plot_histogram_underoverflow.py§§§
 ```
+
+## Data/MC histograms
+
+To visualize the agreement of the Monte-Carlo with data, `puma` is also able to produce
+so-called Data/MC histograms. They show the data as a dot histogram while the MC is still
+a stacked histogram. An example of this plot can be seen here:
+
+<img src=https://github.com/umami-hep/puma/raw/examples-material/data_mc_example.png width=500>
+
+The code to create this example can be found in the `examples` folder in the `plot_data_mc.py`.
+Similar to the rest of the `Puma.HistogramPlot` examples shown here, a lot of more optional
+argument can be passed.
+
+```py
+§§§examples/plot_data_mc.py§§§
+```

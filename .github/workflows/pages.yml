@@ -28,7 +28,7 @@ jobs:
         # + This action will only update the gh-pages branch if the documentation
         # is affected by the changes that triggered the job
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: JamesIves/github-pages-deploy-action@3.7.1
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
           BRANCH: gh-pages
           FOLDER: docs/_build/html

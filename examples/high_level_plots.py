@@ -1,4 +1,5 @@
 """Produce roc curves from tagger output and labels."""
+from __future__ import annotations
 
 import numpy as np
 
@@ -61,25 +62,20 @@ results.plot_rocs()
 
 # eff/rej vs. variable plots
 logger.info("Plotting efficiency/rejection vs pT curves.")
-results.atlas_second_tag = "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$\n70% WP"
+results.atlas_second_tag = "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$"
 
-# you can either specify a WP per tagger, e.g.
-# dips.working_point = 0.7
-# rnnip.working_point = 0.7
 # or alternatively also pass the argument `working_point` to the plot_var_perf function.
 # specifying the `disc_cut` per tagger is also possible.
 results.plot_var_perf(
     working_point=0.7,
     bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
-    flat_eff_bin=False,
+    flat_per_bin=False,
 )
 
-results.atlas_second_tag = (
-    "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$\n70% WP per bin"
-)
+results.atlas_second_tag = "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$"
 results.plot_var_perf(
     bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
-    flat_eff_bin=True,
+    flat_per_bin=True,
     working_point=0.7,
     h_line=0.7,
     disc_cut=None,

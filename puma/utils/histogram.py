@@ -1,4 +1,6 @@
 """Helper function for histogram handling."""
+from __future__ import annotations
+
 import numpy as np
 
 from puma.utils.logging import logger

@@ -1,4 +1,6 @@
 """Variable vs another variable plot."""
+from __future__ import annotations
+
 import matplotlib as mpl
 import numpy as np
 from matplotlib.patches import Rectangle
@@ -21,7 +23,7 @@ class VarVsVar(PlotLineObject):
         y_var_mean: np.ndarray,
         y_var_std: np.ndarray,
         x_var_widths: np.ndarray = None,
-        key: str = None,
+        key: str | None = None,
         fill: bool = True,
         plot_y_std: bool = True,
         **kwargs,
@@ -156,7 +158,7 @@ class VarVsVarPlot(PlotBase):
             raise ValueError("Not more than one ratio panel supported.")
         self.initialise_figure()
 
-    def add(self, curve: VarVsVar, key: str = None, reference: bool = False):
+    def add(self, curve: VarVsVar, key: str | None = None, reference: bool = False):
         """Adding VarVsVar object to figure.
 
         Parameters
@@ -228,10 +230,8 @@ class VarVsVarPlot(PlotBase):
             self.reference_object = key
         else:
             logger.warning(
-                (
-                    "You specified a second curve %s as reference for ratio. "
-                    "Using it as new reference instead of %s."
-                ),
+                "You specified a second curve %s as reference for ratio. "
+                "Using it as new reference instead of %s.",
                 key,
                 self.reference_object,
             )
@@ -377,7 +377,7 @@ class VarVsVarPlot(PlotBase):
 
     def draw(
         self,
-        labelpad: int = None,
+        labelpad: int | None = None,
     ):
         """Draw figure.
 

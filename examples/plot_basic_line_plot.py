@@ -1,4 +1,6 @@
 """Example for a basic line plot with puma"""
+from __future__ import annotations
+
 import numpy as np
 
 from puma import Line2D, Line2DPlot
