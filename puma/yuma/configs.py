@@ -40,11 +40,13 @@ class DatasetConfig:
         # maybe just config.items() ??
         logger.info("Loading datasets: ", config["datasets"])
         datasets = {dataset_key : cls(name=dataset_key, **dataset) for dataset_key, dataset in config["datasets"].items() if dataset_key in datasets_to_get}
+        cidx = 0
+        good_colours = list(get_good_colours())
+        for d, dset in datasets.items():
+            if 'colour' not in dset.style:
+                dset.style['colour'] = good_colours[cidx]
+                cidx += 1
 
-        dataset_colours = [model.style.get("colour", None) for model in datasets.values()]
-        dataset_colours = fill_colours(dataset_colours)
-        for  (key, dataset), new_colour  in zip(datasets.items(), dataset_colours):
-            dataset.style["colour"] = new_colour
 
         return datasets
     
