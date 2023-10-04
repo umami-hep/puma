@@ -63,8 +63,9 @@ def get_included_taggers(results, plot_config):
     # This is only needed for plots with a ratio, but still...
     if not any([t.reference for t in include_taggers.values()]):
         if reference := plot_config['args'].get('reference', None):
-            if reference not in include_taggers:
-                raise ValueError(f"Reference {reference} not in included taggers {include_taggers}")
+            if reference not in [t.yaml_name for t in include_taggers.values()]:
+                raise ValueError(f"Reference {reference} not in included taggers {include_taggers.keys()}")
+            reference = str([t for t in include_taggers.values() if t.yaml_name == reference][0])
             # Create a copy, and set it as reference, this is the easiest way of doing this but
             # might be a bit slow
         else:
