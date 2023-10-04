@@ -53,7 +53,13 @@ def associate_vertices(test_vertices, ref_vertices):
     Returns
     -------
     associations: np.ndarray
-        Matrix of vertex associations with shape (len(ref_vertices), len(test_vertices)).
+        Boolean matrix of vertex associations with shape (n_ref_vertices, n_test_vertices).
+    purity: np.ndarray
+        Matrix containing vertex purity scores (fraction of tracks in test vertex also found
+        in ref vertex) for each pairing.
+    true_assoc_rate: np.ndarray
+        Matrix containing vertex true association rates (fraction of tracks in ref vertex also
+        found in true vertex) for each pairing.
     """
     ref_sizes = ref_vertices.sum(axis=1)
     test_sizes = test_vertices.sum(axis=1)
@@ -62,17 +68,26 @@ def associate_vertices(test_vertices, ref_vertices):
 
     common_tracks = np.dot(test_vertices.astype(int), ref_vertices.astype(int).T)
     purity = common_tracks / np.tile(test_sizes, (n_ref, 1)).T
-    fake_assoc_rate = common_tracks / np.tile(ref_sizes, (n_test, 1)) # actually 1 - fake association rate
+    true_assoc_rate = common_tracks / np.tile(ref_sizes, (n_test, 1))
     pair_index = np.arange(n_ref*n_test, 0, -1).reshape(n_test, n_ref) # unique number for each vertex pairing
 
     # calculate vertex associations based on maximum number of shared tracks
-    # followed by maximum purity and minimum fake association rate; if there are two
+    # followed by maximum purity and true association rate; if there are two
     # equally good pairings for a vertex, the first in the list is chosen
     associations = np.ones_like(common_tracks, dtype=bool)
-    for metric in [common_tracks, purity, fake_assoc_rate, pair_index]:
+    for metric in [common_tracks, purity, true_assoc_rate, pair_index]:
         metric[np.logical_not(associations)] = -1 # disregard pairs that have already been thrown out
         col_max = np.tile(np.amax(metric, axis=0), (n_test, 1))
         row_max = np.tile(np.amax(metric, axis=1), (n_ref, 1)).T
         associations = np.logical_and(metric == col_max, metric == row_max)
 
-    return associations, purity, fake_assoc_rate
+    return associations, purity, true_assoc_rate
+
+
+t_indices = np.array([0, 1, 1, 2, 3, 4, 3, 3, 4, -1, -1, -1])
+r_indices = np.array([0, 0, 0, 1, 2, 0, 2, 2, 0, -1, -1, -1])
+
+t_vertices = build_vertices(t_indices, minimum_id=0)
+r_vertices = build_vertices(r_indices, minimum_id=0)
+
+associations = associate_vertices(t_vertices, r_vertices)
