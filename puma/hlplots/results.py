@@ -577,18 +577,20 @@ class Results:
             if kwargs.get("flat_eff_bin")
             else "profile_fixed_cut"
         )
-        wp_disc = (f'_disc_cut_{kwargs["disc_cut"]}' 
-                if kwargs.get('disc_cut', None) 
-                else f'_wp_{kwargs["working_point"]}').replace('.', 'p')
+        wp_disc = (f'_disc_cut_{disc_cut}_' 
+                if disc_cut
+                else f'_wp_{working_point}_').replace('.', 'p')
         plot_details = f"{self.signal}_eff_vs_{x_var}_{wp_disc}"
         plot_suffix = f"_{suffix}" if suffix else ""
         plot_sig_eff.savefig(self.get_filename(plot_details + plot_base, plot_suffix))
+        print(self.get_filename(plot_details + plot_base, plot_suffix))
         for i, background in enumerate(self.backgrounds):
             plot_bkg[i].draw()
             plot_details = f"{background}_rej_vs_{x_var}_{wp_disc}"
             plot_bkg[i].savefig(
                 self.get_filename(plot_details + plot_base, plot_suffix)
             )
+            print(self.get_filename(plot_details + plot_base, plot_suffix))
 
     def plot_flat_rej_var_perf(
         self,
