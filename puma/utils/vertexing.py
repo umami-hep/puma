@@ -4,7 +4,7 @@ from __future__ import annotations
 import numpy as np
 
 
-def build_vertices(vertex_ids, ignore_indices=[-1]):
+def build_vertices(vertex_ids, ignore_indices=None):
     """
     Vertex builder that outputs an array of vertex associations
     from vertex ids derived in athena or salt for a single jet.
@@ -63,8 +63,8 @@ def associate_vertices(test_vertices, ref_vertices):
     n_test = test_sizes.size
 
     common_tracks = np.dot(test_vertices.astype(int), ref_vertices.astype(int).T)
-    inv_ref_size = 1. / np.tile(ref_sizes, (n_test, 1))
-    inv_test_size = 1. / np.tile(test_sizes, (n_ref, 1)).T
+    inv_ref_size = 1.0 / np.tile(ref_sizes, (n_test, 1))
+    inv_test_size = 1.0 / np.tile(test_sizes, (n_ref, 1)).T
 
     pair_index = np.arange(n_ref * n_test, 0, -1).reshape(
         n_test, n_ref
@@ -84,11 +84,12 @@ def associate_vertices(test_vertices, ref_vertices):
     return associations, common_tracks
 
 
-def calculate_vertex_metrics(test_indices, ref_indices, max_vertices=20, ignore_indices=None):
+def calculate_vertex_metrics(
+    test_indices, ref_indices, max_vertices=20, ignore_indices=None
+):
     """
-    Vertex metric calculator that returns a list of vertex efficiencies, fake
-    rates and purity information for each jet as well as the absolute number of
-    tracks associated to truth and reco vertices.
+    Vertex metric calculator that outputs a set of metrics useful for evaluating
+    vertexing performance for each jet.
 
     Parameters
     ----------
@@ -116,10 +117,10 @@ def calculate_vertex_metrics(test_indices, ref_indices, max_vertices=20, ignore_
         tracks between each matched vertex pair.
     test_vertex_size: np.ndarray
         Array of shape (n_jets, max_vertices) containing the number of tracks in each
-        matched test vertex.
+        matched reco vertex.
     ref_vertex_size: np.ndarray
         Array of shape (n_jets, max_vertices) containing the number of tracks in each
-        matched reference vertex.
+        matched truth vertex.
     """
 
     assert (
@@ -148,9 +149,7 @@ def calculate_vertex_metrics(test_indices, ref_indices, max_vertices=20, ignore_
             n_ref[i] = ref_vertices.shape[0]
             continue
 
-        associations, common_tracks = associate_vertices(
-            test_vertices, ref_vertices
-        )
+        associations, common_tracks = associate_vertices(test_vertices, ref_vertices)
 
         # write out vertexing efficiency metrics
         n_match[i] = np.sum(associations)
@@ -158,19 +157,12 @@ def calculate_vertex_metrics(test_indices, ref_indices, max_vertices=20, ignore_
         n_test[i] = test_vertices.shape[0]
 
         # write out vertexing purity metrics
-        track_overlap[i, :n_match[i]] = common_tracks[associations]
-        test_vertex_size[i, :n_match[i]] = test_vertices[
+        track_overlap[i, : n_match[i]] = common_tracks[associations]
+        test_vertex_size[i, : n_match[i]] = test_vertices[
             associations.sum(axis=1).astype(bool)
         ].sum(axis=1)
-        ref_vertex_size[i, :n_match[i]] = ref_vertices[
+        ref_vertex_size[i, : n_match[i]] = ref_vertices[
             associations.sum(axis=0).astype(bool)
         ].sum(axis=1)
 
-    return (
-        n_match,
-        n_test,
-        n_ref,
-        track_overlap,
-        test_vertex_size,
-        ref_vertex_size
-    )
+    return n_match, n_test, n_ref, track_overlap, test_vertex_size, ref_vertex_size
