@@ -44,16 +44,17 @@ def associate_vertices(test_vertices, ref_vertices):
     Parameters
     ----------
     ref_vertices: np.ndarray
-        Boolean array of shape (n_ref_vertices, n_tracks) containing track-vertex associations
-        for vertex collection to use as reference (truth).
+        Boolean array of shape (n_ref_vertices, n_tracks) containing track-vertex
+        associations for vertex collection to use as reference (truth).
     test_vertices: np.ndarray
-        Boolean array of shape (n_test_vertices, n_tracks) containing track-vertex associations
-        for vertex collection to be tested (reco).
+        Boolean array of shape (n_test_vertices, n_tracks) containing track-vertex
+        associations for vertex collection to be tested (reco).
 
     Returns
     -------
     associations: np.ndarray
-        Boolean matrix of vertex associations with shape (n_test_vertices, n_ref_vertices).
+        Boolean matrix of vertex associations with shape (n_test_vertices,
+        n_ref_vertices).
     common_tracks: np.ndarray
         Matrix containing number of common tracks shared by each vertex pairing.
     """
@@ -122,7 +123,6 @@ def calculate_vertex_metrics(
         Array of shape (n_jets, max_vertices) containing the number of tracks in each
         matched truth vertex.
     """
-
     assert (
         ref_indices.shape == test_indices.shape
     ), "Truth and reco vertex arrays must have the same shape."
