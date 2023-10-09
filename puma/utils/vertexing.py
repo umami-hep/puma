@@ -107,33 +107,36 @@ def calculate_vertex_metrics(
 
     Returns
     -------
-    n_match: np.ndarray
-        Array of shape (n_jets) containing the number of matched vertices per jet.
-    n_test: np.ndarray
-        Array of shape (n_jets) containing the number of reco vetices per jet.
-    n_ref: np.ndarray
-        Array of shape (n_jets) containing the number of truth vertices per jet.
-    track_overlap: np.ndarray
-        Array of shape (n_jets, max_vertices) containing the number of overlapping
-        tracks between each matched vertex pair.
-    test_vertex_size: np.ndarray
-        Array of shape (n_jets, max_vertices) containing the number of tracks in each
-        matched reco vertex.
-    ref_vertex_size: np.ndarray
-        Array of shape (n_jets, max_vertices) containing the number of tracks in each
-        matched truth vertex.
+    metrics: dict
+        Dictionary containing the following metrics:
+            n_match: np.ndarray
+                Array of shape (n_jets) containing the number of matched vertices per jet.
+            n_test: np.ndarray
+                Array of shape (n_jets) containing the number of reco vetices per jet.
+            n_ref: np.ndarray
+                Array of shape (n_jets) containing the number of truth vertices per jet.
+            track_overlap: np.ndarray
+                Array of shape (n_jets, max_vertices) containing the number of overlapping
+                tracks between each matched vertex pair.
+            test_vertex_size: np.ndarray
+                Array of shape (n_jets, max_vertices) containing the number of tracks in each
+                matched reco vertex.
+            ref_vertex_size: np.ndarray
+                Array of shape (n_jets, max_vertices) containing the number of tracks in each
+                matched truth vertex.
     """
     assert (
         ref_indices.shape == test_indices.shape
     ), "Truth and reco vertex arrays must have the same shape."
     n_jets = ref_indices.shape[0]
-
-    n_match = np.zeros(n_jets, dtype=int)
-    n_test = np.zeros(n_jets, dtype=int)
-    n_ref = np.zeros(n_jets, dtype=int)
-    track_overlap = np.full((n_jets, max_vertices), -1)
-    test_vertex_size = np.full((n_jets, max_vertices), -1)
-    ref_vertex_size = np.full((n_jets, max_vertices), -1)
+    
+    metrics = {}
+    metrics["n_match"] = np.zeros(n_jets, dtype=int)
+    metrics["n_test"] = np.zeros(n_jets, dtype=int)
+    metrics["n_ref"] = np.zeros(n_jets, dtype=int)
+    metrics["track_overlap" = np.full((n_jets, max_vertices), -1)
+    metrics["test_vertex_size"] = np.full((n_jets, max_vertices), -1)
+    metrics["ref_vertex_size"] = np.full((n_jets, max_vertices), -1)
 
     for i in range(n_jets):
         ref_vertices = build_vertices(ref_indices[i], ignore_indices=ignore_indices)
@@ -143,26 +146,26 @@ def calculate_vertex_metrics(
         if not ref_vertices.any() and not test_vertices.any():
             continue
         elif not ref_vertices.any():
-            n_test[i] = test_vertices.shape[0]
+            metrics["n_test"][i] = test_vertices.shape[0]
             continue
         elif not test_vertices.any():
-            n_ref[i] = ref_vertices.shape[0]
+            metrics["n_ref"][i] = ref_vertices.shape[0]
             continue
 
         associations, common_tracks = associate_vertices(test_vertices, ref_vertices)
 
         # write out vertexing efficiency metrics
-        n_match[i] = np.sum(associations)
-        n_ref[i] = ref_vertices.shape[0]
-        n_test[i] = test_vertices.shape[0]
+        metrics["n_match"][i] = np.sum(associations)
+        metrics["n_ref"][i] = ref_vertices.shape[0]
+        metrics["n_test"][i] = test_vertices.shape[0]
 
         # write out vertexing purity metrics
-        track_overlap[i, : n_match[i]] = common_tracks[associations]
-        test_vertex_size[i, : n_match[i]] = test_vertices[
+        metrics["track_overlap"][i, : n_match[i]] = common_tracks[associations]
+        metrics["test_vertex_size"][i, : n_match[i]] = test_vertices[
             associations.sum(axis=1).astype(bool)
         ].sum(axis=1)
-        ref_vertex_size[i, : n_match[i]] = ref_vertices[
+        metrics["ref_vertex_size"][i, : n_match[i]] = ref_vertices[
             associations.sum(axis=0).astype(bool)
         ].sum(axis=1)
 
-    return n_match, n_test, n_ref, track_overlap, test_vertex_size, ref_vertex_size
+    return metrics
