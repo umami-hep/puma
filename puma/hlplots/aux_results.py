@@ -74,7 +74,8 @@ class AuxResults(Results):
         # load data
         reader = H5Reader(file_path, precision="full")
         data = reader.load({key: var_list}, num_jets)[key]
-        aux_data = reader.load({aux_key: [vtx_label_var, vtx_reco_var]})[aux_key]
+        aux_reader = H5Reader(file_path, precision="full", jets_name="tracks")
+        aux_data = aux_reader.load({aux_key: [vtx_label_var, vtx_reco_var]}, num_jets)[aux_key]
 
         # apply common cuts
         if cuts:

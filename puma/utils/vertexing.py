@@ -13,6 +13,9 @@ def build_vertices(vertex_ids, ignore_indices=None):
     ----------
     vertex_ids: np.ndarray
         Array containing vertex IDs for each track.
+    ignore_indices: list, optional
+        List of vertex IDs to ignore, by default None. Negative indices
+        are always ignored.
 
     Returns
     -------
@@ -23,6 +26,7 @@ def build_vertices(vertex_ids, ignore_indices=None):
     """
     unique_ids, unique_counts = np.unique(vertex_ids, return_counts=True)
     unique_ids = unique_ids[unique_counts > 1]  # remove vertices with only one track
+    unique_ids = unique_ids[unique_ids >= 0]  # remove tracks with negative indices
     unique_ids = unique_ids[
         np.logical_not(np.isin(unique_ids, ignore_indices))
     ]  # remove vertices with ignored indices
@@ -81,6 +85,7 @@ def associate_vertices(test_vertices, ref_vertices):
         col_max = np.tile(np.amax(metric, axis=0), (n_test, 1))
         row_max = np.tile(np.amax(metric, axis=1), (n_ref, 1)).T
         associations = np.logical_and(metric == col_max, metric == row_max)
+    associations[common_tracks == 0] = False  # remove leftover pairs with zero matches
 
     return associations, common_tracks
 
@@ -103,7 +108,8 @@ def calculate_vertex_metrics(
     max_vertices: int, optional
         Maximum number of matched vertices to write out, by default 20.
     ignore_indices: list, optional
-        List of vertex IDs to ignore, by default None.
+        List of vertex IDs to ignore, by default None. Negative indices
+        are always ignored.
 
     Returns
     -------
@@ -134,7 +140,7 @@ def calculate_vertex_metrics(
     metrics["n_match"] = np.zeros(n_jets, dtype=int)
     metrics["n_test"] = np.zeros(n_jets, dtype=int)
     metrics["n_ref"] = np.zeros(n_jets, dtype=int)
-    metrics["track_overlap" = np.full((n_jets, max_vertices), -1)
+    metrics["track_overlap"] = np.full((n_jets, max_vertices), -1)
     metrics["test_vertex_size"] = np.full((n_jets, max_vertices), -1)
     metrics["ref_vertex_size"] = np.full((n_jets, max_vertices), -1)
 
@@ -160,11 +166,11 @@ def calculate_vertex_metrics(
         metrics["n_test"][i] = test_vertices.shape[0]
 
         # write out vertexing purity metrics
-        metrics["track_overlap"][i, : n_match[i]] = common_tracks[associations]
-        metrics["test_vertex_size"][i, : n_match[i]] = test_vertices[
+        metrics["track_overlap"][i, : metrics["n_match"][i]] = common_tracks[associations]
+        metrics["test_vertex_size"][i, : metrics["n_match"][i]] = test_vertices[
             associations.sum(axis=1).astype(bool)
         ].sum(axis=1)
-        metrics["ref_vertex_size"][i, : n_match[i]] = ref_vertices[
+        metrics["ref_vertex_size"][i, : metrics["n_match"][i]] = ref_vertices[
             associations.sum(axis=0).astype(bool)
         ].sum(axis=1)
 
