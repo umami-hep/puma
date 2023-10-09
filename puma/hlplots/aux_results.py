@@ -1,19 +1,15 @@
 """Auxiliary task results module for high level API."""
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
-from ftag import Cuts, Flavour, Flavours
+from ftag import Cuts
 from ftag.hdf5 import H5Reader
 
-from puma import (
-    VarVsEff,
-    VarVsEffPlot,
-)
-from puma.hlplots.tagger import Tagger
 from puma.hlplots.results import Results
+from puma.hlplots.tagger import Tagger
 from puma.utils.vertexing import calculate_vertex_metrics
 
 
@@ -75,7 +71,9 @@ class AuxResults(Results):
         reader = H5Reader(file_path, precision="full")
         data = reader.load({key: var_list}, num_jets)[key]
         aux_reader = H5Reader(file_path, precision="full", jets_name="tracks")
-        aux_data = aux_reader.load({aux_key: [vtx_label_var, vtx_reco_var]}, num_jets)[aux_key]
+        aux_data = aux_reader.load({aux_key: [vtx_label_var, vtx_reco_var]}, num_jets)[
+            aux_key
+        ]
 
         # apply common cuts
         if cuts:
@@ -124,7 +122,7 @@ class AuxResults(Results):
         h_line: float | None = None,
         working_point: float | None = None,
         disc_cut: float | None = None,
-        **kwargs, 
+        **kwargs,
     ):
         pass
     
