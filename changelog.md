@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+- Making Under- and Overflow bins default in histograms [!218](https://github.com/umami-hep/puma/pull/218)
+
 ### [v0.3.0] (2023/10/03)
 
 - Fix publish workflow, update tools package
