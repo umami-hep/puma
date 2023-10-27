@@ -85,6 +85,7 @@ def associate_vertices(test_vertices, ref_vertices):
         col_max = np.tile(np.amax(metric, axis=0), (n_test, 1))
         row_max = np.tile(np.amax(metric, axis=1), (n_ref, 1)).T
         associations = np.logical_and(metric == col_max, metric == row_max)
+        associations[metric == -1] = False  # remove pairs that were already excluded
     associations[common_tracks == 0] = False  # remove leftover pairs with zero matches
 
     return associations, common_tracks

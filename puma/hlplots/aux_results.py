@@ -10,6 +10,7 @@ from ftag.hdf5 import H5Reader
 
 from puma.hlplots.results import Results
 from puma.hlplots.tagger import Tagger
+from puma.var_vs_aux import VarVsAux, VarVsAuxPlot
 from puma.utils.vertexing import calculate_vertex_metrics
 
 
@@ -114,50 +115,160 @@ class AuxResults(Results):
             # add tagger to results
             self.add(tagger)
 
-    def plot_var_eff(
+    def plot_var_vtx_eff(
         self,
         suffix: str | None = None,
         xlabel: str = r"$p_{T}$ [GeV]",
         x_var: str = "pt",
-        h_line: float | None = None,
-        working_point: float | None = None,
-        disc_cut: float | None = None,
         **kwargs,
     ):
-        pass
-    
-    def plot_var_purity(
-        self,
-        suffix: str | None = None,
-        xlabel: str = r"$p_{T}$ [GeV]",
-        x_var: str = "pt",
-        h_line: float | None = None,
-        working_point: float | None = None,
-        disc_cut: float | None = None,
-        **kwargs,
-    ):
-        pass
+        # define the curves
+        plot_vtx_eff = VarVsAuxPlot(
+            mode="efficiency",
+            ylabel="Vertexing efficiency",
+            xlabel=xlabel,
+            logy=False,
+            atlas_first_tag=self.atlas_first_tag,
+            atlas_second_tag=self.signal.label,
+            y_scale=1.4,
+        )
 
-    def plot_size_eff(
-        self,
-        suffix: str | None = None,
-        xlabel: str = r"$p_{T}$ [GeV]",
-        x_var: str = "pt",
-        h_line: float | None = None,
-        working_point: float | None = None,
-        disc_cut: float | None = None,
-        **kwargs,
-    ):
-        pass
+        for tagger in self.taggers.values():
+            is_signal = tagger.is_flav(self.signal)
 
-    def plot_size_purity(
+            plot_vtx_eff.add(
+                VarVsAux(
+                    x_var=tagger.perf_var[is_signal],
+                    n_match=tagger.aux_metrics["n_match"][is_signal],
+                    n_true=tagger.aux_metrics["n_ref"][is_signal],
+                    n_reco=tagger.aux_metrics["n_test"][is_signal],
+                    label=tagger.label,
+                    colour=tagger.colour,
+                    **kwargs,
+                ),
+                reference=tagger.reference,
+            )
+
+        plot_vtx_eff.draw()
+
+        plot_details = f"{self.signal}_vtx_eff_vs_{x_var}"
+        plot_vtx_eff.savefig(self.get_filename(plot_details, suffix))
+
+    def plot_var_vtx_fr(
         self,
         suffix: str | None = None,
         xlabel: str = r"$p_{T}$ [GeV]",
         x_var: str = "pt",
-        h_line: float | None = None,
-        working_point: float | None = None,
-        disc_cut: float | None = None,
         **kwargs,
     ):
-        pass
+        # define the curves
+        plot_vtx_fr = VarVsAuxPlot(
+            mode="fake_rate",
+            ylabel="Vertexing fake rate",
+            xlabel=xlabel,
+            logy=False,
+            atlas_first_tag=self.atlas_first_tag,
+            atlas_second_tag=self.signal.label,
+            y_scale=1.4,
+        )
+
+        for tagger in self.taggers.values():
+            is_signal = tagger.is_flav(self.signal)
+
+            plot_vtx_fr.add(
+                VarVsAux(
+                    x_var=tagger.perf_var[is_signal],
+                    n_match=tagger.aux_metrics["n_match"][is_signal],
+                    n_true=tagger.aux_metrics["n_ref"][is_signal],
+                    n_reco=tagger.aux_metrics["n_test"][is_signal],
+                    label=tagger.label,
+                    colour=tagger.colour,
+                    **kwargs,
+                ),
+                reference=tagger.reference,
+            )
+
+        plot_vtx_fr.draw()
+
+        plot_details = f"{self.signal}_vtx_fr_vs_{x_var}"
+        plot_vtx_fr.savefig(self.get_filename(plot_details, suffix))
+
+    def plot_var_vtx_trk_eff(
+        self,
+        suffix: str | None = None,
+        xlabel: str = r"$p_{T}$ [GeV]",
+        x_var: str = "pt",
+        **kwargs,
+    ):
+         # define the curves
+        plot_vtx_eff = VarVsAuxPlot(
+            mode="efficiency",
+            ylabel="Vertexing track efficiency",
+            xlabel=xlabel,
+            logy=False,
+            atlas_first_tag=self.atlas_first_tag,
+            atlas_second_tag=self.signal.label,
+            y_scale=1.4,
+        )
+
+        for tagger in self.taggers.values():
+            is_signal = tagger.is_flav(self.signal)
+            include_sum = tagger.aux_metrics["track_overlap"][is_signal] >= 0
+
+            plot_vtx_eff.add(
+                VarVsAux(
+                    x_var=tagger.perf_var[is_signal],
+                    n_match=np.sum(tagger.aux_metrics["track_overlap"][is_signal], axis=1, where=include_sum),
+                    n_true=np.sum(tagger.aux_metrics["ref_vertex_size"][is_signal], axis=1, where=include_sum),
+                    n_reco=np.sum(tagger.aux_metrics["test_vertex_size"][is_signal], axis=1, where=include_sum),
+                    label=tagger.label,
+                    colour=tagger.colour,
+                    **kwargs,
+                ),
+                reference=tagger.reference,
+            )
+
+        plot_vtx_eff.draw()
+
+        plot_details = f"{self.signal}_vtx_trk_eff_vs_{x_var}"
+        plot_vtx_eff.savefig(self.get_filename(plot_details, suffix))
+
+    def plot_var_vtx_trk_fr(
+        self,
+        suffix: str | None = None,
+        xlabel: str = r"$p_{T}$ [GeV]",
+        x_var: str = "pt",
+        **kwargs,
+    ):
+         # define the curves
+        plot_vtx_eff = VarVsAuxPlot(
+            mode="fake_rate",
+            ylabel="Vertexing track fake rate",
+            xlabel=xlabel,
+            logy=False,
+            atlas_first_tag=self.atlas_first_tag,
+            atlas_second_tag=self.signal.label,
+            y_scale=1.4,
+        )
+
+        for tagger in self.taggers.values():
+            is_signal = tagger.is_flav(self.signal)
+            include_sum = tagger.aux_metrics["track_overlap"][is_signal] >= 0
+
+            plot_vtx_eff.add(
+                VarVsAux(
+                    x_var=tagger.perf_var[is_signal],
+                    n_match=np.sum(tagger.aux_metrics["track_overlap"][is_signal], axis=1, where=include_sum),
+                    n_true=np.sum(tagger.aux_metrics["ref_vertex_size"][is_signal], axis=1, where=include_sum),
+                    n_reco=np.sum(tagger.aux_metrics["test_vertex_size"][is_signal], axis=1, where=include_sum),
+                    label=tagger.label,
+                    colour=tagger.colour,
+                    **kwargs,
+                ),
+                reference=tagger.reference,
+            )
+
+        plot_vtx_eff.draw()
+
+        plot_details = f"{self.signal}_vtx_trk_fr_vs_{x_var}"
+        plot_vtx_eff.savefig(self.get_filename(plot_details, suffix))
