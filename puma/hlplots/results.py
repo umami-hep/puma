@@ -356,15 +356,16 @@ class Results:
             wp_vlines = []
 
         line_styles = get_good_linestyles()
-
+        hist_defaults = {
+            "n_ratio_panels": 0,
+            "xlabel": xlabel,
+            "ylabel": "Normalised number of jets",
+            "figsize": (7.0, 4.5),
+            "atlas_first_tag": self.atlas_first_tag,
+            "atlas_second_tag": self.atlas_second_tag,
+        }
         histo = HistogramPlot(
-            n_ratio_panels=0,
-            xlabel=xlabel,
-            ylabel="Normalised number of jets",
-            figsize=(7.0, 4.5),
-            atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=self.atlas_second_tag,
-            **kwargs,
+            **hist_defaults
         )
 
         tagger_labels = []
@@ -574,7 +575,7 @@ class Results:
 
         plot_base = (
             "profile_flat_per_bin"
-            if kwargs.get("flat_eff_bin")
+            if kwargs.get("flat_per_bin")
             else "profile_fixed_cut"
         )
         wp_disc = (f'_disc_cut_{disc_cut}_' 
