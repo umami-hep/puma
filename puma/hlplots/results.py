@@ -87,21 +87,19 @@ class Results:
         if tagger.output_flavours is None:
             tagger.output_flavours = self.flavours
         self.taggers[str(tagger)] = tagger
-    
+
     def load(self):
-        '''
-        Iterates all taggers, and loads data if it hasn't already been loaded
-        '''
+        """Iterates all taggers, and loads data if it hasn't already been loaded"""
         req_load = [tagger for tagger in self.taggers.values() if tagger.scores is None]
         tagger_paths = list(set([tagger.sample_path for tagger in req_load]))
         for tp in tagger_paths:
             tp_taggers = [tagger for tagger in req_load if tagger.sample_path == tp]
             self.load_taggers_from_file(
-                tp_taggers, 
+                tp_taggers,
                 tp,
                 cuts=self.global_cuts,
-                num_jets=self.num_jets,)
-            
+                num_jets=self.num_jets,
+            )
 
     def add_taggers_from_file(
         self,
@@ -113,10 +111,12 @@ class Results:
         num_jets: int | None = None,
         perf_var: str | None = None,
     ):
-        """Load one or more taggers from a common file, and adds them to this 
+        """Load one or more taggers from a common file, and adds them to this
         results class
-        
-        Parameters:
+
+
+        Parameters
+        ----------
             @self.load_taggers_from_file
         """
         self.load_taggers_from_file(
@@ -131,7 +131,7 @@ class Results:
 
         for tagger in taggers:
             self.add(tagger)
-        
+
     def load_taggers_from_file(  # pylint: disable=R0913
         self,
         taggers: list[Tagger],
@@ -364,9 +364,9 @@ class Results:
             "atlas_first_tag": self.atlas_first_tag,
             "atlas_second_tag": self.atlas_second_tag,
         }
-        histo = HistogramPlot(
-            **hist_defaults
-        )
+        if kwargs is not None:
+            hist_defaults.update(kwargs)
+        histo = HistogramPlot(**hist_defaults)
 
         tagger_labels = []
         for i, tagger in enumerate(self.taggers.values()):
@@ -403,12 +403,7 @@ class Results:
         )
         histo.savefig(self.get_filename("disc", suffix))
 
-    def plot_rocs(
-        self,
-        suffix: str | None = None,
-        args_roc_plot: dict | None = None,
-        **kwargs
-    ):
+    def plot_rocs(self, suffix: str | None = None, **kwargs):
         """Plots rocs.
 
         Parameters
@@ -430,7 +425,7 @@ class Results:
         if kwargs is not None:
             roc_plot_args.update(kwargs)
         plot_roc = RocPlot(**roc_plot_args)
-        
+
         for tagger in self.taggers.values():
             discs = tagger.discriminant(self.signal)
             for background in self.backgrounds:
@@ -578,9 +573,9 @@ class Results:
             if kwargs.get("flat_per_bin")
             else "profile_fixed_cut"
         )
-        wp_disc = (f'_disc_cut_{disc_cut}_' 
-                if disc_cut
-                else f'_wp_{working_point}_').replace('.', 'p')
+        wp_disc = (
+            f"_disc_cut_{disc_cut}_" if disc_cut else f"_wp_{working_point}_"
+        ).replace(".", "p")
         plot_details = f"{self.signal}_eff_vs_{x_var}_{wp_disc}"
         plot_suffix = f"_{suffix}" if suffix else ""
         plot_sig_eff.savefig(self.get_filename(plot_details + plot_base, plot_suffix))
@@ -596,10 +591,10 @@ class Results:
     def plot_flat_rej_var_perf(
         self,
         fixed_rejections: dict[Flavour, float],
-        suffix: str = None,
+        suffix: str | None = None,
         xlabel: str = r"$p_{T}$ [GeV]",
         x_var: str = "pt",
-        h_line: float = None,
+        h_line: float | None = None,
         **kwargs,
     ):
         """Plot signal efficiency as a function of a variable, with a fixed enforce
