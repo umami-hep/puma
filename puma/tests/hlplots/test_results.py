@@ -269,13 +269,16 @@ class ResultsPlotsTestCase(unittest.TestCase):
             )
 
             self.assertIsFile(
-                Path(tmp_file) / "test_bjets_bjets_eff_vs_pt__wp_0p7_profile_fixed_cut_.png"
+                Path(tmp_file)
+                / "test_bjets_bjets_eff_vs_pt__wp_0p7_profile_fixed_cut_.png"
             )
             self.assertIsFile(
-                Path(tmp_file) / "test_bjets_cjets_rej_vs_pt__wp_0p7_profile_fixed_cut_.png"
+                Path(tmp_file)
+                / "test_bjets_cjets_rej_vs_pt__wp_0p7_profile_fixed_cut_.png"
             )
             self.assertIsFile(
-                Path(tmp_file) / "test_bjets_ujets_rej_vs_pt__wp_0p7_profile_fixed_cut_.png"
+                Path(tmp_file)
+                / "test_bjets_ujets_rej_vs_pt__wp_0p7_profile_fixed_cut_.png"
             )
 
     def test_plot_var_perf_cjets(self):
@@ -296,13 +299,16 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 working_point=0.7,
             )
             self.assertIsFile(
-                Path(tmp_file) / "test_cjets_bjets_rej_vs_pt__wp_0p7_profile_fixed_cut_.png"
+                Path(tmp_file)
+                / "test_cjets_bjets_rej_vs_pt__wp_0p7_profile_fixed_cut_.png"
             )
             self.assertIsFile(
-                Path(tmp_file) / "test_cjets_cjets_eff_vs_pt__wp_0p7_profile_fixed_cut_.png"
+                Path(tmp_file)
+                / "test_cjets_cjets_eff_vs_pt__wp_0p7_profile_fixed_cut_.png"
             )
             self.assertIsFile(
-                Path(tmp_file) / "test_cjets_ujets_rej_vs_pt__wp_0p7_profile_fixed_cut_.png"
+                Path(tmp_file)
+                / "test_cjets_ujets_rej_vs_pt__wp_0p7_profile_fixed_cut_.png"
             )
 
     def test_plot_beff_vs_flat_rej(self):
@@ -353,6 +359,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 Path(tmp_file)
                 / "test_cjets_cjets_eff_vs_pt_profile_flat_ujets_100_rej_per_bin_.png"
             )
+
     def test_plot_fraction_scans_hbb_error(self):
         """Test that correct error is raised."""
         self.dummy_tagger_1.reference = True
