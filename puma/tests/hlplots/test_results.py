@@ -113,6 +113,50 @@ class ResultsTestCase(unittest.TestCase):
                 [Tagger("MockTagger")], fname, label_var="R10TruthLabel"
             )
 
+    def test_add_taggers_nan(self):
+        def structured_from_dict(d: dict[str, np.ndarray]) -> np.ndarray:
+            """Convert a dict to a structured array.
+
+            Parameters
+            ----------
+            d : dict
+                Input dict of numpy arrays
+
+            Returns
+            -------
+            np.ndarray
+                Structured array
+            """
+            from numpy.lib.recfunctions import unstructured_to_structured as u2s
+
+            arrays = np.column_stack(list(d.values()))
+            dtypes = np.dtype([(k, v.dtype) for k, v in d.items()])
+            return u2s(arrays, dtype=dtypes)
+
+        # get mock file and rename variables match hbb
+        f = get_mock_file()[1]
+        d = {}
+        d["HadronConeExclTruthLabelID"] = f["jets"]["HadronConeExclTruthLabelID"]
+        d["MockTagger_pb"] = f["jets"]["MockTagger_pb"]
+        d["MockTagger_pc"] = f["jets"]["MockTagger_pc"]
+        d["MockTagger_pu"] = f["jets"]["MockTagger_pu"]
+        d["pt"] = f["jets"]["pt"]
+        n_nans = np.random.choice(range(100), 10)
+        d["MockTagger_pb"][n_nans] = np.nan
+        array = structured_from_dict(d)
+        with tempfile.TemporaryDirectory() as tmp_file:
+            fname = Path(tmp_file) / "test.h5"
+            with h5py.File(fname, "w") as f:
+                f.create_dataset("jets", data=array)
+
+            results = Results(signal="bjets", sample="test")
+            with self.assertLogs("puma", "WARNING") as cm:
+                results.add_taggers_from_file([Tagger("MockTagger")], fname)
+            self.assertEqual(
+                cm.output,
+                [f"WARNING:puma:{len(n_nans)} NaN values found in loaded data."],
+            )
+
 
 class ResultsPlotsTestCase(unittest.TestCase):
     """Test class for the Results class running plots."""
