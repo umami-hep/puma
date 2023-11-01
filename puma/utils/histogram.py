@@ -156,6 +156,44 @@ def hist_w_unc(
 
     return bin_edges, hist, unc, band
 
+def filled_hist_w_unc(
+    bin_edges,
+    bin_heights,
+    sum_squared_weights: np.ndarray = None,
+    normed: bool = True,
+    underoverflow: bool = False,
+):
+    """
+    Same stuff as hist_w_unc but with filled histograms
+    """
+    
+    # Check if there are nan values in the input values
+    nan_mask = np.isnan(bin_heights)
+    if np.sum(nan_mask) > 0:
+        logger.warning("Histogram values contain %i nan values!", np.sum(nan_mask))
+        # Remove nan values
+        bin_heights = bin_heights[~nan_mask]
+        
+
+    # If there are no sum_squared_weights supplied, assume error is sqrt of events 
+    # per bin
+    if sum_squared_weights is None:
+        unc = np.sqrt(bin_heights)
+    else :
+        unc = np.sqrt(sum_squared_weights[~nan_mask])
+    
+    counts = bin_heights
+    
+    if normed:
+        sum_of_heights = float(np.sum(bin_heights))
+        counts = save_divide(counts,sum_of_heights,0)
+        unc = save_divide(unc,sum_of_heights,0)
+    
+    band = counts - unc
+    hist = counts
+    
+    return  hist, unc, band
+
 
 def hist_ratio(
     numerator,
