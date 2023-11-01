@@ -10,6 +10,7 @@ from pathlib import Path
 import h5py
 import numpy as np
 from ftag import get_mock_file
+from ftag.hdf5 import structured_from_dict
 from matplotlib.testing.compare import compare_images
 
 from puma.hlplots import Results
@@ -72,26 +73,6 @@ class ResultsTestCase(unittest.TestCase):
         results.add_taggers_from_file(taggers, fname, cuts=cuts)
         self.assertEqual(list(results.taggers.values()), taggers)
 
-    # TODO: delete this when we bump the tools version
-    def structured_from_dict(self, d: dict[str, np.ndarray]) -> np.ndarray:
-        """Convert a dict to a structured array.
-
-        Parameters
-        ----------
-        d : dict
-            Input dict of numpy arrays
-
-        Returns
-        -------
-        np.ndarray
-            Structured array
-        """
-        from numpy.lib.recfunctions import unstructured_to_structured as u2s
-
-        arrays = np.column_stack(list(d.values()))
-        dtypes = np.dtype([(k, v.dtype) for k, v in d.items()])
-        return u2s(arrays, dtype=dtypes)
-
     def test_add_taggers_hbb(self):
         # get mock file and rename variables match hbb
         f = get_mock_file()[1]
@@ -102,7 +83,7 @@ class ResultsTestCase(unittest.TestCase):
         d["MockTagger_ptop"] = f["jets"]["MockTagger_pu"]
         d["MockTagger_pqcd"] = f["jets"]["MockTagger_pu"]
         d["pt"] = f["jets"]["pt"]
-        array = self.structured_from_dict(d)
+        array = structured_from_dict(d)
         with tempfile.TemporaryDirectory() as tmp_file:
             fname = Path(tmp_file) / "test.h5"
             with h5py.File(fname, "w") as f:
@@ -124,7 +105,7 @@ class ResultsTestCase(unittest.TestCase):
         d["pt"] = f["jets"]["pt"]
         n_nans = np.random.choice(range(100), 10)
         d["MockTagger_pb"][n_nans] = np.nan
-        array = self.structured_from_dict(d)
+        array = structured_from_dict(d)
         with tempfile.TemporaryDirectory() as tmp_file:
             fname = Path(tmp_file) / "test.h5"
             with h5py.File(fname, "w") as f:
@@ -143,9 +124,9 @@ class ResultsTestCase(unittest.TestCase):
         d["MockTagger_pc"] = f["jets"]["MockTagger_pc"]
         d["MockTagger_pu"] = f["jets"]["MockTagger_pu"]
         d["pt"] = f["jets"]["pt"]
-        n_nans = np.random.choice(range(100), 10)
+        n_nans = np.random.choice(range(100), 10, replace=False)
         d["MockTagger_pb"][n_nans] = np.nan
-        array = self.structured_from_dict(d)
+        array = structured_from_dict(d)
         with tempfile.TemporaryDirectory() as tmp_file:
             fname = Path(tmp_file) / "test.h5"
             with h5py.File(fname, "w") as f:
