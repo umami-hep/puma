@@ -9,7 +9,7 @@ from ftag import Flavour, Flavours
 
 from puma.plot_base import PlotBase, PlotLineObject
 from puma.utils import get_good_colours, logger
-from puma.utils.histogram import hist_ratio, hist_w_unc, filled_hist_w_unc
+from puma.utils.histogram import hist_ratio, hist_w_unc
 
 
 class Histogram(PlotLineObject):
@@ -105,7 +105,7 @@ class Histogram(PlotLineObject):
             self.sum_squared_weights = sum_squared_weights
         else :
             self.filled = False
-            
+
         self.weights = weights
         self.ratio_group = ratio_group
         self.flavour = Flavours[flavour] if isinstance(flavour, str) else flavour
