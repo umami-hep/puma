@@ -96,9 +96,9 @@ class Histogram(PlotLineObject):
             raise ValueError("`values` and `weights` are not of same length.")
 
         self.values = values
-        
+        self.bin_edges = bin_edges # Important to have this defined for any histogram
+
         if bin_edges is not None:
-            self.bin_edges = bin_edges
             # This attribute allows to know how to handle the histogram later during 
             # plotting
             self.filled = True
