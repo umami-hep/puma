@@ -22,6 +22,8 @@ class Histogram(PlotLineObject):
         self,
         values: np.ndarray,
         weights: np.ndarray = None,
+        bin_edges: np.ndarray = None,
+        sum_squared_weights: np.ndarray = None,
         ratio_group: str | None = None,
         flavour: str | Flavour = None,
         add_flavour_label: bool = True,
@@ -34,12 +36,21 @@ class Histogram(PlotLineObject):
         Parameters
         ----------
         values : np.ndarray
-            Input data for the histogram
+            Input data for the histogram. If bin_edges is specified (not None)
+            then this array is treated as the bin heights.
         weights : np.ndarray, optional
             Weights for the input data. Has to be an array of same length as the input
             data with a weight for each entry. If not specified, weight 1 will be given
             to each entry. The uncertainties are calculated as the square root of the
             squared weights (for each bin separately). By default None.
+        bin_edges : np.ndarray, optional
+            If specified, the histogram is considered "filled": the array given to 
+            values is treated as if it was the bin heights corresponding to these
+            bin_edges and the "weights" input is ignored. By default None. 
+        sum_squared_weights : np.ndarray, optional
+            Only considered if the histogram is considered filled (i.e bin_edges
+            is specified). It is the sum_squared_weights per bin.
+            By default None.
         ratio_group : str, optional
             Name of the ratio group this histogram is compared with. The ratio group
             allows you to compare different groups of histograms within one plot.
@@ -85,20 +96,27 @@ class Histogram(PlotLineObject):
             raise ValueError("`values` and `weights` are not of same length.")
 
         self.values = values
-        self.weights = weights
+        
+        if bin_edges is not None:
+            self.bin_edges = bin_edges
+            # This attribute allows to know how to handle the histogram later during 
+            # plotting
+            self.filled = True
+            self.sum_squared_weights = sum_squared_weights
+        else :
+            self.filled = False
+            # No need to define weights if the histogram is filled. The error is obtained 
+            # through sum_squared_weights
+            self.weights = weights
+        
         self.ratio_group = ratio_group
         self.flavour = Flavours[flavour] if isinstance(flavour, str) else flavour
         self.add_flavour_label = add_flavour_label
         self.histtype = histtype
         self.is_data = is_data
 
-        # The hist_type label allows us to know how to deal with this type of 
-        # histogram during plotting.
-        self.hist_type = "normal"
-
         # Set histogram attributes to None. They will be defined when the histograms
         # are plotted
-        self.bin_edges = None
         self.hist = None
         self.unc = None
         self.band = None
@@ -125,6 +143,7 @@ class Histogram(PlotLineObject):
                 logger.warning(
                     "The flavour '%s' was not found in the global config.", self.flavour
                 )
+
 
     def divide(self, other):
         """Calculate ratio between two class objects.
@@ -213,114 +232,6 @@ class Histogram(PlotLineObject):
         ratio_unc = np.append(np.array([ratio_unc[0]]), ratio_unc)
 
         return (ratio, ratio_unc)
-
-class FilledHistogram(PlotLineObject):
-    """
-    Simpler histogram class storing info about the histogram and allows to calculate ratio w.r.t
-    other histograms. It is defined using bin heights and bin edges.
-    """
-
-    def __init__(
-        self,
-        bin_edges: np.ndarray,
-        bin_heights: np.ndarray,
-        sum_squared_weights: np.ndarray = None,
-        ratio_group: str | None = None,
-        flavour: str | Flavour = None,
-        add_flavour_label: bool = True,
-        histtype: str = "step",
-        is_data: bool = False,
-        **kwargs,
-    ) -> None:
-        """Initialise properties of histogram curve object.
-
-        Parameters
-        ----------
-        bin_edges : np.ndarray
-            The bin edges of the histogram. It must be of size exactly 1 element
-            greater than the bin_heights.
-        bin_heights : np.ndarray
-            The height of each bin.
-        sum_squared_weights : np.ndarray, optional
-        The sum of the weights squared for each bin height. Defaults to None.
-        """
-        super().__init__(**kwargs)
-        
-        self.bin_edges = bin_edges
-        self.bin_heights = bin_heights
-        self.sum_squared_weights = sum_squared_weights
-        self.ratio_group = ratio_group
-        self.flavour = Flavours[flavour] if isinstance(flavour, str) else flavour
-        self.add_flavour_label = add_flavour_label
-        self.histtype = histtype
-        self.is_data = is_data
-
-        # The hist_type label allows us to know how to deal with this type of 
-        # histogram during plotting.
-        self.hist_type = "filled" 
-
-        # Set histogram attributes to None. They will be defined when the histograms
-        # are plotted
-        self.hist = None
-        self.unc = None
-        self.band = None
-        self.key = None
-
-    # This is copy pasted from Histogram class: maybe make both Histogram and FillHistogram
-    # inherit from a more general histogram class in the future
-    def divide(self, other):
-        """Calculate ratio between two class objects.
-
-        Parameters
-        ----------
-        other : histogram class
-            Second histogram object to calculate ratio with
-
-        Returns
-        -------
-        np.ndarray
-            Ratio
-        np.ndarray
-            Ratio error
-
-        Raises
-        ------
-        ValueError
-            If binning is not identical between 2 objects
-        ValueError
-            If hist attribute is not set for one of the two histograms
-        ValueError
-            If bin_edges attribute is not set for one of the two histograms
-        """
-        if (
-            self.bin_edges is None
-            or other.bin_edges is None
-            or self.hist is None
-            or other.hist is None
-        ):
-            raise ValueError(
-                "Can't divide histograms since bin edges and counts are not available "
-                "for both histogram. Bins are filled when they are plotted."
-            )
-
-        if not np.all(self.bin_edges == other.bin_edges):
-            raise ValueError("The binning of the two given objects do not match.")
-
-        # Bins where the reference histogram is empty/zero, are given a ratio of np.inf
-        # which means that the ratio plot will not have any entry in these bins.
-        ratio, ratio_unc = hist_ratio(
-            numerator=self.hist,
-            denominator=other.hist,
-            numerator_unc=self.unc,
-            denominator_unc=other.unc,
-            step=False,
-        )
-        # To use the matplotlib.step() function later on, the first bin is duplicated
-        ratio = np.append(np.array([ratio[0]]), ratio)
-        ratio_unc = np.append(np.array([ratio_unc[0]]), ratio_unc)
-
-        return (ratio, ratio_unc)
-
 
 
 class HistogramPlot(PlotBase):
@@ -544,7 +455,7 @@ class HistogramPlot(PlotBase):
         for key in self.add_order:
             elem = self.plot_objects[key]
 
-            if elem.hist_type == "normal" :
+            if not elem.filled: # if the histogram is not filled then deal with it normally
                 elem.bin_edges, elem.hist, elem.unc, elem.band = hist_w_unc(
                     elem.values,
                     weights=elem.weights,
@@ -554,15 +465,15 @@ class HistogramPlot(PlotBase):
                     underoverflow=self.underoverflow,
                 )
             
-            elif elem.hist_type == "filled" : 
+            else: # Other wise deal with is as a filled histogram
                  elem.hist, elem.unc, elem.band = filled_hist_w_unc(
                     elem.bin_edges,
-                    elem.bin_heights,
+                    elem.values, # bin heights are stored in values in that case
                     sum_squared_weights=elem.sum_squared_weights,
                     normed=self.norm,
                     underoverflow=self.underoverflow,
                 )
-                
+
                 # MAYBE CHECK HERE THAT self.bins and elem.bin_edges are
                 # equivalent for plotting or throw error!
             # MAYBE also add a else statement that defaults to throwing an error
