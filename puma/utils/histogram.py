@@ -56,7 +56,7 @@ def save_divide(
 def hist_w_unc(
     arr,
     bins,
-    filled: bool,
+    filled: bool = False,
     bins_range = None,
     normed: bool = True,
     weights: np.ndarray = None,
