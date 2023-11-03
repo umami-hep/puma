@@ -768,3 +768,28 @@ class HistogramPlotTestCase(unittest.TestCase):
                 tol=1,
             )
         )
+
+    def test_plot_filled_hist(self):
+        bin_edges = [0,1,2,3,4,5]
+        bin_counts = [5,4,7,12,2]
+
+        vals = [0,1,1,5,4,2,1,3,3,5,5,5,5,5]
+
+        hist_filled = Histogram(bin_counts,bin_edges = bin_edges)
+        hist_notfilled = Histogram(vals)
+
+        hist_plot = HistogramPlot(bins=bin_edges, underoverflow=False)
+        hist_plot.add(hist_filled)
+        hist_plot.add(hist_notfilled)
+
+        hist_plot.draw()
+        plotname = "test_filled_histogram.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname}",
+                f"{self.expected_plots_dir}/{plotname}",
+                tol=1,
+            )
+        )        
