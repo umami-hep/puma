@@ -122,7 +122,10 @@ def hist_w_unc(
     # and bin edges
     if not filled: 
         # Calculate the counts and the bin edges
-        counts, bin_edges = np.histogram(arr, bins=bins, range=bins_range, weights=weights)
+        counts, bin_edges = np.histogram(arr, 
+                                         bins=bins, 
+                                         range=bins_range, 
+                                         weights=weights)
 
         # calculate the uncertainty with sum of squared weights (per bin, so we use
         # np.histogram again here)
@@ -136,7 +139,9 @@ def hist_w_unc(
                 [np.array([-np.inf]), bin_edges, np.array([np.inf])]
             )
             # recalculate the histogram with this adjusted binning
-            counts, _ = np.histogram(arr, bins=bins_with_overunderflow, weights=weights)
+            counts, _ = np.histogram(arr, 
+                                     bins=bins_with_overunderflow, 
+                                     weights=weights)
             counts[1] += counts[0]  # add underflow values to underflow bin
             counts[-2] += counts[-1]  # add overflow values to overflow bin
             counts = counts[1:-1]  # remove dummy bins
@@ -145,19 +150,24 @@ def hist_w_unc(
             sum_squared_weights = np.histogram(
                 arr, bins=bins_with_overunderflow, weights=weights**2
             )[0]
-            # add sum of squared weights from under/overflow values to under/overflow bin
+            
+            # add sum of squared weights from under/overflow values 
+            # to under/overflow bin
             sum_squared_weights[1] += sum_squared_weights[0]
             sum_squared_weights[-2] += sum_squared_weights[-1]
-            sum_squared_weights = sum_squared_weights[1:-1]  # remove dummy bins
-
-            unc = np.sqrt(sum_squared_weights)  # uncertainty is sqrt(sum_squared_weights)
+            # remove dummy bins
+            sum_squared_weights = sum_squared_weights[1:-1] 
+            
+            # uncertainty is sqrt(sum_squared_weights)    
+            unc = np.sqrt(sum_squared_weights)  
 
         if normed:
             sum_of_weights = float(np.sum(weights))
             counts = save_divide(counts, sum_of_weights, 0)
             unc = save_divide(unc, sum_of_weights, 0)        
 
-    # If the histogram is already filled then the uncertainty can be computed differently
+    # If the histogram is already filled then the uncertainty is computed 
+    # differently
     else :
         if sum_squared_weights is not None:
             sum_squared_weights = sum_squared_weights[~nan_mask]

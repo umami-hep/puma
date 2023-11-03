@@ -453,7 +453,6 @@ class HistogramPlot(PlotBase):
         for key in self.add_order:
             elem = self.plot_objects[key]
 
-        # if the histogram is not filled then deal with it normally 
             elem.bin_edges, elem.hist, elem.unc, elem.band = hist_w_unc(
                 elem.values,
                 weights=elem.weights,
