@@ -3,6 +3,7 @@
 ### [Latest]
 
 - Making Under- and Overflow bins default in histograms [!218](https://github.com/umami-hep/puma/pull/218)
+- Adding "bin_edges" and "sum_squared_weights" parameters to the Histogram constructor to define pre-filled histograms.
 
 ### [v0.3.0] (2023/10/03)
 
