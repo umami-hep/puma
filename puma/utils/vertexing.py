@@ -43,7 +43,9 @@ def associate_vertices(test_vertices, ref_vertices):
     Vertex associator that maps two collections of vertices onto
     each other 1-to-1 based on the highest overlap of track indices
     for a single jet. Percentage of overlapping and non-overlapping
-    tracks relative to vertex size are used as tiebreakers.
+    tracks relative to vertex size are used as tiebreakers. The
+    matching is performed in a greedy fashion and decisions are not
+    revisited.
 
     Parameters
     ----------
@@ -117,26 +119,27 @@ def calculate_vertex_metrics(
     metrics: dict
         Dictionary containing the following metrics:
             n_match: np.ndarray
-                Array of shape (n_jets) containing the number of matched vertices per jet.
+                Array of shape (n_jets) containing the number of matched vertices per
+                jet.
             n_test: np.ndarray
                 Array of shape (n_jets) containing the number of reco vetices per jet.
             n_ref: np.ndarray
                 Array of shape (n_jets) containing the number of truth vertices per jet.
             track_overlap: np.ndarray
-                Array of shape (n_jets, max_vertices) containing the number of overlapping
-                tracks between each matched vertex pair.
+                Array of shape (n_jets, max_vertices) containing the number of
+                overlapping tracks between each matched vertex pair.
             test_vertex_size: np.ndarray
-                Array of shape (n_jets, max_vertices) containing the number of tracks in each
-                matched reco vertex.
+                Array of shape (n_jets, max_vertices) containing the number of tracks
+                in each matched reco vertex.
             ref_vertex_size: np.ndarray
-                Array of shape (n_jets, max_vertices) containing the number of tracks in each
-                matched truth vertex.
+                Array of shape (n_jets, max_vertices) containing the number of tracks
+                in each matched truth vertex.
     """
     assert (
         ref_indices.shape == test_indices.shape
     ), "Truth and reco vertex arrays must have the same shape."
     n_jets = ref_indices.shape[0]
-    
+
     metrics = {}
     metrics["n_match"] = np.zeros(n_jets, dtype=int)
     metrics["n_test"] = np.zeros(n_jets, dtype=int)

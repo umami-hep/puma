@@ -10,8 +10,8 @@ from ftag.hdf5 import H5Reader
 
 from puma.hlplots.results import Results
 from puma.hlplots.tagger import Tagger
-from puma.var_vs_aux import VarVsAux, VarVsAuxPlot
 from puma.utils.vertexing import calculate_vertex_metrics
+from puma.var_vs_aux import VarVsAux, VarVsAuxPlot
 
 
 @dataclass
@@ -200,10 +200,10 @@ class AuxResults(Results):
         x_var: str = "pt",
         **kwargs,
     ):
-         # define the curves
+        # define the curves
         plot_vtx_eff = VarVsAuxPlot(
             mode="efficiency",
-            ylabel="Vertexing track efficiency",
+            ylabel="Track-vertex association efficiency",
             xlabel=xlabel,
             logy=False,
             atlas_first_tag=self.atlas_first_tag,
@@ -218,9 +218,21 @@ class AuxResults(Results):
             plot_vtx_eff.add(
                 VarVsAux(
                     x_var=tagger.perf_var[is_signal],
-                    n_match=np.sum(tagger.aux_metrics["track_overlap"][is_signal], axis=1, where=include_sum),
-                    n_true=np.sum(tagger.aux_metrics["ref_vertex_size"][is_signal], axis=1, where=include_sum),
-                    n_reco=np.sum(tagger.aux_metrics["test_vertex_size"][is_signal], axis=1, where=include_sum),
+                    n_match=np.sum(
+                        tagger.aux_metrics["track_overlap"][is_signal],
+                        axis=1,
+                        where=include_sum,
+                    ),
+                    n_true=np.sum(
+                        tagger.aux_metrics["ref_vertex_size"][is_signal],
+                        axis=1,
+                        where=include_sum,
+                    ),
+                    n_reco=np.sum(
+                        tagger.aux_metrics["test_vertex_size"][is_signal],
+                        axis=1,
+                        where=include_sum,
+                    ),
                     label=tagger.label,
                     colour=tagger.colour,
                     **kwargs,
@@ -240,10 +252,10 @@ class AuxResults(Results):
         x_var: str = "pt",
         **kwargs,
     ):
-         # define the curves
+        # define the curves
         plot_vtx_eff = VarVsAuxPlot(
             mode="fake_rate",
-            ylabel="Vertexing track fake rate",
+            ylabel="Track-vertex association fake rate",
             xlabel=xlabel,
             logy=False,
             atlas_first_tag=self.atlas_first_tag,
@@ -258,9 +270,21 @@ class AuxResults(Results):
             plot_vtx_eff.add(
                 VarVsAux(
                     x_var=tagger.perf_var[is_signal],
-                    n_match=np.sum(tagger.aux_metrics["track_overlap"][is_signal], axis=1, where=include_sum),
-                    n_true=np.sum(tagger.aux_metrics["ref_vertex_size"][is_signal], axis=1, where=include_sum),
-                    n_reco=np.sum(tagger.aux_metrics["test_vertex_size"][is_signal], axis=1, where=include_sum),
+                    n_match=np.sum(
+                        tagger.aux_metrics["track_overlap"][is_signal],
+                        axis=1,
+                        where=include_sum,
+                    ),
+                    n_true=np.sum(
+                        tagger.aux_metrics["ref_vertex_size"][is_signal],
+                        axis=1,
+                        where=include_sum,
+                    ),
+                    n_reco=np.sum(
+                        tagger.aux_metrics["test_vertex_size"][is_signal],
+                        axis=1,
+                        where=include_sum,
+                    ),
                     label=tagger.label,
                     colour=tagger.colour,
                     **kwargs,
