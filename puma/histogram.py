@@ -105,10 +105,8 @@ class Histogram(PlotLineObject):
             self.sum_squared_weights = sum_squared_weights
         else :
             self.filled = False
-            # No need to define weights if the histogram is filled. 
-            #The error is obtained through sum_squared_weights
-            self.weights = weights
-        
+            
+        self.weights = weights
         self.ratio_group = ratio_group
         self.flavour = Flavours[flavour] if isinstance(flavour, str) else flavour
         self.add_flavour_label = add_flavour_label
@@ -455,29 +453,22 @@ class HistogramPlot(PlotBase):
         for key in self.add_order:
             elem = self.plot_objects[key]
 
-            # if the histogram is not filled then deal with it normally
-            if not elem.filled: 
-                elem.bin_edges, elem.hist, elem.unc, elem.band = hist_w_unc(
-                    elem.values,
-                    weights=elem.weights,
-                    bins=self.bins,
-                    bins_range=self.bins_range,
-                    normed=self.norm,
-                    underoverflow=self.underoverflow,
-                )
-            
-            else: # Other wise deal with is as a filled histogram
-                 elem.hist, elem.unc, elem.band = filled_hist_w_unc(
-                    elem.values, # bin heights are stored in values in that case
-                    sum_squared_weights=elem.sum_squared_weights,
-                    normed=self.norm,
-                    underoverflow=self.underoverflow,
-                )
+        # if the histogram is not filled then deal with it normally 
+            elem.bin_edges, elem.hist, elem.unc, elem.band = hist_w_unc(
+                elem.values,
+                weights=elem.weights,
+                bin_edges=elem.bin_edges,
+                bins=self.bins,
+                filled = elem.filled,
+                bins_range=self.bins_range,
+                normed=self.norm,
+                underoverflow=self.underoverflow,
+            )
 
-                # MAYBE CHECK HERE THAT self.bins and elem.bin_edges are
-                # equivalent for plotting or throw error!
-            # MAYBE also add a else statement that defaults to throwing an error
-            # for unrecognised hist_type!
+        # MAYBE CHECK HERE THAT self.bins and elem.bin_edges are
+        # equivalent for plotting or throw error!
+        # MAYBE also add a else statement that defaults to throwing an error
+        # for unrecognised hist_type!
             
 
             if self.discrete_vals is not None:

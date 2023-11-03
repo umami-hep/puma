@@ -56,9 +56,12 @@ def save_divide(
 def hist_w_unc(
     arr,
     bins,
-    bins_range=None,
+    filled: bool,
+    bins_range = None,
     normed: bool = True,
     weights: np.ndarray = None,
+    bin_edges: np.ndarray = None,
+    sum_squared_weights : np.ndarray = None,
     underoverflow: bool = False,
 ):
     """
@@ -115,87 +118,66 @@ def hist_w_unc(
     if np.sum(inf_mask) > 0:
         logger.warning("Histogram values contain %i +-inf values!", np.sum(inf_mask))
 
-    # Calculate the counts and the bin edges
-    counts, bin_edges = np.histogram(arr, bins=bins, range=bins_range, weights=weights)
+    # If the histogram is not already filled we need to produce the histogram counts
+    # and bin edges
+    if not filled: 
+        # Calculate the counts and the bin edges
+        counts, bin_edges = np.histogram(arr, bins=bins, range=bins_range, weights=weights)
 
-    # calculate the uncertainty with sum of squared weights (per bin, so we use
-    # np.histogram again here)
-    unc = np.sqrt(
-        np.histogram(arr, bins=bins, range=bins_range, weights=weights**2)[0]
-    )
-
-    if underoverflow:
-        # add two dummy bins (from outermost bins to +-infinity)
-        bins_with_overunderflow = np.hstack(
-            [np.array([-np.inf]), bin_edges, np.array([np.inf])]
+        # calculate the uncertainty with sum of squared weights (per bin, so we use
+        # np.histogram again here)
+        unc = np.sqrt(
+            np.histogram(arr, bins=bins, range=bins_range, weights=weights**2)[0]
         )
-        # recalculate the histogram with this adjusted binning
-        counts, _ = np.histogram(arr, bins=bins_with_overunderflow, weights=weights)
-        counts[1] += counts[0]  # add underflow values to underflow bin
-        counts[-2] += counts[-1]  # add overflow values to overflow bin
-        counts = counts[1:-1]  # remove dummy bins
 
-        # calculate the sum of squared weights
-        sum_squared_weights = np.histogram(
-            arr, bins=bins_with_overunderflow, weights=weights**2
-        )[0]
-        # add sum of squared weights from under/overflow values to under/overflow bin
-        sum_squared_weights[1] += sum_squared_weights[0]
-        sum_squared_weights[-2] += sum_squared_weights[-1]
-        sum_squared_weights = sum_squared_weights[1:-1]  # remove dummy bins
+        if underoverflow:
+            # add two dummy bins (from outermost bins to +-infinity)
+            bins_with_overunderflow = np.hstack(
+                [np.array([-np.inf]), bin_edges, np.array([np.inf])]
+            )
+            # recalculate the histogram with this adjusted binning
+            counts, _ = np.histogram(arr, bins=bins_with_overunderflow, weights=weights)
+            counts[1] += counts[0]  # add underflow values to underflow bin
+            counts[-2] += counts[-1]  # add overflow values to overflow bin
+            counts = counts[1:-1]  # remove dummy bins
 
-        unc = np.sqrt(sum_squared_weights)  # uncertainty is sqrt(sum_squared_weights)
+            # calculate the sum of squared weights
+            sum_squared_weights = np.histogram(
+                arr, bins=bins_with_overunderflow, weights=weights**2
+            )[0]
+            # add sum of squared weights from under/overflow values to under/overflow bin
+            sum_squared_weights[1] += sum_squared_weights[0]
+            sum_squared_weights[-2] += sum_squared_weights[-1]
+            sum_squared_weights = sum_squared_weights[1:-1]  # remove dummy bins
 
-    if normed:
-        sum_of_weights = float(np.sum(weights))
-        counts = save_divide(counts, sum_of_weights, 0)
-        unc = save_divide(unc, sum_of_weights, 0)
+            unc = np.sqrt(sum_squared_weights)  # uncertainty is sqrt(sum_squared_weights)
 
-    band = counts - unc
-    hist = counts
+        if normed:
+            sum_of_weights = float(np.sum(weights))
+            counts = save_divide(counts, sum_of_weights, 0)
+            unc = save_divide(unc, sum_of_weights, 0)        
 
-    return bin_edges, hist, unc, band
-
-def filled_hist_w_unc(
-    bin_heights,
-    sum_squared_weights: np.ndarray = None,
-    normed: bool = True,
-    underoverflow: bool = False,
-):
-    """
-    Same stuff as hist_w_unc but with filled histograms
-    """
-    
-    # Check if there are nan values in the input values
-    nan_mask = np.isnan(bin_heights)
-    if np.sum(nan_mask) > 0:
-        logger.warning("Histogram values contain %i nan values!", np.sum(nan_mask))
-        # Remove nan values
-        bin_heights = bin_heights[~nan_mask]
-        
-
-    # If there are no sum_squared_weights supplied, assume error is sqrt of events 
-    # per bin
-    if sum_squared_weights is None:
-        unc = np.sqrt(bin_heights)
+    # If the histogram is already filled then the uncertainty can be computed differently
     else :
-        unc = np.sqrt(sum_squared_weights[~nan_mask])
-    
-    counts = bin_heights
-    
-    if normed:
-        sum_of_heights = float(np.sum(bin_heights))
-        counts = save_divide(counts,sum_of_heights,0)
-        unc = save_divide(unc,sum_of_heights,0)
-    
+        if sum_squared_weights is not None:
+            sum_squared_weights = sum_squared_weights[~nan_mask]
+            unc = np.sqrt(sum_squared_weights)
+        else :
+            unc = np.sqrt(arr) # treat arr as bin heights (counts)
+        
+        counts = arr
+
+        if normed :
+            counts_sum = float(np.sum(counts))
+            counts = save_divide(counts,counts_sum,0)
+            unc = save_divide(unc,counts_sum,0)
+        
+    # regardless of if the histogram is filled
     band = counts - unc
     hist = counts
-
-    if underoverflow:
-        print("No underoverflow implemented yet...")
     
-    return  hist, unc, band
-
+    return bin_edges, hist, unc, band
+    
 
 def hist_ratio(
     numerator,
