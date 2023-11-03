@@ -170,7 +170,7 @@ def hist_w_unc(
     # differently
     else :
         if sum_squared_weights is not None:
-            sum_squared_weights = sum_squared_weights[~nan_mask]
+            sum_squared_weights = np.array(sum_squared_weights)[~nan_mask]
             unc = np.sqrt(sum_squared_weights)
         else :
             unc = np.sqrt(arr) # treat arr as bin heights (counts)

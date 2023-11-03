@@ -97,14 +97,11 @@ class Histogram(PlotLineObject):
 
         self.values = values
         self.bin_edges = bin_edges # Important to have this defined for any histogram
-
-        if bin_edges is not None:
-            # This attribute allows to know how to handle the histogram later during 
-            # plotting
-            self.filled = True
-            self.sum_squared_weights = sum_squared_weights
-        else :
-            self.filled = False
+        self.sum_squared_weights = sum_squared_weights
+        
+        # This attribute allows to know how to handle the histogram later during     
+        # plotting
+        self.filled = bin_edges is not None
 
         self.weights = weights
         self.ratio_group = ratio_group
@@ -457,6 +454,7 @@ class HistogramPlot(PlotBase):
                 elem.values,
                 weights=elem.weights,
                 bin_edges=elem.bin_edges,
+                sum_squared_weights=elem.sum_squared_weights,
                 bins=self.bins,
                 filled = elem.filled,
                 bins_range=self.bins_range,
