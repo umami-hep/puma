@@ -44,9 +44,9 @@ class Histogram(PlotLineObject):
             to each entry. The uncertainties are calculated as the square root of the
             squared weights (for each bin separately). By default None.
         bin_edges : np.ndarray, optional
-            If specified, the histogram is considered "filled": the array given to 
+            If specified, the histogram is considered "filled": the array given to
             values is treated as if it was the bin heights corresponding to these
-            bin_edges and the "weights" input is ignored. By default None. 
+            bin_edges and the "weights" input is ignored. By default None.
         sum_squared_weights : np.ndarray, optional
             Only considered if the histogram is considered filled (i.e bin_edges
             is specified). It is the sum_squared_weights per bin.
@@ -96,10 +96,10 @@ class Histogram(PlotLineObject):
             raise ValueError("`values` and `weights` are not of same length.")
 
         self.values = values
-        self.bin_edges = bin_edges # Important to have this defined for any histogram
+        self.bin_edges = bin_edges  # Important to have this defined for any histogram
         self.sum_squared_weights = sum_squared_weights
-        
-        # This attribute allows to know how to handle the histogram later during     
+
+        # This attribute allows to know how to handle the histogram later during
         # plotting
         self.filled = bin_edges is not None
 
@@ -138,7 +138,6 @@ class Histogram(PlotLineObject):
                 logger.warning(
                     "The flavour '%s' was not found in the global config.", self.flavour
                 )
-
 
     def divide(self, other):
         """Calculate ratio between two class objects.
@@ -456,17 +455,16 @@ class HistogramPlot(PlotBase):
                 bin_edges=elem.bin_edges,
                 sum_squared_weights=elem.sum_squared_weights,
                 bins=self.bins,
-                filled = elem.filled,
+                filled=elem.filled,
                 bins_range=self.bins_range,
                 normed=self.norm,
                 underoverflow=self.underoverflow,
             )
 
-        # MAYBE CHECK HERE THAT self.bins and elem.bin_edges are
-        # equivalent for plotting or throw error!
-        # MAYBE also add a else statement that defaults to throwing an error
-        # for unrecognised hist_type!
-            
+            # MAYBE CHECK HERE THAT self.bins and elem.bin_edges are
+            # equivalent for plotting or throw error!
+            # MAYBE also add a else statement that defaults to throwing an error
+            # for unrecognised hist_type!
 
             if self.discrete_vals is not None:
                 # bins are recalculated for the discrete values
