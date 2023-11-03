@@ -157,7 +157,6 @@ def hist_w_unc(
     return bin_edges, hist, unc, band
 
 def filled_hist_w_unc(
-    bin_edges,
     bin_heights,
     sum_squared_weights: np.ndarray = None,
     normed: bool = True,
@@ -191,6 +190,9 @@ def filled_hist_w_unc(
     
     band = counts - unc
     hist = counts
+
+    if underoverflow:
+        print("No underoverflow implemented yet...")
     
     return  hist, unc, band
 
