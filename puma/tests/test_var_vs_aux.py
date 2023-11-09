@@ -146,16 +146,16 @@ class VarVsAuxPlotTestCase(unittest.TestCase):
         tagger1 = VarVsAux(
             x_var=self.x_var,
             n_true=self.n_true,
-            n_reco=self.n_reco1,
-            n_match=self.n_match1,
+            n_reco=self.n_reco_1,
+            n_match=self.n_match_1,
             bins=self.bins,
             label="tagger 1",
         )
         tagger2 = VarVsAux(
             x_var=self.x_var,
             n_true=self.n_true,
-            n_reco=self.n_reco2,
-            n_match=self.n_match2,
+            n_reco=self.n_reco_2,
+            n_match=self.n_match_2,
             bins=self.bins,
             label="tagger 2",
         )
@@ -183,16 +183,16 @@ class VarVsAuxPlotTestCase(unittest.TestCase):
         tagger1 = VarVsAux(
             x_var=self.x_var,
             n_true=self.n_true,
-            n_reco=self.n_reco1,
-            n_match=self.n_match1,
+            n_reco=self.n_reco_1,
+            n_match=self.n_match_1,
             bins=self.bins,
             label="tagger 1",
         )
         tagger2 = VarVsAux(
             x_var=self.x_var,
             n_true=self.n_true,
-            n_reco=self.n_reco2,
-            n_match=self.n_match2,
+            n_reco=self.n_reco_2,
+            n_match=self.n_match_2,
             bins=self.bins,
             label="tagger 2",
         )
