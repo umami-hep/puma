@@ -6,23 +6,20 @@ from typing import ClassVar
 import numpy as np
 
 # TODO: fix the import below
-from puma.metrics import eff_err, rej_err
+from puma.metrics import eff_err
 from puma.utils import logger
-from puma.utils.histogram import save_divide
 from puma.var_vs_var import VarVsVar, VarVsVarPlot
 
 
 class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
-    """
-    var_vs_aux class storing info about aux task classification performance.
-    """
+    """var_vs_aux class storing info about aux task classification performance."""
 
     def __init__(
         self,
         x_var: np.ndarray,
-        n_match : np.ndarray,
-        n_true : np.ndarray,
-        n_reco : np.ndarray,
+        n_match: np.ndarray,
+        n_true: np.ndarray,
+        n_reco: np.ndarray,
         bins=10,
         key: str | None = None,
         **kwargs,
@@ -161,9 +158,7 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         float
             Efficiency error
         """
-        eff = (
-            np.sum(n_match) / np.sum(n_true)
-        )
+        eff = np.sum(n_match) / np.sum(n_true)
         eff_error = eff_err(eff, len(n_match))
         return eff, eff_error
 
@@ -184,9 +179,7 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         float
             Efficiency error
         """
-        fr = (
-            1 - np.sum(n_match) / np.sum(n_reco)
-        )
+        fr = 1 - np.sum(n_match) / np.sum(n_reco)
         fr_error = eff_err(fr, len(n_match))
         return fr, fr_error
 
@@ -205,7 +198,7 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         eff = list(map(self.get_efficiency, self.match_binned, self.true_binned))
         logger.debug("Retrieved efficiencies: %s", eff)
         return np.array(eff)[:, 0], np.array(eff)[:, 1]
-    
+
     @property
     def fake_rate(self):
         """Calculate signal efficiency per bin.
@@ -264,7 +257,7 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
             f"The selected mode {mode} is not supported. Use one of the following:"
             f" {VarVsAuxPlot.mode_options}."
         )
-        
+
 
 class VarVsAuxPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attributes
     """var_vs_aux plot class"""
@@ -281,8 +274,8 @@ class VarVsAuxPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
         ----------
         mode : str
             Defines which quantity is plotted, the following options ar available:
-                efficiency - Plots signal efficiency vs. variable, with statistical error
-                    on N signal per bin
+                efficiency - Plots signal efficiency vs. variable, with statistical
+                    error on N signal per bin
                 fake_rate - Plots background efficiency vs. variable, with statistical
                     error on N background per bin
         grid : bool, optional
