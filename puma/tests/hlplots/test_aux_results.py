@@ -2,15 +2,12 @@
 """Unit test script for the functions in hlplots/aux_results.py."""
 from __future__ import annotations
 
-import os
 import tempfile
 import unittest
 from pathlib import Path
 
-import h5py
 import numpy as np
 from ftag import get_mock_file
-from matplotlib.testing.compare import compare_images
 
 from puma.hlplots import AuxResults
 from puma.hlplots.tagger import Tagger
@@ -66,8 +63,8 @@ class AuxResultsPlotsTestCase(unittest.TestCase):
             dtype=[("HadronConeExclTruthLabelID", "i4")],
         )
         dummy_tagger_1.aux_metrics = calculate_vertex_metrics(
-                f["tracks"]["numberOfPixelHits"],
-                f["tracks"]["numberOfSCTHits"],
+            f["tracks"]["numberOfPixelHits"],
+            f["tracks"]["numberOfSCTHits"],
         )
         dummy_tagger_1.scores = f["jets"]
         dummy_tagger_1.label = "dummy tagger"
