@@ -733,7 +733,7 @@ class HistogramPlotTestCase(unittest.TestCase):
         vals = [-1, 1, 2, 3, 6]
         vals_with_inf = [-1, 1, 2, 6, np.inf]
 
-        hist_plot = HistogramPlot(bins=5, bins_range=(0, 5))
+        hist_plot = HistogramPlot(bins=5, bins_range=(0, 5), underoverflow=False)
         hist_plot.atlas_second_tag = "This plot does not have under/overflow bins"
         hist_plot.add(Histogram(vals, colour="b"))
         hist_plot.add(Histogram(vals_with_inf, colour="r", linestyle="dotted"))
@@ -751,7 +751,7 @@ class HistogramPlotTestCase(unittest.TestCase):
             )
         )
 
-        hist_plot = HistogramPlot(bins=5, bins_range=(0, 5), underoverflow=True)
+        hist_plot = HistogramPlot(bins=5, bins_range=(0, 5))
         hist_plot.atlas_second_tag = "This plot has under/overflow bins"
         hist_plot.add(Histogram(vals, colour="b"))
         hist_plot.add(Histogram(vals_with_inf, colour="r", linestyle="dotted"))
