@@ -10,6 +10,7 @@ from pathlib import Path
 import h5py
 import numpy as np
 from ftag import get_mock_file
+from ftag.hdf5 import structured_from_dict
 from matplotlib.testing.compare import compare_images
 
 from puma.hlplots import Results
@@ -73,26 +74,6 @@ class ResultsTestCase(unittest.TestCase):
         self.assertEqual(list(results.taggers.values()), taggers)
 
     def test_add_taggers_hbb(self):
-        # TODO: delete this when we bump the tools version
-        def structured_from_dict(d: dict[str, np.ndarray]) -> np.ndarray:
-            """Convert a dict to a structured array.
-
-            Parameters
-            ----------
-            d : dict
-                Input dict of numpy arrays
-
-            Returns
-            -------
-            np.ndarray
-                Structured array
-            """
-            from numpy.lib.recfunctions import unstructured_to_structured as u2s
-
-            arrays = np.column_stack(list(d.values()))
-            dtypes = np.dtype([(k, v.dtype) for k, v in d.items()])
-            return u2s(arrays, dtype=dtypes)
-
         # get mock file and rename variables match hbb
         f = get_mock_file()[1]
         d = {}
@@ -111,6 +92,55 @@ class ResultsTestCase(unittest.TestCase):
             results = Results(signal="hbb", sample="test")
             results.add_taggers_from_file(
                 [Tagger("MockTagger")], fname, label_var="R10TruthLabel"
+            )
+
+    def test_add_taggers_keep_nan(self):
+        # get mock file and add nans
+        f = get_mock_file()[1]
+        d = {}
+        d["HadronConeExclTruthLabelID"] = f["jets"]["HadronConeExclTruthLabelID"]
+        d["MockTagger_pb"] = f["jets"]["MockTagger_pb"]
+        d["MockTagger_pc"] = f["jets"]["MockTagger_pc"]
+        d["MockTagger_pu"] = f["jets"]["MockTagger_pu"]
+        d["pt"] = f["jets"]["pt"]
+        n_nans = np.random.choice(range(100), 10)
+        d["MockTagger_pb"][n_nans] = np.nan
+        array = structured_from_dict(d)
+        with tempfile.TemporaryDirectory() as tmp_file:
+            fname = Path(tmp_file) / "test.h5"
+            with h5py.File(fname, "w") as f:
+                f.create_dataset("jets", data=array)
+
+            results = Results(signal="bjets", sample="test", remove_nan=False)
+            with self.assertRaises(ValueError):
+                results.add_taggers_from_file([Tagger("MockTagger")], fname)
+
+    def test_add_taggers_remove_nan(self):
+        # get mock file and add nans
+        f = get_mock_file()[1]
+        d = {}
+        d["HadronConeExclTruthLabelID"] = f["jets"]["HadronConeExclTruthLabelID"]
+        d["MockTagger_pb"] = f["jets"]["MockTagger_pb"]
+        d["MockTagger_pc"] = f["jets"]["MockTagger_pc"]
+        d["MockTagger_pu"] = f["jets"]["MockTagger_pu"]
+        d["pt"] = f["jets"]["pt"]
+        n_nans = np.random.choice(range(100), 10, replace=False)
+        d["MockTagger_pb"][n_nans] = np.nan
+        array = structured_from_dict(d)
+        with tempfile.TemporaryDirectory() as tmp_file:
+            fname = Path(tmp_file) / "test.h5"
+            with h5py.File(fname, "w") as f:
+                f.create_dataset("jets", data=array)
+
+            results = Results(signal="bjets", sample="test", remove_nan=True)
+            with self.assertLogs("puma", "WARNING") as cm:
+                results.add_taggers_from_file([Tagger("MockTagger")], fname)
+            self.assertEqual(
+                cm.output,
+                [
+                    f"WARNING:puma:{len(n_nans)} NaN values found in loaded data."
+                    " Removing them."
+                ],
             )
 
 
