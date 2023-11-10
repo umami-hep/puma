@@ -210,6 +210,42 @@ class AssociateVerticesTestCase(unittest.TestCase):
 class CalculateVertexMetricsTestCase(unittest.TestCase):
     """Test case for calculate_vertex_metrics function."""
 
+    def test_no_vertices(self):
+        """Check case where there are no vertices."""
+        indices1 = np.array([[0, 1, 2, 3, 4]])
+        indices2 = np.array([[0, 1, 2, 3, 4]])
+        metrics = calculate_vertex_metrics(indices1, indices2, max_vertices=2)
+        np.testing.assert_array_equal(metrics["n_match"], [0])
+        np.testing.assert_array_equal(metrics["n_test"], [0])
+        np.testing.assert_array_equal(metrics["n_ref"], [0])
+        np.testing.assert_array_equal(metrics["track_overlap"], [[-1, -1]])
+        np.testing.assert_array_equal(metrics["test_vertex_size"], [[-1, -1]])
+        np.testing.assert_array_equal(metrics["ref_vertex_size"], [[-1, -1]])
+
+    def test_no_reco_vertices(self):
+        """Check case where there are no reco vertices."""
+        indices1 = np.array([[0, 1, 2, 3, 4]])
+        indices2 = np.array([[0, 1, 2, 2, 3]])
+        metrics = calculate_vertex_metrics(indices1, indices2, max_vertices=2)
+        np.testing.assert_array_equal(metrics["n_match"], [0])
+        np.testing.assert_array_equal(metrics["n_test"], [0])
+        np.testing.assert_array_equal(metrics["n_ref"], [1])
+        np.testing.assert_array_equal(metrics["track_overlap"], [[-1, -1]])
+        np.testing.assert_array_equal(metrics["test_vertex_size"], [[-1, -1]])
+        np.testing.assert_array_equal(metrics["ref_vertex_size"], [[-1, -1]])
+
+    def test_no_truth_vertices(self):
+        """Check case where there are no truth vertices."""
+        indices1 = np.array([[0, 0, 1, 2, 3]])
+        indices2 = np.array([[0, 1, 2, 3, 4]])
+        metrics = calculate_vertex_metrics(indices1, indices2, max_vertices=2)
+        np.testing.assert_array_equal(metrics["n_match"], [0])
+        np.testing.assert_array_equal(metrics["n_test"], [1])
+        np.testing.assert_array_equal(metrics["n_ref"], [0])
+        np.testing.assert_array_equal(metrics["track_overlap"], [[-1, -1]])
+        np.testing.assert_array_equal(metrics["test_vertex_size"], [[-1, -1]])
+        np.testing.assert_array_equal(metrics["ref_vertex_size"], [[-1, -1]])
+
     def test_no_match(self):
         """Check case where there are no vertex matches."""
         indices1 = np.array([[0, 0, 1, 2, 3]])
