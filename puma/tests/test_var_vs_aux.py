@@ -30,25 +30,40 @@ class VarVsAuxTestCase(unittest.TestCase):
     def test_var_vs_aux_init_wrong_true_shape(self):
         """Test var_vs_aux init."""
         with self.assertRaises(ValueError):
-            VarVsAux(np.ones(4), np.ones(4), np.ones(5), np.ones(4))
+            VarVsAux(
+                x_var=np.ones(4),
+                n_match=np.ones(4),
+                n_true=np.ones(5),
+                n_reco=np.ones(4)
+            )
 
     def test_var_vs_aux_init_wrong_reco_shape(self):
         """Test var_vs_aux init."""
         with self.assertRaises(ValueError):
-            VarVsAux(np.ones(4), np.ones(4), np.ones(4), np.ones(5))
+            VarVsAux(
+                x_var=np.ones(4),
+                n_match=np.ones(4),
+                n_true=np.ones(4),
+                n_reco=np.ones(5)
+            )
 
     def test_var_vs_aux_init_wrong_match_shape(self):
         """Test var_vs_aux init."""
         with self.assertRaises(ValueError):
-            VarVsAux(np.ones(4), np.ones(5), np.ones(4), np.ones(4))
+            VarVsAux(
+                x_var=np.ones(4),
+                n_match=np.ones(5),
+                n_true=np.ones(4),
+                n_reco=np.ones(4)
+            )
 
     def test_var_vs_aux_init(self):
         """Test var_vs_aux init."""
         VarVsAux(
-            np.ones(6),
-            np.ones(6),
-            np.ones(6),
-            np.ones(6),
+            x_var=np.ones(6),
+            n_match=np.ones(6),
+            n_true=np.ones(6),
+            n_reco=np.ones(6),
             bins=10,
             key="test",
         )

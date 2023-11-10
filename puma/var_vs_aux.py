@@ -59,6 +59,16 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
                 f"Length of `x_var` ({len(x_var)}) and `n_match` "
                 f"({len(n_match)}) have to be identical."
             )
+        elif len(x_var) != len(n_true):
+            raise ValueError(
+                f"Length of `x_var` ({len(x_var)}) and `n_true` "
+                f"({len(n_true)}) have to be identical."
+            )
+        elif len(x_var) != len(n_reco):
+            raise ValueError(
+                f"Length of `x_var` ({len(x_var)}) and `n_reco` "
+                f"({len(n_reco)}) have to be identical."
+            )
 
         self.x_var = np.array(x_var)
         self.n_match = np.array(n_match)
@@ -87,7 +97,6 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
             plot_y_std=True,
             **kwargs,
         )
-        self.inverse_cut = False
 
     def _set_bin_edges(self, bins):
         """Calculate bin edges, centres and width and save them as class variables.
@@ -227,7 +236,7 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
             )
         return False
 
-    def get(self, mode: str, inverse_cut: bool = False):
+    def get(self, mode: str):
         """Wrapper around rejection and efficiency functions.
 
         Parameters
@@ -247,7 +256,6 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         ValueError
             If mode not supported
         """
-        self.inverse_cut = inverse_cut
         # TODO: python 3.10 switch to cases syntax
         if mode == "efficiency":
             return self.efficiency
