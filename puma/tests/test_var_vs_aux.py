@@ -34,7 +34,7 @@ class VarVsAuxTestCase(unittest.TestCase):
                 x_var=np.ones(4),
                 n_match=np.ones(4),
                 n_true=np.ones(5),
-                n_reco=np.ones(4)
+                n_reco=np.ones(4),
             )
 
     def test_var_vs_aux_init_wrong_reco_shape(self):
@@ -44,7 +44,7 @@ class VarVsAuxTestCase(unittest.TestCase):
                 x_var=np.ones(4),
                 n_match=np.ones(4),
                 n_true=np.ones(4),
-                n_reco=np.ones(5)
+                n_reco=np.ones(5),
             )
 
     def test_var_vs_aux_init_wrong_match_shape(self):
@@ -54,7 +54,7 @@ class VarVsAuxTestCase(unittest.TestCase):
                 x_var=np.ones(4),
                 n_match=np.ones(5),
                 n_true=np.ones(4),
-                n_reco=np.ones(4)
+                n_reco=np.ones(4),
             )
 
     def test_var_vs_aux_init(self):
