@@ -49,12 +49,12 @@ def associate_vertices(test_vertices, ref_vertices):
 
     Parameters
     ----------
-    ref_vertices: np.ndarray
-        Boolean array of shape (n_ref_vertices, n_tracks) containing track-vertex
-        associations for vertex collection to use as reference (truth).
     test_vertices: np.ndarray
         Boolean array of shape (n_test_vertices, n_tracks) containing track-vertex
         associations for vertex collection to be tested (reco).
+    ref_vertices: np.ndarray
+        Boolean array of shape (n_ref_vertices, n_tracks) containing track-vertex
+        associations for vertex collection to use as reference (truth).
 
     Returns
     -------
@@ -101,13 +101,13 @@ def calculate_vertex_metrics(
     vertexing performance for each jet.
 
     Parameters
-    ----------
-    ref_indices: np.ndarray
-        Boolean array of shape (n_jets, n_tracks) containing vertex indices to use
-        as reference (truth).
+    ---------- 
     test_indices: np.ndarray
         Boolean array of shape (n_jets, n_tracks) containing vertex indices to be
         tested (reco).
+    ref_indices: np.ndarray
+        Boolean array of shape (n_jets, n_tracks) containing vertex indices to use
+        as reference (truth).
     max_vertices: int, optional
         Maximum number of matched vertices to write out, by default 20.
     ignore_indices: list, optional

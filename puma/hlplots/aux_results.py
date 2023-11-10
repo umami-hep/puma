@@ -151,7 +151,7 @@ class AuxResults(Results):
 
         plot_vtx_eff.draw()
 
-        plot_details = f"{self.signal}_vtx_eff_vs_{x_var}"
+        plot_details = f"vtx_eff_vs_{x_var}"
         plot_vtx_eff.savefig(self.get_filename(plot_details, suffix))
 
     def plot_var_vtx_fr(
@@ -190,7 +190,7 @@ class AuxResults(Results):
 
         plot_vtx_fr.draw()
 
-        plot_details = f"{self.signal}_vtx_fr_vs_{x_var}"
+        plot_details = f"vtx_fr_vs_{x_var}"
         plot_vtx_fr.savefig(self.get_filename(plot_details, suffix))
 
     def plot_var_vtx_trk_eff(
@@ -242,7 +242,7 @@ class AuxResults(Results):
 
         plot_vtx_eff.draw()
 
-        plot_details = f"{self.signal}_vtx_trk_eff_vs_{x_var}"
+        plot_details = f"vtx_trk_eff_vs_{x_var}"
         plot_vtx_eff.savefig(self.get_filename(plot_details, suffix))
 
     def plot_var_vtx_trk_fr(
@@ -294,5 +294,5 @@ class AuxResults(Results):
 
         plot_vtx_eff.draw()
 
-        plot_details = f"{self.signal}_vtx_trk_fr_vs_{x_var}"
+        plot_details = f"vtx_trk_fr_vs_{x_var}"
         plot_vtx_eff.savefig(self.get_filename(plot_details, suffix))
