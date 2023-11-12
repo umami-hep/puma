@@ -66,6 +66,7 @@ class AuxResultsPlotsTestCase(unittest.TestCase):
             f["tracks"]["numberOfPixelHits"],
             f["tracks"]["numberOfSCTHits"],
         )
+        dummy_tagger_1.perf_var = f["jets"]["pt"]
         dummy_tagger_1.scores = f["jets"]
         dummy_tagger_1.label = "dummy tagger"
         self.dummy_tagger_1 = dummy_tagger_1

@@ -10,8 +10,8 @@ import unittest
 
 import numpy as np
 
-from puma.utils.logging import logger, set_log_level
 from puma import VarVsAux, VarVsAuxPlot
+from puma.utils.logging import logger, set_log_level
 
 set_log_level(logger, "DEBUG")
 
