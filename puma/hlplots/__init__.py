@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from puma.hlplots.results import Results
+from puma.hlplots.aux_results import AuxResults
 from puma.hlplots.tagger import Tagger
 
-__all__ = ["Results", "Tagger"]
+__all__ = ["Results", "AuxResults", "Tagger"]

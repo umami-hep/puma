@@ -101,7 +101,7 @@ def calculate_vertex_metrics(
     vertexing performance for each jet.
 
     Parameters
-    ---------- 
+    ----------
     test_indices: np.ndarray
         Boolean array of shape (n_jets, n_tracks) containing vertex indices to be
         tested (reco).
