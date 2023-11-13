@@ -99,6 +99,11 @@ class Histogram(PlotLineObject):
         self.bin_edges = bin_edges  # Important to have this defined for any histogram
         self.sum_squared_weights = sum_squared_weights
 
+        if bin_edges is None and sum_squared_weights is not None:
+            logger.warning("""The Histogram has no bin edges defined and is thus
+                              not considered filled. Parameter `sum_squared_weights`
+                              is ignored. """)
+
         # This attribute allows to know how to handle the histogram later during
         # plotting
         self.filled = bin_edges is not None
@@ -463,8 +468,6 @@ class HistogramPlot(PlotBase):
 
             # MAYBE CHECK HERE THAT self.bins and elem.bin_edges are
             # equivalent for plotting or throw error!
-            # MAYBE also add a else statement that defaults to throwing an error
-            # for unrecognised hist_type!
 
             if self.discrete_vals is not None:
                 # bins are recalculated for the discrete values
