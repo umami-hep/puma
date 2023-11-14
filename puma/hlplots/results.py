@@ -605,14 +605,13 @@ class Results:
         plot_details = f"{self.signal}_eff_vs_{x_var}_{wp_disc}"
         plot_suffix = f"_{suffix}" if suffix else ""
         plot_sig_eff.savefig(self.get_filename(plot_details + plot_base, plot_suffix))
-        print(self.get_filename(plot_details + plot_base, plot_suffix))
+
         for i, background in enumerate(self.backgrounds):
             plot_bkg[i].draw()
             plot_details = f"{background}_rej_vs_{x_var}_{wp_disc}"
             plot_bkg[i].savefig(
                 self.get_filename(plot_details + plot_base, plot_suffix)
             )
-            print(self.get_filename(plot_details + plot_base, plot_suffix))
 
     def plot_flat_rej_var_perf(
         self,

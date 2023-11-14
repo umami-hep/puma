@@ -25,6 +25,7 @@ def get_signals(plt_cfg):
 def select_configs(configs, plt_cfg):
     """Selects only configs that match the current sample and signal"""
     # return configs
+    print(plt_cfg.signal)
     return [c for c in configs if c["args"]["signal"] == plt_cfg.signal]
 
 

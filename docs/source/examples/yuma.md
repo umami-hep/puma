@@ -41,3 +41,22 @@ Each plot type should come under its own section. The allowed plots are:
 - prob_plots
 - eff_vs_var_plots
 
+Within each section, a list of plots should be included. Each plot requires a 'signal'. Additional options that work for all plot types are:
+- suffix: Allows a custom suffix for the plot name.
+- include_taggers: Only include the specified taggers for this plot
+- exclude_taggers: Plot all taggers, except those in 'exclude_taggers'
+- plot_kwargs: arguments parsed to the base plot object, such as figsize.
+
+Other specific plot types have additional arguments that can be included:
+
+#### ROC plots
+- x_range: The x-range of the signal efficiency
+
+#### Fraction Scan plots
+- frac_flav: The x in 'f_x', for example 'c' for standard f_c plots
+- efficiency: The signal efficiency to plot at
+- backgrounds: List of two backgrounds to plot the scan over. 
+
+#### Efficiency Vs Var plots
+- peff_var: The variable to bin on the x-axis, default is pt
+bins: The bin edges for the x-axis, default for pT depends on if sample is ttbar/zprime

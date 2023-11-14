@@ -22,6 +22,11 @@ sample:
 
 roc_plots:
   -  args:
+      signal: cjets
+      x_range: [0.5, 1.0]
+      plot_kwargs:
+        figsize: [8.5, 7.5]
+  -  args:
       signal: bjets
       x_range: [0.5, 1.0]
       plot_kwargs:
