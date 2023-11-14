@@ -3,10 +3,11 @@ from __future__ import annotations
 import copy
 from pathlib import Path
 
-from ftag import Cuts, Flavour
+from ftag import Flavour
+from ftag.hdf5 import H5Reader
 
 from puma.utils import logger
-from ftag.hdf5 import H5Reader
+
 
 def get_signals(plt_cfg):
     """Iterates all plots in the config and returns a list of all signals."""
@@ -37,7 +38,7 @@ def get_plot_kwargs(config, suffix=""):
 
 
 def get_include_exclude_str(include_taggers, all_taggers):
-    '''Generates the name of the plot, based on the included taggers'''
+    """Generates the name of the plot, based on the included taggers"""
     if len(include_taggers) == len(all_taggers):
         return ""
 
@@ -45,9 +46,9 @@ def get_include_exclude_str(include_taggers, all_taggers):
 
 
 def get_included_taggers(results, plot_config):
-    '''Converts 'include_taggers' or 'exclude_taggers' into a list of the taggers
+    """Converts 'include_taggers' or 'exclude_taggers' into a list of the taggers
     to include
-    '''
+    """
     all_taggers = results.taggers
     all_tagger_names = [t.yaml_name for t in all_taggers.values()]
     if (
@@ -97,10 +98,12 @@ def get_included_taggers(results, plot_config):
             )
         # We ensure that the model which is used for reference as default, is
         # not used as a reference here if don't want it to be.
-        default_ref = [k for k in include_taggers.keys() if include_taggers[k].reference]
+        default_ref = [k for k in include_taggers if include_taggers[k].reference]
         if len(default_ref) > 0:
-            assert len(default_ref) == 1, 'More than 1 tagger set as a reference...'
-            include_taggers[default_ref[0]] = copy.deepcopy(include_taggers[default_ref[0]])
+            assert len(default_ref) == 1, "More than 1 tagger set as a reference..."
+            include_taggers[default_ref[0]] = copy.deepcopy(
+                include_taggers[default_ref[0]]
+            )
             include_taggers[default_ref[0]].reference = False
 
         include_taggers[reference] = copy.deepcopy(include_taggers[reference])
@@ -112,16 +115,18 @@ def get_included_taggers(results, plot_config):
         get_include_exclude_str(include_taggers, all_taggers),
     )
 
+
 def get_tagger_name(name: str, sample_path: Path, flavours: list[Flavour]):
-    '''Attempts to return the name of the tagger if it is not specified in the 
-    config file by looking at available variable names.'''
+    """Attempts to return the name of the tagger if it is not specified in the
+    config file by looking at available variable names.
+    """
     if name:
         return name
-    
+
     reader = H5Reader(sample_path)
     jet_vars = reader.dtypes()["jets"].names
     req_keys = [f"_p{flav.name[:-4]}" for flav in flavours]
-    
+
     potential_taggers = {}
 
     # Identify potential taggers

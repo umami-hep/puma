@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 
 import yaml
-from ftag import Cuts, Flavour
+from ftag import Cuts
 
 from puma.hlplots import Results, Tagger
 from puma.utils import get_good_colours
