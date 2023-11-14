@@ -249,6 +249,7 @@ if __name__ == "__main__":
     if args.debug:
         set_log_level(logger, "DEBUG")
 
+    # Allow selection of subset of plots, if not, plot all plots
     if args.plots:
         for p in args.plots:
             if p not in ALL_PLOTS:

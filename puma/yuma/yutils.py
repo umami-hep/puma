@@ -25,7 +25,6 @@ def select_configs(configs, plt_cfg):
     """Selects only configs that match the current sample and signal"""
     # return configs
     return [c for c in configs if c["args"]["signal"] == plt_cfg.signal]
-    #                 and c['args']['signal'] == plt_cfg.signal)]
 
 
 def get_plot_kwargs(config, suffix=""):
@@ -38,6 +37,7 @@ def get_plot_kwargs(config, suffix=""):
 
 
 def get_include_exclude_str(include_taggers, all_taggers):
+    '''Generates the name of the plot, based on the included taggers'''
     if len(include_taggers) == len(all_taggers):
         return ""
 
@@ -45,6 +45,9 @@ def get_include_exclude_str(include_taggers, all_taggers):
 
 
 def get_included_taggers(results, plot_config):
+    '''Converts 'include_taggers' or 'exclude_taggers' into a list of the taggers
+    to include
+    '''
     all_taggers = results.taggers
     all_tagger_names = [t.yaml_name for t in all_taggers.values()]
     if (
@@ -92,6 +95,13 @@ def get_included_taggers(results, plot_config):
             logger.warning(
                 "No reference set for plot, using " + reference + " as reference"
             )
+        # We ensure that the model which is used for reference as default, is
+        # not used as a reference here if don't want it to be.
+        default_ref = [k for k in include_taggers.keys() if include_taggers[k].reference]
+        if len(default_ref) > 0:
+            assert len(default_ref) == 1, 'More than 1 tagger set as a reference...'
+            include_taggers[default_ref[0]] = copy.deepcopy(include_taggers[default_ref[0]])
+            include_taggers[default_ref[0]].reference = False
 
         include_taggers[reference] = copy.deepcopy(include_taggers[reference])
         include_taggers[reference].reference = True
