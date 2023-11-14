@@ -6,45 +6,10 @@ from pathlib import Path
 
 import yaml
 from ftag import Cuts, Flavour
-from ftag.hdf5 import H5Reader
 
 from puma.hlplots import Results, Tagger
 from puma.utils import get_good_colours
-
-
-def _get_tagger_name(name: str, sample_path: Path, flavours: list[Flavour]):
-    if name:
-        return name
-    # TODO actually check this works properly
-    reader = H5Reader(sample_path)
-    jet_vars = reader.dtypes()["jets"].names
-    req_keys = [f"_p{flav.name[:-4]}" for flav in flavours]
-    # tagger_suffixes = ['_pb', '_pc', '_pu']
-    potential_taggers = {}
-
-    # Identify potential taggers
-    for var in jet_vars:
-        for suffix in req_keys:
-            if var.endswith(suffix):
-                base_name = var.rsplit(suffix, 1)[0]
-                if base_name in potential_taggers:
-                    potential_taggers[base_name].append(suffix)
-                else:
-                    potential_taggers[base_name] = [suffix]
-
-    # Check if any base name has all three suffixes
-    valid_taggers = [
-        base
-        for base, suffixes in potential_taggers.items()
-        if set(suffixes) == set(req_keys)
-    ]
-
-    if len(valid_taggers) == 0:
-        raise ValueError("No valid tagger found.")
-    elif len(valid_taggers) > 1:
-        raise ValueError(f"Multiple valid taggers found: {', '.join(valid_taggers)}")
-    else:
-        return valid_taggers[0]
+from puma.yuma.yutils import get_tagger_name
 
 
 @dataclass
@@ -160,7 +125,7 @@ class PlotConfig:
         # Add taggers to results, then bulk load
         for t in self.taggers.values():
             # Allows automatic selection of tagger name in eval files
-            t["name"] = _get_tagger_name(
+            t["name"] = get_tagger_name(
                 t.get("name", None), t["sample_path"], results.flavours
             )
             # Enforces a tagger to have same colour across multiple plots

@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import copy
+from pathlib import Path
+
+from ftag import Cuts, Flavour
 
 from puma.utils import logger
-
+from ftag.hdf5 import H5Reader
 
 def get_signals(plt_cfg):
     """Iterates all plots in the config and returns a list of all signals."""
@@ -98,3 +101,39 @@ def get_included_taggers(results, plot_config):
         all_taggers,
         get_include_exclude_str(include_taggers, all_taggers),
     )
+
+def get_tagger_name(name: str, sample_path: Path, flavours: list[Flavour]):
+    '''Attempts to return the name of the tagger if it is not specified in the 
+    config file by looking at available variable names.'''
+    if name:
+        return name
+    
+    reader = H5Reader(sample_path)
+    jet_vars = reader.dtypes()["jets"].names
+    req_keys = [f"_p{flav.name[:-4]}" for flav in flavours]
+    
+    potential_taggers = {}
+
+    # Identify potential taggers
+    for var in jet_vars:
+        for suffix in req_keys:
+            if var.endswith(suffix):
+                base_name = var.rsplit(suffix, 1)[0]
+                if base_name in potential_taggers:
+                    potential_taggers[base_name].append(suffix)
+                else:
+                    potential_taggers[base_name] = [suffix]
+
+    # Check if any base name has all three suffixes
+    valid_taggers = [
+        base
+        for base, suffixes in potential_taggers.items()
+        if set(suffixes) == set(req_keys)
+    ]
+
+    if len(valid_taggers) == 0:
+        raise ValueError("No valid tagger found.")
+    elif len(valid_taggers) > 1:
+        raise ValueError(f"Multiple valid taggers found: {', '.join(valid_taggers)}")
+    else:
+        return valid_taggers[0]
