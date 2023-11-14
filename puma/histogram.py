@@ -222,7 +222,7 @@ class HistogramPlot(PlotBase):
         norm: bool = True,
         logy: bool = False,
         bin_width_in_ylabel: bool = False,
-        underoverflow: bool = False,
+        underoverflow: bool = True,
         grid: bool = False,
         stacked: bool = False,
         histtype: str = "bar",
@@ -256,7 +256,8 @@ class HistogramPlot(PlotBase):
         bin_width_in_ylabel : bool, optional
             Specify if the bin width should be added to the ylabel, by default False
         underoverflow : bool, optional
-            Option to include under- and overflow values in outermost bins.
+            Option to include under- and overflow values in outermost bins, by default
+            True.
         grid : bool, optional
             Set the grid for the plots, by default False
         stacked : bool, optional

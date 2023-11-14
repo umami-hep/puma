@@ -21,7 +21,7 @@ from puma import (
 )
 from puma.hlplots.tagger import Tagger
 from puma.metrics import calc_eff, calc_rej
-from puma.utils import get_good_linestyles
+from puma.utils import get_good_linestyles, logger
 
 
 @dataclass
@@ -40,6 +40,7 @@ class Results:
     extension: str = "png"
     global_cuts: Cuts | list | None = None
     num_jets: int | None = None
+    remove_nan: bool = False
 
     def __post_init__(self):
         if isinstance(self.signal, str):
@@ -162,6 +163,29 @@ class Results:
         perf_var : np.ndarray, optional
             Override the performance variable to use, by default None
         """
+
+        def check_nan(data: np.ndarray) -> np.ndarray:
+            """
+            Filter out NaN values from loaded data.
+
+            Parameters
+            ----------
+            data : ndarray
+                Data to filter
+            """
+            mask = np.ones(len(data), dtype=bool)
+            for key in data.dtype.names:
+                mask = np.logical_and(mask, ~np.isnan(data[key]))
+            if np.sum(~mask) > 0:
+                if self.remove_nan:
+                    logger.warning(
+                        f"{np.sum(~mask)} NaN values found in loaded data. Removing"
+                        " them."
+                    )
+                    return data[mask]
+                raise ValueError(f"{np.sum(~mask)} NaN values found in loaded data.")
+            return data
+
         # set tagger output nodes
         for tagger in taggers:
             tagger.output_flavours = self.flavours
@@ -177,6 +201,8 @@ class Results:
         # load data
         reader = H5Reader(file_path, precision="full")
         data = reader.load({key: var_list}, num_jets)[key]
+        # check for nan values
+        data = check_nan(data)
 
         # apply common cuts
         if cuts:
