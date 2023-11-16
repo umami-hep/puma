@@ -72,8 +72,7 @@ def get_included_taggers(results, plot_config):
             for t, v in results.taggers.items()
             if v.yaml_name not in exclude_taggers
         }
-    else:
-        raise ValueError("Should not be here...")
+
     logger.debug("Include taggers: %s", include_taggers)
 
     # Set which tagger to use as a reference, if no reference is set, use the first
