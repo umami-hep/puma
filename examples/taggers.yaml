@@ -15,7 +15,7 @@ taggers:
     label: Dummy $f_c$ = 0.2
   # Uses updated sample path, and default f_c
   dummy3:
-    sample_path: /home/xzcappon/phd/datasets/p5770/mc23/output/pp_output_test_ttbar_pt_resampled_withtracknums.h5
+    sample_path: /dummy/path
     label: Dummy 3
 
       
