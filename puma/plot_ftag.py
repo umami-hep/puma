@@ -243,12 +243,7 @@ def make_plots(args, plt_cfg):
     if "peff" in args.plots:
         make_eff_vs_var_plots(plt_cfg)
 
-
-if __name__ == "__main__":
-    args = get_args()
-    if args.debug:
-        set_log_level(logger, "DEBUG")
-
+def main(args):
     # Allow selection of subset of plots, if not, plot all plots
     if args.plots:
         for p in args.plots:
@@ -273,11 +268,19 @@ if __name__ == "__main__":
         plt_cfg.num_jets = args.num_jets
 
     logger.info(f"Plotting in {plt_cfg.plot_dir_final}")
-    if args.sample:
-        assert args.sample in plt_cfg.samples, f"Sample {args.sample} not in config"
-        plt_cfg.samples = {args.sample: plt_cfg.samples[args.sample]}
+    # if args.sample:
+    #     assert args.sample in plt_cfg.samples, f"Sample {args.sample} not in config"
+        # plt_cfg.samples = {args.sample: plt_cfg.samples[args.sample]}
 
     for signal in args.signals:
         plt_cfg.signal = signal
         plt_cfg.get_results()
         make_plots(args, plt_cfg)
+
+
+if __name__ == "__main__":
+    args = get_args()
+    if args.debug:
+        set_log_level(logger, "DEBUG")
+    main(args)
+    

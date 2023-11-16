@@ -6,13 +6,13 @@ import tempfile
 import unittest
 from pathlib import Path
 from typing import ClassVar
-
+from dataclasses import dataclass
 import h5py
 import numpy as np
 import yaml
 from ftag import Flavours, get_mock_file
 
-from puma.plot_ftag import make_plots
+from puma.plot_ftag import main
 from puma.yuma import PlotConfig, get_signals
 from puma.yuma.yutils import get_tagger_name
 
@@ -69,9 +69,13 @@ class TestYutils(unittest.TestCase):
 
 class TestYumaPlots(unittest.TestCase):
     def testAllPlots(self):
+        @dataclass
         class DummyArgs:
-            plots: ClassVar[list[str]] = ["roc", "scan", "disc", "prob", "peff"]
-            signal: ClassVar[list[str]] = ["bjets", "cjets"]
+            config: str
+            plots: list[str] | None
+            signals : list[str] | None
+            num_jets : int = 1000
+            sample: str = 'ttbar'
 
         plt_cfg = Path(__file__).parent.parent.parent / "examples/plt_cfg.yaml"
         with open(plt_cfg) as f:
@@ -96,28 +100,33 @@ class TestYumaPlots(unittest.TestCase):
             with open(updated_plt_cfg, "w") as f:
                 yaml.dump(plt_cfg, f)
 
-            plt_cfg = PlotConfig.load_config(updated_plt_cfg)
 
-            plt_cfg.signal = "bjets"
-            plt_cfg.get_results()
-            make_plots(DummyArgs(), plt_cfg)
-
-            plt_cfg.signal = "cjets"
-            plt_cfg.get_results()
-            make_plots(DummyArgs(), plt_cfg)
+            # plt_cfg = PlotConfig.load_config(updated_plt_cfg)
+            args = DummyArgs(
+                config=updated_plt_cfg.as_posix(), 
+                plots=None,
+                signals=['bjets'])
+            main(args)
 
             # Simple check on number of output plots
             out_dir = Path(tmp_file) / "plots" / "plt_cfg"
             btagging = out_dir / "bjets_tagging"
             ctagging = out_dir / "cjets_tagging"
             assert btagging.exists(), "No b-tagging plots produced"
-            assert ctagging.exists(), "No c-tagging plots produced"
-
+            assert not ctagging.exists(), "No c-tagging plots should have been produced"
             btag_plots = [p.name for p in btagging.glob("*")]
-            ctag_plots = [p.name for p in ctagging.glob("*")]
             assert (
                 len(btag_plots) == 19
             ), "Only expected 19 b-tagging plot, found " + len(btag_plots)
+
+            args = DummyArgs(
+                config=updated_plt_cfg.as_posix(), 
+                plots=None,
+                signals=['cjets'])
+            main(args)
+
+            ctag_plots = [p.name for p in ctagging.glob("*")]
+            assert ctagging.exists(), "No c-tagging plots produced"
             assert (
                 len(ctag_plots) == 1
             ), "Only expected one c-tagging plot, found " + len(ctag_plots)
