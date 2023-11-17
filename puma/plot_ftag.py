@@ -201,6 +201,7 @@ def make_fracscan_plots(plt_cfg):
         plt_cfg.results.plot_fraction_scans(efficiency=efficiency, **plot_kwargs)
         plt_cfg.results.taggers = all_taggers
         plt_cfg.results.backgrounds = tmp_backgrounds
+        plt_cfg.results.atlas_second_tag = plt_cfg.default_second_atlas_tag
 
 
 def make_roc_plots(plt_cfg):
