@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import tempfile
 import unittest
-from pathlib import Path
-from typing import ClassVar
 from dataclasses import dataclass
+from pathlib import Path
+
 import h5py
 import numpy as np
 import yaml
@@ -73,9 +73,9 @@ class TestYumaPlots(unittest.TestCase):
         class DummyArgs:
             config: str
             plots: list[str] | None
-            signals : list[str] | None
-            num_jets : int = 1000
-            sample: str = 'ttbar'
+            signals: list[str] | None
+            num_jets: int = 1000
+            sample: str = "ttbar"
 
         plt_cfg = Path(__file__).parent.parent.parent / "examples/plt_cfg.yaml"
         with open(plt_cfg) as f:
@@ -100,12 +100,10 @@ class TestYumaPlots(unittest.TestCase):
             with open(updated_plt_cfg, "w") as f:
                 yaml.dump(plt_cfg, f)
 
-
             # plt_cfg = PlotConfig.load_config(updated_plt_cfg)
             args = DummyArgs(
-                config=updated_plt_cfg.as_posix(), 
-                plots=None,
-                signals=['bjets'])
+                config=updated_plt_cfg.as_posix(), plots=None, signals=["bjets"]
+            )
             main(args)
 
             # Simple check on number of output plots
@@ -120,9 +118,8 @@ class TestYumaPlots(unittest.TestCase):
             ), "Only expected 19 b-tagging plot, found " + len(btag_plots)
 
             args = DummyArgs(
-                config=updated_plt_cfg.as_posix(), 
-                plots=None,
-                signals=['cjets'])
+                config=updated_plt_cfg.as_posix(), plots=None, signals=["cjets"]
+            )
             main(args)
 
             ctag_plots = [p.name for p in ctagging.glob("*")]
