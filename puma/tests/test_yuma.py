@@ -102,7 +102,6 @@ class TestYumaPlots(unittest.TestCase):
             with open(updated_plt_cfg, "w") as f:
                 yaml.dump(plt_cfg, f)
 
-            
             args = DummyArgs(
                 config=updated_plt_cfg.as_posix(), plots=None, signals=["bjets"]
             )

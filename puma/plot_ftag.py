@@ -249,7 +249,7 @@ def main(args=None):
     args = get_args(args)
     if args.debug:
         set_log_level(logger, "DEBUG")
-        
+
     # Allow selection of subset of plots, if not, plot all plots
     if args.plots:
         for p in args.plots:
@@ -286,4 +286,3 @@ def main(args=None):
 
 if __name__ == "__main__":
     main()
-
