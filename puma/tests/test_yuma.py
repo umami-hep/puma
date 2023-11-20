@@ -84,6 +84,7 @@ class TestYumaPlots(unittest.TestCase):
         taggers = Path(__file__).parent.parent.parent / "examples/taggers.yaml"
         with open(taggers) as f:
             taggers = yaml.safe_load(f)
+
         with tempfile.TemporaryDirectory() as tmp_file:
             fpath1, file = get_mock_file(fname=(Path(tmp_file) / "file1.h5").as_posix())
             fpath2, file = get_mock_file(fname=(Path(tmp_file) / "file2.h5").as_posix())
@@ -94,13 +95,14 @@ class TestYumaPlots(unittest.TestCase):
             updated_plt_cfg = Path(tmp_file) / "plt_cfg.yaml"
             plt_cfg["taggers_config"] = updated_taggers.as_posix()
             plt_cfg["plot_dir"] = tmp_file + "/plots"
+
             # write the yaml files
             with open(updated_taggers, "w") as f:
                 yaml.dump(taggers, f)
             with open(updated_plt_cfg, "w") as f:
                 yaml.dump(plt_cfg, f)
 
-            # plt_cfg = PlotConfig.load_config(updated_plt_cfg)
+            
             args = DummyArgs(
                 config=updated_plt_cfg.as_posix(), plots=None, signals=["bjets"]
             )

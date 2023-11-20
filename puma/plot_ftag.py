@@ -18,7 +18,7 @@ from puma.yuma import (
 ALL_PLOTS = ["roc", "scan", "disc", "prob", "peff"]
 
 
-def get_args():
+def get_args(args):
     args = argparse.ArgumentParser(description="YUMA: Plotting from Yaml in pUMA")
     args.add_argument("-c", "--config", type=str, help="Path to config")
 
@@ -49,7 +49,7 @@ def get_args():
     args.add_argument(
         "-d", "--debug", action="store_true", help="Set logger level to debug."
     )
-    return args.parse_args()
+    return args.parse_args(args)
 
 
 def group_eff_vs_var_by_var(sel_configs):
@@ -245,7 +245,11 @@ def make_plots(args, plt_cfg):
         make_eff_vs_var_plots(plt_cfg)
 
 
-def main(args):
+def main(args=None):
+    args = get_args(args)
+    if args.debug:
+        set_log_level(logger, "DEBUG")
+        
     # Allow selection of subset of plots, if not, plot all plots
     if args.plots:
         for p in args.plots:
@@ -281,7 +285,5 @@ def main(args):
 
 
 if __name__ == "__main__":
-    args = get_args()
-    if args.debug:
-        set_log_level(logger, "DEBUG")
-    main(args)
+    main()
+
