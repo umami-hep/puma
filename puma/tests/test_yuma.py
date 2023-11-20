@@ -8,7 +8,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import h5py
-import numpy as np
 import yaml
 from ftag import Flavours, get_mock_file
 from ftag.hdf5 import structured_from_dict
@@ -16,6 +15,7 @@ from ftag.hdf5 import structured_from_dict
 from puma.plot_ftag import main
 from puma.yuma import PlotConfig, get_signals
 from puma.yuma.yutils import get_tagger_name
+
 
 class TestYutils(unittest.TestCase):
     def setUp(self):
