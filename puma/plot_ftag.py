@@ -19,37 +19,37 @@ ALL_PLOTS = ["roc", "scan", "disc", "prob", "peff"]
 
 
 def get_args(args):
-    args = argparse.ArgumentParser(description="YUMA: Plotting from Yaml in pUMA")
-    args.add_argument("-c", "--config", type=str, help="Path to config")
+    parser = argparse.ArgumentParser(description="YUMA: Plotting from Yaml in pUMA")
+    parser.add_argument("-c", "--config", type=str, help="Path to config")
 
-    args.add_argument(
+    parser.add_argument(
         "-p",
         "--plots",
         nargs="+",
         help=f"Plot types to make. Allowed are: {ALL_PLOTS} ",
     )
-    args.add_argument(
+    parser.add_argument(
         "-s",
         "--signals",
         nargs="+",
         help="Signals to plot",
     )
-    args.add_argument(
+    parser.add_argument(
         "--sample",
         default=None,
         help="Sample to plot, by default all samples in config are plotted.",
     )
-    args.add_argument(
+    parser.add_argument(
         "-n",
         "--num_jets",
         required=False,
         type=int,
         help="Maximum number of jets to use in plotting, per model.",
     )
-    args.add_argument(
+    parser.add_argument(
         "-d", "--debug", action="store_true", help="Set logger level to debug."
     )
-    return args.parse_args(args)
+    return parser.parse_args(args)
 
 
 def group_eff_vs_var_by_var(sel_configs):
