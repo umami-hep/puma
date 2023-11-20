@@ -102,7 +102,7 @@ class TestYumaPlots(unittest.TestCase):
             with open(updated_plt_cfg, "w") as f:
                 yaml.dump(plt_cfg, f)
 
-            args = ['--config',updated_plt_cfg.as_posix(), '--signals', 'bjets']
+            args = ["--config", updated_plt_cfg.as_posix(), "--signals", "bjets"]
             main(args)
 
             # Simple check on number of output plots
@@ -116,7 +116,14 @@ class TestYumaPlots(unittest.TestCase):
                 len(btag_plots) == 19
             ), "Only expected 19 b-tagging plot, found " + len(btag_plots)
 
-            args = ['--config',updated_plt_cfg.as_posix(), '--plots', 'roc', '--signals', 'cjets']
+            args = [
+                "--config",
+                updated_plt_cfg.as_posix(),
+                "--plots",
+                "roc",
+                "--signals",
+                "cjets",
+            ]
             main(args)
 
             ctag_plots = [p.name for p in ctagging.glob("*")]
