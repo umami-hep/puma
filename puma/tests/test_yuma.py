@@ -11,31 +11,11 @@ import h5py
 import numpy as np
 import yaml
 from ftag import Flavours, get_mock_file
+from ftag.hdf5 import structured_from_dict
 
 from puma.plot_ftag import main
 from puma.yuma import PlotConfig, get_signals
 from puma.yuma.yutils import get_tagger_name
-
-
-def structured_from_dict(d: dict[str, np.ndarray]) -> np.ndarray:
-    """Convert a dict to a structured array.
-
-    Parameters
-    ----------
-    d : dict
-        Input dict of numpy arrays
-
-    Returns
-    -------
-    np.ndarray
-        Structured array
-    """
-    from numpy.lib.recfunctions import unstructured_to_structured as u2s
-
-    arrays = np.column_stack(list(d.values()))
-    dtypes = np.dtype([(k, v.dtype) for k, v in d.items()])
-    return u2s(arrays, dtype=dtypes)
-
 
 class TestYutils(unittest.TestCase):
     def setUp(self):
