@@ -8,6 +8,7 @@ import numpy as np
 # TODO: fix the import below
 from puma.metrics import eff_err
 from puma.utils import logger
+from puma.utils.histogram import save_divide
 from puma.var_vs_var import VarVsVar, VarVsVarPlot
 
 
@@ -167,7 +168,10 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         float
             Efficiency error
         """
-        eff = np.sum(n_match) / np.sum(n_true)
+        eff = save_divide(np.sum(n_match), np.sum(n_true), default=np.inf)
+        if eff == np.inf:
+            logger.warning("Your efficiency is infinity -> setting it to np.nan.")
+            return np.nan, np.nan
         eff_error = eff_err(eff, len(n_match), suppress_zero_divison_error=True)
         return eff, eff_error
 
@@ -188,8 +192,11 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         float
             Efficiency error
         """
-        fr = 1 - np.sum(n_match) / np.sum(n_reco)
-        fr_error = eff_err(fr, len(n_match), suppress_zero_divison_error=True)
+        fr = save_divide(1 - np.sum(n_match), np.sum(n_reco), default=np.inf)
+        if fr == np.inf:
+            logger.warning("Your fake rate is infinity -> setting it to np.nan.")
+            return np.nan, np.nan
+        fr_error = eff_err(fr, len(n_match))
         return fr, fr_error
 
     @property
