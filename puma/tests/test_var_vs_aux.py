@@ -9,6 +9,7 @@ import tempfile
 import unittest
 
 import numpy as np
+from matplotlib.testing.compare import compare_images
 
 from puma import VarVsAux, VarVsAuxPlot
 from puma.utils.logging import logger, set_log_level
@@ -191,6 +192,16 @@ class VarVsAuxPlotTestCase(unittest.TestCase):
 
         plotname = "test_aux_efficiency.png"
         plot_eff.savefig(f"{self.actual_plots_dir}/{plotname}")
+        # Uncomment line below to update expected image
+        # plot_eff.savefig(f"{self.expected_plots_dir}/{plotname}")
+        self.assertEqual(
+            None,
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname}",
+                f"{self.expected_plots_dir}/{plotname}",
+                tol=5,
+            ),
+        )
 
     def test_var_vs_aux_plot_mode_fake_rate(self):
         """Test aux output plot - fake rate."""
@@ -228,3 +239,13 @@ class VarVsAuxPlotTestCase(unittest.TestCase):
 
         plotname = "test_aux_fake_rate.png"
         plot_fr.savefig(f"{self.actual_plots_dir}/{plotname}")
+        # Uncomment line below to update expected image
+        # plot_fr.savefig(f"{self.expected_plots_dir}/{plotname}")
+        self.assertEqual(
+            None,
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname}",
+                f"{self.expected_plots_dir}/{plotname}",
+                tol=5,
+            ),
+        )
