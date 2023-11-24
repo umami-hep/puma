@@ -178,7 +178,7 @@ class VarVsAuxPlotTestCase(unittest.TestCase):
 
         plot_eff = VarVsAuxPlot(
             mode="efficiency",
-            ylabel="Aux fake rate",
+            ylabel="Aux efficiency",
             xlabel=r"$p_{T}$ [GeV]",
             logy=True,
             y_scale=1.5,

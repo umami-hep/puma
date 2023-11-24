@@ -168,7 +168,7 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
             Efficiency error
         """
         eff = np.sum(n_match) / np.sum(n_true)
-        eff_error = eff_err(eff, len(n_match))
+        eff_error = eff_err(eff, len(n_match), suppress_zero_divison_error=True)
         return eff, eff_error
 
     def get_fake_rate(self, n_match: np.ndarray, n_reco: np.ndarray):
@@ -189,7 +189,7 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
             Efficiency error
         """
         fr = 1 - np.sum(n_match) / np.sum(n_reco)
-        fr_error = eff_err(fr, len(n_match))
+        fr_error = eff_err(fr, len(n_match), suppress_zero_divison_error=True)
         return fr, fr_error
 
     @property
