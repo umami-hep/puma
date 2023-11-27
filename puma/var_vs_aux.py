@@ -172,7 +172,10 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         if eff == np.inf:
             logger.warning("Your efficiency is infinity -> setting it to np.nan.")
             return np.nan, np.nan
-        eff_error = eff_err(eff, len(n_match), suppress_zero_divison_error=True)
+        elif len(n_match) == 0:
+            logger.warning("Your efficiency is zero -> setting error to zero.")
+            return 0., 0.
+        eff_error = eff_err(eff, len(n_match))
         return eff, eff_error
 
     def get_fake_rate(self, n_match: np.ndarray, n_reco: np.ndarray):
@@ -196,7 +199,10 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         if fr == np.inf:
             logger.warning("Your fake rate is infinity -> setting it to np.nan.")
             return np.nan, np.nan
-        fr_error = eff_err(fr, len(n_match), suppress_zero_divison_error=True)
+        elif len(n_match) == 0:
+            logger.warning("Your fake rate is one -> setting error to zero.")
+            return 1., 0.
+        fr_error = eff_err(fr, len(n_match))
         return fr, fr_error
 
     @property
