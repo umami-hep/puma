@@ -8,7 +8,11 @@ import numpy as np
 from numpy.lib.recfunctions import structured_to_unstructured as s2u
 
 from puma.utils import logger, set_log_level
-from puma.utils.generate import get_dummy_2_taggers, get_dummy_tagger_aux, get_dummy_multiclass_scores
+from puma.utils.generate import (
+    get_dummy_2_taggers,
+    get_dummy_multiclass_scores,
+    get_dummy_tagger_aux,
+)
 
 set_log_level(logger, "DEBUG")
 
