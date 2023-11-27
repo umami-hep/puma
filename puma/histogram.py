@@ -100,9 +100,11 @@ class Histogram(PlotLineObject):
         self.sum_squared_weights = sum_squared_weights
 
         if bin_edges is None and sum_squared_weights is not None:
-            logger.warning("""The Histogram has no bin edges defined and is thus
+            logger.warning(
+                """The Histogram has no bin edges defined and is thus
                               not considered filled. Parameter `sum_squared_weights`
-                              is ignored. """)
+                              is ignored. """
+            )
 
         # This attribute allows to know how to handle the histogram later during
         # plotting
