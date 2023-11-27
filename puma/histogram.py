@@ -22,6 +22,8 @@ class Histogram(PlotLineObject):
         self,
         values: np.ndarray,
         weights: np.ndarray = None,
+        bin_edges: np.ndarray = None,
+        sum_squared_weights: np.ndarray = None,
         ratio_group: str | None = None,
         flavour: str | Flavour = None,
         add_flavour_label: bool = True,
@@ -34,12 +36,21 @@ class Histogram(PlotLineObject):
         Parameters
         ----------
         values : np.ndarray
-            Input data for the histogram
+            Input data for the histogram. If bin_edges is specified (not None)
+            then this array is treated as the bin heights.
         weights : np.ndarray, optional
             Weights for the input data. Has to be an array of same length as the input
             data with a weight for each entry. If not specified, weight 1 will be given
             to each entry. The uncertainties are calculated as the square root of the
             squared weights (for each bin separately). By default None.
+        bin_edges : np.ndarray, optional
+            If specified, the histogram is considered "filled": the array given to
+            values is treated as if it was the bin heights corresponding to these
+            bin_edges and the "weights" input is ignored. By default None.
+        sum_squared_weights : np.ndarray, optional
+            Only considered if the histogram is considered filled (i.e bin_edges
+            is specified). It is the sum_squared_weights per bin.
+            By default None.
         ratio_group : str, optional
             Name of the ratio group this histogram is compared with. The ratio group
             allows you to compare different groups of histograms within one plot.
@@ -85,6 +96,18 @@ class Histogram(PlotLineObject):
             raise ValueError("`values` and `weights` are not of same length.")
 
         self.values = values
+        self.bin_edges = bin_edges  # Important to have this defined for any histogram
+        self.sum_squared_weights = sum_squared_weights
+
+        if bin_edges is None and sum_squared_weights is not None:
+            logger.warning("""The Histogram has no bin edges defined and is thus
+                              not considered filled. Parameter `sum_squared_weights`
+                              is ignored. """)
+
+        # This attribute allows to know how to handle the histogram later during
+        # plotting
+        self.filled = bin_edges is not None
+
         self.weights = weights
         self.ratio_group = ratio_group
         self.flavour = Flavours[flavour] if isinstance(flavour, str) else flavour
@@ -94,7 +117,6 @@ class Histogram(PlotLineObject):
 
         # Set histogram attributes to None. They will be defined when the histograms
         # are plotted
-        self.bin_edges = None
         self.hist = None
         self.unc = None
         self.band = None
@@ -432,11 +454,17 @@ class HistogramPlot(PlotBase):
             elem.bin_edges, elem.hist, elem.unc, elem.band = hist_w_unc(
                 elem.values,
                 weights=elem.weights,
+                bin_edges=elem.bin_edges,
+                sum_squared_weights=elem.sum_squared_weights,
                 bins=self.bins,
+                filled=elem.filled,
                 bins_range=self.bins_range,
                 normed=self.norm,
                 underoverflow=self.underoverflow,
             )
+
+            # MAYBE CHECK HERE THAT self.bins and elem.bin_edges are
+            # equivalent for plotting or throw error!
 
             if self.discrete_vals is not None:
                 # bins are recalculated for the discrete values
