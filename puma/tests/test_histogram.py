@@ -46,7 +46,7 @@ class HistogramTestCase(unittest.TestCase):
         # duplicated in the ratio calculation (the first one is so to say not plotted)
         # Therefore, we also use duplicated bins here
         expected_ratio = np.array([3, 3, 2 / 3])
-        expected_ratio_unc = np.array([3.46410162, 3.46410162, 0.60858062])
+        expected_ratio_unc = np.array([1.73205081, 1.73205081, 0.47140452])
 
         np.testing.assert_almost_equal(expected_ratio, hist_1.divide(hist_2)[0])
         np.testing.assert_almost_equal(expected_ratio_unc, hist_1.divide(hist_2)[1])
@@ -64,7 +64,7 @@ class HistogramTestCase(unittest.TestCase):
         # duplicated in the ratio calculation (the first one is so to say not plotted)
         # Therefore, we also use duplicated bins here
         expected_ratio = np.array([2.4, 2.4, 0.53333333])
-        expected_ratio_unc = np.array([2.77128129, 2.77128129, 0.4868645])
+        expected_ratio_unc = np.array([1.38564065, 1.38564065, 0.37712362])
 
         np.testing.assert_almost_equal(expected_ratio, hist_1.divide(hist_2)[0])
         np.testing.assert_almost_equal(expected_ratio_unc, hist_1.divide(hist_2)[1])
@@ -82,7 +82,7 @@ class HistogramTestCase(unittest.TestCase):
         # duplicated in the ratio calculation (the first one is so to say not plotted)
         # Therefore, we also use duplicated bins here
         expected_ratio = np.ones(3)
-        expected_ratio_unc = np.array([0.81649658, 0.81649658, 1])
+        expected_ratio_unc = np.array([0.57735027, 0.57735027, 0.70710678])
 
         np.testing.assert_almost_equal(expected_ratio, hist_1.divide(hist_2)[0])
         np.testing.assert_almost_equal(expected_ratio_unc, hist_1.divide(hist_2)[1])
@@ -761,6 +761,55 @@ class HistogramPlotTestCase(unittest.TestCase):
         hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
         # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname}",
+                f"{self.expected_plots_dir}/{plotname}",
+                tol=1,
+            )
+        )
+
+    def test_plot_filled_hist(self):
+        bin_edges = [0, 1, 2, 3, 4, 5]
+        bin_counts = [5, 4, 7, 12, 2]
+
+        vals = [0, 1, 1, 5, 4, 2, 1, 3, 3, 5, 5, 5, 5, 5]
+
+        hist_filled = Histogram(bin_counts, bin_edges=bin_edges)
+        hist_notfilled = Histogram(vals)
+
+        hist_plot = HistogramPlot(bins=bin_edges, underoverflow=False)
+        hist_plot.add(hist_filled)
+        hist_plot.add(hist_notfilled)
+
+        hist_plot.draw()
+        plotname = "test_filled_histogram.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname}",
+                f"{self.expected_plots_dir}/{plotname}",
+                tol=1,
+            )
+        )
+
+    def test_plot_filled_hist_sumW2(self):
+        bin_edges = [0, 1, 2, 3, 4, 5]
+        bin_counts = [5, 4, 7, 12, 2]
+        sum_squared_weights = [10, 7, 12, 21, 5]
+
+        hist_plot = HistogramPlot(bins=bin_edges, underoverflow=False)
+        hist_plot.add(
+            Histogram(
+                bin_counts, bin_edges=bin_edges, sum_squared_weights=sum_squared_weights
+            )
+        )
+
+        hist_plot.draw()
+        plotname = "test_filled_histogram_sumW2.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+
         self.assertIsNone(
             compare_images(
                 f"{self.actual_plots_dir}/{plotname}",

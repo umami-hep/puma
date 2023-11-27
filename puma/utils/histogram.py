@@ -56,9 +56,12 @@ def save_divide(
 def hist_w_unc(
     arr,
     bins,
+    filled: bool = False,
     bins_range=None,
     normed: bool = True,
     weights: np.ndarray = None,
+    bin_edges: np.ndarray = None,
+    sum_squared_weights: np.ndarray = None,
     underoverflow: bool = False,
 ):
     """
@@ -115,42 +118,68 @@ def hist_w_unc(
     if np.sum(inf_mask) > 0:
         logger.warning("Histogram values contain %i +-inf values!", np.sum(inf_mask))
 
-    # Calculate the counts and the bin edges
-    counts, bin_edges = np.histogram(arr, bins=bins, range=bins_range, weights=weights)
-
-    # calculate the uncertainty with sum of squared weights (per bin, so we use
-    # np.histogram again here)
-    unc = np.sqrt(
-        np.histogram(arr, bins=bins, range=bins_range, weights=weights**2)[0]
-    )
-
-    if underoverflow:
-        # add two dummy bins (from outermost bins to +-infinity)
-        bins_with_overunderflow = np.hstack(
-            [np.array([-np.inf]), bin_edges, np.array([np.inf])]
+    # If the histogram is not already filled we need to produce the histogram counts
+    # and bin edges
+    if not filled:
+        # Calculate the counts and the bin edges
+        counts, bin_edges = np.histogram(
+            arr, bins=bins, range=bins_range, weights=weights
         )
-        # recalculate the histogram with this adjusted binning
-        counts, _ = np.histogram(arr, bins=bins_with_overunderflow, weights=weights)
-        counts[1] += counts[0]  # add underflow values to underflow bin
-        counts[-2] += counts[-1]  # add overflow values to overflow bin
-        counts = counts[1:-1]  # remove dummy bins
 
-        # calculate the sum of squared weights
-        sum_squared_weights = np.histogram(
-            arr, bins=bins_with_overunderflow, weights=weights**2
-        )[0]
-        # add sum of squared weights from under/overflow values to under/overflow bin
-        sum_squared_weights[1] += sum_squared_weights[0]
-        sum_squared_weights[-2] += sum_squared_weights[-1]
-        sum_squared_weights = sum_squared_weights[1:-1]  # remove dummy bins
+        # calculate the uncertainty with sum of squared weights (per bin, so we use
+        # np.histogram again here)
+        unc = np.sqrt(
+            np.histogram(arr, bins=bins, range=bins_range, weights=weights**2)[0]
+        )
 
-        unc = np.sqrt(sum_squared_weights)  # uncertainty is sqrt(sum_squared_weights)
+        if underoverflow:
+            # add two dummy bins (from outermost bins to +-infinity)
+            bins_with_overunderflow = np.hstack(
+                [np.array([-np.inf]), bin_edges, np.array([np.inf])]
+            )
+            # recalculate the histogram with this adjusted binning
+            counts, _ = np.histogram(arr, bins=bins_with_overunderflow, weights=weights)
+            counts[1] += counts[0]  # add underflow values to underflow bin
+            counts[-2] += counts[-1]  # add overflow values to overflow bin
+            counts = counts[1:-1]  # remove dummy bins
 
-    if normed:
-        sum_of_weights = float(np.sum(weights))
-        counts = save_divide(counts, sum_of_weights, 0)
-        unc = save_divide(unc, sum_of_weights, 0)
+            # calculate the sum of squared weights
+            sum_squared_weights = np.histogram(
+                arr, bins=bins_with_overunderflow, weights=weights**2
+            )[0]
 
+            # add sum of squared weights from under/overflow values
+            # to under/overflow bin
+            sum_squared_weights[1] += sum_squared_weights[0]
+            sum_squared_weights[-2] += sum_squared_weights[-1]
+            # remove dummy bins
+            sum_squared_weights = sum_squared_weights[1:-1]
+
+            # uncertainty is sqrt(sum_squared_weights)
+            unc = np.sqrt(sum_squared_weights)
+
+        if normed:
+            sum_of_weights = float(np.sum(weights))
+            counts = save_divide(counts, sum_of_weights, 0)
+            unc = save_divide(unc, sum_of_weights, 0)
+
+    # If the histogram is already filled then the uncertainty is computed
+    # differently
+    else:
+        if sum_squared_weights is not None:
+            sum_squared_weights = np.array(sum_squared_weights)[~nan_mask]
+            unc = np.sqrt(sum_squared_weights)
+        else:
+            unc = np.sqrt(arr)  # treat arr as bin heights (counts)
+
+        counts = arr
+
+        if normed:
+            counts_sum = float(np.sum(counts))
+            counts = save_divide(counts, counts_sum, 0)
+            unc = save_divide(unc, counts_sum, 0)
+
+    # regardless of if the histogram is filled
     band = counts - unc
     hist = counts
 
@@ -161,7 +190,6 @@ def hist_ratio(
     numerator,
     denominator,
     numerator_unc,
-    denominator_unc,
     step: bool = True,
 ):
     """
@@ -176,8 +204,6 @@ def hist_ratio(
         Denominator in the ratio calculation.
     numerator_unc : array_like
         Uncertainty of the numerator.
-    denominator_unc : array_like
-        Uncertainty of the denominator.
     step : bool
         if True duplicates first bin to match with step plotting function,
         by default True
@@ -196,40 +222,24 @@ def hist_ratio(
         If inputs don't have the same shape.
 
     """
-    numerator, denominator, numerator_unc, denominator_unc = (
+    numerator, denominator, numerator_unc = (
         np.array(numerator),
         np.array(denominator),
         np.array(numerator_unc),
-        np.array(denominator_unc),
     )
     if numerator.shape != denominator.shape:
         raise AssertionError("Numerator and denominator don't have the same legth")
     if numerator.shape != numerator_unc.shape:
         raise AssertionError("Numerator and numerator_unc don't have the same legth")
-    if denominator.shape != denominator_unc.shape:
-        raise (
-            AssertionError("Denominator and denominator_unc don't have the same legth")
-        )
     step_ratio = save_divide(numerator, denominator, 1 if step else np.inf)
 
-    # Calculate rel uncertainties
-    numerator_rel_unc = save_divide(
-        numerator_unc, numerator, default=0 if step else np.inf
-    )
-    denominator_rel_unc = save_divide(
-        denominator_unc, denominator, default=0 if step else np.inf
-    )
-
-    # Calculate rel uncertainty
-    step_rel_unc = np.sqrt(numerator_rel_unc**2 + denominator_rel_unc**2)
-
-    # Calculate final uncertainty
-    step_unc = step_ratio * step_rel_unc
+    # Calculate ratio uncertainty
+    step_unc = save_divide(numerator_unc, denominator, default=0 if step else np.inf)
 
     if step:
         # Add an extra bin in the beginning to have the same binning as the input
         # Otherwise, the ratio will not be exactly above each other (due to step)
         step_ratio = np.append(np.array([step_ratio[0]]), step_ratio)
-        step_unc = np.append(np.array([step_rel_unc[0]]), step_rel_unc) * step_ratio
+        step_unc = np.append(np.array([step_unc[0]]), step_unc)
 
     return step_ratio, step_unc
