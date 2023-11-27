@@ -16,6 +16,7 @@ can be used as a starting point for your plotting scripts.
    pie_charts.md
    line_plots.md
    high_level_api.md
+   high_level_aux_api.md
 
 
 .. include:: index.md
