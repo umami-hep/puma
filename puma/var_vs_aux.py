@@ -174,7 +174,7 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
             return np.nan, np.nan
         elif len(n_match) == 0:
             logger.warning("Your efficiency is zero -> setting error to zero.")
-            return 0., 0.
+            return 0.0, 0.0
         eff_error = eff_err(eff, len(n_match))
         return eff, eff_error
 
@@ -201,7 +201,7 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
             return np.nan, np.nan
         elif len(n_match) == 0:
             logger.warning("Your fake rate is one -> setting error to zero.")
-            return 1., 0.
+            return 1.0, 0.0
         fr_error = eff_err(fr, len(n_match))
         return fr, fr_error
 
