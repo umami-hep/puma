@@ -244,15 +244,7 @@ class HistRatioTestCase(unittest.TestCase):
         self.denominator_unc = np.array([1, 0.3, 2, 1, 5, 3])
         self.step = np.array([1.6666667, 1.6666667, 0.5, 1, 0.7142857, 0.6, 0.1666667])
         self.step_unc = np.array(
-            [
-                0.580017,
-                0.580017,
-                0.1685312,
-                1.0111874,
-                0.1059653,
-                0.3041381,
-                0.0485913,
-            ]
+            [0.16666667, 0.16666667, 0.16666667, 0.15, 0.02857143, 0.05, 0.025]
         )
 
     def test_hist_ratio(self):
@@ -261,7 +253,6 @@ class HistRatioTestCase(unittest.TestCase):
             numerator=self.numerator,
             denominator=self.denominator,
             numerator_unc=self.numerator_unc,
-            denominator_unc=self.denominator_unc,
         )
 
         np.testing.assert_almost_equal(step, self.step)
@@ -274,7 +265,6 @@ class HistRatioTestCase(unittest.TestCase):
                 numerator=np.ones(2),
                 denominator=np.ones(3),
                 numerator_unc=np.ones(3),
-                denominator_unc=np.ones(3),
             )
 
     def test_hist_not_same_length_numerator_and_unc(self):
@@ -284,15 +274,4 @@ class HistRatioTestCase(unittest.TestCase):
                 numerator=np.ones(3),
                 denominator=np.ones(3),
                 numerator_unc=np.ones(2),
-                denominator_unc=np.ones(3),
-            )
-
-    def test_hist_not_same_length_denomiantor_and_unc(self):
-        """Test case where denominator and uncertainty have not the same length."""
-        with self.assertRaises(AssertionError):
-            _, _ = hist_ratio(
-                numerator=np.ones(3),
-                denominator=np.ones(3),
-                numerator_unc=np.ones(3),
-                denominator_unc=np.ones(2),
             )
