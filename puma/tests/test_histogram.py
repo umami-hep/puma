@@ -46,7 +46,7 @@ class HistogramTestCase(unittest.TestCase):
         # duplicated in the ratio calculation (the first one is so to say not plotted)
         # Therefore, we also use duplicated bins here
         expected_ratio = np.array([3, 3, 2 / 3])
-        expected_ratio_unc = np.array([3.46410162, 3.46410162, 0.60858062])
+        expected_ratio_unc = np.array([1.73205081, 1.73205081, 0.47140452])
 
         np.testing.assert_almost_equal(expected_ratio, hist_1.divide(hist_2)[0])
         np.testing.assert_almost_equal(expected_ratio_unc, hist_1.divide(hist_2)[1])
@@ -64,7 +64,7 @@ class HistogramTestCase(unittest.TestCase):
         # duplicated in the ratio calculation (the first one is so to say not plotted)
         # Therefore, we also use duplicated bins here
         expected_ratio = np.array([2.4, 2.4, 0.53333333])
-        expected_ratio_unc = np.array([2.77128129, 2.77128129, 0.4868645])
+        expected_ratio_unc = np.array([1.38564065, 1.38564065, 0.37712362])
 
         np.testing.assert_almost_equal(expected_ratio, hist_1.divide(hist_2)[0])
         np.testing.assert_almost_equal(expected_ratio_unc, hist_1.divide(hist_2)[1])
@@ -82,7 +82,7 @@ class HistogramTestCase(unittest.TestCase):
         # duplicated in the ratio calculation (the first one is so to say not plotted)
         # Therefore, we also use duplicated bins here
         expected_ratio = np.ones(3)
-        expected_ratio_unc = np.array([0.81649658, 0.81649658, 1])
+        expected_ratio_unc = np.array([0.57735027, 0.57735027, 0.70710678])
 
         np.testing.assert_almost_equal(expected_ratio, hist_1.divide(hist_2)[0])
         np.testing.assert_almost_equal(expected_ratio_unc, hist_1.divide(hist_2)[1])

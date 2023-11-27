@@ -166,7 +166,6 @@ class Histogram(PlotLineObject):
             numerator=self.hist,
             denominator=other.hist,
             numerator_unc=self.unc,
-            denominator_unc=other.unc,
             step=False,
         )
         # To use the matplotlib.step() function later on, the first bin is duplicated
@@ -178,7 +177,6 @@ class Histogram(PlotLineObject):
     def divide_data_mc(
         self,
         ref_hist: np.ndarray,
-        ref_unc: np.ndarray,
     ) -> tuple:
         """
         Similar as divide, but the second item doesn't need to be a histogram object
@@ -201,7 +199,6 @@ class Histogram(PlotLineObject):
             numerator=self.hist,
             denominator=ref_hist,
             numerator_unc=self.unc,
-            denominator_unc=ref_unc,
             step=False,
         )
         # To use the matplotlib.step() function later on, the first bin is duplicated
@@ -718,7 +715,6 @@ class HistogramPlot(PlotBase):
 
                 ratio, ratio_unc = elem.divide_data_mc(
                     ref_hist=self.stacked_dict["band"],
-                    ref_unc=self.stacked_dict["unc"],
                 )
 
             else:
