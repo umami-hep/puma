@@ -192,7 +192,7 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         float
             Efficiency error
         """
-        fr = save_divide(1 - np.sum(n_match), np.sum(n_reco), default=np.inf)
+        fr = 1 - save_divide(np.sum(n_match), np.sum(n_reco), default=np.inf)
         if fr == np.inf:
             logger.warning("Your fake rate is infinity -> setting it to np.nan.")
             return np.nan, np.nan
