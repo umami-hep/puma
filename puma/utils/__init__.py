@@ -9,7 +9,11 @@ from palettable.colorbrewer.qualitative import Dark2_8
 from scipy.special import softmax
 
 from puma.utils.discriminant import calc_disc, calc_disc_b, calc_disc_c
-from puma.utils.generate import get_dummy_2_taggers, get_dummy_multiclass_scores
+from puma.utils.generate import (
+    get_dummy_2_taggers,
+    get_dummy_tagger_aux,
+    get_dummy_multiclass_scores,
+)
 from puma.utils.logging import logger, set_log_level
 
 
