@@ -4,7 +4,7 @@ h5py==3.10.0
 matplotlib==3.5.1
 numpy==1.26.2
 pandas[hdf5]==1.5.3
-pre-commit==3.1.1
+pre-commit==3.5.0
 pydot==1.4.2
 pytest-cov==3.0.0
 pytest-randomly==3.11.0
