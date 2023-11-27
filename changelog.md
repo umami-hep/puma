@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+- Update ratio uncertainty calculation [!225](https://github.com/umami-hep/puma/pull/225)
+- Add NaN filtering for HL plots. Bump atlas-ftag-tools version to 0.1.11. [!220](https://github.com/umami-hep/puma/pull/220)
 - Making Under- and Overflow bins default in histograms [!218](https://github.com/umami-hep/puma/pull/218)
 - Adding "bin_edges" and "sum_squared_weights" parameters to the Histogram constructor to define pre-filled histograms.
 

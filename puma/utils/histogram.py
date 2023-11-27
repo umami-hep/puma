@@ -190,7 +190,6 @@ def hist_ratio(
     numerator,
     denominator,
     numerator_unc,
-    denominator_unc,
     step: bool = True,
 ):
     """
@@ -205,8 +204,6 @@ def hist_ratio(
         Denominator in the ratio calculation.
     numerator_unc : array_like
         Uncertainty of the numerator.
-    denominator_unc : array_like
-        Uncertainty of the denominator.
     step : bool
         if True duplicates first bin to match with step plotting function,
         by default True
@@ -225,40 +222,24 @@ def hist_ratio(
         If inputs don't have the same shape.
 
     """
-    numerator, denominator, numerator_unc, denominator_unc = (
+    numerator, denominator, numerator_unc = (
         np.array(numerator),
         np.array(denominator),
         np.array(numerator_unc),
-        np.array(denominator_unc),
     )
     if numerator.shape != denominator.shape:
         raise AssertionError("Numerator and denominator don't have the same legth")
     if numerator.shape != numerator_unc.shape:
         raise AssertionError("Numerator and numerator_unc don't have the same legth")
-    if denominator.shape != denominator_unc.shape:
-        raise (
-            AssertionError("Denominator and denominator_unc don't have the same legth")
-        )
     step_ratio = save_divide(numerator, denominator, 1 if step else np.inf)
 
-    # Calculate rel uncertainties
-    numerator_rel_unc = save_divide(
-        numerator_unc, numerator, default=0 if step else np.inf
-    )
-    denominator_rel_unc = save_divide(
-        denominator_unc, denominator, default=0 if step else np.inf
-    )
-
-    # Calculate rel uncertainty
-    step_rel_unc = np.sqrt(numerator_rel_unc**2 + denominator_rel_unc**2)
-
-    # Calculate final uncertainty
-    step_unc = step_ratio * step_rel_unc
+    # Calculate ratio uncertainty
+    step_unc = save_divide(numerator_unc, denominator, default=0 if step else np.inf)
 
     if step:
         # Add an extra bin in the beginning to have the same binning as the input
         # Otherwise, the ratio will not be exactly above each other (due to step)
         step_ratio = np.append(np.array([step_ratio[0]]), step_ratio)
-        step_unc = np.append(np.array([step_rel_unc[0]]), step_rel_unc) * step_ratio
+        step_unc = np.append(np.array([step_unc[0]]), step_unc)
 
     return step_ratio, step_unc
