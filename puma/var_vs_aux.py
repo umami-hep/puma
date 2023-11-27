@@ -196,7 +196,7 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         if fr == np.inf:
             logger.warning("Your fake rate is infinity -> setting it to np.nan.")
             return np.nan, np.nan
-        fr_error = eff_err(fr, len(n_match), suppress_zero_division_error=True)
+        fr_error = eff_err(fr, len(n_match), suppress_zero_divison_error=True)
         return fr, fr_error
 
     @property
