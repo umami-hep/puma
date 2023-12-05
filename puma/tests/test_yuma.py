@@ -12,9 +12,9 @@ import yaml
 from ftag import Flavours, get_mock_file
 from ftag.hdf5 import structured_from_dict
 
-from puma.plot_ftag import main
-from puma.yuma import PlotConfig, get_signals
-from puma.yuma.yutils import get_tagger_name
+from tools.puma.puma.hlplots.plot_ftag import main
+from puma.hlplots import PlotConfig, get_signals
+from puma.hlplots.yutils import get_tagger_name
 
 
 class TestYutils(unittest.TestCase):
