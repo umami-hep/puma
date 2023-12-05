@@ -54,8 +54,6 @@ class TestYumaPlots(unittest.TestCase):
             config: str
             plots: list[str] | None
             signals: list[str] | None
-            num_jets: int = 1000
-            sample: str = "ttbar"
 
         plt_cfg = Path(__file__).parent.parent.parent / "examples/plt_cfg.yaml"
         with open(plt_cfg) as f:

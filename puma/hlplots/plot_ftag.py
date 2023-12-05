@@ -253,9 +253,6 @@ def main(args=None):
     else:
         args.signals = signals
 
-    if args.num_jets:
-        plt_cfg.num_jets = args.num_jets
-
     logger.info(f"Plotting in {plt_cfg.plot_dir_final}")
 
     for signal in args.signals:
