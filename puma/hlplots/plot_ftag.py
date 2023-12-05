@@ -7,7 +7,7 @@ import numpy as np
 from ftag import Flavours
 
 from puma.utils import logger, set_log_level
-from puma.yuma import (
+from puma.hlplots import (
     PlotConfig,
     get_included_taggers,
     get_plot_kwargs,
@@ -33,21 +33,6 @@ def get_args(args):
         "--signals",
         nargs="+",
         help="Signals to plot",
-    )
-    parser.add_argument(
-        "--sample",
-        default=None,
-        help="Sample to plot, by default all samples in config are plotted.",
-    )
-    parser.add_argument(
-        "-n",
-        "--num_jets",
-        required=False,
-        type=int,
-        help="Maximum number of jets to use in plotting, per model.",
-    )
-    parser.add_argument(
-        "-d", "--debug", action="store_true", help="Set logger level to debug."
     )
     return parser.parse_args(args)
 
@@ -274,9 +259,6 @@ def main(args=None):
         plt_cfg.num_jets = args.num_jets
 
     logger.info(f"Plotting in {plt_cfg.plot_dir_final}")
-    # if args.sample:
-    #     assert args.sample in plt_cfg.samples, f"Sample {args.sample} not in config"
-    # plt_cfg.samples = {args.sample: plt_cfg.samples[args.sample]}
 
     for signal in args.signals:
         plt_cfg.signal = signal
