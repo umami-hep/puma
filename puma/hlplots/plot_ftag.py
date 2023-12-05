@@ -232,8 +232,6 @@ def make_plots(args, plt_cfg):
 
 def main(args=None):
     args = get_args(args)
-    if args.debug:
-        set_log_level(logger, "DEBUG")
 
     # Allow selection of subset of plots, if not, plot all plots
     if args.plots:
