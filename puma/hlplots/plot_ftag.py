@@ -13,7 +13,7 @@ from puma.hlplots import (
     get_signals,
     select_configs,
 )
-from puma.utils import logger, set_log_level
+from puma.utils import logger
 
 ALL_PLOTS = ["roc", "scan", "disc", "prob", "peff"]
 
