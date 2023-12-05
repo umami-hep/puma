@@ -6,7 +6,6 @@ from pathlib import Path
 import numpy as np
 from ftag import Flavours
 
-from puma.utils import logger, set_log_level
 from puma.hlplots import (
     PlotConfig,
     get_included_taggers,
@@ -14,6 +13,7 @@ from puma.hlplots import (
     get_signals,
     select_configs,
 )
+from puma.utils import logger, set_log_level
 
 ALL_PLOTS = ["roc", "scan", "disc", "prob", "peff"]
 
