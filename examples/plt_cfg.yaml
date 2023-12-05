@@ -1,7 +1,11 @@
 plot_dir: /home/output_dir
 timestamp: False
+
 results_default:
   atlas_second_tag: $\sqrt{s} = 13.6$ TeV, MC23
+  # Required for plotting peff plots for variables with NaNs (e.g, Lxy)
+  remove_nan: True
+  num_jets: 100_000
   
 taggers_config: taggers.yaml
 taggers: 
@@ -60,6 +64,7 @@ prob_plots:
       signal: bjets
 
 eff_vs_var_plots:
+  # performance vs efficiency plots by default plot against pT
   - args:
       signal: bjets
       plot_kwargs:
@@ -76,6 +81,7 @@ eff_vs_var_plots:
       plot_kwargs:
         flat_per_bin: True
         working_point: 0.7
+  # To plot against further variables, add 'peff_var', 'bins' and (optional 'xlabel')
   - args:
       signal: bjets
       peff_var: eta
@@ -83,3 +89,18 @@ eff_vs_var_plots:
       plot_kwargs:
         flat_per_bin: False
         working_point: 0.7
+  - args:
+      signal: bjets
+      peff_var: averageInteractionsPerCrossing
+      bins: [0, 10, 20, 30, 40, 50, 60, 70, 80]
+      plot_kwargs:
+        flat_per_bin: False
+        working_point: 0.7
+  - args:
+      signal: bjets
+      peff_var: HadronConeExclTruthLabelChildLxy
+      bins: [0, 10, 20, 30, 40, 50, 60, 70, 80]
+      plot_kwargs:
+        flat_per_bin: False
+        working_point: 0.7
+      
