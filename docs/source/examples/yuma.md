@@ -5,7 +5,7 @@ YUMA (Yaml for pUMA) removes boilerplate required for making simple flavour tagg
 To create plots, after modifying the two files, run
 
 ```bash
-python puma/plot_ftag.py --config examples/plot_cfg.yaml 
+python puma/hlplots/plot_ftag.py --config examples/plot_cfg.yaml 
 ```
 
 Additional arguments can be included:
