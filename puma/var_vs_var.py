@@ -121,7 +121,6 @@ class VarVsVar(PlotLineObject):
             numerator=denom if inverse else nom,
             denominator=nom if inverse else denom,
             numerator_unc=denom_err if inverse else nom_err,
-            denominator_unc=nom_err if inverse else denom_err,
             step=False,
         )
         return (ratio, ratio_err)

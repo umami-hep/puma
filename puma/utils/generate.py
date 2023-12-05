@@ -122,3 +122,78 @@ def get_dummy_2_taggers(
         return file
 
     return df_gen
+
+
+def get_dummy_tagger_aux(
+    size: int = 9_999,
+    n_tracks: int = 40,
+    shuffle: bool = True,
+    seed: int = 42,
+    label: str = "HadronConeExclTruthLabelID",
+    vtx_label_var="truthVertexIndex",
+    vtx_reco_var="VertexIndex",
+):
+    """
+    Function to generate vertexing aux task output for a tagger, in this case
+    GN2 as well as relevant truth labels. Also includes jet level classifier
+    output and HadronConeExclTruthLabelID.
+
+
+    Parameters
+    ----------
+    size : int, optional
+        Size of dummy data, by default 9_999
+    n_tracks : int, optional
+        Number of tracks per jet in dummy data, by default 40
+    shuffle : bool, optional
+        If True shuffles the dummy data, by default True
+    seed : int, optional
+        Random seed for number generation (will count +10 for second tagger),
+        by default 42
+    label : str, optional
+        Name of the label column, by default "HadronConeExclTruthLabelID"
+    vtx_label_var : str, optional
+        Name of the truth vertex label, by default "truthVertexIndex"
+    vtx_reco_var : str, optional
+        Name of the reco vertex label, by default "VertexIndex"
+
+    Returns
+    -------
+    df_gen : file
+        h5 file with "jets" and "tracks" datasets
+    """
+    output_gn2, labels = get_dummy_multiclass_scores(
+        bjets_mean=0.9, size=size, seed=seed
+    )
+    df_gen = pd.DataFrame(s2u(output_gn2), columns=["GN2_pu", "GN2_pc", "GN2_pb"])
+    df_gen[label] = labels
+
+    rng = np.random.default_rng(seed=seed)
+    df_gen["pt"] = rng.exponential(100_000, size=len(df_gen))
+    if shuffle:
+        df_gen = df_gen.sample(frac=1).reset_index(drop=True)
+
+    df_gen["n_truth_promptLepton"] = 0
+
+    vtx_labels = np.fabs(
+        np.rint(rng.normal(loc=0, scale=10, size=(len(df_gen), n_tracks))).astype(int)
+    )
+    vtx_reco = np.fabs(
+        np.rint(rng.normal(loc=0, scale=10, size=(len(df_gen), n_tracks))).astype(int)
+    )
+    aux_dtype = np.dtype(
+        [
+            (vtx_label_var, "i4"),
+            (vtx_reco_var, "i4"),
+        ]
+    )
+    vtx_info = np.rec.fromarrays([vtx_labels, vtx_reco], dtype=aux_dtype)
+
+    fname = NamedTemporaryFile(  # pylint: disable=R1732
+        mode="w", suffix=".h5", delete=False
+    ).name
+    file = h5py.File(fname, "w")
+    file.create_dataset(name="jets", data=df_gen.to_records())
+    file.create_dataset(name="tracks", data=vtx_info)
+
+    return file

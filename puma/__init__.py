@@ -2,7 +2,7 @@
 
 # flake8: noqa
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 from puma.histogram import Histogram, HistogramPlot
 from puma.integrated_eff import IntegratedEfficiency, IntegratedEfficiencyPlot
@@ -12,6 +12,7 @@ from puma.plot_base import PlotBase, PlotLineObject, PlotObject
 from puma.roc import Roc, RocPlot
 from puma.var_vs_eff import VarVsEff, VarVsEffPlot
 from puma.var_vs_var import VarVsVar, VarVsVarPlot
+from puma.var_vs_aux import VarVsAux, VarVsAuxPlot
 
 __all__ = [
     "Histogram",
@@ -28,6 +29,8 @@ __all__ = [
     "VarVsEffPlot",
     "VarVsVar",
     "VarVsVarPlot",
+    "VarVsAux",
+    "VarVsAuxPlot",
     "IntegratedEfficiency",
     "IntegratedEfficiencyPlot",
 ]

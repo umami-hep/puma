@@ -1,13 +1,10 @@
 atlasify==0.8.0
-black==23.1.0
-ruff==0.0.254
 coverage==6.3.1
-h5py==3.8.0
-librep==0.0.5
+h5py==3.10.0
 matplotlib==3.5.1
-numpy==1.24.*
+numpy==1.24.4
 pandas[hdf5]==1.5.3
-pre-commit==3.1.1
+pre-commit==3.5.0
 pydot==1.4.2
 pytest-cov==3.0.0
 pytest-randomly==3.11.0
