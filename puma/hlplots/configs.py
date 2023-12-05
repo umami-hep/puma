@@ -113,7 +113,7 @@ class PlotConfig:
         sample_cuts = Cuts.from_list(self.sample.get("cuts", []))
         results_default["global_cuts"] = results_default["global_cuts"] + sample_cuts
 
-        results = Results(**results_defaults)
+        results = Results(**results_default)
 
         good_colours = get_good_colours()
         col_idx = 0
