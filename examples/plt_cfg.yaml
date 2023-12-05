@@ -6,7 +6,7 @@ results_default:
   # Required for plotting peff plots for variables with NaNs (e.g, Lxy)
   remove_nan: True
   num_jets: 100_000
-  
+
 taggers_config: taggers.yaml
 taggers: 
   - dummy1
