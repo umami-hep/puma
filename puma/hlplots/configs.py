@@ -8,8 +8,8 @@ import yaml
 from ftag import Cuts
 
 from puma.hlplots import Results, Tagger
+from puma.hlplots.yutils import get_tagger_name
 from puma.utils import get_good_colours
-from puma.yuma.yutils import get_tagger_name
 
 
 @dataclass
@@ -35,7 +35,7 @@ class PlotConfig:
 
     signal: str = None
 
-    num_jets: int = None
+    # num_jets: int = None
 
     results: Results = None
     default_second_atlas_tag: str = None
@@ -100,24 +100,21 @@ class PlotConfig:
             "atlas_first_tag": "Simulation Internal",
             "atlas_second_tag": r"$\sqrt{s} = 13.0 $ TeV",
             "global_cuts": Cuts.empty(),
+            'sample' : self.sample['name'],
+            'perf_var' : perf_var,
+            'signal' : self.signal,
+            
         }
         results_default.update(self.results_default)
-
         results_default["atlas_second_tag"] += "\n" + self.sample.get("str", "")
+
         # Store default tag incase other plots need to temporarily modify it
         self.default_second_atlas_tag = results_default["atlas_second_tag"]
-
         sample_cuts = Cuts.from_list(self.sample.get("cuts", []))
         results_default["global_cuts"] = results_default["global_cuts"] + sample_cuts
 
         results = Results(
-            atlas_first_tag="Simulation Internal",
-            atlas_second_tag=self.default_second_atlas_tag,
-            signal=self.signal,
-            sample=self.sample["name"],
-            perf_var=perf_var,
-            global_cuts=sample_cuts,
-            num_jets=self.num_jets,
+            **results_default
         )
 
         good_colours = get_good_colours()
