@@ -90,8 +90,8 @@ class TestYumaPlots(unittest.TestCase):
             assert btagging.exists(), "No b-tagging plots produced"
             assert not ctagging.exists(), "No c-tagging plots should have been produced"
             btag_plots = [p.name for p in btagging.glob("*")]
-            assert len(btag_plots) == 19, (
-                "Only expected 19 b-tagging plot, found " + len(btag_plots)
+            assert len(btag_plots) == 22, (
+                f"Expected 22 b-tagging plot, found {len(btag_plots)}"
             )
 
             args = [
@@ -107,5 +107,5 @@ class TestYumaPlots(unittest.TestCase):
             ctag_plots = [p.name for p in ctagging.glob("*")]
             assert ctagging.exists(), "No c-tagging plots produced"
             assert len(ctag_plots) == 1, (
-                "Only expected one c-tagging plot, found " + len(ctag_plots)
+                f"Only expected one c-tagging plot, found {len(ctag_plots)}"
             )
