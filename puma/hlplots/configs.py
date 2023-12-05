@@ -101,10 +101,9 @@ class PlotConfig:
             "atlas_first_tag": "Simulation Internal",
             "atlas_second_tag": r"$\sqrt{s} = 13.0 $ TeV",
             "global_cuts": Cuts.empty(),
-            'sample' : self.sample['name'],
-            'perf_var' : perf_var,
-            'signal' : self.signal,
-            
+            "sample": self.sample["name"],
+            "perf_var": perf_var,
+            "signal": self.signal,
         }
         results_default.update(self.results_default)
         results_default["atlas_second_tag"] += "\n" + self.sample.get("str", "")
@@ -114,9 +113,7 @@ class PlotConfig:
         sample_cuts = Cuts.from_list(self.sample.get("cuts", []))
         results_default["global_cuts"] = results_default["global_cuts"] + sample_cuts
 
-        results = Results(
-            **results_defaults
-        )
+        results = Results(**results_defaults)
 
         good_colours = get_good_colours()
         col_idx = 0

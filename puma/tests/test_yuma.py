@@ -11,9 +11,9 @@ import h5py
 import yaml
 from ftag import Flavours, get_mock_file
 from ftag.hdf5 import structured_from_dict
-from puma.hlplots.plot_ftag import main
 
 from puma.hlplots import PlotConfig, get_signals
+from puma.hlplots.plot_ftag import main
 from puma.hlplots.yutils import get_tagger_name
 
 
@@ -92,9 +92,9 @@ class TestYumaPlots(unittest.TestCase):
             assert btagging.exists(), "No b-tagging plots produced"
             assert not ctagging.exists(), "No c-tagging plots should have been produced"
             btag_plots = [p.name for p in btagging.glob("*")]
-            assert (
-                len(btag_plots) == 19
-            ), "Only expected 19 b-tagging plot, found " + len(btag_plots)
+            assert len(btag_plots) == 19, (
+                "Only expected 19 b-tagging plot, found " + len(btag_plots)
+            )
 
             args = [
                 "--config",
@@ -108,6 +108,6 @@ class TestYumaPlots(unittest.TestCase):
 
             ctag_plots = [p.name for p in ctagging.glob("*")]
             assert ctagging.exists(), "No c-tagging plots produced"
-            assert (
-                len(ctag_plots) == 1
-            ), "Only expected one c-tagging plot, found " + len(ctag_plots)
+            assert len(ctag_plots) == 1, (
+                "Only expected one c-tagging plot, found " + len(ctag_plots)
+            )
