@@ -34,7 +34,6 @@ class Results:
     atlas_first_tag: str = "Simulation Internal"
     atlas_second_tag: str = None
     taggers: dict = field(default_factory=dict)
-    sig_eff: float = None
     perf_var: str = "pt"
     output_dir: str | Path = "."
     extension: str = "png"
@@ -383,6 +382,7 @@ class Results:
 
     def plot_rocs(
         self,
+        sig_effs: np.ndarray,
         suffix: str | None = None,
         args_roc_plot: dict | None = None,
     ):
@@ -403,7 +403,6 @@ class Results:
             "atlas_second_tag": self.atlas_second_tag,
             "y_scale": 1.3,
         }
-        # TODO: update in python 3.9
         if args_roc_plot is not None:
             roc_plot_args.update(args_roc_plot)
         plot_roc = RocPlot(**roc_plot_args)
@@ -414,11 +413,11 @@ class Results:
                 rej = calc_rej(
                     discs[tagger.is_flav(self.signal)],
                     discs[tagger.is_flav(background)],
-                    self.sig_eff,
+                    sig_effs,
                 )
                 plot_roc.add_roc(
                     Roc(
-                        self.sig_eff,
+                        sig_effs,
                         rej,
                         n_test=tagger.n_jets(background),
                         rej_class=background,
