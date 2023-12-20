@@ -385,7 +385,7 @@ class Results:
         self,
         sig_effs: np.ndarray | None = None,
         suffix: str | None = None,
-        args_roc_plot: dict | None = None,
+        **roc_kwargs,
     ):
         """Plots rocs.
 
@@ -395,7 +395,7 @@ class Results:
             signal efficiencies, by default None
         suffix : str, optional
             suffix to add to output file name, by default None
-        args_roc_plot: dict, optional
+        roc_kwargs: dict, optional
             key word arguments being passed to `RocPlot`
         """
         if sig_effs is None:
@@ -408,8 +408,8 @@ class Results:
             "atlas_second_tag": self.atlas_second_tag,
             "y_scale": 1.3,
         }
-        if args_roc_plot is not None:
-            roc_plot_args.update(args_roc_plot)
+        if roc_kwargs is not None:
+            roc_plot_args.update(roc_kwargs)
         plot_roc = RocPlot(**roc_plot_args)
 
         for tagger in self.taggers.values():
