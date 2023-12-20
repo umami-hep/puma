@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Consistent fc scan colours [!228](https://github.com/umami-hep/puma/pull/228)
 - Add tools for plotting vertexing performance. [!216](https://github.com/umami-hep/puma/pull/216) 
 
 ### [v0.3.1] (2023/11/27)
