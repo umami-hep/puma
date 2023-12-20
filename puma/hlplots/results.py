@@ -383,7 +383,7 @@ class Results:
 
     def plot_rocs(
         self,
-        sig_effs: np.ndarray,
+        sig_effs: np.ndarray | None = None,
         suffix: str | None = None,
         args_roc_plot: dict | None = None,
     ):
@@ -391,11 +391,15 @@ class Results:
 
         Parameters
         ----------
+        sig_effs : np.ndarray, optional
+            signal efficiencies, by default None
         suffix : str, optional
             suffix to add to output file name, by default None
         args_roc_plot: dict, optional
             key word arguments being passed to `RocPlot`
         """
+        if sig_effs is None:
+            sig_effs = np.linspace(0.5, 1.0, 100)
         roc_plot_args = {
             "n_ratio_panels": len(self.backgrounds),
             "ylabel": "Background rejection",
