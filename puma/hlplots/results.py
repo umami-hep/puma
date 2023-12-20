@@ -153,6 +153,7 @@ class Results:
         # load data
         reader = H5Reader(file_path, precision="full")
         data = reader.load({key: var_list}, num_jets)[key]
+
         # check for nan values
         data = check_nan(data)
 
@@ -573,15 +574,14 @@ class Results:
         h_line: float | None = None,
         **kwargs,
     ):
-        """Plot signal efficiency as a function of a variable, with a fixed enforce
-        background rejection for each bin
-
+        """Plot signal efficiency as a function of a variable, with a fixed
+        background rejection for each bin.
 
         Parameters
         ----------
         fixed_rejections : dict[Flavour, float]
             A dictionary of the fixed background rejections for each flavour, eg:
-            fixed_rejections = {cjets : 0.1, ujets : 0.01}
+            fixed_rejections = {'cjets' : 0.1, 'ujets' : 0.01}
         suffix : str, optional
             suffix to add to output file name, by default None
         xlabel : regexp, optional
@@ -597,6 +597,10 @@ class Results:
         assert all(
             [b.name in fixed_rejections for b in self.backgrounds]
         ), "Not all backgrounds have a fixed rejection"
+        if "disc_cut" in kwargs:
+            raise ValueError("disc_cut should not be set for this plot")
+        if "working_point" in kwargs:
+            raise ValueError("working_point should not be set for this plot")
         plot_bkg = []
         for background in self.backgrounds:
             modified_second_tag = (
@@ -616,11 +620,6 @@ class Results:
                 )
             )
         for tagger in self.taggers.values():
-            if "disc_cut" in kwargs:
-                raise ValueError("disc_cut should not be set for this plot")
-            if "working_point" in kwargs:
-                raise ValueError("working_point should not be set for this plot")
-
             discs = tagger.discriminant(self.signal)
             is_signal = tagger.is_flav(self.signal)
             for i, background in enumerate(self.backgrounds):
