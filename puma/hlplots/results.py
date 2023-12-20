@@ -21,7 +21,7 @@ from puma import (
 )
 from puma.hlplots.tagger import Tagger
 from puma.metrics import calc_eff, calc_rej
-from puma.utils import get_good_linestyles, logger
+from puma.utils import get_good_colours, get_good_linestyles, logger
 
 
 @dataclass
@@ -700,16 +700,17 @@ class Results:
         tag += f"{self.signal.eff_str} = {efficiency:.0%}"
         plot = Line2DPlot(atlas_second_tag=tag, **kwargs)
         eff_or_rej = calc_eff if not rej else calc_rej
-        for tagger in self.taggers.values():
+        colours = get_good_colours()
+        for i, tagger in enumerate(self.taggers.values()):
             xs = np.zeros(len(fxs))
             ys = np.zeros(len(fxs))
             sig_idx = tagger.is_flav(self.signal)
             bkg_1_idx = tagger.is_flav(self.backgrounds[0])
             bkg_2_idx = tagger.is_flav(self.backgrounds[1])
-            for i, fx in enumerate(fxs):
+            for j, fx in enumerate(fxs):
                 disc = tagger.discriminant(self.signal, fx=fx)
-                xs[i] = eff_or_rej(disc[sig_idx], disc[bkg_1_idx], efficiency)
-                ys[i] = eff_or_rej(disc[sig_idx], disc[bkg_2_idx], efficiency)
+                xs[j] = eff_or_rej(disc[sig_idx], disc[bkg_1_idx], efficiency)
+                ys[j] = eff_or_rej(disc[sig_idx], disc[bkg_2_idx], efficiency)
 
             # add curve for this tagger
             tagger_fx = tagger.f_c if self.signal == Flavours.bjets else tagger.f_b
@@ -718,7 +719,7 @@ class Results:
                     x_values=xs,
                     y_values=ys,
                     label=f"{tagger.label} ($f_x={tagger_fx}$)",
-                    colour=tagger.colour,
+                    colour=tagger.colour if tagger.colour else colours[i],
                 )
             )
 
