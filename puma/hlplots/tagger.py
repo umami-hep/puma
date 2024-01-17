@@ -95,7 +95,7 @@ class Tagger:
         -------
         str
             Aux output variable name of the tagger for specified task type
-        
+
         Raises
         ------
         ValueError
@@ -109,7 +109,7 @@ class Tagger:
         elif aux_type == "track_origin":
             return f"{self.name}_TrackOrigin"
         else:
-            raise ValueError(f"{aux_type} is not a valid value for `aux_type`.")      
+            raise ValueError(f"{aux_type} is not a valid value for `aux_type`.")
 
     def extract_tagger_scores(
         self, source: object, source_type: str = "data_frame", key: str | None = None
