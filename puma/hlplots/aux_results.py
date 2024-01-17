@@ -72,15 +72,15 @@ class AuxResults(Results):
         var_list += sum([t.cuts.variables for t in taggers if t.cuts is not None], [])
         var_list = list(set(var_list + [self.perf_var]))
 
-        aux_var_list = [tagger.aux_variables(self.aux_type) for tagger in taggers] + [aux_label_var]
+        aux_var_list = [tagger.aux_variables(self.aux_type) for tagger in taggers] + [
+            aux_label_var
+        ]
 
         # load data
         reader = H5Reader(file_path, precision="full")
         data = reader.load({key: var_list}, num_jets)[key]
         aux_reader = H5Reader(file_path, precision="full", jets_name="tracks")
-        aux_data = aux_reader.load({aux_key: aux_var_list}, num_jets)[
-            aux_key
-        ]
+        aux_data = aux_reader.load({aux_key: aux_var_list}, num_jets)[aux_key]
 
         # apply common cuts
         if cuts:
@@ -109,7 +109,9 @@ class AuxResults(Results):
                     sel_aux_data[aux_label_var],
                 )
             else:
-                raise ValueError(f"{self.aux_type} is not a valid value for `aux_type`.")  
+                raise ValueError(
+                    f"{self.aux_type} is not a valid value for `aux_type`."
+                )
 
             # attach data to tagger objects
             tagger.labels = np.array(sel_data[label_var], dtype=[(label_var, "i4")])
@@ -126,14 +128,17 @@ class AuxResults(Results):
 
 class VtxResults(AuxResults):
     """Store information about several taggers and plot vertexing results.
-    Class wrapper for AuxResults."""
+    Class wrapper for AuxResults.
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.aux_type = "vertexing"
 
-    def add_taggers_from_file(self, taggers: list[Tagger], file_path: Path | str, **kwargs):
-        kwargs.setdefault('aux_label_var', 'ftagTruthVertexIndex')
+    def add_taggers_from_file(
+        self, taggers: list[Tagger], file_path: Path | str, **kwargs
+    ):
+        kwargs.setdefault("aux_label_var", "ftagTruthVertexIndex")
         super().add_taggers_from_file(taggers, file_path, **kwargs)
 
     def plot_var_vtx_eff(
