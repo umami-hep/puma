@@ -78,5 +78,5 @@ class GetDummyTaggerAuxTestCase(unittest.TestCase):
     def test_columns(self):
         """Check correct amount of columns for jets and tracks."""
         _, file = get_dummy_tagger_aux()
-        self.assertEqual(len(file["jets"][0]), 7)
+        self.assertEqual(len(file["jets"][0]), 8)
         self.assertEqual(len(file["tracks"][0][0]), 2)
