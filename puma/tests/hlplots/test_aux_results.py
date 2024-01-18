@@ -7,64 +7,59 @@ import unittest
 from pathlib import Path
 
 import numpy as np
-from ftag import get_mock_file
 
-from puma.hlplots import AuxResults
+from puma.hlplots import VtxResults
 from puma.hlplots.tagger import Tagger
-from puma.utils import logger, set_log_level
+from puma.utils import logger, set_log_level, get_dummy_tagger_aux
 from puma.utils.vertexing import calculate_vertex_metrics
 
 set_log_level(logger, "DEBUG")
 
 
-class AuxResultsTestCase(unittest.TestCase):
-    """Test class for the AuxResults class."""
+class VtxResultsTestCase(unittest.TestCase):
+    """Test class for the VtxResults class."""
 
     def test_add_taggers_from_file(self):
         """Test for Results.add_taggers_from_file function."""
         np.random.default_rng(seed=16)
-        fname = get_mock_file()[0]
-        results = AuxResults(signal="bjets", sample="test")
-        taggers = [Tagger("MockTagger")]
+        fname = get_dummy_tagger_aux()[0]
+        results = VtxResults(signal="bjets", sample="test")
+        taggers = [Tagger("GN2")]
         results.add_taggers_from_file(
             taggers,
             fname,
-            vtx_label_var="numberOfPixelHits",
-            vtx_reco_var="numberOfSCTHits",
         )
         self.assertEqual(list(results.taggers.values()), taggers)
 
     def test_add_taggers_with_cuts(self):
         np.random.default_rng(seed=16)
-        fname = get_mock_file()[0]
+        fname = get_dummy_tagger_aux()[0]
         cuts = [("eta", ">", 0)]
         tagger_cuts = [("pt", ">", 20)]
-        results = AuxResults(signal="bjets", sample="test")
-        taggers = [Tagger("MockTagger", cuts=tagger_cuts)]
+        results = VtxResults(signal="bjets", sample="test")
+        taggers = [Tagger("GN2", cuts=tagger_cuts)]
         results.add_taggers_from_file(
             taggers,
             fname,
-            vtx_label_var="numberOfPixelHits",
-            vtx_reco_var="numberOfSCTHits",
             cuts=cuts,
         )
         self.assertEqual(list(results.taggers.values()), taggers)
 
 
-class AuxResultsPlotsTestCase(unittest.TestCase):
-    """Test class for the AuxResults class running plots."""
+class VtxResultsPlotsTestCase(unittest.TestCase):
+    """Test class for the VtxResults class running plots."""
 
     def setUp(self) -> None:
         """Set up for unit tests."""
-        f = get_mock_file()[1]
-        dummy_tagger_1 = Tagger("MockTagger")
+        f = get_dummy_tagger_aux()[1]
+        dummy_tagger_1 = Tagger("GN2")
         dummy_tagger_1.labels = np.array(
             f["jets"]["HadronConeExclTruthLabelID"],
             dtype=[("HadronConeExclTruthLabelID", "i4")],
         )
         dummy_tagger_1.aux_metrics = calculate_vertex_metrics(
-            f["tracks"]["numberOfPixelHits"],
-            f["tracks"]["numberOfSCTHits"],
+            f["tracks"]["ftagTruthVertexIndex"],
+            f["tracks"]["GN2_VertexIndex"],
         )
         dummy_tagger_1.perf_var = f["jets"]["pt"]
         dummy_tagger_1.scores = f["jets"]
@@ -92,34 +87,34 @@ class AuxResultsPlotsTestCase(unittest.TestCase):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
         with tempfile.TemporaryDirectory() as tmp_file:
-            auxresults = AuxResults(signal="bjets", sample="test", output_dir=tmp_file)
-            auxresults.add(self.dummy_tagger_1)
-            auxresults.plot_var_vtx_eff()
-            self.assertIsFile(auxresults.get_filename("vtx_eff_vs_pt"))
+            vtxresults = VtxResults(signal="bjets", sample="test", output_dir=tmp_file)
+            vtxresults.add(self.dummy_tagger_1)
+            vtxresults.plot_var_vtx_eff()
+            self.assertIsFile(vtxresults.get_filename("vtx_eff_vs_pt"))
 
     def test_plot_var_vtx_fr(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
         with tempfile.TemporaryDirectory() as tmp_file:
-            auxresults = AuxResults(signal="bjets", sample="test", output_dir=tmp_file)
-            auxresults.add(self.dummy_tagger_1)
-            auxresults.plot_var_vtx_fr()
-            self.assertIsFile(auxresults.get_filename("vtx_fr_vs_pt"))
+            vtxresults = VtxResults(signal="bjets", sample="test", output_dir=tmp_file)
+            vtxresults.add(self.dummy_tagger_1)
+            vtxresults.plot_var_vtx_fr()
+            self.assertIsFile(vtxresults.get_filename("vtx_fr_vs_pt"))
 
     def test_plot_var_vtx_trk_eff(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
         with tempfile.TemporaryDirectory() as tmp_file:
-            auxresults = AuxResults(signal="bjets", sample="test", output_dir=tmp_file)
-            auxresults.add(self.dummy_tagger_1)
-            auxresults.plot_var_vtx_trk_eff()
-            self.assertIsFile(auxresults.get_filename("vtx_trk_eff_vs_pt"))
+            vtxresults = VtxResults(signal="bjets", sample="test", output_dir=tmp_file)
+            vtxresults.add(self.dummy_tagger_1)
+            vtxresults.plot_var_vtx_trk_eff()
+            self.assertIsFile(vtxresults.get_filename("vtx_trk_eff_vs_pt"))
 
     def test_plot_var_vtx_trk_fr(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
         with tempfile.TemporaryDirectory() as tmp_file:
-            auxresults = AuxResults(signal="bjets", sample="test", output_dir=tmp_file)
-            auxresults.add(self.dummy_tagger_1)
-            auxresults.plot_var_vtx_trk_fr()
-            self.assertIsFile(auxresults.get_filename("vtx_trk_fr_vs_pt"))
+            vtxresults = VtxResults(signal="bjets", sample="test", output_dir=tmp_file)
+            vtxresults.add(self.dummy_tagger_1)
+            vtxresults.plot_var_vtx_trk_fr()
+            self.assertIsFile(vtxresults.get_filename("vtx_trk_fr_vs_pt"))

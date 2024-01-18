@@ -94,7 +94,7 @@ def associate_vertices(test_vertices, ref_vertices):
 
 
 def calculate_vertex_metrics(
-    test_indices, ref_indices, max_vertices=20, ignore_indices=None
+    test_indices, ref_indices, max_vertices=20, remove_ref_pv=True
 ):
     """
     Vertex metric calculator that outputs a set of metrics useful for evaluating
@@ -110,9 +110,9 @@ def calculate_vertex_metrics(
         as reference (truth).
     max_vertices: int, optional
         Maximum number of matched vertices to write out, by default 20.
-    ignore_indices: list, optional
-        List of vertex IDs to ignore, by default None. Negative indices
-        are always ignored.
+    remove_ref_pv: bool, optional
+        Flag to remove PV from reference vertices, by default True. Vertex index of
+        PV is assumed to be 0.
 
     Returns
     -------
@@ -148,9 +148,12 @@ def calculate_vertex_metrics(
     metrics["test_vertex_size"] = np.full((n_jets, max_vertices), -1)
     metrics["ref_vertex_size"] = np.full((n_jets, max_vertices), -1)
 
+    if remove_ref_pv: ignore_indices = [0]
+    else: ignore_indices = None
+
     for i in range(n_jets):
         ref_vertices = build_vertices(ref_indices[i], ignore_indices=ignore_indices)
-        test_vertices = build_vertices(test_indices[i], ignore_indices=ignore_indices)
+        test_vertices = build_vertices(test_indices[i])
 
         # handle edge cases
         if not ref_vertices.any() and not test_vertices.any():

@@ -130,8 +130,7 @@ def get_dummy_tagger_aux(
     shuffle: bool = True,
     seed: int = 42,
     label: str = "HadronConeExclTruthLabelID",
-    vtx_label_var="truthVertexIndex",
-    vtx_reco_var="VertexIndex",
+    vtx_label_var: str = "ftagTruthVertexIndex",
 ):
     """
     Function to generate vertexing aux task output for a tagger, in this case
@@ -153,9 +152,7 @@ def get_dummy_tagger_aux(
     label : str, optional
         Name of the label column, by default "HadronConeExclTruthLabelID"
     vtx_label_var : str, optional
-        Name of the truth vertex label, by default "truthVertexIndex"
-    vtx_reco_var : str, optional
-        Name of the reco vertex label, by default "VertexIndex"
+        Name of the truth vertex label, by default "ftagTruthVertexIndex"
 
     Returns
     -------
@@ -170,6 +167,7 @@ def get_dummy_tagger_aux(
 
     rng = np.random.default_rng(seed=seed)
     df_gen["pt"] = rng.exponential(100_000, size=len(df_gen))
+    df_gen["eta"] = rng.normal(0, 2, size=len(df_gen))
     if shuffle:
         df_gen = df_gen.sample(frac=1).reset_index(drop=True)
 
@@ -184,7 +182,7 @@ def get_dummy_tagger_aux(
     aux_dtype = np.dtype(
         [
             (vtx_label_var, "i4"),
-            (vtx_reco_var, "i4"),
+            ("GN2_VertexIndex", "i4"),
         ]
     )
     vtx_info = np.rec.fromarrays([vtx_labels, vtx_reco], dtype=aux_dtype)
@@ -196,4 +194,4 @@ def get_dummy_tagger_aux(
     file.create_dataset(name="jets", data=df_gen.to_records())
     file.create_dataset(name="tracks", data=vtx_info)
 
-    return file
+    return fname, file
