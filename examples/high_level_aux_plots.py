@@ -1,7 +1,7 @@
 """Produce aux task plots from tagger output and labels."""
 from __future__ import annotations
 
-from puma.hlplots import VtxResults, Tagger
+from puma.hlplots import Tagger, VtxResults
 from puma.utils import get_dummy_tagger_aux, logger
 
 # The line below generates dummy data which is similar to a NN output

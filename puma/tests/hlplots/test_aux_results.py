@@ -10,7 +10,7 @@ import numpy as np
 
 from puma.hlplots import VtxResults
 from puma.hlplots.tagger import Tagger
-from puma.utils import logger, set_log_level, get_dummy_tagger_aux
+from puma.utils import get_dummy_tagger_aux, logger, set_log_level
 from puma.utils.vertexing import calculate_vertex_metrics
 
 set_log_level(logger, "DEBUG")

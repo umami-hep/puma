@@ -148,8 +148,7 @@ def calculate_vertex_metrics(
     metrics["test_vertex_size"] = np.full((n_jets, max_vertices), -1)
     metrics["ref_vertex_size"] = np.full((n_jets, max_vertices), -1)
 
-    if remove_ref_pv: ignore_indices = [0]
-    else: ignore_indices = None
+    ignore_indices = [0] if remove_ref_pv else None
 
     for i in range(n_jets):
         ref_vertices = build_vertices(ref_indices[i], ignore_indices=ignore_indices)
