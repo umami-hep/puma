@@ -43,7 +43,6 @@ results.add_taggers_from_file(
     num_jets=len(file["jets"]),
 )
 
-results.sig_eff = np.linspace(0.6, 0.95, 20)
 results.atlas_second_tag = (
     "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$, $20$ GeV $< p_{T} <250$ GeV"
 )
@@ -58,7 +57,7 @@ results.plot_discs(logy=True, wp_vlines=[60, 85], suffix="log")
 
 # ROC curves
 logger.info("Plotting ROC curves.")
-results.plot_rocs()
+results.plot_rocs(np.linspace(0.6, 0.95, 20))
 
 # eff/rej vs. variable plots
 logger.info("Plotting efficiency/rejection vs pT curves.")

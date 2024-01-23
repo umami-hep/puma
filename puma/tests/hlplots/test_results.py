@@ -218,7 +218,6 @@ class ResultsPlotsTestCase(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
-            results.sig_eff = np.linspace(0.6, 0.95, 20)
             results.plot_rocs()
             self.assertIsFile(results.get_filename("roc"))
 
@@ -229,8 +228,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="cjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
-            results.sig_eff = np.linspace(0.2, 0.95, 20)
-            results.plot_rocs()
+            results.plot_rocs(fontsize=5)
             self.assertIsFile(results.get_filename("roc"))
 
     def test_plot_var_perf_err(self):

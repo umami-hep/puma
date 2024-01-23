@@ -21,7 +21,7 @@ from puma import (
 )
 from puma.hlplots.tagger import Tagger
 from puma.metrics import calc_eff, calc_rej
-from puma.utils import get_good_linestyles, logger
+from puma.utils import get_good_colours, get_good_linestyles, logger
 
 
 @dataclass
@@ -34,7 +34,6 @@ class Results:
     atlas_first_tag: str = "Simulation Internal"
     atlas_second_tag: str = None
     taggers: dict = field(default_factory=dict)
-    sig_eff: float = None
     perf_var: str = "pt"
     output_dir: str | Path = "."
     extension: str = "png"
@@ -201,6 +200,7 @@ class Results:
         # load data
         reader = H5Reader(file_path, precision="full")
         data = reader.load({key: var_list}, num_jets)[key]
+
         # check for nan values
         data = check_nan(data)
 
@@ -429,16 +429,25 @@ class Results:
         )
         histo.savefig(self.get_filename("disc", suffix))
 
-    def plot_rocs(self, suffix: str | None = None, **kwargs):
+    def plot_rocs(
+        self,
+        sig_effs: np.ndarray | None = None,
+        suffix: str | None = None,
+        **roc_kwargs,
+    ):
         """Plots rocs.
 
         Parameters
         ----------
+        sig_effs : np.ndarray, optional
+            signal efficiencies, by default None
         suffix : str, optional
             suffix to add to output file name, by default None
-        args_roc_plot: dict, optional
+        roc_kwargs: dict, optional
             key word arguments being passed to `RocPlot`
         """
+        if sig_effs is None:
+            sig_effs = np.linspace(0.5, 1.0, 100)
         roc_plot_args = {
             "n_ratio_panels": len(self.backgrounds),
             "ylabel": "Background rejection",
@@ -447,9 +456,8 @@ class Results:
             "atlas_second_tag": self.atlas_second_tag,
             "y_scale": 1.3,
         }
-        # TODO: update in python 3.9
-        if kwargs is not None:
-            roc_plot_args.update(kwargs)
+        if roc_kwargs is not None:
+            roc_plot_args.update(roc_kwargs)
         plot_roc = RocPlot(**roc_plot_args)
 
         for tagger in self.taggers.values():
@@ -458,11 +466,11 @@ class Results:
                 rej = calc_rej(
                     discs[tagger.is_flav(self.signal)],
                     discs[tagger.is_flav(background)],
-                    self.sig_eff,
+                    sig_effs,
                 )
                 plot_roc.add_roc(
                     Roc(
-                        self.sig_eff,
+                        sig_effs,
                         rej,
                         n_test=tagger.n_jets(background),
                         rej_class=background,
@@ -622,15 +630,14 @@ class Results:
         h_line: float | None = None,
         **kwargs,
     ):
-        """Plot signal efficiency as a function of a variable, with a fixed enforce
-        background rejection for each bin
-
+        """Plot signal efficiency as a function of a variable, with a fixed
+        background rejection for each bin.
 
         Parameters
         ----------
         fixed_rejections : dict[Flavour, float]
             A dictionary of the fixed background rejections for each flavour, eg:
-            fixed_rejections = {cjets : 0.1, ujets : 0.01}
+            fixed_rejections = {'cjets' : 0.1, 'ujets' : 0.01}
         suffix : str, optional
             suffix to add to output file name, by default None
         xlabel : regexp, optional
@@ -646,6 +653,10 @@ class Results:
         assert all(
             [b.name in fixed_rejections for b in self.backgrounds]
         ), "Not all backgrounds have a fixed rejection"
+        if "disc_cut" in kwargs:
+            raise ValueError("disc_cut should not be set for this plot")
+        if "working_point" in kwargs:
+            raise ValueError("working_point should not be set for this plot")
         plot_bkg = []
         for background in self.backgrounds:
             modified_second_tag = (
@@ -665,11 +676,6 @@ class Results:
                 )
             )
         for tagger in self.taggers.values():
-            if "disc_cut" in kwargs:
-                raise ValueError("disc_cut should not be set for this plot")
-            if "working_point" in kwargs:
-                raise ValueError("working_point should not be set for this plot")
-
             discs = tagger.discriminant(self.signal)
             is_signal = tagger.is_flav(self.signal)
             for i, background in enumerate(self.backgrounds):
@@ -748,16 +754,17 @@ class Results:
         tag += f"{self.signal.eff_str} = {efficiency:.0%}"
         plot = Line2DPlot(atlas_second_tag=tag, **kwargs)
         eff_or_rej = calc_eff if not rej else calc_rej
-        for tagger in self.taggers.values():
+        colours = get_good_colours()
+        for i, tagger in enumerate(self.taggers.values()):
             xs = np.zeros(len(fxs))
             ys = np.zeros(len(fxs))
             sig_idx = tagger.is_flav(self.signal)
             bkg_1_idx = tagger.is_flav(self.backgrounds[0])
             bkg_2_idx = tagger.is_flav(self.backgrounds[1])
-            for i, fx in enumerate(fxs):
+            for j, fx in enumerate(fxs):
                 disc = tagger.discriminant(self.signal, fx=fx)
-                xs[i] = eff_or_rej(disc[sig_idx], disc[bkg_1_idx], efficiency)
-                ys[i] = eff_or_rej(disc[sig_idx], disc[bkg_2_idx], efficiency)
+                xs[j] = eff_or_rej(disc[sig_idx], disc[bkg_1_idx], efficiency)
+                ys[j] = eff_or_rej(disc[sig_idx], disc[bkg_2_idx], efficiency)
 
             # add curve for this tagger
             tagger_fx = tagger.f_c if self.signal == Flavours.bjets else tagger.f_b
@@ -766,7 +773,7 @@ class Results:
                     x_values=xs,
                     y_values=ys,
                     label=f"{tagger.label} ($f_x={tagger_fx}$)",
-                    colour=tagger.colour,
+                    colour=tagger.colour if tagger.colour else colours[i],
                 )
             )
 

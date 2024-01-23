@@ -66,8 +66,6 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         ValueError
             If provided options are not compatible with each other
         """
-        # TODO: in python 3.10 add multipe type operator | for bins and disc_cut
-
         if len(x_var_sig) != len(disc_sig):
             raise ValueError(
                 f"Length of `x_var_sig` ({len(x_var_sig)}) and `disc_sig` "
