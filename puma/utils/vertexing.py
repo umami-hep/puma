@@ -107,8 +107,8 @@ def calculate_vertex_metrics(
     ref_indices,
     max_vertices=20,
     remove_ref_pv=True,
-    eff_cut=0.65,
-    purity_cut=0.5,
+    eff_req=0.65,
+    purity_req=0.5,
 ):
     """
     Vertex metric calculator that outputs a set of metrics useful for evaluating
@@ -185,8 +185,8 @@ def calculate_vertex_metrics(
         associations, common_tracks = associate_vertices(
             test_vertices,
             ref_vertices,
-            eff_cut=eff_cut,
-            purity_cut=purity_cut,
+            eff_req=eff_req,
+            purity_req=purity_req,
         )
 
         # write out vertexing efficiency metrics
