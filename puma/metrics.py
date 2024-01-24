@@ -38,8 +38,7 @@ def weighted_percentile(
     weights = weights[ix]  # sort weights
     cdf = np.cumsum(weights) - 0.5 * weights
     cdf -= cdf[0]
-    cdf /= cdf[-1]
-    return np.interp(perc, cdf, data)
+    return np.interp(perc*cdf[-1], cdf, data)
 
 
 def calc_eff(
