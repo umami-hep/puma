@@ -33,12 +33,14 @@ def weighted_percentile(
     """
     if weights is None:
         weights = np.ones_like(data)
+    dtype = np.float64 if np.sum(weights) > 1000000 else np.float32
     ix = np.argsort(data)
     data = data[ix]  # sort data
     weights = weights[ix]  # sort weights
-    cdf = np.cumsum(weights) - 0.5 * weights
+    cdf = np.cumsum(weights, dtype=dtype) - 0.5 * weights
     cdf -= cdf[0]
-    return np.interp(perc*cdf[-1], cdf, data)
+    cdf /= cdf[-1]
+    return np.interp(perc, cdf, data)
 
 
 def calc_eff(
