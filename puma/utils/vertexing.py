@@ -38,7 +38,7 @@ def build_vertices(vertex_ids, ignore_indices=None):
     return vertices
 
 
-def associate_vertices(test_vertices, ref_vertices):
+def associate_vertices(test_vertices, ref_vertices, eff_req, purity_req):
     """
     Vertex associator that maps two collections of vertices onto
     each other 1-to-1 based on the highest overlap of track indices
@@ -55,6 +55,10 @@ def associate_vertices(test_vertices, ref_vertices):
     ref_vertices: np.ndarray
         Boolean array of shape (n_ref_vertices, n_tracks) containing track-vertex
         associations for vertex collection to use as reference (truth).
+    eff_req: float, optional
+        Minimum required efficiency for vertex matching.
+    purity_req: float, optional
+        Minimum required purity for vertex matching.
 
     Returns
     -------
@@ -91,15 +95,20 @@ def associate_vertices(test_vertices, ref_vertices):
     associations[common_tracks == 0] = False  # remove leftover pairs with zero matches
 
     # enforce purity and efficiency requirements
-    efficiency_req = common_tracks * inv_ref_size > 0.65
-    purity_req = common_tracks * inv_test_size > 0.5
-    associations = np.logical_and.reduce((associations, efficiency_req, purity_req))
+    eff_cut = common_tracks * inv_ref_size > eff_req
+    purity_cut = common_tracks * inv_test_size > purity_req
+    associations = np.logical_and.reduce((associations, eff_cut, purity_cut))
 
     return associations, common_tracks
 
 
 def calculate_vertex_metrics(
-    test_indices, ref_indices, max_vertices=20, remove_ref_pv=True
+    test_indices,
+    ref_indices,
+    max_vertices=20,
+    remove_ref_pv=True,
+    eff_cut=0.65,
+    purity_cut=0.5,
 ):
     """
     Vertex metric calculator that outputs a set of metrics useful for evaluating
@@ -118,6 +127,10 @@ def calculate_vertex_metrics(
     remove_ref_pv: bool, optional
         Flag to remove PV from reference vertices, by default True. Vertex index of
         PV is assumed to be 0.
+    eff_req: float, optional
+        Minimum required efficiency for vertex matching, by default 0.65.
+    purity_req: float, optional
+        Minimum required purity for vertex matching, by default 0.5.
 
     Returns
     -------
@@ -169,7 +182,12 @@ def calculate_vertex_metrics(
             metrics["n_ref"][i] = ref_vertices.shape[0]
             continue
 
-        associations, common_tracks = associate_vertices(test_vertices, ref_vertices)
+        associations, common_tracks = associate_vertices(
+            test_vertices,
+            ref_vertices,
+            eff_cut=eff_cut,
+            purity_cut=purity_cut,
+        )
 
         # write out vertexing efficiency metrics
         metrics["n_match"][i] = np.sum(associations)

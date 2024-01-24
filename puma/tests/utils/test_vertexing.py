@@ -215,7 +215,12 @@ class CalculateVertexMetricsTestCase(unittest.TestCase):
         indices1 = np.array([[0, 1, 0, 2, 2]])
         indices2 = np.array([[0, 0, 0, 1, 1]])
         metrics = calculate_vertex_metrics(
-            indices1, indices2, max_vertices=2, remove_ref_pv=True
+            indices1,
+            indices2,
+            max_vertices=2,
+            remove_ref_pv=True,
+            eff_cut=0.0,
+            purity_cut=0.0,
         )
         np.testing.assert_array_equal(metrics["n_match"], [1])
         np.testing.assert_array_equal(metrics["n_test"], [2])
@@ -229,7 +234,12 @@ class CalculateVertexMetricsTestCase(unittest.TestCase):
         indices1 = np.array([[0, 1, 2, 3, 4]])
         indices2 = np.array([[0, 1, 2, 3, 4]])
         metrics = calculate_vertex_metrics(
-            indices1, indices2, max_vertices=2, remove_ref_pv=False
+            indices1,
+            indices2,
+            max_vertices=2,
+            remove_ref_pv=False,
+            eff_cut=0.0,
+            purity_cut=0.0,
         )
         np.testing.assert_array_equal(metrics["n_match"], [0])
         np.testing.assert_array_equal(metrics["n_test"], [0])
@@ -243,7 +253,12 @@ class CalculateVertexMetricsTestCase(unittest.TestCase):
         indices1 = np.array([[0, 1, 2, 3, 4]])
         indices2 = np.array([[0, 1, 2, 2, 3]])
         metrics = calculate_vertex_metrics(
-            indices1, indices2, max_vertices=2, remove_ref_pv=False
+            indices1,
+            indices2,
+            max_vertices=2,
+            remove_ref_pv=False,
+            eff_cut=0.0,
+            purity_cut=0.0,
         )
         np.testing.assert_array_equal(metrics["n_match"], [0])
         np.testing.assert_array_equal(metrics["n_test"], [0])
@@ -257,7 +272,12 @@ class CalculateVertexMetricsTestCase(unittest.TestCase):
         indices1 = np.array([[0, 0, 1, 2, 3]])
         indices2 = np.array([[0, 1, 2, 3, 4]])
         metrics = calculate_vertex_metrics(
-            indices1, indices2, max_vertices=2, remove_ref_pv=False
+            indices1,
+            indices2,
+            max_vertices=2,
+            remove_ref_pv=False,
+            eff_cut=0.0,
+            purity_cut=0.0,
         )
         np.testing.assert_array_equal(metrics["n_match"], [0])
         np.testing.assert_array_equal(metrics["n_test"], [1])
@@ -271,7 +291,12 @@ class CalculateVertexMetricsTestCase(unittest.TestCase):
         indices1 = np.array([[0, 0, 1, 2, 3]])
         indices2 = np.array([[0, 1, 2, 2, 3]])
         metrics = calculate_vertex_metrics(
-            indices1, indices2, max_vertices=2, remove_ref_pv=False
+            indices1,
+            indices2,
+            max_vertices=2,
+            remove_ref_pv=False,
+            eff_cut=0.0,
+            purity_cut=0.0,
         )
         np.testing.assert_array_equal(metrics["n_match"], [0])
         np.testing.assert_array_equal(metrics["n_test"], [1])
@@ -285,7 +310,12 @@ class CalculateVertexMetricsTestCase(unittest.TestCase):
         indices1 = np.array([[0, 0, 1, 2, 2]])
         indices2 = np.array([[0, 0, 0, 1, 2]])
         metrics = calculate_vertex_metrics(
-            indices1, indices2, max_vertices=2, remove_ref_pv=False
+            indices1,
+            indices2,
+            max_vertices=2,
+            remove_ref_pv=False,
+            eff_cut=0.0,
+            purity_cut=0.0,
         )
         np.testing.assert_array_equal(metrics["n_match"], [1])
         np.testing.assert_array_equal(metrics["n_test"], [2])
@@ -299,7 +329,12 @@ class CalculateVertexMetricsTestCase(unittest.TestCase):
         indices1 = np.array([[0, 0, 1, 1, 0, 1, 2, 2, 3]])
         indices2 = np.array([[0, 1, 0, 2, 0, 2, 3, 3, 1]])
         metrics = calculate_vertex_metrics(
-            indices1, indices2, max_vertices=3, remove_ref_pv=False
+            indices1,
+            indices2,
+            max_vertices=3,
+            remove_ref_pv=False,
+            eff_cut=0.0,
+            purity_cut=0.0,
         )
         np.testing.assert_array_equal(metrics["n_match"], [3])
         np.testing.assert_array_equal(metrics["n_test"], [3])
