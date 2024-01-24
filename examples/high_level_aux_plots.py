@@ -36,12 +36,12 @@ vtx_results.atlas_second_tag = (
     "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$, $20$ GeV $< p_{T} <250$ GeV"
 )
 
-# vertexing efficiency and fake rate
-logger.info("Plotting vertexing efficiency and fake rate.")
+# vertexing efficiency and purity
+logger.info("Plotting vertexing efficiency and purity.")
 vtx_results.plot_var_vtx_eff()
-vtx_results.plot_var_vtx_fr()
+vtx_results.plot_var_vtx_purity()
 
-# track to vertex association efficiency and fake rate
-logger.info("Plotting track to vertex association efficiency and fake rate.")
+# track to vertex association efficiency and purity
+logger.info("Plotting track to vertex association efficiency and purity.")
 vtx_results.plot_var_vtx_trk_eff()
-vtx_results.plot_var_vtx_trk_fr()
+vtx_results.plot_var_vtx_trk_purity()

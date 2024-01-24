@@ -155,7 +155,7 @@ class VtxResults(AuxResults):
             xlabel=xlabel,
             logy=False,
             atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=self.signal.label,
+            atlas_second_tag=self.atlas_second_tag,
             y_scale=1.4,
         )
 
@@ -180,7 +180,7 @@ class VtxResults(AuxResults):
         plot_details = f"vtx_eff_vs_{x_var}"
         plot_vtx_eff.savefig(self.get_filename(plot_details, suffix))
 
-    def plot_var_vtx_fr(
+    def plot_var_vtx_purity(
         self,
         suffix: str | None = None,
         xlabel: str = r"$p_{T}$ [GeV]",
@@ -188,20 +188,20 @@ class VtxResults(AuxResults):
         **kwargs,
     ):
         # define the curves
-        plot_vtx_fr = VarVsAuxPlot(
-            mode="fake_rate",
-            ylabel="Vertexing fake rate",
+        plot_vtx_purity = VarVsAuxPlot(
+            mode="purity",
+            ylabel="Vertexing purity",
             xlabel=xlabel,
             logy=False,
             atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=self.signal.label,
+            atlas_second_tag=self.atlas_second_tag,
             y_scale=1.4,
         )
 
         for tagger in self.taggers.values():
             is_signal = tagger.is_flav(self.signal)
 
-            plot_vtx_fr.add(
+            plot_vtx_purity.add(
                 VarVsAux(
                     x_var=tagger.perf_var[is_signal],
                     n_match=tagger.aux_metrics["n_match"][is_signal],
@@ -214,10 +214,10 @@ class VtxResults(AuxResults):
                 reference=tagger.reference,
             )
 
-        plot_vtx_fr.draw()
+        plot_vtx_purity.draw()
 
-        plot_details = f"vtx_fr_vs_{x_var}"
-        plot_vtx_fr.savefig(self.get_filename(plot_details, suffix))
+        plot_details = f"vtx_purity_vs_{x_var}"
+        plot_vtx_purity.savefig(self.get_filename(plot_details, suffix))
 
     def plot_var_vtx_trk_eff(
         self,
@@ -233,7 +233,7 @@ class VtxResults(AuxResults):
             xlabel=xlabel,
             logy=False,
             atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=self.signal.label,
+            atlas_second_tag=self.atlas_second_tag,
             y_scale=1.4,
         )
 
@@ -271,7 +271,7 @@ class VtxResults(AuxResults):
         plot_details = f"vtx_trk_eff_vs_{x_var}"
         plot_vtx_eff.savefig(self.get_filename(plot_details, suffix))
 
-    def plot_var_vtx_trk_fr(
+    def plot_var_vtx_trk_purity(
         self,
         suffix: str | None = None,
         xlabel: str = r"$p_{T}$ [GeV]",
@@ -279,13 +279,13 @@ class VtxResults(AuxResults):
         **kwargs,
     ):
         # define the curves
-        plot_vtx_eff = VarVsAuxPlot(
-            mode="fake_rate",
-            ylabel="Track-vertex association fake rate",
+        plot_vtx_purity = VarVsAuxPlot(
+            mode="purity",
+            ylabel="Track-vertex association purity",
             xlabel=xlabel,
             logy=False,
             atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=self.signal.label,
+            atlas_second_tag=self.atlas_second_tag,
             y_scale=1.4,
         )
 
@@ -293,7 +293,7 @@ class VtxResults(AuxResults):
             is_signal = tagger.is_flav(self.signal)
             include_sum = tagger.aux_metrics["track_overlap"][is_signal] >= 0
 
-            plot_vtx_eff.add(
+            plot_vtx_purity.add(
                 VarVsAux(
                     x_var=tagger.perf_var[is_signal],
                     n_match=np.sum(
@@ -318,7 +318,7 @@ class VtxResults(AuxResults):
                 reference=tagger.reference,
             )
 
-        plot_vtx_eff.draw()
+        plot_vtx_purity.draw()
 
-        plot_details = f"vtx_trk_fr_vs_{x_var}"
-        plot_vtx_eff.savefig(self.get_filename(plot_details, suffix))
+        plot_details = f"vtx_trk_purity_vs_{x_var}"
+        plot_vtx_purity.savefig(self.get_filename(plot_details, suffix))

@@ -24,22 +24,21 @@ within the `AuxResults` class once a tagger is added and all relevant metrics fo
 
 ## Vertexing metrics vs a variable
 
-Event level vertexing efficiency and fake rate plots vs a jet level variable can be produced as shown in
+Event level vertexing efficiency and purity plots vs a jet level variable can be produced as shown in
 ```py
 §§§examples/high_level_aux_plots.py:39:42§§§
 ```
 Here, efficiency represents the number of reconstructed vertices across all jets that were matched to a truth
-vertex over the total number of truth vertices. The fake rate represents the difference between the total
-number of reconstructed vertices and the number that were matched to a truth vertex over the total number
-of reconstructed vertices across all jets.
+vertex over the total number of truth vertices. The purity represents the number of matched vertices over the
+total number of reconstructed vertices across all jets.
 
 
 ## Track to vertex association metrics vs a variable
-One can also produce track to vertex association efficiency and fake rate plots vs a jet level variable
+One can also produce track to vertex association efficiency and purity plots vs a jet level variable
 as follows:
 ```py
 §§§examples/high_level_aux_plots.py:44:47§§§
 ```
-These plots represent a way to measure vertex purity. Efficiency and fake rate are defined in analogy to
+These plots represent a way to measure vertex purity. Efficiency and purity are defined in analogy to
 the corresponding jet level quantities, but in this case with regards to the correct and incorrect track
 associations within each pair of matched vertices.

@@ -178,8 +178,8 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         eff_error = eff_err(eff, len(n_match))
         return eff, eff_error
 
-    def get_fake_rate(self, n_match: np.ndarray, n_reco: np.ndarray):
-        """Calculate classification fake rate and the associated error.
+    def get_purity(self, n_match: np.ndarray, n_reco: np.ndarray):
+        """Calculate classification purity and the associated error.
 
         Parameters
         ----------
@@ -195,15 +195,15 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         float
             Efficiency error
         """
-        fr = 1 - save_divide(np.sum(n_match), np.sum(n_reco), default=np.inf)
-        if fr == np.inf:
-            logger.warning("Your fake rate is infinity -> setting it to np.nan.")
+        purity = save_divide(np.sum(n_match), np.sum(n_reco), default=np.inf)
+        if purity == np.inf:
+            logger.warning("Your purity is infinity -> setting it to np.nan.")
             return np.nan, np.nan
         elif len(n_match) == 0:
-            logger.warning("Your fake rate is one -> setting error to zero.")
-            return 1.0, 0.0
-        fr_error = eff_err(fr, len(n_match))
-        return fr, fr_error
+            logger.warning("Your purity is zero -> setting error to zero.")
+            return 0.0, 0.0
+        fr_error = eff_err(purity, len(n_match))
+        return purity, fr_error
 
     @property
     def efficiency(self):
@@ -222,19 +222,19 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         return np.array(eff)[:, 0], np.array(eff)[:, 1]
 
     @property
-    def fake_rate(self):
-        """Calculate signal efficiency per bin.
+    def purity(self):
+        """Calculate signal purity per bin.
 
         Returns
         -------
         np.ndarray
-            Efficiency
+            Purity
         np.ndarray
-            Efficiency_error
+            Purity_error
         """
-        logger.debug("Calculating fake rate.")
-        fr = list(map(self.get_fake_rate, self.match_binned, self.reco_binned))
-        logger.debug("Retrieved fake rate: %s", fr)
+        logger.debug("Calculating purity.")
+        fr = list(map(self.get_purity, self.match_binned, self.reco_binned))
+        logger.debug("Retrieved purity: %s", fr)
         return np.array(fr)[:, 0], np.array(fr)[:, 1]
 
     def __eq__(self, other):
@@ -255,14 +255,14 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         Parameters
         ----------
         mode : str
-            Can be "efficiency" or "fake_rate"
+            Can be "efficiency" or "purity"
 
         Returns
         -------
         np.ndarray
-            Efficiency or fake rate depending on `mode` value
+            Efficiency or purity depending on `mode` value
         np.ndarray
-            Efficiency or fake rate error depending on `mode` value
+            Efficiency or purity error depending on `mode` value
 
         Raises
         ------
@@ -272,8 +272,8 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         # TODO: python 3.10 switch to cases syntax
         if mode == "efficiency":
             return self.efficiency
-        if mode == "fake_rate":
-            return self.fake_rate
+        if mode == "purity":
+            return self.purity
         raise ValueError(
             f"The selected mode {mode} is not supported. Use one of the following:"
             f" {VarVsAuxPlot.mode_options}."
@@ -285,7 +285,7 @@ class VarVsAuxPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
 
     mode_options: ClassVar[list[str]] = [
         "efficiency",
-        "fake_rate",
+        "purity",
     ]
 
     def __init__(self, mode, grid: bool = False, **kwargs) -> None:
@@ -297,7 +297,7 @@ class VarVsAuxPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
             Defines which quantity is plotted, the following options ar available:
                 efficiency - Plots signal efficiency vs. variable, with statistical
                     error on N signal per bin
-                fake_rate - Plots background efficiency vs. variable, with statistical
+                purity - Plots background efficiency vs. variable, with statistical
                     error on N background per bin
         grid : bool, optional
             Set the grid for the plots.

@@ -90,6 +90,11 @@ def associate_vertices(test_vertices, ref_vertices):
         associations[metric == -1] = False  # remove pairs that were already excluded
     associations[common_tracks == 0] = False  # remove leftover pairs with zero matches
 
+    # enforce purity and efficiency requirements
+    efficiency_req = common_tracks*inv_ref_size > 0.65
+    purity_req = common_tracks*inv_test_size > 0.5
+    associations = np.logical_and.reduce((associations, efficiency_req, purity_req))
+
     return associations, common_tracks
 
 

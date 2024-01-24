@@ -143,7 +143,7 @@ class AssociateVerticesTestCase(unittest.TestCase):
 
     def test_association_condition3(self):
         """Check case where associations are made based on
-        lowest fake rate (tiebreaker 2).
+        highest purity (tiebreaker 2).
         """
         vertices1 = np.array(
             [

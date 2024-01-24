@@ -110,7 +110,7 @@ class VarVsAuxTestCase(unittest.TestCase):
             n_reco=self.n_reco,
             bins=1,
         )
-        mode_options = ["efficiency", "fake_rate"]
+        mode_options = ["efficiency", "purity"]
         for mode in mode_options:
             var_plot.get(mode)
 
@@ -147,7 +147,7 @@ class VarVsAuxPlotTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             VarVsAuxPlot(
                 mode="test",
-                ylabel="Aux fake rate",
+                ylabel="Aux purity",
                 xlabel=r"$p_{T}$ [GeV]",
                 logy=True,
                 atlas_second_tag="test",
@@ -204,8 +204,8 @@ class VarVsAuxPlotTestCase(unittest.TestCase):
         #     ),
         # )
 
-    def test_var_vs_aux_plot_mode_fake_rate(self):
-        """Test aux output plot - fake rate."""
+    def test_var_vs_aux_plot_mode_purity(self):
+        """Test aux output plot - purity."""
         # define the curves
         tagger1 = VarVsAux(
             x_var=self.x_var,
@@ -225,8 +225,8 @@ class VarVsAuxPlotTestCase(unittest.TestCase):
         )
 
         plot_fr = VarVsAuxPlot(
-            mode="fake_rate",
-            ylabel="Aux fake rate",
+            mode="purity",
+            ylabel="Aux purity",
             xlabel=r"$p_{T}$ [GeV]",
             logy=True,
             y_scale=1.5,
@@ -238,7 +238,7 @@ class VarVsAuxPlotTestCase(unittest.TestCase):
 
         plot_fr.draw()
 
-        plotname = "test_aux_fake_rate.png"
+        plotname = "test_aux_purity.png"
         plot_fr.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
         # plot_fr.savefig(f"{self.expected_plots_dir}/{plotname}")
