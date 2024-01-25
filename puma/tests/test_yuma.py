@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import tempfile
 import unittest
-from dataclasses import dataclass
 from pathlib import Path
 
 import h5py
@@ -14,7 +13,7 @@ from ftag.hdf5 import structured_from_dict
 
 from puma.hlplots import PlotConfig, get_signals
 from puma.hlplots.plot_ftag import main
-from puma.hlplots.yutils import get_tagger_name, get_included_taggers
+from puma.hlplots.yutils import get_tagger_name
 
 
 class TestYutils(unittest.TestCase):
@@ -28,7 +27,7 @@ class TestYutils(unittest.TestCase):
             plt_cfg = yaml.safe_load(f)
         with open(taggers) as f:
             taggers = yaml.safe_load(f)
-        
+
         with tempfile.TemporaryDirectory() as tmp_file:
             fpath1, file = get_mock_file(fname=(Path(tmp_file) / "file1.h5").as_posix())
             taggers["tagger_defaults"]["sample_path"] = fpath1
@@ -36,10 +35,9 @@ class TestYutils(unittest.TestCase):
             updated_taggers = Path(tmp_file) / "taggers.yaml"
             updated_plt_cfg = Path(tmp_file) / "plt_cfg.yaml"
 
-            
-            plt_cfg["roc_plots"][0]['reference'] = "dummyNot"
-            plt_cfg["roc_plots"][0]['include_taggers'] = ['dummy1']
-            
+            plt_cfg["roc_plots"][0]["reference"] = "dummyNot"
+            plt_cfg["roc_plots"][0]["include_taggers"] = ["dummy1"]
+
             plt_cfg["taggers_config"] = updated_taggers.as_posix()
             plt_cfg["plot_dir"] = tmp_file + "/plots"
 
@@ -48,10 +46,9 @@ class TestYutils(unittest.TestCase):
                 yaml.dump(taggers, f)
             with open(updated_plt_cfg, "w") as f:
                 yaml.dump(plt_cfg, f)
-            
+
             args = ["--config", updated_plt_cfg.as_posix(), "--signals", "bjets"]
             main(args)
-
 
     def testGetTaggerName(self):
         fpath, file = get_mock_file()
@@ -81,13 +78,11 @@ class TestYutils(unittest.TestCase):
 
 class TestYumaPlots(unittest.TestCase):
     def testArgs(self):
-        args = ["--config", "config.yaml", "--signals", "bjets", '--plots', 'not_valid']
+        args = ["--config", "config.yaml", "--signals", "bjets", "--plots", "not_valid"]
         with self.assertRaises(ValueError):
             main(args)
-        
-        
-    def testAllPlots(self):
 
+    def testAllPlots(self):
         plt_cfg = Path(__file__).parent.parent.parent / "examples/plt_cfg.yaml"
         with open(plt_cfg) as f:
             plt_cfg = yaml.safe_load(f)
@@ -145,8 +140,8 @@ class TestYumaPlots(unittest.TestCase):
 
             args = ["--config", updated_plt_cfg.as_posix()]
             main(args)
-    def testNoPlots(self):
 
+    def testNoPlots(self):
         plt_cfg = Path(__file__).parent.parent.parent / "examples/plt_cfg.yaml"
         with open(plt_cfg) as f:
             plt_cfg = yaml.safe_load(f)
@@ -165,9 +160,13 @@ class TestYumaPlots(unittest.TestCase):
             updated_plt_cfg = Path(tmp_file) / "plt_cfg.yaml"
             plt_cfg["taggers_config"] = updated_taggers.as_posix()
             plt_cfg["plot_dir"] = tmp_file + "/plots"
-            for plot_type in ['fracscan_plots', 'disc_plots', 'prob_plots',
-                              'eff_vs_var_plots']:
-                plt_cfg[plot_type] = [] 
+            for plot_type in [
+                "fracscan_plots",
+                "disc_plots",
+                "prob_plots",
+                "eff_vs_var_plots",
+            ]:
+                plt_cfg[plot_type] = []
             # write the yaml files
             with open(updated_taggers, "w") as f:
                 yaml.dump(taggers, f)
@@ -187,5 +186,3 @@ class TestYumaPlots(unittest.TestCase):
             assert (
                 len(btag_plots) == 3
             ), f"Expected 3 b-tagging plot, found {len(btag_plots)}"
-
-
