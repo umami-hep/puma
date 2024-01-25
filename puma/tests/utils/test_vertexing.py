@@ -87,7 +87,7 @@ class AssociateVerticesTestCase(unittest.TestCase):
         )
         expected_assoc = np.array([[False]])
         expected_common = np.array([[0]])
-        assoc, common = associate_vertices(vertices1, vertices2)
+        assoc, common = associate_vertices(vertices1, vertices2, 0.0, 0.0)
         np.testing.assert_array_equal(assoc, expected_assoc)
         np.testing.assert_array_equal(common, expected_common)
 
@@ -111,7 +111,7 @@ class AssociateVerticesTestCase(unittest.TestCase):
             ]
         )
         expected_common = np.array([[2], [1]])
-        assoc, common = associate_vertices(vertices1, vertices2)
+        assoc, common = associate_vertices(vertices1, vertices2, 0.0, 0.0)
         np.testing.assert_array_equal(assoc, expected_assoc)
         np.testing.assert_array_equal(common, expected_common)
 
@@ -137,7 +137,7 @@ class AssociateVerticesTestCase(unittest.TestCase):
             ]
         )
         expected_common = np.array([[2], [2]])
-        assoc, common = associate_vertices(vertices1, vertices2)
+        assoc, common = associate_vertices(vertices1, vertices2, 0.0, 0.0)
         np.testing.assert_array_equal(assoc, expected_assoc)
         np.testing.assert_array_equal(common, expected_common)
 
@@ -158,7 +158,7 @@ class AssociateVerticesTestCase(unittest.TestCase):
         )
         expected_assoc = np.array([[True, False]])
         expected_common = np.array([[2, 2]])
-        assoc, common = associate_vertices(vertices1, vertices2)
+        assoc, common = associate_vertices(vertices1, vertices2, 0.0, 0.0)
         np.testing.assert_array_equal(assoc, expected_assoc)
         np.testing.assert_array_equal(common, expected_common)
 
@@ -184,7 +184,7 @@ class AssociateVerticesTestCase(unittest.TestCase):
             ]
         )
         expected_common = np.array([[2], [2]])
-        assoc, common = associate_vertices(vertices1, vertices2)
+        assoc, common = associate_vertices(vertices1, vertices2, 0.0, 0.0)
         np.testing.assert_array_equal(assoc, expected_assoc)
         np.testing.assert_array_equal(common, expected_common)
 
@@ -202,7 +202,7 @@ class AssociateVerticesTestCase(unittest.TestCase):
         )
         expected_assoc = np.array([[True]])
         expected_common = np.array([[2]])
-        assoc, common = associate_vertices(vertices1, vertices2)
+        assoc, common = associate_vertices(vertices1, vertices2, 0.0, 0.0)
         np.testing.assert_array_equal(assoc, expected_assoc)
         np.testing.assert_array_equal(common, expected_common)
 

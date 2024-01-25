@@ -92,14 +92,14 @@ class VtxResultsPlotsTestCase(unittest.TestCase):
             vtxresults.plot_var_vtx_eff()
             self.assertIsFile(vtxresults.get_filename("vtx_eff_vs_pt"))
 
-    def test_plot_var_vtx_fr(self):
+    def test_plot_var_vtx_purity(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
         with tempfile.TemporaryDirectory() as tmp_file:
             vtxresults = VtxResults(signal="bjets", sample="test", output_dir=tmp_file)
             vtxresults.add(self.dummy_tagger_1)
-            vtxresults.plot_var_vtx_fr()
-            self.assertIsFile(vtxresults.get_filename("vtx_fr_vs_pt"))
+            vtxresults.plot_var_vtx_purity()
+            self.assertIsFile(vtxresults.get_filename("vtx_purity_vs_pt"))
 
     def test_plot_var_vtx_trk_eff(self):
         """Test that png file is being created."""
@@ -110,11 +110,11 @@ class VtxResultsPlotsTestCase(unittest.TestCase):
             vtxresults.plot_var_vtx_trk_eff()
             self.assertIsFile(vtxresults.get_filename("vtx_trk_eff_vs_pt"))
 
-    def test_plot_var_vtx_trk_fr(self):
+    def test_plot_var_vtx_trk_purity(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
         with tempfile.TemporaryDirectory() as tmp_file:
             vtxresults = VtxResults(signal="bjets", sample="test", output_dir=tmp_file)
             vtxresults.add(self.dummy_tagger_1)
-            vtxresults.plot_var_vtx_trk_fr()
-            self.assertIsFile(vtxresults.get_filename("vtx_trk_fr_vs_pt"))
+            vtxresults.plot_var_vtx_trk_purity()
+            self.assertIsFile(vtxresults.get_filename("vtx_trk_purity_vs_pt"))
