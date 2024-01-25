@@ -202,8 +202,8 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         elif len(n_match) == 0:
             logger.warning("Your purity is zero -> setting error to zero.")
             return 0.0, 0.0
-        fr_error = eff_err(purity, len(n_match))
-        return purity, fr_error
+        purity_error = eff_err(purity, len(n_match))
+        return purity, purity_error
 
     @property
     def efficiency(self):
@@ -233,9 +233,9 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
             Purity_error
         """
         logger.debug("Calculating purity.")
-        fr = list(map(self.get_purity, self.match_binned, self.reco_binned))
-        logger.debug("Retrieved purity: %s", fr)
-        return np.array(fr)[:, 0], np.array(fr)[:, 1]
+        purity = list(map(self.get_purity, self.match_binned, self.reco_binned))
+        logger.debug("Retrieved purity: %s", purity)
+        return np.array(purity)[:, 0], np.array(purity)[:, 1]
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
