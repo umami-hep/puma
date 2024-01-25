@@ -219,8 +219,8 @@ class CalculateVertexMetricsTestCase(unittest.TestCase):
             indices2,
             max_vertices=2,
             remove_ref_pv=True,
-            eff_cut=0.0,
-            purity_cut=0.0,
+            eff_req=0.0,
+            purity_req=0.0,
         )
         np.testing.assert_array_equal(metrics["n_match"], [1])
         np.testing.assert_array_equal(metrics["n_test"], [2])
@@ -238,8 +238,8 @@ class CalculateVertexMetricsTestCase(unittest.TestCase):
             indices2,
             max_vertices=2,
             remove_ref_pv=False,
-            eff_cut=0.0,
-            purity_cut=0.0,
+            eff_req=0.0,
+            purity_req=0.0,
         )
         np.testing.assert_array_equal(metrics["n_match"], [0])
         np.testing.assert_array_equal(metrics["n_test"], [0])
@@ -257,8 +257,8 @@ class CalculateVertexMetricsTestCase(unittest.TestCase):
             indices2,
             max_vertices=2,
             remove_ref_pv=False,
-            eff_cut=0.0,
-            purity_cut=0.0,
+            eff_req=0.0,
+            purity_req=0.0,
         )
         np.testing.assert_array_equal(metrics["n_match"], [0])
         np.testing.assert_array_equal(metrics["n_test"], [0])
@@ -276,8 +276,8 @@ class CalculateVertexMetricsTestCase(unittest.TestCase):
             indices2,
             max_vertices=2,
             remove_ref_pv=False,
-            eff_cut=0.0,
-            purity_cut=0.0,
+            eff_req=0.0,
+            purity_req=0.0,
         )
         np.testing.assert_array_equal(metrics["n_match"], [0])
         np.testing.assert_array_equal(metrics["n_test"], [1])
@@ -295,8 +295,8 @@ class CalculateVertexMetricsTestCase(unittest.TestCase):
             indices2,
             max_vertices=2,
             remove_ref_pv=False,
-            eff_cut=0.0,
-            purity_cut=0.0,
+            eff_req=0.0,
+            purity_req=0.0,
         )
         np.testing.assert_array_equal(metrics["n_match"], [0])
         np.testing.assert_array_equal(metrics["n_test"], [1])
@@ -314,8 +314,8 @@ class CalculateVertexMetricsTestCase(unittest.TestCase):
             indices2,
             max_vertices=2,
             remove_ref_pv=False,
-            eff_cut=0.0,
-            purity_cut=0.0,
+            eff_req=0.0,
+            purity_req=0.0,
         )
         np.testing.assert_array_equal(metrics["n_match"], [1])
         np.testing.assert_array_equal(metrics["n_test"], [2])
@@ -333,8 +333,8 @@ class CalculateVertexMetricsTestCase(unittest.TestCase):
             indices2,
             max_vertices=3,
             remove_ref_pv=False,
-            eff_cut=0.0,
-            purity_cut=0.0,
+            eff_req=0.0,
+            purity_req=0.0,
         )
         np.testing.assert_array_equal(metrics["n_match"], [3])
         np.testing.assert_array_equal(metrics["n_test"], [3])
