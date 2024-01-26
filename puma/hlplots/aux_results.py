@@ -141,6 +141,84 @@ class VtxResults(AuxResults):
         kwargs.setdefault("aux_label_var", "ftagTruthVertexIndex")
         super().add_taggers_from_file(taggers, file_path, **kwargs)
 
+    def plot_metric_vtx_eff(
+        self,
+        suffix: str | None = None,
+        metric: str = "n_ref",
+        xlabel: str = r"$n_{truth}$",
+        **kwargs,
+    ):
+        # define the curves
+        plot_vtx_eff = VarVsAuxPlot(
+            mode="efficiency",
+            ylabel="Vertexing efficiency",
+            xlabel=xlabel,
+            logy=False,
+            atlas_first_tag=self.atlas_first_tag,
+            atlas_second_tag=self.atlas_second_tag,
+            y_scale=1.4,
+        )
+
+        for tagger in self.taggers.values():
+            is_signal = tagger.is_flav(self.signal)
+
+            plot_vtx_eff.add(
+                VarVsAux(
+                    x_var=tagger.aux_metrics[metric][is_signal],
+                    n_match=tagger.aux_metrics["n_match"][is_signal],
+                    n_true=tagger.aux_metrics["n_ref"][is_signal],
+                    n_reco=tagger.aux_metrics["n_test"][is_signal],
+                    label=tagger.label,
+                    colour=tagger.colour,
+                    **kwargs,
+                ),
+                reference=tagger.reference,
+            )
+
+        plot_vtx_eff.draw()
+
+        plot_details = f"vtx_eff_vs_{metric}"
+        plot_vtx_eff.savefig(self.get_filename(plot_details, suffix))
+
+    def plot_metric_vtx_purity(
+        self,
+        suffix: str | None = None,
+        metric: str = "n_test",
+        xlabel: str = r"$n_{reco}$",
+        **kwargs,
+    ):
+        # define the curves
+        plot_vtx_purity = VarVsAuxPlot(
+            mode="purity",
+            ylabel="Vertexing purity",
+            xlabel=xlabel,
+            logy=False,
+            atlas_first_tag=self.atlas_first_tag,
+            atlas_second_tag=self.atlas_second_tag,
+            y_scale=1.4,
+        )
+
+        for tagger in self.taggers.values():
+            is_signal = tagger.is_flav(self.signal)
+
+            plot_vtx_purity.add(
+                VarVsAux(
+                    x_var=tagger.aux_metrics[metric][is_signal],
+                    n_match=tagger.aux_metrics["n_match"][is_signal],
+                    n_true=tagger.aux_metrics["n_ref"][is_signal],
+                    n_reco=tagger.aux_metrics["n_test"][is_signal],
+                    label=tagger.label,
+                    colour=tagger.colour,
+                    **kwargs,
+                ),
+                reference=tagger.reference,
+            )
+
+        plot_vtx_purity.draw()
+
+        plot_details = f"vtx_purity_vs_{metric}"
+        plot_vtx_purity.savefig(self.get_filename(plot_details, suffix))
+
     def plot_var_vtx_eff(
         self,
         suffix: str | None = None,
