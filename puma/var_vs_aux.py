@@ -151,11 +151,13 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
             )
         )
 
-    def get_efficiency(self, n_match: np.ndarray, n_true: np.ndarray):
-        """Calculate classification efficiency and the associated error.
+    def get_performance_metric(self, mode: str, num: np.ndarray, denom: np.ndarray):
+        """Calculate performance metric for aux task. Can be "purity" or "efficiency".
 
         Parameters
         ----------
+        mode : str
+            Performance metric to retrieve (purity or efficiency)
         arr : np.ndarray
             Array with discriminants
         cut : float
@@ -164,46 +166,19 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         Returns
         -------
         float
-            Efficiency
+            Efficiency/purity
         float
-            Efficiency error
+            Efficiency/purity error
         """
-        eff = save_divide(np.sum(n_match), np.sum(n_true), default=np.inf)
-        if eff == np.inf:
-            logger.warning("Your efficiency is infinity -> setting it to np.nan.")
+        pm = save_divide(np.sum(num), np.sum(denom), default=np.inf)
+        if pm == np.inf:
+            logger.warning(f"Your {mode} is infinity -> setting it to np.nan.")
             return np.nan, np.nan
-        elif len(n_match) == 0:
-            logger.warning("Your efficiency is zero -> setting error to zero.")
+        elif len(num) == 0:
+            logger.warning(f"Your {mode} is zero -> setting error to zero.")
             return 0.0, 0.0
-        eff_error = eff_err(eff, len(n_match))
-        return eff, eff_error
-
-    def get_purity(self, n_match: np.ndarray, n_reco: np.ndarray):
-        """Calculate classification purity and the associated error.
-
-        Parameters
-        ----------
-        arr : np.ndarray
-            Array with discriminants
-        cut : float
-            Cut value
-
-        Returns
-        -------
-        float
-            Efficiency
-        float
-            Efficiency error
-        """
-        purity = save_divide(np.sum(n_match), np.sum(n_reco), default=np.inf)
-        if purity == np.inf:
-            logger.warning("Your purity is infinity -> setting it to np.nan.")
-            return np.nan, np.nan
-        elif len(n_match) == 0:
-            logger.warning("Your purity is zero -> setting error to zero.")
-            return 0.0, 0.0
-        purity_error = eff_err(purity, len(n_match))
-        return purity, purity_error
+        pm_error = eff_err(pm, len(num))
+        return pm, pm_error
 
     @property
     def efficiency(self):
@@ -217,7 +192,13 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
             Efficiency_error
         """
         logger.debug("Calculating efficiency.")
-        eff = list(map(self.get_efficiency, self.match_binned, self.true_binned))
+        eff = list(
+            map(
+                lambda x, y: self.get_performance_metric("efficiency", x, y),
+                self.match_binned,
+                self.true_binned,
+            )
+        )
         logger.debug("Retrieved efficiencies: %s", eff)
         return np.array(eff)[:, 0], np.array(eff)[:, 1]
 
@@ -233,7 +214,13 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
             Purity_error
         """
         logger.debug("Calculating purity.")
-        purity = list(map(self.get_purity, self.match_binned, self.reco_binned))
+        purity = list(
+            map(
+                lambda x, y: self.get_performance_metric("purity", x, y),
+                self.match_binned,
+                self.reco_binned,
+            )
+        )
         logger.debug("Retrieved purity: %s", purity)
         return np.array(purity)[:, 0], np.array(purity)[:, 1]
 
@@ -297,8 +284,8 @@ class VarVsAuxPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
             Defines which quantity is plotted, the following options ar available:
                 efficiency - Plots signal efficiency vs. variable, with statistical
                     error on N signal per bin
-                purity - Plots background efficiency vs. variable, with statistical
-                    error on N background per bin
+                purity - Plots signal purity vs. variable, with statistical
+                    error on N signal per bin
         grid : bool, optional
             Set the grid for the plots.
         **kwargs : kwargs
