@@ -10,7 +10,7 @@ from ftag.hdf5 import H5Reader
 
 from puma.hlplots.results import Results
 from puma.hlplots.tagger import Tagger
-from puma.utils.vertexing import calculate_vertex_metrics
+from puma.utils.vertexing import calculate_vertex_metrics, clean_indices
 from puma.var_vs_aux import VarVsAux, VarVsAuxPlot
 
 
@@ -24,7 +24,6 @@ class AuxResults(Results):
         self,
         taggers: list[Tagger],
         file_path: Path | str,
-        aux_label_var: str,
         key="jets",
         label_var="HadronConeExclTruthLabelID",
         aux_key="tracks",
@@ -40,8 +39,6 @@ class AuxResults(Results):
             List of taggers to add
         file_path : str | Path
             Path to file
-        aux_label_var : str
-            Auxiliary label variable to use (generally set by derived class)
         key : str, optional
             Key in file, by default 'jets'
         label_var : str
@@ -54,11 +51,6 @@ class AuxResults(Results):
             Number of jets to load from the file, by default all jets
         perf_var : np.ndarray, optional
             Override the performance variable to use, by default None
-
-        Raises
-        ------
-        ValueError
-            If aux_type is invalid
         """
         # set tagger output nodes
         for tagger in taggers:
@@ -72,9 +64,9 @@ class AuxResults(Results):
         var_list += sum([t.cuts.variables for t in taggers if t.cuts is not None], [])
         var_list = list(set(var_list + [self.perf_var]))
 
-        aux_var_list = [tagger.aux_variables(self.aux_type) for tagger in taggers] + [
-            aux_label_var
-        ]
+        aux_var_list = sum([list(t.aux_variables[0].values()) for t in taggers], [])
+        aux_var_list += sum([list(t.aux_variables[1].values()) for t in taggers], [])
+        aux_var_list = list(set(aux_var_list))
 
         # load data
         reader = H5Reader(file_path, precision="full")
@@ -94,6 +86,7 @@ class AuxResults(Results):
             sel_data = data
             sel_aux_data = aux_data
             sel_perf_var = perf_var
+            aux_outputs, aux_labels = tagger.aux_variables
 
             # apply tagger specific cuts
             if tagger.cuts:
@@ -102,15 +95,26 @@ class AuxResults(Results):
                 if perf_var is not None:
                     sel_perf_var = perf_var[idx]
 
-            # calculate vertexing metrics
-            if self.aux_type == "vertexing":
-                tagger.aux_metrics = calculate_vertex_metrics(
-                    sel_aux_data[tagger.aux_variables("vertexing")],
-                    sel_aux_data[aux_label_var],
+            if "vertexing" in tagger.aux_tasks:
+                # clean truth vertex indices - remove indices from true PV, pileup, fake
+                sel_aux_data[aux_labels["vertexing"]] = clean_indices(
+                    sel_aux_data[aux_labels["vertexing"]],
+                    sel_aux_data[aux_labels["track_origin"]] < 3,
+                    mode="remove",
                 )
-            else:
-                raise ValueError(
-                    f"{self.aux_type} is not a valid value for `aux_type`."
+
+                # clean reco vertex indices - remove indices from reco PV, pileup, fake
+                if "track_origin" in tagger.aux_tasks:
+                    sel_aux_data[aux_labels["track_origin"]] = clean_indices(
+                        sel_aux_data[aux_labels["track_origin"]],
+                        sel_aux_data[aux_labels["track_origin"]] < 3,
+                        mode="remove",
+                    )
+
+                # calculate vertexing metrics
+                tagger.aux_metrics = calculate_vertex_metrics(
+                    sel_aux_data[aux_outputs["vertexing"]],
+                    sel_aux_data[aux_labels["vertexing"]],
                 )
 
             # attach data to tagger objects
@@ -124,22 +128,6 @@ class AuxResults(Results):
 
             # add tagger to results
             self.add(tagger)
-
-
-class VtxResults(AuxResults):
-    """Store information about several taggers and plot vertexing results.
-    Class wrapper for AuxResults.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.aux_type = "vertexing"
-
-    def add_taggers_from_file(
-        self, taggers: list[Tagger], file_path: Path | str, **kwargs
-    ):
-        kwargs.setdefault("aux_label_var", "ftagTruthVertexIndex")
-        super().add_taggers_from_file(taggers, file_path, **kwargs)
 
     def plot_metric_vtx_eff(
         self,
@@ -160,6 +148,8 @@ class VtxResults(AuxResults):
         )
 
         for tagger in self.taggers.values():
+            if "vertexing" not in tagger.aux_tasks:
+                continue
             is_signal = tagger.is_flav(self.signal)
 
             plot_vtx_eff.add(
@@ -199,6 +189,8 @@ class VtxResults(AuxResults):
         )
 
         for tagger in self.taggers.values():
+            if "vertexing" not in tagger.aux_tasks:
+                continue
             is_signal = tagger.is_flav(self.signal)
 
             plot_vtx_purity.add(
@@ -238,6 +230,8 @@ class VtxResults(AuxResults):
         )
 
         for tagger in self.taggers.values():
+            if "vertexing" not in tagger.aux_tasks:
+                continue
             is_signal = tagger.is_flav(self.signal)
 
             plot_vtx_eff.add(
@@ -277,6 +271,8 @@ class VtxResults(AuxResults):
         )
 
         for tagger in self.taggers.values():
+            if "vertexing" not in tagger.aux_tasks:
+                continue
             is_signal = tagger.is_flav(self.signal)
 
             plot_vtx_purity.add(
@@ -316,6 +312,8 @@ class VtxResults(AuxResults):
         )
 
         for tagger in self.taggers.values():
+            if "vertexing" not in tagger.aux_tasks:
+                continue
             is_signal = tagger.is_flav(self.signal)
             include_sum = tagger.aux_metrics["track_overlap"][is_signal] >= 0
 
@@ -368,6 +366,8 @@ class VtxResults(AuxResults):
         )
 
         for tagger in self.taggers.values():
+            if "vertexing" not in tagger.aux_tasks:
+                continue
             is_signal = tagger.is_flav(self.signal)
             include_sum = tagger.aux_metrics["track_overlap"][is_signal] >= 0
 

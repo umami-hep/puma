@@ -130,12 +130,11 @@ def get_dummy_tagger_aux(
     shuffle: bool = True,
     seed: int = 42,
     label: str = "HadronConeExclTruthLabelID",
-    vtx_label_var: str = "ftagTruthVertexIndex",
 ):
     """
-    Function to generate vertexing aux task output for a tagger, in this case
-    GN2 as well as relevant truth labels. Also includes jet level classifier
-    output and HadronConeExclTruthLabelID.
+    Function to generate aux task output for a tagger, in this case GN2 with
+    vertexing and track origin classification. Also includes jet level
+    classifier output and HadronConeExclTruthLabelID.
 
 
     Parameters
@@ -179,19 +178,25 @@ def get_dummy_tagger_aux(
     vtx_reco = np.fabs(
         np.rint(rng.normal(loc=0, scale=10, size=(len(df_gen), n_tracks))).astype(int)
     )
+    trk_or_labels = np.random.choice(8, size=(len(df_gen), n_tracks)).astype(int)
+    trk_or_reco = np.random.choice(8, size=(len(df_gen), n_tracks)).astype(int)
     aux_dtype = np.dtype(
         [
-            (vtx_label_var, "i4"),
+            ("ftagTruthVertexIndex", "i4"),
             ("GN2_VertexIndex", "i4"),
+            ("ftagTruthOriginLabel", "i4"),
+            ("GN2_TrackOrigin", "i4"),
         ]
     )
-    vtx_info = np.rec.fromarrays([vtx_labels, vtx_reco], dtype=aux_dtype)
+    aux_info = np.rec.fromarrays(
+        [vtx_labels, vtx_reco, trk_or_labels, trk_or_reco], dtype=aux_dtype
+    )
 
     fname = NamedTemporaryFile(  # pylint: disable=R1732
         mode="w", suffix=".h5", delete=False
     ).name
     file = h5py.File(fname, "w")
     file.create_dataset(name="jets", data=df_gen.to_records())
-    file.create_dataset(name="tracks", data=vtx_info)
+    file.create_dataset(name="tracks", data=aux_info)
 
     return fname, file

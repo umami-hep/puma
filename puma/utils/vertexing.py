@@ -4,18 +4,56 @@ from __future__ import annotations
 import numpy as np
 
 
-def build_vertices(vertex_ids, ignore_indices=None):
+def clean_indices(vertex_ids, condition, mode="remove"):
     """
-    Vertex builder that outputs an array of vertex associations
-    from vertex ids derived in athena or salt for a single jet.
+    Vertex index cleaner that modifies vertex indices that fulfill
+    a specified condition. The mode can be set to either "remove"
+    or "merge". In the "remove" mode, the vertex indices are set to
+    be ignored by the matching algorithm while in the "merge" mode
+    the vertex indices are merged into a single vertex.
 
     Parameters
     ----------
     vertex_ids: np.ndarray
         Array containing vertex IDs for each track.
-    ignore_indices: list, optional
-        List of vertex IDs to ignore, by default None. Negative indices
-        are always ignored.
+    condition: np.ndarray
+        Boolean array of shape (n_jets, n_tracks) containing the condition
+        to be applied.
+    mode: str
+        Mode to apply to indices that meet the specified condition.
+        Options are "remove" and "merge".
+
+    Returns
+    -------
+    vertex_ids: np.ndarray
+        Array containing vertex IDs for each track.
+
+    Raises
+    ------
+    ValueError
+        If the mode is not recognized.
+    """
+    if mode == "remove":
+        vertex_ids[condition] = -99
+    elif mode == "merge":
+        vertex_ids[condition] = vertex_ids.shape[1] + 1
+    else:
+        raise ValueError(f"Mode {mode} not recognized.")
+
+    return vertex_ids
+
+
+def build_vertices(vertex_ids):
+    """
+    Vertex builder that outputs an array of vertex associations
+    from vertex ids derived in athena or salt for a single jet.
+    Negative indices and one-track vertices are ignored by
+    default.
+
+    Parameters
+    ----------
+    vertex_ids: np.ndarray
+        Array containing vertex IDs for each track.
 
     Returns
     -------
@@ -27,9 +65,6 @@ def build_vertices(vertex_ids, ignore_indices=None):
     unique_ids, unique_counts = np.unique(vertex_ids, return_counts=True)
     unique_ids = unique_ids[unique_counts > 1]  # remove vertices with only one track
     unique_ids = unique_ids[unique_ids >= 0]  # remove tracks with negative indices
-    unique_ids = unique_ids[
-        np.logical_not(np.isin(unique_ids, ignore_indices))
-    ]  # remove vertices with ignored indices
 
     vertices = np.tile(vertex_ids, (unique_ids.size, 1))
     comparison_ids = np.tile(unique_ids, (vertex_ids.size, 1)).T
@@ -106,7 +141,6 @@ def calculate_vertex_metrics(
     test_indices,
     ref_indices,
     max_vertices=20,
-    remove_ref_pv=True,
     eff_req=0.65,
     purity_req=0.5,
 ):
@@ -124,9 +158,6 @@ def calculate_vertex_metrics(
         as reference (truth).
     max_vertices: int, optional
         Maximum number of matched vertices to write out, by default 20.
-    remove_ref_pv: bool, optional
-        Flag to remove PV from reference vertices, by default True. Vertex index of
-        PV is assumed to be 0.
     eff_req: float, optional
         Minimum required efficiency for vertex matching, by default 0.65.
     purity_req: float, optional
@@ -166,10 +197,8 @@ def calculate_vertex_metrics(
     metrics["test_vertex_size"] = np.full((n_jets, max_vertices), -1)
     metrics["ref_vertex_size"] = np.full((n_jets, max_vertices), -1)
 
-    ignore_indices = [0] if remove_ref_pv else None
-
     for i in range(n_jets):
-        ref_vertices = build_vertices(ref_indices[i], ignore_indices=ignore_indices)
+        ref_vertices = build_vertices(ref_indices[i])
         test_vertices = build_vertices(test_indices[i])
 
         # handle edge cases

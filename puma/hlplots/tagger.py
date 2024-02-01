@@ -22,6 +22,7 @@ class Tagger:
     colour: str = None
     f_c: float = None
     f_b: float = None
+    aux_tasks: list = field(default_factory=lambda: ["vertexing", "track_origin"])
 
     # this is only read by the Results class
     cuts: Cuts | list | None = None
@@ -82,34 +83,40 @@ class Tagger:
         """
         return [f"{self.name}_{prob}" for prob in self.probabilities]
 
-    def aux_variables(self, aux_type):
-        """Return a list of the auxiliary outputs of the tagger for a given task type.
-
-        Parameters
-        ----------
-        aux_type : str
-            Indicates auxiliary task type for which outputs should be retrieved. Options
-            are "vertexing" or "track_origin"
+    @property
+    def aux_variables(self):
+        """Return a dict of the auxiliary outputs and labels of the tagger
+        for each task.
 
         Returns
         -------
-        str
-            Aux output variable name of the tagger for specified task type
+        aux_outputs: dict
+            Dictionary of auxiliary output variables of the tagger
+        aux_labels: dict
+            Dictionary of auxiliary label for each task
 
         Raises
         ------
         ValueError
-            If aux_type is invalid
+            If element in self.aux_tasks is unrecognized
         """
-        if aux_type == "vertexing":
-            if self.name == "SV1" or self.name == "JF":
-                return f"{self.name}VertexIndex"
+        aux_outputs = {}
+        aux_labels = {}
+
+        for aux_type in self.aux_tasks:
+            if aux_type == "vertexing":
+                if self.name == "SV1" or self.name == "JF":
+                    aux_outputs[aux_type] = f"{self.name}VertexIndex"
+                else:
+                    aux_outputs[aux_type] = f"{self.name}_VertexIndex"
+                aux_labels[aux_type] = "ftagTruthVertexIndex"
+            elif aux_type == "track_origin":
+                aux_outputs[aux_type] = f"{self.name}_TrackOrigin"
+                aux_labels[aux_type] = "ftagTruthOriginLabel"
             else:
-                return f"{self.name}_VertexIndex"
-        elif aux_type == "track_origin":
-            return f"{self.name}_TrackOrigin"
-        else:
-            raise ValueError(f"{aux_type} is not a valid value for `aux_type`.")
+                raise ValueError(f"{aux_type} is not a recognized aux task.")
+
+        return aux_outputs, aux_labels
 
     def extract_tagger_scores(
         self, source: object, source_type: str = "data_frame", key: str | None = None
