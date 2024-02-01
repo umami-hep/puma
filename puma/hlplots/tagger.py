@@ -27,11 +27,12 @@ class Tagger:
     # this is only read by the Results class
     cuts: Cuts | list | None = None
 
-    # commonly set by the Results class
+    # commonly set by the Results or AuxResults class
     scores: np.ndarray = None
     labels: np.ndarray = None
+    aux_scores: dict = None
+    aux_labels: dict = None
     perf_var: np.ndarray = None
-    aux_metrics: dict = None
     output_flavours: list = field(
         default_factory=lambda: [Flavours.ujets, Flavours.cjets, Flavours.bjets]
     )
@@ -41,6 +42,9 @@ class Tagger:
             self.label = self.name
         if isinstance(self.cuts, list):
             self.cuts = Cuts.from_list(self.cuts)
+        if self.aux_tasks is not None:
+            self.aux_scores = dict.fromkeys(self.aux_tasks)
+            self.aux_labels = dict.fromkeys(self.aux_tasks)
 
     def __repr__(self):
         return f"{self.name} ({self.label})"

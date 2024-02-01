@@ -36,7 +36,7 @@ def clean_indices(vertex_ids, condition, mode="remove"):
     if mode == "remove":
         vertex_ids[condition] = -99
     elif mode == "merge":
-        vertex_ids[condition] = vertex_ids.shape[1] + 1
+        vertex_ids[condition] = vertex_ids.shape[1]
     else:
         raise ValueError(f"Mode {mode} not recognized.")
 

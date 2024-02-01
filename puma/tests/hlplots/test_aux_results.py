@@ -11,7 +11,6 @@ import numpy as np
 from puma.hlplots import AuxResults
 from puma.hlplots.tagger import Tagger
 from puma.utils import get_dummy_tagger_aux, logger, set_log_level
-from puma.utils.vertexing import calculate_vertex_metrics
 
 set_log_level(logger, "DEBUG")
 
@@ -57,12 +56,15 @@ class AuxResultsPlotsTestCase(unittest.TestCase):
             f["jets"]["HadronConeExclTruthLabelID"],
             dtype=[("HadronConeExclTruthLabelID", "i4")],
         )
-        dummy_tagger_1.aux_metrics = calculate_vertex_metrics(
-            f["tracks"]["ftagTruthVertexIndex"],
-            f["tracks"]["GN2_VertexIndex"],
-        )
+        dummy_tagger_1.aux_scores = {
+            "vertexing": f["tracks"]["GN2_VertexIndex"],
+            "track_origin": f["tracks"]["GN2_TrackOrigin"],
+        }
+        dummy_tagger_1.aux_labels = {
+            "vertexing": f["tracks"]["ftagTruthVertexIndex"],
+            "track_origin": f["tracks"]["ftagTruthOriginLabel"],
+        }
         dummy_tagger_1.perf_var = f["jets"]["pt"]
-        dummy_tagger_1.scores = f["jets"]
         dummy_tagger_1.label = "dummy tagger"
         self.dummy_tagger_1 = dummy_tagger_1
 
@@ -83,38 +85,14 @@ class AuxResultsPlotsTestCase(unittest.TestCase):
         if not Path(path).resolve().is_file():
             raise AssertionError(f"File does not exist: {path}")
 
-    def test_plot_var_vtx_eff(self):
+    def test_plot_var_vtx_perf(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
         with tempfile.TemporaryDirectory() as tmp_file:
             auxresults = AuxResults(signal="bjets", sample="test", output_dir=tmp_file)
             auxresults.add(self.dummy_tagger_1)
-            auxresults.plot_var_vtx_eff()
+            auxresults.plot_var_vtx_perf()
             self.assertIsFile(auxresults.get_filename("vtx_eff_vs_pt"))
-
-    def test_plot_var_vtx_purity(self):
-        """Test that png file is being created."""
-        self.dummy_tagger_1.reference = True
-        with tempfile.TemporaryDirectory() as tmp_file:
-            auxresults = AuxResults(signal="bjets", sample="test", output_dir=tmp_file)
-            auxresults.add(self.dummy_tagger_1)
-            auxresults.plot_var_vtx_purity()
             self.assertIsFile(auxresults.get_filename("vtx_purity_vs_pt"))
-
-    def test_plot_var_vtx_trk_eff(self):
-        """Test that png file is being created."""
-        self.dummy_tagger_1.reference = True
-        with tempfile.TemporaryDirectory() as tmp_file:
-            auxresults = AuxResults(signal="bjets", sample="test", output_dir=tmp_file)
-            auxresults.add(self.dummy_tagger_1)
-            auxresults.plot_var_vtx_trk_eff()
             self.assertIsFile(auxresults.get_filename("vtx_trk_eff_vs_pt"))
-
-    def test_plot_var_vtx_trk_purity(self):
-        """Test that png file is being created."""
-        self.dummy_tagger_1.reference = True
-        with tempfile.TemporaryDirectory() as tmp_file:
-            auxresults = AuxResults(signal="bjets", sample="test", output_dir=tmp_file)
-            auxresults.add(self.dummy_tagger_1)
-            auxresults.plot_var_vtx_trk_purity()
             self.assertIsFile(auxresults.get_filename("vtx_trk_purity_vs_pt"))

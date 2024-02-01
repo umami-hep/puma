@@ -36,12 +36,6 @@ aux_results.atlas_second_tag = (
     "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$, $20$ GeV $< p_{T} <250$ GeV"
 )
 
-# vertexing efficiency and purity
-logger.info("Plotting vertexing efficiency and purity.")
-aux_results.plot_var_vtx_eff()
-aux_results.plot_var_vtx_purity()
-
-# track to vertex association efficiency and purity
-logger.info("Plotting track to vertex association efficiency and purity.")
-aux_results.plot_var_vtx_trk_eff()
-aux_results.plot_var_vtx_trk_purity()
+# vertexing performance
+logger.info("Plotting vertexing performance.")
+aux_results.plot_var_vtx_perf()

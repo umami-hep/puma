@@ -18,8 +18,6 @@ from puma.var_vs_aux import VarVsAux, VarVsAuxPlot
 class AuxResults(Results):
     """Store information about several taggers and plot auxiliary task results."""
 
-    aux_type: str | None = None
-
     def add_taggers_from_file(  # pylint: disable=R0913
         self,
         taggers: list[Tagger],
@@ -86,7 +84,6 @@ class AuxResults(Results):
             sel_data = data
             sel_aux_data = aux_data
             sel_perf_var = perf_var
-            aux_outputs, aux_labels = tagger.aux_variables
 
             # apply tagger specific cuts
             if tagger.cuts:
@@ -95,30 +92,11 @@ class AuxResults(Results):
                 if perf_var is not None:
                     sel_perf_var = perf_var[idx]
 
-            if "vertexing" in tagger.aux_tasks:
-                # clean truth vertex indices - remove indices from true PV, pileup, fake
-                sel_aux_data[aux_labels["vertexing"]] = clean_indices(
-                    sel_aux_data[aux_labels["vertexing"]],
-                    sel_aux_data[aux_labels["track_origin"]] < 3,
-                    mode="remove",
-                )
-
-                # clean reco vertex indices - remove indices from reco PV, pileup, fake
-                if "track_origin" in tagger.aux_tasks:
-                    sel_aux_data[aux_labels["track_origin"]] = clean_indices(
-                        sel_aux_data[aux_labels["track_origin"]],
-                        sel_aux_data[aux_labels["track_origin"]] < 3,
-                        mode="remove",
-                    )
-
-                # calculate vertexing metrics
-                tagger.aux_metrics = calculate_vertex_metrics(
-                    sel_aux_data[aux_outputs["vertexing"]],
-                    sel_aux_data[aux_labels["vertexing"]],
-                )
-
             # attach data to tagger objects
             tagger.labels = np.array(sel_data[label_var], dtype=[(label_var, "i4")])
+            for task in tagger.aux_tasks:
+                tagger.aux_scores[task] = sel_aux_data[tagger.aux_variables[0][task]]
+                tagger.aux_labels[task] = sel_aux_data[tagger.aux_variables[1][task]]
             if perf_var is None:
                 tagger.perf_var = sel_data[self.perf_var]
                 if any(x in self.perf_var for x in ["pt", "mass"]):
@@ -129,11 +107,11 @@ class AuxResults(Results):
             # add tagger to results
             self.add(tagger)
 
-    def plot_metric_vtx_eff(
+    def plot_var_vtx_perf(
         self,
         suffix: str | None = None,
-        metric: str = "n_ref",
-        xlabel: str = r"$n_{truth}$",
+        xlabel: str = r"$p_{T}$ [GeV]",
+        xvar: str = "pt",
         **kwargs,
     ):
         # define the curves
@@ -146,38 +124,6 @@ class AuxResults(Results):
             atlas_second_tag=self.atlas_second_tag,
             y_scale=1.4,
         )
-
-        for tagger in self.taggers.values():
-            if "vertexing" not in tagger.aux_tasks:
-                continue
-            is_signal = tagger.is_flav(self.signal)
-
-            plot_vtx_eff.add(
-                VarVsAux(
-                    x_var=tagger.aux_metrics[metric][is_signal],
-                    n_match=tagger.aux_metrics["n_match"][is_signal],
-                    n_true=tagger.aux_metrics["n_ref"][is_signal],
-                    n_reco=tagger.aux_metrics["n_test"][is_signal],
-                    label=tagger.label,
-                    colour=tagger.colour,
-                    **kwargs,
-                ),
-                reference=tagger.reference,
-            )
-
-        plot_vtx_eff.draw()
-
-        plot_details = f"vtx_eff_vs_{metric}"
-        plot_vtx_eff.savefig(self.get_filename(plot_details, suffix))
-
-    def plot_metric_vtx_purity(
-        self,
-        suffix: str | None = None,
-        metric: str = "n_test",
-        xlabel: str = r"$n_{reco}$",
-        **kwargs,
-    ):
-        # define the curves
         plot_vtx_purity = VarVsAuxPlot(
             mode="purity",
             ylabel="Vertexing purity",
@@ -187,121 +133,7 @@ class AuxResults(Results):
             atlas_second_tag=self.atlas_second_tag,
             y_scale=1.4,
         )
-
-        for tagger in self.taggers.values():
-            if "vertexing" not in tagger.aux_tasks:
-                continue
-            is_signal = tagger.is_flav(self.signal)
-
-            plot_vtx_purity.add(
-                VarVsAux(
-                    x_var=tagger.aux_metrics[metric][is_signal],
-                    n_match=tagger.aux_metrics["n_match"][is_signal],
-                    n_true=tagger.aux_metrics["n_ref"][is_signal],
-                    n_reco=tagger.aux_metrics["n_test"][is_signal],
-                    label=tagger.label,
-                    colour=tagger.colour,
-                    **kwargs,
-                ),
-                reference=tagger.reference,
-            )
-
-        plot_vtx_purity.draw()
-
-        plot_details = f"vtx_purity_vs_{metric}"
-        plot_vtx_purity.savefig(self.get_filename(plot_details, suffix))
-
-    def plot_var_vtx_eff(
-        self,
-        suffix: str | None = None,
-        xlabel: str = r"$p_{T}$ [GeV]",
-        x_var: str = "pt",
-        **kwargs,
-    ):
-        # define the curves
-        plot_vtx_eff = VarVsAuxPlot(
-            mode="efficiency",
-            ylabel="Vertexing efficiency",
-            xlabel=xlabel,
-            logy=False,
-            atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=self.atlas_second_tag,
-            y_scale=1.4,
-        )
-
-        for tagger in self.taggers.values():
-            if "vertexing" not in tagger.aux_tasks:
-                continue
-            is_signal = tagger.is_flav(self.signal)
-
-            plot_vtx_eff.add(
-                VarVsAux(
-                    x_var=tagger.perf_var[is_signal],
-                    n_match=tagger.aux_metrics["n_match"][is_signal],
-                    n_true=tagger.aux_metrics["n_ref"][is_signal],
-                    n_reco=tagger.aux_metrics["n_test"][is_signal],
-                    label=tagger.label,
-                    colour=tagger.colour,
-                    **kwargs,
-                ),
-                reference=tagger.reference,
-            )
-
-        plot_vtx_eff.draw()
-
-        plot_details = f"vtx_eff_vs_{x_var}"
-        plot_vtx_eff.savefig(self.get_filename(plot_details, suffix))
-
-    def plot_var_vtx_purity(
-        self,
-        suffix: str | None = None,
-        xlabel: str = r"$p_{T}$ [GeV]",
-        x_var: str = "pt",
-        **kwargs,
-    ):
-        # define the curves
-        plot_vtx_purity = VarVsAuxPlot(
-            mode="purity",
-            ylabel="Vertexing purity",
-            xlabel=xlabel,
-            logy=False,
-            atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=self.atlas_second_tag,
-            y_scale=1.4,
-        )
-
-        for tagger in self.taggers.values():
-            if "vertexing" not in tagger.aux_tasks:
-                continue
-            is_signal = tagger.is_flav(self.signal)
-
-            plot_vtx_purity.add(
-                VarVsAux(
-                    x_var=tagger.perf_var[is_signal],
-                    n_match=tagger.aux_metrics["n_match"][is_signal],
-                    n_true=tagger.aux_metrics["n_ref"][is_signal],
-                    n_reco=tagger.aux_metrics["n_test"][is_signal],
-                    label=tagger.label,
-                    colour=tagger.colour,
-                    **kwargs,
-                ),
-                reference=tagger.reference,
-            )
-
-        plot_vtx_purity.draw()
-
-        plot_details = f"vtx_purity_vs_{x_var}"
-        plot_vtx_purity.savefig(self.get_filename(plot_details, suffix))
-
-    def plot_var_vtx_trk_eff(
-        self,
-        suffix: str | None = None,
-        xlabel: str = r"$p_{T}$ [GeV]",
-        x_var: str = "pt",
-        **kwargs,
-    ):
-        # define the curves
-        plot_vtx_eff = VarVsAuxPlot(
+        plot_vtx_trk_eff = VarVsAuxPlot(
             mode="efficiency",
             ylabel="Track-vertex association efficiency",
             xlabel=xlabel,
@@ -310,52 +142,7 @@ class AuxResults(Results):
             atlas_second_tag=self.atlas_second_tag,
             y_scale=1.4,
         )
-
-        for tagger in self.taggers.values():
-            if "vertexing" not in tagger.aux_tasks:
-                continue
-            is_signal = tagger.is_flav(self.signal)
-            include_sum = tagger.aux_metrics["track_overlap"][is_signal] >= 0
-
-            plot_vtx_eff.add(
-                VarVsAux(
-                    x_var=tagger.perf_var[is_signal],
-                    n_match=np.sum(
-                        tagger.aux_metrics["track_overlap"][is_signal],
-                        axis=1,
-                        where=include_sum,
-                    ),
-                    n_true=np.sum(
-                        tagger.aux_metrics["ref_vertex_size"][is_signal],
-                        axis=1,
-                        where=include_sum,
-                    ),
-                    n_reco=np.sum(
-                        tagger.aux_metrics["test_vertex_size"][is_signal],
-                        axis=1,
-                        where=include_sum,
-                    ),
-                    label=tagger.label,
-                    colour=tagger.colour,
-                    **kwargs,
-                ),
-                reference=tagger.reference,
-            )
-
-        plot_vtx_eff.draw()
-
-        plot_details = f"vtx_trk_eff_vs_{x_var}"
-        plot_vtx_eff.savefig(self.get_filename(plot_details, suffix))
-
-    def plot_var_vtx_trk_purity(
-        self,
-        suffix: str | None = None,
-        xlabel: str = r"$p_{T}$ [GeV]",
-        x_var: str = "pt",
-        **kwargs,
-    ):
-        # define the curves
-        plot_vtx_purity = VarVsAuxPlot(
+        plot_vtx_trk_purity = VarVsAuxPlot(
             mode="purity",
             ylabel="Track-vertex association purity",
             xlabel=xlabel,
@@ -368,35 +155,74 @@ class AuxResults(Results):
         for tagger in self.taggers.values():
             if "vertexing" not in tagger.aux_tasks:
                 continue
-            is_signal = tagger.is_flav(self.signal)
-            include_sum = tagger.aux_metrics["track_overlap"][is_signal] >= 0
 
-            plot_vtx_purity.add(
-                VarVsAux(
-                    x_var=tagger.perf_var[is_signal],
-                    n_match=np.sum(
-                        tagger.aux_metrics["track_overlap"][is_signal],
-                        axis=1,
-                        where=include_sum,
-                    ),
-                    n_true=np.sum(
-                        tagger.aux_metrics["ref_vertex_size"][is_signal],
-                        axis=1,
-                        where=include_sum,
-                    ),
-                    n_reco=np.sum(
-                        tagger.aux_metrics["test_vertex_size"][is_signal],
-                        axis=1,
-                        where=include_sum,
-                    ),
-                    label=tagger.label,
-                    colour=tagger.colour,
-                    **kwargs,
-                ),
-                reference=tagger.reference,
+            # clean truth vertex indices - remove indices from true PV, pileup, fake
+            truth_indices = clean_indices(
+                tagger.aux_labels["vertexing"],
+                tagger.aux_labels["track_origin"] < 3,
+                mode="remove",
             )
 
-        plot_vtx_purity.draw()
+            # clean reco vertex indices - remove indices from reco PV, pileup, fake
+            if "track_origin" in tagger.aux_tasks:
+                reco_indices = clean_indices(
+                    tagger.aux_scores["vertexing"],
+                    tagger.aux_scores["track_origin"] < 3,
+                    mode="remove",
+                )
 
-        plot_details = f"vtx_trk_purity_vs_{x_var}"
-        plot_vtx_purity.savefig(self.get_filename(plot_details, suffix))
+            # calculate vertexing metrics
+            vtx_metrics = calculate_vertex_metrics(reco_indices, truth_indices)
+
+            is_signal = tagger.is_flav(self.signal)
+            include_sum = vtx_metrics["track_overlap"][is_signal] >= 0
+
+            vtx_perf = VarVsAux(
+                x_var=tagger.perf_var[is_signal],
+                n_match=vtx_metrics["n_match"][is_signal],
+                n_true=vtx_metrics["n_ref"][is_signal],
+                n_reco=vtx_metrics["n_test"][is_signal],
+                label=tagger.label,
+                colour=tagger.colour,
+                **kwargs,
+            )
+            vtx_trk_perf = VarVsAux(
+                x_var=tagger.perf_var[is_signal],
+                n_match=np.sum(
+                    vtx_metrics["track_overlap"][is_signal],
+                    axis=1,
+                    where=include_sum,
+                ),
+                n_true=np.sum(
+                    vtx_metrics["ref_vertex_size"][is_signal],
+                    axis=1,
+                    where=include_sum,
+                ),
+                n_reco=np.sum(
+                    vtx_metrics["test_vertex_size"][is_signal],
+                    axis=1,
+                    where=include_sum,
+                ),
+                label=tagger.label,
+                colour=tagger.colour,
+                **kwargs,
+            )
+
+            plot_vtx_eff.add(vtx_perf, reference=tagger.reference)
+            plot_vtx_purity.add(vtx_perf, reference=tagger.reference)
+            plot_vtx_trk_eff.add(vtx_trk_perf, reference=tagger.reference)
+            plot_vtx_trk_purity.add(vtx_trk_perf, reference=tagger.reference)
+
+        plot_vtx_eff.draw()
+        plot_vtx_eff.savefig(self.get_filename(f"vtx_eff_vs_{xvar}", suffix))
+
+        plot_vtx_purity.draw()
+        plot_vtx_purity.savefig(self.get_filename(f"vtx_purity_vs_{xvar}", suffix))
+
+        plot_vtx_trk_eff.draw()
+        plot_vtx_trk_eff.savefig(self.get_filename(f"vtx_trk_eff_vs_{xvar}", suffix))
+
+        plot_vtx_trk_purity.draw()
+        plot_vtx_trk_purity.savefig(
+            self.get_filename(f"vtx_trk_purity_vs_{xvar}", suffix)
+        )
