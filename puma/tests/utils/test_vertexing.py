@@ -26,14 +26,16 @@ class CleanIndicesTestCase(unittest.TestCase):
         vertex_ids = np.array([[0, 1, 1, 2, 1]])
         condition = np.array([[True, False, False, False, True]])
         updated_ids = clean_indices(vertex_ids, condition, mode="remove")
-        self.assertEqual(updated_ids, np.array([[-99, 1, 1, 2, -99]]))
+        expected_result = np.array([[-99, 1, 1, 2, -99]])
+        np.testing.assert_array_equal(updated_ids, expected_result)
 
     def test_merge(self):
         """Check case where indices are merged."""
         vertex_ids = np.array([[0, 1, 1, 2, 1]])
         condition = np.array([[True, False, False, True, False]])
         updated_ids = clean_indices(vertex_ids, condition, mode="merge")
-        self.assertEqual(updated_ids, np.array([[4, 1, 1, 4, 1]]))
+        expected_result = np.array([[4, 1, 1, 4, 1]]) 
+        np.testing.assert_array_equal(updated_ids, expected_result)
 
     def test_invalid_mode(self):
         """Check case where an invalid mode is provided."""
