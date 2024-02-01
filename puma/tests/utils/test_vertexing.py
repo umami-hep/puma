@@ -12,9 +12,35 @@ from puma.utils.vertexing import (
     associate_vertices,
     build_vertices,
     calculate_vertex_metrics,
+    clean_indices,
 )
 
 set_log_level(logger, "DEBUG")
+
+
+class CleanIndicesTestCase(unittest.TestCase):
+    """Test case for clean_indices function."""
+
+    def test_remove(self):
+        """Check case where indices are removed."""
+        vertex_ids = np.array([[0, 1, 1, 2, 1]])
+        condition = np.array([[True, False, False, False, True]])
+        updated_ids = clean_indices(vertex_ids, condition, mode="remove")
+        self.assertEqual(updated_ids, np.array([[-99, 1, 1, 2, -99]]))
+
+    def test_merge(self):
+        """Check case where indices are merged."""
+        vertex_ids = np.array([[0, 1, 1, 2, 1]])
+        condition = np.array([[True, False, False, True, False]])
+        updated_ids = clean_indices(vertex_ids, condition, mode="merge")
+        self.assertEqual(updated_ids, np.array([[4, 1, 1, 4, 1]]))
+
+    def test_invalid_mode(self):
+        """Check case where an invalid mode is provided."""
+        vertex_ids = np.array([[0, 1, 1, 2, 1]])
+        condition = np.array([[True, False, False, False, True]])
+        with self.assertRaises(ValueError):
+            clean_indices(vertex_ids, condition, mode="invalid")
 
 
 class BuildVerticesTestCase(unittest.TestCase):
