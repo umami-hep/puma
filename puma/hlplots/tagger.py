@@ -102,7 +102,6 @@ class Tagger:
             If element in self.aux_tasks is unrecognized
         """
         aux_outputs = {}
-        aux_labels = {}
 
         for aux_type in self.aux_tasks:
             if aux_type == "vertexing":

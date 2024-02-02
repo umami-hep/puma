@@ -106,7 +106,7 @@ class AuxResults(Results):
             tagger.labels = np.array(sel_data[label_var], dtype=[(label_var, "i4")])
             for task in tagger.aux_tasks:
                 tagger.aux_scores[task] = sel_aux_data[tagger.aux_variables[task]]
-            for task in aux_labels.keys():
+            for task in aux_labels:
                 tagger.aux_labels[task] = sel_aux_data[aux_labels[task]]
             if perf_var is None:
                 tagger.perf_var = sel_data[self.perf_var]
@@ -179,7 +179,7 @@ class AuxResults(Results):
             if incl_vertexing:
                 truth_indices = clean_indices(
                     truth_indices,
-                    np.isin(tagger.aux_labels["track_origin"], [3,4,5]),
+                    np.isin(tagger.aux_labels["track_origin"], [3, 4, 5]),
                     mode="merge",
                 )
 
@@ -195,7 +195,7 @@ class AuxResults(Results):
                 if incl_vertexing:
                     reco_indices = clean_indices(
                         reco_indices,
-                        np.isin(tagger.aux_scores["track_origin"], [3,4,5]),
+                        np.isin(tagger.aux_scores["track_origin"], [3, 4, 5]),
                         mode="merge",
                     )
             else:
