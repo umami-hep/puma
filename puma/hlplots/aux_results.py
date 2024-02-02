@@ -168,26 +168,34 @@ class AuxResults(Results):
             if "vertexing" not in tagger.aux_tasks:
                 continue
 
-            # clean truth vertex indices - remove indices from true PV, pileup, fake
+            # clean truth vertex indices - remove indices from true PV, PU, fake
+            truth_removal_cond = np.logical_or(
+                tagger.aux_labels["vertexing"] == 0,
+                np.isin(tagger.aux_labels["track_origin"], [0, 1, 2]),
+            )
             truth_indices = clean_indices(
                 tagger.aux_labels["vertexing"],
-                tagger.aux_labels["track_origin"] < 3,
+                truth_removal_cond,
                 mode="remove",
             )
 
             # merge truth vertices from HF for inclusive performance
             if incl_vertexing:
+                truth_merge_cond = np.logical_and(
+                    tagger.aux_labels["vertexing"] > 0,
+                    np.isin(tagger.aux_labels["track_origin"], [3, 4, 5, 6]),
+                )
                 truth_indices = clean_indices(
                     truth_indices,
-                    np.isin(tagger.aux_labels["track_origin"], [3, 4, 5]),
+                    truth_merge_cond,
                     mode="merge",
                 )
 
-            # clean reco vertex indices - remove indices from reco PV, pileup, fake
+            # clean reco vertex indices - remove indices from reco PV, PU, fake
             if "track_origin" in tagger.aux_tasks:
                 reco_indices = clean_indices(
                     tagger.aux_scores["vertexing"],
-                    tagger.aux_scores["track_origin"] < 3,
+                    np.isin(tagger.aux_scores["track_origin"], [0, 1, 2]),
                     mode="remove",
                 )
 
@@ -195,7 +203,7 @@ class AuxResults(Results):
                 if incl_vertexing:
                     reco_indices = clean_indices(
                         reco_indices,
-                        np.isin(tagger.aux_scores["track_origin"], [3, 4, 5]),
+                        np.isin(tagger.aux_scores["track_origin"], [3, 4, 5, 6]),
                         mode="merge",
                     )
             else:
@@ -205,7 +213,7 @@ class AuxResults(Results):
                 if incl_vertexing:
                     reco_indices = clean_indices(
                         reco_indices,
-                        reco_indices > 0,
+                        reco_indices >= 0,
                         mode="merge",
                     )
 
