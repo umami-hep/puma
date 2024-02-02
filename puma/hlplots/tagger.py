@@ -89,15 +89,12 @@ class Tagger:
 
     @property
     def aux_variables(self):
-        """Return a dict of the auxiliary outputs and labels of the tagger
-        for each task.
+        """Return a dict of the auxiliary outputs of the tagger for each task.
 
         Returns
         -------
         aux_outputs: dict
             Dictionary of auxiliary output variables of the tagger
-        aux_labels: dict
-            Dictionary of auxiliary label for each task
 
         Raises
         ------
@@ -113,14 +110,12 @@ class Tagger:
                     aux_outputs[aux_type] = f"{self.name}VertexIndex"
                 else:
                     aux_outputs[aux_type] = f"{self.name}_VertexIndex"
-                aux_labels[aux_type] = "ftagTruthVertexIndex"
             elif aux_type == "track_origin":
                 aux_outputs[aux_type] = f"{self.name}_TrackOrigin"
-                aux_labels[aux_type] = "ftagTruthOriginLabel"
             else:
                 raise ValueError(f"{aux_type} is not a recognized aux task.")
 
-        return aux_outputs, aux_labels
+        return aux_outputs
 
     def extract_tagger_scores(
         self, source: object, source_type: str = "data_frame", key: str | None = None

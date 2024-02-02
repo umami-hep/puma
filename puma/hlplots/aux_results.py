@@ -14,6 +14,14 @@ from puma.utils.vertexing import calculate_vertex_metrics, clean_indices
 from puma.var_vs_aux import VarVsAux, VarVsAuxPlot
 
 
+def get_aux_labels():
+    """Get the truth labels for all aux tasks."""
+    return {
+        "vertexing": "ftagTruthVertexIndex",
+        "track_origin": "ftagTruthOriginLabel",
+    }
+
+
 @dataclass
 class AuxResults(Results):
     """Store information about several taggers and plot auxiliary task results."""
@@ -62,8 +70,10 @@ class AuxResults(Results):
         var_list += sum([t.cuts.variables for t in taggers if t.cuts is not None], [])
         var_list = list(set(var_list + [self.perf_var]))
 
-        aux_var_list = sum([list(t.aux_variables[0].values()) for t in taggers], [])
-        aux_var_list += sum([list(t.aux_variables[1].values()) for t in taggers], [])
+        aux_labels = get_aux_labels()
+
+        aux_var_list = sum([list(t.aux_variables.values()) for t in taggers], [])
+        aux_var_list += sum([list(aux_labels.values()) for t in taggers], [])
         aux_var_list = list(set(aux_var_list))
 
         # load data
@@ -95,8 +105,9 @@ class AuxResults(Results):
             # attach data to tagger objects
             tagger.labels = np.array(sel_data[label_var], dtype=[(label_var, "i4")])
             for task in tagger.aux_tasks:
-                tagger.aux_scores[task] = sel_aux_data[tagger.aux_variables[0][task]]
-                tagger.aux_labels[task] = sel_aux_data[tagger.aux_variables[1][task]]
+                tagger.aux_scores[task] = sel_aux_data[tagger.aux_variables[task]]
+            for task in aux_labels.keys():
+                tagger.aux_labels[task] = sel_aux_data[aux_labels[task]]
             if perf_var is None:
                 tagger.perf_var = sel_data[self.perf_var]
                 if any(x in self.perf_var for x in ["pt", "mass"]):
@@ -112,6 +123,7 @@ class AuxResults(Results):
         suffix: str | None = None,
         xlabel: str = r"$p_{T}$ [GeV]",
         xvar: str = "pt",
+        incl_vertexing: bool = False,
         **kwargs,
     ):
         # define the curves
@@ -163,6 +175,14 @@ class AuxResults(Results):
                 mode="remove",
             )
 
+            # merge truth vertices from HF for inclusive performance
+            if incl_vertexing:
+                truth_indices = clean_indices(
+                    truth_indices,
+                    np.isin(tagger.aux_labels["track_origin"], [3,4,5]),
+                    mode="merge",
+                )
+
             # clean reco vertex indices - remove indices from reco PV, pileup, fake
             if "track_origin" in tagger.aux_tasks:
                 reco_indices = clean_indices(
@@ -170,6 +190,24 @@ class AuxResults(Results):
                     tagger.aux_scores["track_origin"] < 3,
                     mode="remove",
                 )
+
+                # merge reco vertices - from HF if track origin is available
+                if incl_vertexing:
+                    reco_indices = clean_indices(
+                        reco_indices,
+                        np.isin(tagger.aux_scores["track_origin"], [3,4,5]),
+                        mode="merge",
+                    )
+            else:
+                reco_indices = tagger.aux_scores["vertexing"]
+
+                # merge reco vertices - all if track origin isn't available
+                if incl_vertexing:
+                    reco_indices = clean_indices(
+                        reco_indices,
+                        reco_indices > 0,
+                        mode="merge",
+                    )
 
             # calculate vertexing metrics
             vtx_metrics = calculate_vertex_metrics(reco_indices, truth_indices)
