@@ -5,7 +5,6 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from ftag import Flavour, Flavours
-from scipy.interpolate import pchip
 
 from puma.metrics import rej_err
 from puma.plot_base import PlotBase, PlotLineObject
@@ -157,7 +156,7 @@ class Roc(PlotLineObject):
         pchip
             Interpolation function
         """
-        return pchip(self.sig_eff, self.bkg_rej)
+        return lambda x: np.interp(x, self.sig_eff, self.bkg_rej)
 
     @property
     def non_zero_mask(self):

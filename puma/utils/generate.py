@@ -6,9 +6,9 @@ from tempfile import NamedTemporaryFile
 import h5py
 import numpy as np
 import pandas as pd
+from ftag.mock import softmax
 from numpy.lib.recfunctions import structured_to_unstructured as s2u
 from numpy.lib.recfunctions import unstructured_to_structured as u2s
-from scipy.special import softmax
 
 
 def get_dummy_multiclass_scores(
