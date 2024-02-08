@@ -29,7 +29,7 @@ class Tagger:
     # commonly set by the Results class
     scores: np.ndarray = None
     labels: np.ndarray = None
-    perf_var: np.ndarray = None
+    perf_vars: dict = None
     aux_metrics: dict = None
     output_flavours: list = field(
         default_factory=lambda: [Flavours.ujets, Flavours.cjets, Flavours.bjets]
