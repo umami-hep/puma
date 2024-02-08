@@ -95,7 +95,7 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
             x_var_widths=2 * self.bin_widths,
             key=key,
             fill=True,
-            plot_y_std=True,
+            plot_y_std=False,
             **kwargs,
         )
 
