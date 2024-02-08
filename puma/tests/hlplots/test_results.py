@@ -90,7 +90,6 @@ class ResultsTestCase(unittest.TestCase):
         self.assertEqual(list(results.taggers.values()), taggers)
 
     def test_add_taggers_with_cuts(self):
-        np.random.default_rng(seed=16)
         fname = get_mock_file()[0]
         cuts = [("eta", ">", 0)]
         tagger_cuts = [("pt", ">", 20)]

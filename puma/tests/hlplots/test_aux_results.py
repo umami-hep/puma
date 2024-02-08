@@ -22,7 +22,6 @@ class AuxResultsTestCase(unittest.TestCase):
 
     def test_add_taggers_from_file(self):
         """Test for Results.add_taggers_from_file function."""
-        np.random.default_rng(seed=16)
         fname = get_mock_file()[0]
         results = AuxResults(signal="bjets", sample="test")
         taggers = [Tagger("MockTagger")]
@@ -35,7 +34,6 @@ class AuxResultsTestCase(unittest.TestCase):
         self.assertEqual(list(results.taggers.values()), taggers)
 
     def test_add_taggers_with_cuts(self):
-        np.random.default_rng(seed=16)
         fname = get_mock_file()[0]
         cuts = [("eta", ">", 0)]
         tagger_cuts = [("pt", ">", 20)]
@@ -47,6 +45,26 @@ class AuxResultsTestCase(unittest.TestCase):
             vtx_label_var="numberOfPixelHits",
             vtx_reco_var="numberOfSCTHits",
             cuts=cuts,
+        )
+        self.assertEqual(list(results.taggers.values()), taggers)
+
+    def test_add_taggers_with_cuts_override_perf_vars(self):
+        rng = np.random.default_rng(seed=16)
+        fname = get_mock_file()[0]
+        cuts = [("eta", ">", 0)]
+        tagger_cuts = [("pt", ">", 20)]
+        results = AuxResults(signal="bjets", sample="test")
+        taggers = [Tagger("MockTagger", cuts=tagger_cuts)]
+        results.add_taggers_from_file(
+            taggers,
+            fname,
+            vtx_label_var="numberOfPixelHits",
+            vtx_reco_var="numberOfSCTHits",
+            cuts=cuts,
+            perf_vars={
+                "pt": rng.exponential(100, size=1000),
+                "eta": rng.normal(0, 1, size=1000),
+            },
         )
         self.assertEqual(list(results.taggers.values()), taggers)
 
