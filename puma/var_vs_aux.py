@@ -1,4 +1,4 @@
-"""Efficiency plots vs. specific variable."""
+"""Aux task efficiency plots vs. specific variable."""
 from __future__ import annotations
 
 from typing import ClassVar
@@ -151,13 +151,12 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
             )
         )
 
-    def get_performance_metric(self, mode: str, num: np.ndarray, denom: np.ndarray):
-        """Calculate performance metric for aux task. Can be "purity" or "efficiency".
+    def get_performance_ratio(self, num: np.ndarray, denom: np.ndarray):
+        """Calculate performance ratio for aux task. Either n_matched/n_true
+        (efficiency) or n_matched/n_reco (purity).
 
         Parameters
         ----------
-        mode : str
-            Performance metric to retrieve (purity or efficiency)
         arr : np.ndarray
             Array with discriminants
         cut : float
@@ -166,23 +165,25 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         Returns
         -------
         float
-            Efficiency/purity
+            Performance ratio
         float
-            Efficiency/purity error
+            Performance ratio error
         """
         pm = save_divide(np.sum(num), np.sum(denom), default=np.inf)
         if pm == np.inf:
-            logger.warning(f"Your {mode} is infinity -> setting it to np.nan.")
+            logger.warning(
+                "Your performance ratio is infinity -> setting it to np.nan."
+            )
             return np.nan, np.nan
         elif len(num) == 0:
-            logger.warning(f"Your {mode} is zero -> setting error to zero.")
+            logger.warning("Your performance ratio is zero -> setting error to zero.")
             return 0.0, 0.0
         pm_error = eff_err(pm, len(num))
         return pm, pm_error
 
     @property
     def efficiency(self):
-        """Calculate signal efficiency per bin.
+        """Calculate signal efficiency per bin. Defined as n_match/n_true.
 
         Returns
         -------
@@ -194,7 +195,7 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         logger.debug("Calculating efficiency.")
         eff = list(
             map(
-                lambda x, y: self.get_performance_metric("efficiency", x, y),
+                self.get_performance_ratio,
                 self.match_binned,
                 self.true_binned,
             )
@@ -204,7 +205,7 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
 
     @property
     def purity(self):
-        """Calculate signal purity per bin.
+        """Calculate signal purity per bin. Defined as n_match/n_reco.
 
         Returns
         -------
@@ -216,13 +217,34 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         logger.debug("Calculating purity.")
         purity = list(
             map(
-                lambda x, y: self.get_performance_metric("purity", x, y),
+                self.get_performance_ratio,
                 self.match_binned,
                 self.reco_binned,
             )
         )
         logger.debug("Retrieved purity: %s", purity)
         return np.array(purity)[:, 0], np.array(purity)[:, 1]
+
+    @property
+    def total_reco(self):
+        """Calculate total number of reconstructed objects per bin.
+
+        Returns
+        -------
+        np.ndarray
+            Total number of reconstructed objects
+        np.ndarray
+            Total number of reconstructed objects error
+        """
+        logger.debug("Calculating total number of reconstructed objects.")
+        total_reco = list(
+            zip(
+                list(map(np.mean, self.reco_binned)),
+                list(map(np.std, self.reco_binned)),
+            )
+        )
+        logger.debug("Retrieved total number of reconstructed objects: %s", total_reco)
+        return np.array(total_reco)[:, 0], np.array(total_reco)[:, 1]
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
@@ -261,6 +283,8 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
             return self.efficiency
         if mode == "purity":
             return self.purity
+        if mode == "total_reco":
+            return self.total_reco
         raise ValueError(
             f"The selected mode {mode} is not supported. Use one of the following:"
             f" {VarVsAuxPlot.mode_options}."
@@ -273,6 +297,7 @@ class VarVsAuxPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
     mode_options: ClassVar[list[str]] = [
         "efficiency",
         "purity",
+        "total_reco",
     ]
 
     def __init__(self, mode, grid: bool = False, **kwargs) -> None:
@@ -282,10 +307,11 @@ class VarVsAuxPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
         ----------
         mode : str
             Defines which quantity is plotted, the following options ar available:
-                efficiency - Plots signal efficiency vs. variable, with statistical
-                    error on N signal per bin
-                purity - Plots signal purity vs. variable, with statistical
-                    error on N signal per bin
+                efficiency - Plots efficiency vs. variable, with statistical
+                    error on N per bin
+                purity - Plots purity vs. variable, with statistical
+                    error on N per bin
+                total_reco - Plots number of reconstructed objects per bin
         grid : bool, optional
             Set the grid for the plots.
         **kwargs : kwargs

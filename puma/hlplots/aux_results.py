@@ -11,7 +11,6 @@ from ftag.hdf5 import H5Reader
 from puma.hlplots.tagger import Tagger
 from puma.utils.vertexing import calculate_vertex_metrics, clean_indices
 from puma.var_vs_aux import VarVsAux, VarVsAuxPlot
-from puma.var_vs_var import VarVsVar, VarVsVarPlot
 
 
 def get_aux_labels():
@@ -33,6 +32,10 @@ class AuxResults:
     perf_var: str = "pt"
     output_dir: str | Path = "."
     extension: str = "png"
+
+    def __post_init__(self):
+        if isinstance(self.output_dir, str):
+            self.output_dir = Path(self.output_dir)
 
     def add(self, tagger):
         """Add tagger to class.
@@ -83,7 +86,6 @@ class AuxResults:
         perf_var : np.ndarray, optional
             Override the performance variable to use, by default None
         """
-
         # get a list of all variables to be loaded from the file
         if not isinstance(cuts, Cuts):
             cuts = Cuts.empty() if cuts is None else Cuts.from_list(cuts)
@@ -184,13 +186,13 @@ class AuxResults:
         incl_vertexing: bool = False,
         **kwargs,
     ):
-
         if isinstance(flavour, str):
             flavour = Flavours[flavour]
 
         # define the curves
         plot_vtx_eff = VarVsAuxPlot(
-            ylabel="Vertexing efficiency",
+            mode="efficiency",
+            ylabel=r"$n_{vtx}^{match}/n_{vtx}^{true}$",
             xlabel=xlabel,
             logy=False,
             atlas_first_tag=self.atlas_first_tag,
@@ -198,15 +200,17 @@ class AuxResults:
             y_scale=1.4,
         )
         plot_vtx_match_rate = VarVsAuxPlot(
-            ylabel="Vertexing match rate",
+            mode="purity",
+            ylabel=r"$n_{vtx}^{match}/n_{vtx}^{reco}$",
             xlabel=xlabel,
             logy=False,
             atlas_first_tag=self.atlas_first_tag,
             atlas_second_tag=self.atlas_second_tag,
             y_scale=1.4,
         )
-        plot_vtx_nreco = VarVsVarPlot(
-            ylabel="Number of reconstructed vertices",
+        plot_vtx_nreco = VarVsAuxPlot(
+            mode="total_reco",
+            ylabel=r"$n_{vtx}^{reco}$",
             xlabel=xlabel,
             logy=False,
             atlas_first_tag=self.atlas_first_tag,
@@ -214,7 +218,8 @@ class AuxResults:
             y_scale=1.4,
         )
         plot_vtx_trk_eff = VarVsAuxPlot(
-            ylabel="Track-vertex association efficiency",
+            mode="efficiency",
+            ylabel=r"$n_{trk}^{match}/n_{trk}^{true}$",
             xlabel=xlabel,
             logy=False,
             atlas_first_tag=self.atlas_first_tag,
@@ -222,7 +227,8 @@ class AuxResults:
             y_scale=1.4,
         )
         plot_vtx_trk_purity = VarVsAuxPlot(
-            ylabel="Track-vertex association purity",
+            mode="purity",
+            ylabel=r"$n_{trk}^{match}/n_{trk}^{reco}$",
             xlabel=xlabel,
             logy=False,
             atlas_first_tag=self.atlas_first_tag,
@@ -286,7 +292,12 @@ class AuxResults:
             # calculate vertexing metrics
             vtx_metrics = calculate_vertex_metrics(reco_indices, truth_indices)
 
-            is_flavour = tagger.is_flav(flavour)
+            # filter out jets of chosen flavour - if flavour is not set, use all
+            if flavour:
+                is_flavour = tagger.is_flav(flavour)
+            else:
+                is_flavour = np.ones_like(tagger.labels, dtype=bool)
+
             include_sum = vtx_metrics["track_overlap"][is_flavour] >= 0
 
             vtx_perf = VarVsAux(
@@ -322,19 +333,29 @@ class AuxResults:
 
             plot_vtx_eff.add(vtx_perf, reference=tagger.reference)
             plot_vtx_match_rate.add(vtx_perf, reference=tagger.reference)
+            plot_vtx_nreco.add(vtx_perf, reference=tagger.reference)
             plot_vtx_trk_eff.add(vtx_trk_perf, reference=tagger.reference)
             plot_vtx_trk_purity.add(vtx_trk_perf, reference=tagger.reference)
 
         plot_vtx_eff.draw()
-        plot_vtx_eff.savefig(self.get_filename(f"vtx_eff_vs_{xvar}", suffix))
+        plot_vtx_eff.savefig(self.get_filename(f"{flavour}_vtx_eff_vs_{xvar}", suffix))
 
         plot_vtx_match_rate.draw()
-        plot_vtx_match_rate.savefig(self.get_filename(f"vtx_match_rate_vs_{xvar}", suffix))
+        plot_vtx_match_rate.savefig(
+            self.get_filename(f"{flavour}_vtx_match_rate_vs_{xvar}", suffix)
+        )
+
+        plot_vtx_nreco.draw()
+        plot_vtx_nreco.savefig(
+            self.get_filename(f"{flavour}_vtx_nreco_vs_{xvar}", suffix)
+        )
 
         plot_vtx_trk_eff.draw()
-        plot_vtx_trk_eff.savefig(self.get_filename(f"vtx_trk_eff_vs_{xvar}", suffix))
+        plot_vtx_trk_eff.savefig(
+            self.get_filename(f"{flavour}_vtx_trk_eff_vs_{xvar}", suffix)
+        )
 
         plot_vtx_trk_purity.draw()
         plot_vtx_trk_purity.savefig(
-            self.get_filename(f"vtx_trk_purity_vs_{xvar}", suffix)
+            self.get_filename(f"{flavour}_vtx_trk_purity_vs_{xvar}", suffix)
         )

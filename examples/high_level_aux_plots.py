@@ -18,10 +18,8 @@ GN2 = Tagger(
     reference=True,
 )
 
-# create the VtxResults object
-# for c-tagging use signal="cjets"
-# for Xbb/cc-tagging use signal="hbb"/"hcc"
-aux_results = AuxResults(signal="bjets", sample="dummy")
+# create the AuxResults object
+aux_results = AuxResults(sample="dummy")
 
 # load tagger from the file object
 logger.info("Loading taggers.")
@@ -36,6 +34,6 @@ aux_results.atlas_second_tag = (
     "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$, $20$ GeV $< p_{T} <250$ GeV"
 )
 
-# vertexing performance
+# vertexing performance for b-jets
 logger.info("Plotting vertexing performance.")
-aux_results.plot_var_vtx_perf()
+aux_results.plot_var_vtx_perf(flavour="bjets")
