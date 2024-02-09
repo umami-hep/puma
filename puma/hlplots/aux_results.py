@@ -199,7 +199,7 @@ class AuxResults:
             atlas_second_tag=self.atlas_second_tag,
             y_scale=1.4,
         )
-        plot_vtx_match_rate = VarVsAuxPlot(
+        plot_vtx_purity = VarVsAuxPlot(
             mode="purity",
             ylabel=r"$n_{vtx}^{match}/n_{vtx}^{reco}$",
             xlabel=xlabel,
@@ -334,30 +334,30 @@ class AuxResults:
             )
 
             plot_vtx_eff.add(vtx_perf, reference=tagger.reference)
-            plot_vtx_match_rate.add(vtx_perf, reference=tagger.reference)
+            plot_vtx_purity.add(vtx_perf, reference=tagger.reference)
             plot_vtx_nreco.add(vtx_perf, reference=tagger.reference)
             plot_vtx_trk_eff.add(vtx_trk_perf, reference=tagger.reference)
             plot_vtx_trk_purity.add(vtx_trk_perf, reference=tagger.reference)
 
         plot_vtx_eff.draw()
-        plot_vtx_eff.savefig(self.get_filename(prefix+f"vtx_eff_vs_{xvar}", suffix))
+        plot_vtx_eff.savefig(self.get_filename(prefix + f"vtx_eff_vs_{xvar}", suffix))
 
-        plot_vtx_match_rate.draw()
-        plot_vtx_match_rate.savefig(
-            self.get_filename(prefix+f"vtx_match_rate_vs_{xvar}", suffix)
+        plot_vtx_purity.draw()
+        plot_vtx_purity.savefig(
+            self.get_filename(prefix + f"vtx_purity_vs_{xvar}", suffix)
         )
 
         plot_vtx_nreco.draw()
         plot_vtx_nreco.savefig(
-            self.get_filename(prefix+f"vtx_nreco_vs_{xvar}", suffix)
+            self.get_filename(prefix + f"vtx_nreco_vs_{xvar}", suffix)
         )
 
         plot_vtx_trk_eff.draw()
         plot_vtx_trk_eff.savefig(
-            self.get_filename(prefix+f"vtx_trk_eff_vs_{xvar}", suffix)
+            self.get_filename(prefix + f"vtx_trk_eff_vs_{xvar}", suffix)
         )
 
         plot_vtx_trk_purity.draw()
         plot_vtx_trk_purity.savefig(
-            self.get_filename(prefix+f"vtx_trk_purity_vs_{xvar}", suffix)
+            self.get_filename(prefix + f"vtx_trk_purity_vs_{xvar}", suffix)
         )
