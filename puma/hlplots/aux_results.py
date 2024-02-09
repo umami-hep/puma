@@ -295,8 +295,10 @@ class AuxResults:
             # filter out jets of chosen flavour - if flavour is not set, use all
             if flavour:
                 is_flavour = tagger.is_flav(flavour)
+                prefix = f"{flavour}_"
             else:
                 is_flavour = np.ones_like(tagger.labels, dtype=bool)
+                prefix = "alljets_"
 
             include_sum = vtx_metrics["track_overlap"][is_flavour] >= 0
 
@@ -338,24 +340,24 @@ class AuxResults:
             plot_vtx_trk_purity.add(vtx_trk_perf, reference=tagger.reference)
 
         plot_vtx_eff.draw()
-        plot_vtx_eff.savefig(self.get_filename(f"{flavour}_vtx_eff_vs_{xvar}", suffix))
+        plot_vtx_eff.savefig(self.get_filename(prefix+f"vtx_eff_vs_{xvar}", suffix))
 
         plot_vtx_match_rate.draw()
         plot_vtx_match_rate.savefig(
-            self.get_filename(f"{flavour}_vtx_match_rate_vs_{xvar}", suffix)
+            self.get_filename(prefix+f"vtx_match_rate_vs_{xvar}", suffix)
         )
 
         plot_vtx_nreco.draw()
         plot_vtx_nreco.savefig(
-            self.get_filename(f"{flavour}_vtx_nreco_vs_{xvar}", suffix)
+            self.get_filename(prefix+f"vtx_nreco_vs_{xvar}", suffix)
         )
 
         plot_vtx_trk_eff.draw()
         plot_vtx_trk_eff.savefig(
-            self.get_filename(f"{flavour}_vtx_trk_eff_vs_{xvar}", suffix)
+            self.get_filename(prefix+f"vtx_trk_eff_vs_{xvar}", suffix)
         )
 
         plot_vtx_trk_purity.draw()
         plot_vtx_trk_purity.savefig(
-            self.get_filename(f"{flavour}_vtx_trk_purity_vs_{xvar}", suffix)
+            self.get_filename(prefix+f"vtx_trk_purity_vs_{xvar}", suffix)
         )
