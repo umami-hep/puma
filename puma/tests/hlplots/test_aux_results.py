@@ -22,7 +22,7 @@ class AuxResultsTestCase(unittest.TestCase):
         """Test for AuxResults.add_taggers_from_file function."""
         np.random.default_rng(seed=16)
         fname = get_dummy_tagger_aux()[0]
-        results = AuxResults(signal="bjets", sample="test")
+        results = AuxResults(sample="test")
         taggers = [Tagger("GN2")]
         results.add_taggers_from_file(
             taggers,
@@ -35,7 +35,7 @@ class AuxResultsTestCase(unittest.TestCase):
         fname = get_dummy_tagger_aux()[0]
         cuts = [("eta", ">", 0)]
         tagger_cuts = [("pt", ">", 20)]
-        results = AuxResults(signal="bjets", sample="test")
+        results = AuxResults(sample="test")
         taggers = [Tagger("GN2", cuts=tagger_cuts)]
         results.add_taggers_from_file(
             taggers,
@@ -89,7 +89,7 @@ class AuxResultsPlotsTestCase(unittest.TestCase):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
         with tempfile.TemporaryDirectory() as tmp_file:
-            auxresults = AuxResults(signal="bjets", sample="test", output_dir=tmp_file)
+            auxresults = AuxResults(sample="test", output_dir=tmp_file)
             auxresults.add(self.dummy_tagger_1)
             auxresults.plot_var_vtx_perf()
             self.assertIsFile(auxresults.get_filename("vtx_eff_vs_pt"))
