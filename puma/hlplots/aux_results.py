@@ -1,17 +1,17 @@
 """Auxiliary task results module for high level API."""
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
-from ftag import Cuts
+from ftag import Cuts, Flavour, Flavours
 from ftag.hdf5 import H5Reader
 
-from puma.hlplots.results import Results
 from puma.hlplots.tagger import Tagger
 from puma.utils.vertexing import calculate_vertex_metrics, clean_indices
 from puma.var_vs_aux import VarVsAux, VarVsAuxPlot
+from puma.var_vs_var import VarVsVar, VarVsVarPlot
 
 
 def get_aux_labels():
@@ -23,8 +23,33 @@ def get_aux_labels():
 
 
 @dataclass
-class AuxResults(Results):
+class AuxResults:
     """Store information about several taggers and plot auxiliary task results."""
+
+    sample: str
+    atlas_first_tag: str = "Simulation Internal"
+    atlas_second_tag: str = None
+    taggers: dict = field(default_factory=dict)
+    perf_var: str = "pt"
+    output_dir: str | Path = "."
+    extension: str = "png"
+
+    def add(self, tagger):
+        """Add tagger to class.
+
+        Parameters
+        ----------
+        tagger : puma.hlplots.Tagger
+            Instance of the puma.hlplots.Tagger class, containing tagger information.
+
+        Raises
+        ------
+        KeyError
+            if model name duplicated
+        """
+        if str(tagger) in self.taggers:
+            raise KeyError(f"{tagger} was already added.")
+        self.taggers[str(tagger)] = tagger
 
     def add_taggers_from_file(  # pylint: disable=R0913
         self,
@@ -58,9 +83,6 @@ class AuxResults(Results):
         perf_var : np.ndarray, optional
             Override the performance variable to use, by default None
         """
-        # set tagger output nodes
-        for tagger in taggers:
-            tagger.output_flavours = self.flavours
 
         # get a list of all variables to be loaded from the file
         if not isinstance(cuts, Cuts):
@@ -118,17 +140,56 @@ class AuxResults(Results):
             # add tagger to results
             self.add(tagger)
 
+    def __getitem__(self, tagger_name: str):
+        """Retrieve Tagger object.
+
+        Parameters
+        ----------
+        tagger_name : str
+            Name of model
+
+        Returns
+        -------
+        Tagger
+            Instance of the puma.hlplots.Tagger class, containing tagger information.
+        """
+        return self.taggers[tagger_name]
+
+    def get_filename(self, plot_name: str, suffix: str | None = None):
+        """Get output name.
+
+        Parameters
+        ----------
+        plot_name : str
+            plot name
+        suffix : str, optional
+            suffix to add to output name, by default None
+
+        Returns
+        -------
+        str
+            output name
+        """
+        base = f"{self.sample}_{plot_name}"
+        if suffix is not None:
+            base += f"_{suffix}"
+        return Path(self.output_dir / base).with_suffix(f".{self.extension}")
+
     def plot_var_vtx_perf(
         self,
+        flavour: Flavour | str = None,
         suffix: str | None = None,
         xlabel: str = r"$p_{T}$ [GeV]",
         xvar: str = "pt",
         incl_vertexing: bool = False,
         **kwargs,
     ):
+
+        if isinstance(flavour, str):
+            flavour = Flavours[flavour]
+
         # define the curves
         plot_vtx_eff = VarVsAuxPlot(
-            mode="efficiency",
             ylabel="Vertexing efficiency",
             xlabel=xlabel,
             logy=False,
@@ -136,9 +197,16 @@ class AuxResults(Results):
             atlas_second_tag=self.atlas_second_tag,
             y_scale=1.4,
         )
-        plot_vtx_purity = VarVsAuxPlot(
-            mode="purity",
-            ylabel="Vertexing purity",
+        plot_vtx_match_rate = VarVsAuxPlot(
+            ylabel="Vertexing match rate",
+            xlabel=xlabel,
+            logy=False,
+            atlas_first_tag=self.atlas_first_tag,
+            atlas_second_tag=self.atlas_second_tag,
+            y_scale=1.4,
+        )
+        plot_vtx_nreco = VarVsVarPlot(
+            ylabel="Number of reconstructed vertices",
             xlabel=xlabel,
             logy=False,
             atlas_first_tag=self.atlas_first_tag,
@@ -146,7 +214,6 @@ class AuxResults(Results):
             y_scale=1.4,
         )
         plot_vtx_trk_eff = VarVsAuxPlot(
-            mode="efficiency",
             ylabel="Track-vertex association efficiency",
             xlabel=xlabel,
             logy=False,
@@ -155,7 +222,6 @@ class AuxResults(Results):
             y_scale=1.4,
         )
         plot_vtx_trk_purity = VarVsAuxPlot(
-            mode="purity",
             ylabel="Track-vertex association purity",
             xlabel=xlabel,
             logy=False,
@@ -220,32 +286,32 @@ class AuxResults(Results):
             # calculate vertexing metrics
             vtx_metrics = calculate_vertex_metrics(reco_indices, truth_indices)
 
-            is_signal = tagger.is_flav(self.signal)
-            include_sum = vtx_metrics["track_overlap"][is_signal] >= 0
+            is_flavour = tagger.is_flav(flavour)
+            include_sum = vtx_metrics["track_overlap"][is_flavour] >= 0
 
             vtx_perf = VarVsAux(
-                x_var=tagger.perf_var[is_signal],
-                n_match=vtx_metrics["n_match"][is_signal],
-                n_true=vtx_metrics["n_ref"][is_signal],
-                n_reco=vtx_metrics["n_test"][is_signal],
+                x_var=tagger.perf_var[is_flavour],
+                n_match=vtx_metrics["n_match"][is_flavour],
+                n_true=vtx_metrics["n_ref"][is_flavour],
+                n_reco=vtx_metrics["n_test"][is_flavour],
                 label=tagger.label,
                 colour=tagger.colour,
                 **kwargs,
             )
             vtx_trk_perf = VarVsAux(
-                x_var=tagger.perf_var[is_signal],
+                x_var=tagger.perf_var[is_flavour],
                 n_match=np.sum(
-                    vtx_metrics["track_overlap"][is_signal],
+                    vtx_metrics["track_overlap"][is_flavour],
                     axis=1,
                     where=include_sum,
                 ),
                 n_true=np.sum(
-                    vtx_metrics["ref_vertex_size"][is_signal],
+                    vtx_metrics["ref_vertex_size"][is_flavour],
                     axis=1,
                     where=include_sum,
                 ),
                 n_reco=np.sum(
-                    vtx_metrics["test_vertex_size"][is_signal],
+                    vtx_metrics["test_vertex_size"][is_flavour],
                     axis=1,
                     where=include_sum,
                 ),
@@ -255,15 +321,15 @@ class AuxResults(Results):
             )
 
             plot_vtx_eff.add(vtx_perf, reference=tagger.reference)
-            plot_vtx_purity.add(vtx_perf, reference=tagger.reference)
+            plot_vtx_match_rate.add(vtx_perf, reference=tagger.reference)
             plot_vtx_trk_eff.add(vtx_trk_perf, reference=tagger.reference)
             plot_vtx_trk_purity.add(vtx_trk_perf, reference=tagger.reference)
 
         plot_vtx_eff.draw()
         plot_vtx_eff.savefig(self.get_filename(f"vtx_eff_vs_{xvar}", suffix))
 
-        plot_vtx_purity.draw()
-        plot_vtx_purity.savefig(self.get_filename(f"vtx_purity_vs_{xvar}", suffix))
+        plot_vtx_match_rate.draw()
+        plot_vtx_match_rate.savefig(self.get_filename(f"vtx_match_rate_vs_{xvar}", suffix))
 
         plot_vtx_trk_eff.draw()
         plot_vtx_trk_eff.savefig(self.get_filename(f"vtx_trk_eff_vs_{xvar}", suffix))
