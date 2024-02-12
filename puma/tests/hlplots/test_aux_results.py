@@ -56,8 +56,8 @@ class AuxResultsTestCase(unittest.TestCase):
             fname,
             cuts=cuts,
             perf_vars={
-                "pt": rng.exponential(100, size=1000),
-                "eta": rng.normal(0, 1, size=1000),
+                "pt": rng.exponential(100, size=9999),
+                "eta": rng.normal(0, 1, size=9999),
             },
         )
         self.assertEqual(list(results.taggers.values()), taggers)
