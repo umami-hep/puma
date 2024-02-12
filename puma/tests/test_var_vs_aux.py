@@ -103,7 +103,7 @@ class VarVsAuxTestCase(unittest.TestCase):
         pm, pm_error = var_plot.get_performance_ratio(var_plot.n_match, var_plot.n_true)
         self.assertEqual(pm, 0)
         self.assertEqual(pm_error, 0)
-    
+
     def test_var_vs_aux_get_perf_ratio_infinity(self):
         """Test var_vs_aux get_performance_ratio with undefined efficiency case."""
         var_plot = VarVsAux(
