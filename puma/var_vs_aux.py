@@ -175,7 +175,7 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
                 "Your performance ratio is infinity -> setting it to np.nan."
             )
             return np.nan, np.nan
-        elif len(num) == 0:
+        elif pm == 0:
             logger.warning("Your performance ratio is zero -> setting error to zero.")
             return 0.0, 0.0
         pm_error = eff_err(pm, len(num))

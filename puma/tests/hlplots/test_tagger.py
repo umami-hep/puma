@@ -50,6 +50,27 @@ class TaggerBasisTestCase(unittest.TestCase):
         with self.subTest():
             self.assertEqual(tagger.n_jets("bjets"), 15)
 
+    def test_aux_variables_vertexing(self):
+        """Test vertexing aux task variable retrieval. Includes special cases for SV1
+        and JF taggers."""
+        default_tagger = Tagger("dummy", aux_tasks=["vertexing"])
+        SV1_tagger = Tagger("SV1", aux_tasks=["vertexing"])
+        JF_tagger = Tagger("JF", aux_tasks=["vertexing"])
+        self.assertEqual(default_tagger.aux_variables["vertexing"], "dummy_VertexIndex")
+        self.assertEqual(SV1_tagger.aux_variables["vertexing"], "SV1VertexIndex")
+        self.assertEqual(JF_tagger.aux_variables["vertexing"], "JFVertexIndex")
+
+    def test_aux_variables_track_origin(self):
+        """Test track_origin aux task variable retrieval."""
+        tagger = Tagger("dummy", aux_tasks=["track_origin"])
+        self.assertEqual(tagger.aux_variables["track_origin"], "dummy_TrackOrigin")
+
+    def test_aux_variables_undefined(self):
+        """Test undefined aux task variable retrieval."""
+        tagger = Tagger("dummy", aux_tasks=["dummy"])
+        with self.assertRaises(ValueError):
+            tagger.aux_variables
+
 
 class TaggerScoreExtractionTestCase(unittest.TestCase):
     """Test extract_tagger_scores function in Tagger class."""
