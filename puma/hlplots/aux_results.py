@@ -30,13 +30,16 @@ class AuxResults:
     atlas_first_tag: str = "Simulation Internal"
     atlas_second_tag: str = None
     taggers: dict = field(default_factory=dict)
-    perf_var: str = "pt"
+    perf_vars: str | tuple | list = "pt"
     output_dir: str | Path = "."
     extension: str = "png"
 
     def __post_init__(self):
         if isinstance(self.output_dir, str):
             self.output_dir = Path(self.output_dir)
+
+        if isinstance(self.perf_vars, str):
+            self.perf_vars = [self.perf_vars]
 
     def add(self, tagger):
         """Add tagger to class.
@@ -64,7 +67,7 @@ class AuxResults:
         aux_key="tracks",
         cuts: Cuts | list | None = None,
         num_jets: int | None = None,
-        perf_var: str | None = None,
+        perf_vars: dict | None = None,
     ):
         """Load one or more taggers from a common file.
 
@@ -84,7 +87,7 @@ class AuxResults:
             Cuts to apply, by default None
         num_jets : int, optional
             Number of jets to load from the file, by default all jets
-        perf_var : np.ndarray, optional
+        perf_vars : dict, optional
             Override the performance variable to use, by default None
         """
         # get a list of all variables to be loaded from the file
@@ -93,7 +96,7 @@ class AuxResults:
         var_list = [label_var]
         var_list += cuts.variables
         var_list += sum([t.cuts.variables for t in taggers if t.cuts is not None], [])
-        var_list = list(set(var_list + [self.perf_var]))
+        var_list = list(set(var_list + self.perf_vars))
 
         aux_labels = get_aux_labels()
 
@@ -111,21 +114,23 @@ class AuxResults:
         if cuts:
             idx, data = cuts(data)
             aux_data = aux_data[idx]
-            if perf_var is not None:
-                perf_var = perf_var[idx]
+            if perf_vars is not None:
+                for perf_var_array in perf_vars.values():
+                    perf_var_array = perf_var_array[idx]
 
         # for each tagger
         for tagger in taggers:
             sel_data = data
             sel_aux_data = aux_data
-            sel_perf_var = perf_var
+            sel_perf_vars = perf_vars
 
             # apply tagger specific cuts
             if tagger.cuts:
                 idx, sel_data = tagger.cuts(data)
                 sel_aux_data = aux_data[idx]
-                if perf_var is not None:
-                    sel_perf_var = perf_var[idx]
+                if perf_vars is not None:
+                    for perf_var_array in sel_perf_vars.values():
+                        perf_var_array = perf_var_array[idx]
 
             # attach data to tagger objects
             tagger.labels = np.array(sel_data[label_var], dtype=[(label_var, "i4")])
@@ -133,12 +138,15 @@ class AuxResults:
                 tagger.aux_scores[task] = sel_aux_data[tagger.aux_variables[task]]
             for task in aux_labels:
                 tagger.aux_labels[task] = sel_aux_data[aux_labels[task]]
-            if perf_var is None:
-                tagger.perf_var = sel_data[self.perf_var]
-                if any(x in self.perf_var for x in ["pt", "mass"]):
-                    tagger.perf_var = tagger.perf_var * 0.001
+            if perf_vars is None:
+                tagger.perf_vars = dict()
+                for perf_var in self.perf_vars:
+                    if any(x in perf_var for x in ["pt", "mass"]):
+                        tagger.perf_vars[perf_var] = sel_data[perf_var] * 0.001
+                    else:
+                        tagger.perf_vars[perf_var] = sel_data[perf_var]
             else:
-                tagger.perf_var = sel_perf_var
+                tagger.perf_vars = sel_perf_vars
 
             # add tagger to results
             self.add(tagger)
@@ -183,7 +191,7 @@ class AuxResults:
         flavour: Flavour | str = None,
         suffix: str | None = None,
         xlabel: str = r"$p_{T}$ [GeV]",
-        xvar: str = "pt",
+        perf_var: str = "pt",
         incl_vertexing: bool = False,
         **kwargs,
     ):
@@ -242,6 +250,9 @@ class AuxResults:
                 logger.warning(
                     f"{tagger.name} does not have vertexing aux task defined. Skipping."
                 )
+            assert (
+                perf_var in tagger.perf_vars
+            ), f"{perf_var} not in tagger {tagger.name} data!"
 
             # get cleaned vertex indices
             truth_indices, reco_indices = tagger.vertex_indices(
@@ -262,7 +273,7 @@ class AuxResults:
             include_sum = vtx_metrics["track_overlap"][is_flavour] >= 0
 
             vtx_perf = VarVsAux(
-                x_var=tagger.perf_var[is_flavour],
+                x_var=tagger.perf_vars[perf_var][is_flavour],
                 n_match=vtx_metrics["n_match"][is_flavour],
                 n_true=vtx_metrics["n_ref"][is_flavour],
                 n_reco=vtx_metrics["n_test"][is_flavour],
@@ -271,7 +282,7 @@ class AuxResults:
                 **kwargs,
             )
             vtx_trk_perf = VarVsAux(
-                x_var=tagger.perf_var[is_flavour],
+                x_var=tagger.perf_vars[perf_var][is_flavour],
                 n_match=np.sum(
                     vtx_metrics["track_overlap"][is_flavour],
                     axis=1,
@@ -302,24 +313,24 @@ class AuxResults:
             raise ValueError("No taggers with vertexing aux task added.")
 
         plot_vtx_eff.draw()
-        plot_vtx_eff.savefig(self.get_filename(prefix + f"vtx_eff_vs_{xvar}", suffix))
+        plot_vtx_eff.savefig(self.get_filename(prefix + f"vtx_eff_vs_{perf_var}", suffix))
 
         plot_vtx_purity.draw()
         plot_vtx_purity.savefig(
-            self.get_filename(prefix + f"vtx_purity_vs_{xvar}", suffix)
+            self.get_filename(prefix + f"vtx_purity_vs_{perf_var}", suffix)
         )
 
         plot_vtx_nreco.draw()
         plot_vtx_nreco.savefig(
-            self.get_filename(prefix + f"vtx_nreco_vs_{xvar}", suffix)
+            self.get_filename(prefix + f"vtx_nreco_vs_{perf_var}", suffix)
         )
 
         plot_vtx_trk_eff.draw()
         plot_vtx_trk_eff.savefig(
-            self.get_filename(prefix + f"vtx_trk_eff_vs_{xvar}", suffix)
+            self.get_filename(prefix + f"vtx_trk_eff_vs_{perf_var}", suffix)
         )
 
         plot_vtx_trk_purity.draw()
         plot_vtx_trk_purity.savefig(
-            self.get_filename(prefix + f"vtx_trk_purity_vs_{xvar}", suffix)
+            self.get_filename(prefix + f"vtx_trk_purity_vs_{perf_var}", suffix)
         )

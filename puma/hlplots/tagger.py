@@ -33,7 +33,7 @@ class Tagger:
     labels: np.ndarray = None
     aux_scores: dict = None
     aux_labels: dict = None
-    perf_var: np.ndarray = None
+    perf_vars: dict = None
     output_flavours: list = field(
         default_factory=lambda: [Flavours.ujets, Flavours.cjets, Flavours.bjets]
     )

@@ -44,6 +44,24 @@ class AuxResultsTestCase(unittest.TestCase):
         )
         self.assertEqual(list(results.taggers.values()), taggers)
 
+    def test_add_taggers_with_cuts_override_perf_vars(self):
+        rng = np.random.default_rng(seed=16)
+        fname = get_dummy_tagger_aux()[0]
+        cuts = [("eta", ">", 0)]
+        tagger_cuts = [("pt", ">", 20)]
+        results = AuxResults(sample="test")
+        taggers = [Tagger("GN2", cuts=tagger_cuts)]
+        results.add_taggers_from_file(
+            taggers,
+            fname,
+            cuts=cuts,
+            perf_vars={
+                "pt": rng.exponential(100, size=1000),
+                "eta": rng.normal(0, 1, size=1000),
+            },
+        )
+        self.assertEqual(list(results.taggers.values()), taggers)
+
 
 class AuxResultsPlotsTestCase(unittest.TestCase):
     """Test class for the AuxResults class running plots."""
@@ -64,10 +82,10 @@ class AuxResultsPlotsTestCase(unittest.TestCase):
             "vertexing": f["tracks"]["ftagTruthVertexIndex"],
             "track_origin": f["tracks"]["ftagTruthOriginLabel"],
         }
-        dummy_tagger.perf_var = f["jets"]["pt"]
+        dummy_tagger.perf_vars = {"pt": f["jets"]["pt"]}
         dummy_tagger.label = "dummy tagger"
         dummy_tagger_no_aux = Tagger("GN2_NoAux", aux_tasks=[])
-        dummy_tagger_no_aux.perf_var = f["jets"]["pt"]
+        dummy_tagger_no_aux.perf_vars = {"pt": f["jets"]["pt"]}
         dummy_tagger_no_aux.label = "dummy tagger no aux"
         self.dummy_tagger = dummy_tagger
         self.dummy_tagger_no_aux = dummy_tagger_no_aux
