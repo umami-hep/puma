@@ -29,7 +29,7 @@ class AuxResults(Results):
         vtx_reco_var="VertexIndex",
         cuts: Cuts | list | None = None,
         num_jets: int | None = None,
-        perf_var: str | None = None,
+        perf_vars: dict | None = None,
     ):
         """Load one or more taggers from a common file.
 
@@ -53,7 +53,7 @@ class AuxResults(Results):
             Cuts to apply, by default None
         num_jets : int, optional
             Number of jets to load from the file, by default all jets
-        perf_var : np.ndarray, optional
+        perf_vars : dict, optional
             Override the performance variable to use, by default None
         """
         # set tagger output nodes
@@ -66,7 +66,7 @@ class AuxResults(Results):
         var_list = sum([tagger.variables for tagger in taggers], [label_var])
         var_list += cuts.variables
         var_list += sum([t.cuts.variables for t in taggers if t.cuts is not None], [])
-        var_list = list(set(var_list + [self.perf_var]))
+        var_list = list(set(var_list + self.perf_vars))
 
         # load data
         reader = H5Reader(file_path, precision="full")
@@ -80,21 +80,23 @@ class AuxResults(Results):
         if cuts:
             idx, data = cuts(data)
             aux_data = aux_data[idx]
-            if perf_var is not None:
-                perf_var = perf_var[idx]
+            if perf_vars is not None:
+                for perf_var_array in perf_vars.values():
+                    perf_var_array = perf_var_array[idx]
 
         # for each tagger
         for tagger in taggers:
             sel_data = data
             sel_aux_data = aux_data
-            sel_perf_var = perf_var
+            sel_perf_vars = perf_vars
 
             # apply tagger specific cuts
             if tagger.cuts:
                 idx, sel_data = tagger.cuts(data)
                 sel_aux_data = aux_data[idx]
-                if perf_var is not None:
-                    sel_perf_var = perf_var[idx]
+                if perf_vars is not None:
+                    for perf_var_array in sel_perf_vars.values():
+                        perf_var_array = perf_var_array[idx]
 
             # calculate vertexing metrics
             tagger.aux_metrics = calculate_vertex_metrics(
@@ -105,12 +107,15 @@ class AuxResults(Results):
             # attach data to tagger objects
             tagger.extract_tagger_scores(sel_data, source_type="structured_array")
             tagger.labels = np.array(sel_data[label_var], dtype=[(label_var, "i4")])
-            if perf_var is None:
-                tagger.perf_var = sel_data[self.perf_var]
-                if any(x in self.perf_var for x in ["pt", "mass"]):
-                    tagger.perf_var = tagger.perf_var * 0.001
+            if perf_vars is None:
+                tagger.perf_vars = dict()
+                for perf_var in self.perf_vars:
+                    if any(x in perf_var for x in ["pt", "mass"]):
+                        tagger.perf_vars[perf_var] = sel_data[perf_var] * 0.001
+                    else:
+                        tagger.perf_vars[perf_var] = sel_data[perf_var]
             else:
-                tagger.perf_var = sel_perf_var
+                tagger.perf_vars = sel_perf_vars
 
             # add tagger to results
             self.add(tagger)
@@ -119,7 +124,7 @@ class AuxResults(Results):
         self,
         suffix: str | None = None,
         xlabel: str = r"$p_{T}$ [GeV]",
-        x_var: str = "pt",
+        perf_var: str = "pt",
         **kwargs,
     ):
         # define the curves
@@ -135,10 +140,12 @@ class AuxResults(Results):
 
         for tagger in self.taggers.values():
             is_signal = tagger.is_flav(self.signal)
-
+            assert (
+                perf_var in tagger.perf_vars
+            ), f"{perf_var} not in tagger {tagger.name} data!"
             plot_vtx_eff.add(
                 VarVsAux(
-                    x_var=tagger.perf_var[is_signal],
+                    x_var=tagger.perf_vars[perf_var][is_signal],
                     n_match=tagger.aux_metrics["n_match"][is_signal],
                     n_true=tagger.aux_metrics["n_ref"][is_signal],
                     n_reco=tagger.aux_metrics["n_test"][is_signal],
@@ -151,14 +158,14 @@ class AuxResults(Results):
 
         plot_vtx_eff.draw()
 
-        plot_details = f"vtx_eff_vs_{x_var}"
+        plot_details = f"vtx_eff_vs_{perf_var}"
         plot_vtx_eff.savefig(self.get_filename(plot_details, suffix))
 
     def plot_var_vtx_fr(
         self,
         suffix: str | None = None,
         xlabel: str = r"$p_{T}$ [GeV]",
-        x_var: str = "pt",
+        perf_var: str = "pt",
         **kwargs,
     ):
         # define the curves
@@ -174,10 +181,12 @@ class AuxResults(Results):
 
         for tagger in self.taggers.values():
             is_signal = tagger.is_flav(self.signal)
-
+            assert (
+                perf_var in tagger.perf_vars
+            ), f"{perf_var} not in tagger {tagger.name} data!"
             plot_vtx_fr.add(
                 VarVsAux(
-                    x_var=tagger.perf_var[is_signal],
+                    x_var=tagger.perf_vars[perf_var][is_signal],
                     n_match=tagger.aux_metrics["n_match"][is_signal],
                     n_true=tagger.aux_metrics["n_ref"][is_signal],
                     n_reco=tagger.aux_metrics["n_test"][is_signal],
@@ -190,14 +199,14 @@ class AuxResults(Results):
 
         plot_vtx_fr.draw()
 
-        plot_details = f"vtx_fr_vs_{x_var}"
+        plot_details = f"vtx_fr_vs_{perf_var}"
         plot_vtx_fr.savefig(self.get_filename(plot_details, suffix))
 
     def plot_var_vtx_trk_eff(
         self,
         suffix: str | None = None,
         xlabel: str = r"$p_{T}$ [GeV]",
-        x_var: str = "pt",
+        perf_var: str = "pt",
         **kwargs,
     ):
         # define the curves
@@ -214,10 +223,12 @@ class AuxResults(Results):
         for tagger in self.taggers.values():
             is_signal = tagger.is_flav(self.signal)
             include_sum = tagger.aux_metrics["track_overlap"][is_signal] >= 0
-
+            assert (
+                perf_var in tagger.perf_vars
+            ), f"{perf_var} not in tagger {tagger.name} data!"
             plot_vtx_eff.add(
                 VarVsAux(
-                    x_var=tagger.perf_var[is_signal],
+                    x_var=tagger.perf_vars[perf_var][is_signal],
                     n_match=np.sum(
                         tagger.aux_metrics["track_overlap"][is_signal],
                         axis=1,
@@ -242,14 +253,14 @@ class AuxResults(Results):
 
         plot_vtx_eff.draw()
 
-        plot_details = f"vtx_trk_eff_vs_{x_var}"
+        plot_details = f"vtx_trk_eff_vs_{perf_var}"
         plot_vtx_eff.savefig(self.get_filename(plot_details, suffix))
 
     def plot_var_vtx_trk_fr(
         self,
         suffix: str | None = None,
         xlabel: str = r"$p_{T}$ [GeV]",
-        x_var: str = "pt",
+        perf_var: str = "pt",
         **kwargs,
     ):
         # define the curves
@@ -266,10 +277,12 @@ class AuxResults(Results):
         for tagger in self.taggers.values():
             is_signal = tagger.is_flav(self.signal)
             include_sum = tagger.aux_metrics["track_overlap"][is_signal] >= 0
-
+            assert (
+                perf_var in tagger.perf_vars
+            ), f"{perf_var} not in tagger {tagger.name} data!"
             plot_vtx_eff.add(
                 VarVsAux(
-                    x_var=tagger.perf_var[is_signal],
+                    x_var=tagger.perf_vars[perf_var][is_signal],
                     n_match=np.sum(
                         tagger.aux_metrics["track_overlap"][is_signal],
                         axis=1,
@@ -294,5 +307,5 @@ class AuxResults(Results):
 
         plot_vtx_eff.draw()
 
-        plot_details = f"vtx_trk_fr_vs_{x_var}"
+        plot_details = f"vtx_trk_fr_vs_{perf_var}"
         plot_vtx_eff.savefig(self.get_filename(plot_details, suffix))
