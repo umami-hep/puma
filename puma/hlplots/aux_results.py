@@ -9,7 +9,8 @@ from ftag import Cuts, Flavour, Flavours
 from ftag.hdf5 import H5Reader
 
 from puma.hlplots.tagger import Tagger
-from puma.utils.vertexing import calculate_vertex_metrics, clean_indices
+from puma.utils import logger
+from puma.utils.vertexing import calculate_vertex_metrics
 from puma.var_vs_aux import VarVsAux, VarVsAuxPlot
 
 
@@ -238,56 +239,14 @@ class AuxResults:
 
         for tagger in self.taggers.values():
             if "vertexing" not in tagger.aux_tasks:
-                continue
+                logger.warning(
+                    f"{tagger.name} does not have vertexing aux task defined. Skipping."
+                )
 
-            # clean truth vertex indices - remove indices from true PV, PU, fake
-            truth_removal_cond = np.logical_or(
-                tagger.aux_labels["vertexing"] == 0,
-                np.isin(tagger.aux_labels["track_origin"], [0, 1, 2]),
+            # get cleaned vertex indices
+            truth_indices, reco_indices = tagger.vertex_indices(
+                incl_vertexing=incl_vertexing
             )
-            truth_indices = clean_indices(
-                tagger.aux_labels["vertexing"],
-                truth_removal_cond,
-                mode="remove",
-            )
-
-            # merge truth vertices from HF for inclusive performance
-            if incl_vertexing:
-                truth_merge_cond = np.logical_and(
-                    tagger.aux_labels["vertexing"] > 0,
-                    np.isin(tagger.aux_labels["track_origin"], [3, 4, 5, 6]),
-                )
-                truth_indices = clean_indices(
-                    truth_indices,
-                    truth_merge_cond,
-                    mode="merge",
-                )
-
-            # clean reco vertex indices - remove indices from reco PV, PU, fake
-            if "track_origin" in tagger.aux_tasks:
-                reco_indices = clean_indices(
-                    tagger.aux_scores["vertexing"],
-                    np.isin(tagger.aux_scores["track_origin"], [0, 1, 2]),
-                    mode="remove",
-                )
-
-                # merge reco vertices - from HF if track origin is available
-                if incl_vertexing:
-                    reco_indices = clean_indices(
-                        reco_indices,
-                        np.isin(tagger.aux_scores["track_origin"], [3, 4, 5, 6]),
-                        mode="merge",
-                    )
-            else:
-                reco_indices = tagger.aux_scores["vertexing"]
-
-                # merge reco vertices - all if track origin isn't available
-                if incl_vertexing:
-                    reco_indices = clean_indices(
-                        reco_indices,
-                        reco_indices >= 0,
-                        mode="merge",
-                    )
 
             # calculate vertexing metrics
             vtx_metrics = calculate_vertex_metrics(reco_indices, truth_indices)
@@ -338,6 +297,9 @@ class AuxResults:
             plot_vtx_nreco.add(vtx_perf, reference=tagger.reference)
             plot_vtx_trk_eff.add(vtx_trk_perf, reference=tagger.reference)
             plot_vtx_trk_purity.add(vtx_trk_perf, reference=tagger.reference)
+
+        if not plot_vtx_eff:
+            raise ValueError("No taggers with vertexing aux task added.")
 
         plot_vtx_eff.draw()
         plot_vtx_eff.savefig(self.get_filename(prefix + f"vtx_eff_vs_{xvar}", suffix))

@@ -9,6 +9,7 @@ import pandas as pd
 from ftag import Cuts, Flavour, Flavours, get_discriminant
 
 from puma.utils import logger
+from puma.utils.vertexing import clean_indices
 
 
 @dataclass
@@ -247,3 +248,71 @@ class Tagger:
             sig_var = self.variables[self.output_flavours.index(Flavours[signal])]
             return self.scores[sig_var]
         raise ValueError(f"No discriminant defined for {signal} signal.")
+
+    def vertex_indices(self, incl_vertexing=False):
+        """Retrieve cleaned vertex indices for the tagger.
+
+        Parameters
+        ----------
+        incl_vertexing : bool, optional
+            Whether to merge all vertex indices, by default False.
+
+        Returns
+        -------
+        np.ndarray
+            Vertex indices for the tagger
+        """
+        if "vertexing" not in self.aux_tasks:
+            raise ValueError("Vertexing aux task not available for this tagger.")
+        else:
+            truth_indices = self.aux_labels["vertexing"]
+            reco_indices = self.aux_scores["vertexing"]
+
+        # clean truth vertex indices - remove indices from true PV, PU, fake
+        truth_removal_cond = np.logical_or(
+            self.aux_labels["vertexing"] == 0,
+            np.isin(self.aux_labels["track_origin"], [0, 1, 2]),
+        )
+        truth_indices = clean_indices(
+            truth_indices,
+            truth_removal_cond,
+            mode="remove",
+        )
+
+        # merge truth vertices from HF for inclusive performance
+        if incl_vertexing:
+            truth_merge_cond = np.logical_and(
+                self.aux_labels["vertexing"] > 0,
+                np.isin(self.aux_labels["track_origin"], [3, 4, 5, 6]),
+            )
+            truth_indices = clean_indices(
+                truth_indices,
+                truth_merge_cond,
+                mode="merge",
+            )
+
+        # clean reco vertex indices - remove indices from reco PV, PU, fake
+        if "track_origin" in self.aux_tasks:
+            reco_indices = clean_indices(
+                reco_indices,
+                np.isin(self.aux_scores["track_origin"], [0, 1, 2]),
+                mode="remove",
+            )
+
+            # merge reco vertices - from HF if track origin is available
+            if incl_vertexing:
+                reco_indices = clean_indices(
+                    reco_indices,
+                    np.isin(self.aux_scores["track_origin"], [3, 4, 5, 6]),
+                    mode="merge",
+                )
+        else:
+            # merge reco vertices - all if track origin isn't available
+            if incl_vertexing:
+                reco_indices = clean_indices(
+                    reco_indices,
+                    reco_indices >= 0,
+                    mode="merge",
+                )
+
+        return truth_indices, reco_indices

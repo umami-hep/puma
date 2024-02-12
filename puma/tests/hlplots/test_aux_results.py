@@ -51,22 +51,26 @@ class AuxResultsPlotsTestCase(unittest.TestCase):
     def setUp(self) -> None:
         """Set up for unit tests."""
         f = get_dummy_tagger_aux()[1]
-        dummy_tagger_1 = Tagger("GN2")
-        dummy_tagger_1.labels = np.array(
+        dummy_tagger = Tagger("GN2")
+        dummy_tagger.labels = np.array(
             f["jets"]["HadronConeExclTruthLabelID"],
             dtype=[("HadronConeExclTruthLabelID", "i4")],
         )
-        dummy_tagger_1.aux_scores = {
+        dummy_tagger.aux_scores = {
             "vertexing": f["tracks"]["GN2_VertexIndex"],
             "track_origin": f["tracks"]["GN2_TrackOrigin"],
         }
-        dummy_tagger_1.aux_labels = {
+        dummy_tagger.aux_labels = {
             "vertexing": f["tracks"]["ftagTruthVertexIndex"],
             "track_origin": f["tracks"]["ftagTruthOriginLabel"],
         }
-        dummy_tagger_1.perf_var = f["jets"]["pt"]
-        dummy_tagger_1.label = "dummy tagger"
-        self.dummy_tagger_1 = dummy_tagger_1
+        dummy_tagger.perf_var = f["jets"]["pt"]
+        dummy_tagger.label = "dummy tagger"
+        dummy_tagger_no_aux = Tagger("GN2_NoAux", aux_tasks=[])
+        dummy_tagger_no_aux.perf_var = f["jets"]["pt"]
+        dummy_tagger_no_aux.label = "dummy tagger no aux"
+        self.dummy_tagger = dummy_tagger
+        self.dummy_tagger_no_aux = dummy_tagger_no_aux
 
     def assertIsFile(self, path: str):
         """Check for file to exist.
@@ -85,14 +89,37 @@ class AuxResultsPlotsTestCase(unittest.TestCase):
         if not Path(path).resolve().is_file():
             raise AssertionError(f"File does not exist: {path}")
 
-    def test_plot_var_vtx_perf(self):
-        """Test that png file is being created."""
-        self.dummy_tagger_1.reference = True
+    def test_plot_var_vtx_perf_alljets(self):
+        """Test that png files are being created for tagger with aux tasks."""
+        self.dummy_tagger.reference = True
         with tempfile.TemporaryDirectory() as tmp_file:
             auxresults = AuxResults(sample="test", output_dir=tmp_file)
-            auxresults.add(self.dummy_tagger_1)
+            auxresults.add(self.dummy_tagger)
             auxresults.plot_var_vtx_perf()
             self.assertIsFile(auxresults.get_filename("alljets_vtx_eff_vs_pt"))
             self.assertIsFile(auxresults.get_filename("alljets_vtx_purity_vs_pt"))
+            self.assertIsFile(auxresults.get_filename("alljets_vtx_nreco_vs_pt"))
             self.assertIsFile(auxresults.get_filename("alljets_vtx_trk_eff_vs_pt"))
             self.assertIsFile(auxresults.get_filename("alljets_vtx_trk_purity_vs_pt"))
+
+    def test_plot_var_vtx_perf_bjets(self):
+        """Test that png files are being created for tagger with aux tasks."""
+        self.dummy_tagger.reference = True
+        with tempfile.TemporaryDirectory() as tmp_file:
+            auxresults = AuxResults(sample="test", output_dir=tmp_file)
+            auxresults.add(self.dummy_tagger)
+            auxresults.plot_var_vtx_perf(flavour="bjets")
+            self.assertIsFile(auxresults.get_filename("bjets_vtx_eff_vs_pt"))
+            self.assertIsFile(auxresults.get_filename("bjets_vtx_purity_vs_pt"))
+            self.assertIsFile(auxresults.get_filename("bjets_vtx_nreco_vs_pt"))
+            self.assertIsFile(auxresults.get_filename("bjets_vtx_trk_eff_vs_pt"))
+            self.assertIsFile(auxresults.get_filename("bjets_vtx_trk_purity_vs_pt"))
+
+    def test_plot_var_vtx_perf_empty(self):
+        """Test vertexing performance function with empty data."""
+        self.dummy_tagger_no_aux.reference = True
+        with tempfile.TemporaryDirectory() as tmp_file:
+            auxresults = AuxResults(sample="test", output_dir=tmp_file)
+            auxresults.add(self.dummy_tagger_no_aux)
+            with self.assertRaises(ValueError):
+                auxresults.plot_var_vtx_perf()
