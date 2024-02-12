@@ -313,7 +313,9 @@ class AuxResults:
             raise ValueError("No taggers with vertexing aux task added.")
 
         plot_vtx_eff.draw()
-        plot_vtx_eff.savefig(self.get_filename(prefix + f"vtx_eff_vs_{perf_var}", suffix))
+        plot_vtx_eff.savefig(
+            self.get_filename(prefix + f"vtx_eff_vs_{perf_var}", suffix)
+        )
 
         plot_vtx_purity.draw()
         plot_vtx_purity.savefig(
