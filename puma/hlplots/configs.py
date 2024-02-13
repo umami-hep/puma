@@ -92,7 +92,7 @@ class PlotConfig:
 
         return cls(config_path=path, **config)
 
-    def get_results(self, perf_var="pt"):
+    def get_results(self):
         """Creates the high-level 'Results' object from the config file, using the
         previously set signal and sample. Iterates and loads all models in the config
         file, and adds them
@@ -102,12 +102,13 @@ class PlotConfig:
             "atlas_second_tag": r"$\sqrt{s} = 13.0 $ TeV",
             "global_cuts": Cuts.empty(),
             "sample": self.sample["name"],
-            "perf_var": perf_var,
             "signal": self.signal,
         }
         results_default.update(self.results_default)
         results_default["atlas_second_tag"] += "\n" + self.sample.get("str", "")
 
+        results_default["perf_vars"] = list(set([plot["args"].get('perf_var', 'pt') for plot in self.eff_vs_var_plots]))
+        
         # Store default tag incase other plots need to temporarily modify it
         self.default_second_atlas_tag = results_default["atlas_second_tag"]
         sample_cuts = Cuts.from_list(self.sample.get("cuts", []))

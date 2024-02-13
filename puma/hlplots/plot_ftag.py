@@ -60,57 +60,34 @@ def make_eff_vs_var_plots(plt_cfg):
         return
 
     eff_vs_var_plots = select_configs(plt_cfg.eff_vs_var_plots, plt_cfg)
-
+    
     # We group plots by the var we care about, we do this so we can just load the
     # variable data and calculate efficiencies over it once, for all different plots.
     # We do pT first, as this var is always loaded first by default
     grouped_plots = group_eff_vs_var_by_var(eff_vs_var_plots)
-    # Always do pt first, as its whats already been loaded
-    if "pt" in grouped_plots:
-        for eff_vs_var in grouped_plots["pt"]:
-            plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(
+    
+    for eff_vs_var in eff_vs_var_plots:
+        perf_var = eff_vs_var["args"].get('perf_var', 'pt')
+        plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(
                 plt_cfg.results, eff_vs_var
             )
-            plot_kwargs = get_plot_kwargs(eff_vs_var, suffix="_" + inc_str + "_pt")
-            if not (bins := eff_vs_var["args"].get("bins", None)):
-                if plt_cfg.sample["name"] == "ttbar":
-                    bins = [20, 30, 40, 60, 85, 110, 140, 175, 250]
-                elif plt_cfg.sample["name"] == "zprime":
-                    bins = [250, 500, 750, 1000, 1500, 2000, 3000, 4000, 5500]
-                else:
-                    raise ValueError(
-                        "No bins provided, and no default pt bins for sample"
-                        f" {plt_cfg.sample}"
-                    )
-            if plot_kwargs.get("fixed_rejections", False):
-                plt_cfg.results.plot_flat_rej_var_perf(bins=bins, **plot_kwargs)
+        plot_kwargs = get_plot_kwargs(eff_vs_var, suffix="_" + inc_str + "_"+perf_var)
+        if not (bins := eff_vs_var["args"].get("bins", None)):
+            if plt_cfg.sample["name"] == "ttbar":
+                bins = [20, 30, 40, 60, 85, 110, 140, 175, 250]
+            elif plt_cfg.sample["name"] == "zprime":
+                bins = [250, 500, 750, 1000, 1500, 2000, 3000, 4000, 5500]
             else:
-                plt_cfg.results.plot_var_perf(bins=bins, **plot_kwargs)
-            plt_cfg.results.taggers = all_taggers
-
-    for var, plots in grouped_plots.items():
-        if var == "pt":
-            continue
-        plt_cfg.get_results(var)
-        for eff_vs_var in plots:
-            plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(
-                plt_cfg.results, eff_vs_var
-            )
-            plot_kwargs = get_plot_kwargs(eff_vs_var, suffix="_" + inc_str)
-            if not (bins := eff_vs_var["args"].get("bins", None)):
-                raise ValueError("If using custom peff var, bins must be defined")
-            if "xlabel" not in plot_kwargs:
-                logger.warning(
-                    "No latex label provided for xaxis in peff plot, using raw string"
+                raise ValueError(
+                    "No bins provided, and no default pt bins for sample"
+                    f" {plt_cfg.sample}"
                 )
-                plot_kwargs["xlabel"] = var
-            plot_kwargs["x_var"] = var
-
-            if plot_kwargs.get("fixed_rejections", False):
-                plt_cfg.results.plot_flat_rej_var_perf(bins=bins, **plot_kwargs)
-            else:
-                plt_cfg.results.plot_var_perf(bins=bins, **plot_kwargs)
-            plt_cfg.results.taggers = all_taggers
+        if plot_kwargs.get("fixed_rejections", False):
+            plt_cfg.results.plot_flat_rej_var_perf(bins=bins, perf_var=perf_var, **plot_kwargs)
+        else:
+            plt_cfg.results.plot_var_perf(bins=bins, perf_var=perf_var, **plot_kwargs)
+        plt_cfg.results.taggers = all_taggers
+    
 
 
 def make_prob_plots(plt_cfg):
