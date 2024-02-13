@@ -37,6 +37,8 @@ class Results:
     perf_vars: str | tuple | list = "pt"
     output_dir: str | Path = "."
     extension: str = "png"
+    global_cuts: Cuts | list | None = None
+    num_jets: int | None = None
     remove_nan: bool = False
 
     def __post_init__(self):
@@ -89,7 +91,20 @@ class Results:
             tagger.output_flavours = self.flavours
         self.taggers[str(tagger)] = tagger
 
-    def add_taggers_from_file(  # pylint: disable=R0913
+    def load(self):
+        """Iterates all taggers, and loads data if it hasn't already been loaded"""
+        req_load = [tagger for tagger in self.taggers.values() if tagger.scores is None]
+        tagger_paths = list(set([tagger.sample_path for tagger in req_load]))
+        for tp in tagger_paths:
+            tp_taggers = [tagger for tagger in req_load if tagger.sample_path == tp]
+            self.load_taggers_from_file(
+                tp_taggers,
+                tp,
+                cuts=self.global_cuts,
+                num_jets=self.num_jets,
+            )
+
+    def add_taggers_from_file(
         self,
         taggers: list[Tagger],
         file_path: Path | str,
@@ -99,7 +114,39 @@ class Results:
         num_jets: int | None = None,
         perf_vars: dict | None = None,
     ):
-        """Load one or more taggers from a common file.
+        """Load one or more taggers from a common file, and adds them to this
+        results class
+
+
+        Parameters
+        ----------
+            @self.load_taggers_from_file
+        """
+        self.load_taggers_from_file(
+            taggers,
+            file_path,
+            key=key,
+            label_var=label_var,
+            cuts=cuts,
+            num_jets=num_jets,
+            perf_vars=perf_vars,
+        )
+
+        for tagger in taggers:
+            self.add(tagger)
+
+    def load_taggers_from_file(  # pylint: disable=R0913
+        self,
+        taggers: list[Tagger],
+        file_path: Path | str,
+        key="jets",
+        label_var="HadronConeExclTruthLabelID",
+        cuts: Cuts | list | None = None,
+        num_jets: int | None = None,
+        perf_vars: dict | None = None,
+    ):
+        """Load one or more taggers from a common file. But assumes all taggers
+        already been added.
 
         Parameters
         ----------
@@ -159,7 +206,6 @@ class Results:
 
         # check for nan values
         data = check_nan(data)
-
         # apply common cuts
         if cuts:
             idx, data = cuts(data)
@@ -175,9 +221,6 @@ class Results:
             # apply tagger specific cuts
             if tagger.cuts:
                 idx, sel_data = tagger.cuts(data)
-                if perf_vars is not None:
-                    for perf_var_array in sel_perf_vars.values():
-                        perf_var_array = perf_var_array[idx]
 
             # attach data to tagger objects
             tagger.extract_tagger_scores(sel_data, source_type="structured_array")
@@ -191,9 +234,6 @@ class Results:
                         tagger.perf_vars[perf_var] = sel_data[perf_var]
             else:
                 tagger.perf_vars = sel_perf_vars
-
-            # add tagger to results
-            self.add(tagger)
 
     def __getitem__(self, tagger_name: str):
         """Retrieve Tagger object.
@@ -346,16 +386,17 @@ class Results:
             wp_vlines = []
 
         line_styles = get_good_linestyles()
-
-        histo = HistogramPlot(
-            n_ratio_panels=0,
-            xlabel=xlabel,
-            ylabel="Normalised number of jets",
-            figsize=(7.0, 4.5),
-            atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=self.atlas_second_tag,
-            **kwargs,
-        )
+        hist_defaults = {
+            "n_ratio_panels": 0,
+            "xlabel": xlabel,
+            "ylabel": "Normalised number of jets",
+            "figsize": (7.0, 4.5),
+            "atlas_first_tag": self.atlas_first_tag,
+            "atlas_second_tag": self.atlas_second_tag,
+        }
+        if kwargs is not None:
+            hist_defaults.update(kwargs)
+        histo = HistogramPlot(**hist_defaults)
 
         tagger_labels = []
         for i, tagger in enumerate(self.taggers.values()):
@@ -363,12 +404,15 @@ class Results:
                 continue
             discs = tagger.discriminant(self.signal)
 
+            wp_cuts, wp_labels = [], []
             # get working point
             for wp in wp_vlines:
                 cut = np.percentile(discs[tagger.is_flav(self.signal)], 100 - wp)
                 label = None if i > 0 else f"{wp}%"
-                histo.draw_vlines([cut], labels=[label], linestyle=line_styles[i])
+                wp_cuts.append(cut)
+                wp_labels.append(label)
 
+            histo.draw_vlines(wp_cuts, labels=wp_labels, linestyle=line_styles[i])
             for flav in self.flavours:
                 histo.add(
                     Histogram(
@@ -571,12 +615,17 @@ class Results:
             if kwargs.get("flat_per_bin")
             else "profile_fixed_cut"
         )
-        plot_details = f"{self.signal}_eff_vs_{perf_var}_"
-        plot_suffix = f"_{suffix}" if suffix else ""
+        wp_disc = (
+            f"disc_cut_{disc_cut}" if disc_cut else f"wp_{working_point}"
+        ).replace(".", "p")
+
+        plot_details = f"{self.signal}_eff_vs_{perf_var}_{wp_disc}_"
+        plot_suffix = f"{suffix}_" if suffix else ""
         plot_sig_eff.savefig(self.get_filename(plot_details + plot_base, plot_suffix))
+
         for i, background in enumerate(self.backgrounds):
             plot_bkg[i].draw()
-            plot_details = f"{background}_rej_vs_{perf_var}_"
+            plot_details = f"{background}_rej_vs_{perf_var}_{wp_disc}_"
             plot_bkg[i].savefig(
                 self.get_filename(plot_details + plot_base, plot_suffix)
             )
@@ -751,6 +800,7 @@ class Results:
                     marker="x",
                     markersize=15,
                     markeredgewidth=2,
+                    colour=tagger.colour,
                 ),
                 is_marker=True,
             )
