@@ -1,6 +1,8 @@
 # Changelog
 
 ### [Latest]
+
+- Add support for multiple perf_vars in HLAPI [!233](https://github.com/umami-hep/puma/pull/233)
 - Remove scipy dependency [!232](https://github.com/umami-hep/puma/pull/232)
 - Extended usable range for metrics.weighted_percentile with double precision [!231](https://github.com/umami-hep/puma/pull/231)
 - Consistent fc scan colours [!228](https://github.com/umami-hep/puma/pull/228)

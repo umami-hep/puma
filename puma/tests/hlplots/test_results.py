@@ -56,15 +56,40 @@ class ResultsTestCase(unittest.TestCase):
 
     def test_add_taggers_from_file(self):
         """Test for Results.add_taggers_from_file function."""
-        np.random.default_rng(seed=16)
         fname = get_mock_file()[0]
         results = Results(signal="bjets", sample="test")
         taggers = [Tagger("MockTagger")]
         results.add_taggers_from_file(taggers, fname)
         self.assertEqual(list(results.taggers.values()), taggers)
 
+    def test_add_taggers_from_file_with_perf_vars(self):
+        """Test for Results.add_taggers_from_file function."""
+        fname = get_mock_file()[0]
+        results = Results(signal="bjets", sample="test", perf_vars=["pt", "eta"])
+        taggers = [Tagger("MockTagger")]
+        results.add_taggers_from_file(taggers, fname)
+        self.assertEqual(list(results.taggers.values()), taggers)
+
+    def test_add_taggers_with_cuts_override_perf_vars(self):
+        """Test for Results.add_taggers_from_file function."""
+        rng = np.random.default_rng(seed=16)
+        cuts = [("eta", ">", 0)]
+        tagger_cuts = [("pt", ">", 20)]
+        fname = get_mock_file(num_jets=1000)[0]
+        results = Results(signal="bjets", sample="test", perf_vars=["pt", "eta"])
+        taggers = [Tagger("MockTagger", cuts=tagger_cuts)]
+        results.add_taggers_from_file(
+            taggers,
+            fname,
+            cuts=cuts,
+            perf_vars={
+                "pt": rng.exponential(100, size=1000),
+                "eta": rng.normal(0, 1, size=1000),
+            },
+        )
+        self.assertEqual(list(results.taggers.values()), taggers)
+
     def test_add_taggers_with_cuts(self):
-        np.random.default_rng(seed=16)
         fname = get_mock_file()[0]
         cuts = [("eta", ">", 0)]
         tagger_cuts = [("pt", ">", 20)]
@@ -237,9 +262,9 @@ class ResultsPlotsTestCase(unittest.TestCase):
         self.dummy_tagger_1.f_c = 0.05
         self.dummy_tagger_1.disc_cut = 2
         rng = np.random.default_rng(seed=16)
-        self.dummy_tagger_1.perf_var = rng.exponential(
-            100, size=len(self.dummy_tagger_1.scores)
-        )
+        self.dummy_tagger_1.perf_vars = {
+            "pt": rng.exponential(100, size=len(self.dummy_tagger_1.scores))
+        }
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
@@ -262,9 +287,9 @@ class ResultsPlotsTestCase(unittest.TestCase):
         self.dummy_tagger_1.f_c = 0.05
         self.dummy_tagger_1.disc_cut = 2
         rng = np.random.default_rng(seed=16)
-        self.dummy_tagger_1.perf_var = rng.exponential(
-            100, size=len(self.dummy_tagger_1.scores)
-        )
+        self.dummy_tagger_1.perf_vars = {
+            "pt": rng.exponential(100, size=len(self.dummy_tagger_1.scores))
+        }
         with tempfile.TemporaryDirectory() as tmp_file:
             with self.assertRaises(ValueError):
                 results = Results(signal="bjets", sample="test", output_dir=tmp_file)
@@ -285,15 +310,47 @@ class ResultsPlotsTestCase(unittest.TestCase):
         self.dummy_tagger_1.f_c = 0.05
         self.dummy_tagger_1.disc_cut = 2
         rng = np.random.default_rng(seed=16)
-        self.dummy_tagger_1.perf_var = rng.exponential(
-            100, size=len(self.dummy_tagger_1.scores)
-        )
+        self.dummy_tagger_1.perf_vars = {
+            "pt": rng.exponential(100, size=len(self.dummy_tagger_1.scores))
+        }
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
             results.plot_var_perf(
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
                 working_point=0.7,
+            )
+
+            self.assertIsFile(
+                Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_profile_fixed_cut_.png"
+            )
+            self.assertIsFile(
+                Path(tmp_file) / "test_bjets_cjets_rej_vs_pt_profile_fixed_cut_.png"
+            )
+            self.assertIsFile(
+                Path(tmp_file) / "test_bjets_ujets_rej_vs_pt_profile_fixed_cut_.png"
+            )
+
+    def test_plot_var_perf_multi_bjets(self):
+        """Test that png file is being created."""
+        self.dummy_tagger_1.reference = True
+        self.dummy_tagger_1.f_c = 0.05
+        self.dummy_tagger_1.disc_cut = 2
+        rng = np.random.default_rng(seed=16)
+        self.dummy_tagger_1.perf_vars = {
+            "pt": rng.exponential(100, size=len(self.dummy_tagger_1.scores)),
+            "eta": rng.normal(0, 1, size=len(self.dummy_tagger_1.scores)),
+        }
+        with tempfile.TemporaryDirectory() as tmp_file:
+            results = Results(signal="bjets", sample="test", output_dir=tmp_file)
+            results.add(self.dummy_tagger_1)
+            results.plot_var_perf(
+                bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
+                working_point=0.7,
+                perf_var="pt",
+            )
+            results.plot_var_perf(
+                bins=np.linspace(-0.5, 0.5, 10), working_point=0.7, perf_var="eta"
             )
 
             self.assertIsFile(
@@ -309,15 +366,25 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 / "test_bjets_ujets_rej_vs_pt__wp_0p7_profile_fixed_cut_.png"
             )
 
+            self.assertIsFile(
+                Path(tmp_file) / "test_bjets_bjets_eff_vs_eta_profile_fixed_cut_.png"
+            )
+            self.assertIsFile(
+                Path(tmp_file) / "test_bjets_cjets_rej_vs_eta_profile_fixed_cut_.png"
+            )
+            self.assertIsFile(
+                Path(tmp_file) / "test_bjets_ujets_rej_vs_eta_profile_fixed_cut_.png"
+            )
+
     def test_plot_var_perf_cjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
         self.dummy_tagger_1.f_b = 0.05
         self.dummy_tagger_1.working_point = 0.5
         rng = np.random.default_rng(seed=16)
-        self.dummy_tagger_1.perf_var = rng.exponential(
-            100, size=len(self.dummy_tagger_1.scores)
-        )
+        self.dummy_tagger_1.perf_vars = {
+            "pt": rng.exponential(100, size=len(self.dummy_tagger_1.scores))
+        }
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="cjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
@@ -344,9 +411,9 @@ class ResultsPlotsTestCase(unittest.TestCase):
         self.dummy_tagger_1.f_c = 0.05
         self.dummy_tagger_1.working_point = 0.5
         rng = np.random.default_rng(seed=16)
-        self.dummy_tagger_1.perf_var = rng.exponential(
-            100, size=len(self.dummy_tagger_1.scores)
-        )
+        self.dummy_tagger_1.perf_vars = {
+            "pt": rng.exponential(100, size=len(self.dummy_tagger_1.scores))
+        }
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
@@ -369,9 +436,9 @@ class ResultsPlotsTestCase(unittest.TestCase):
         self.dummy_tagger_1.f_b = 0.05
         self.dummy_tagger_1.working_point = 0.5
         rng = np.random.default_rng(seed=16)
-        self.dummy_tagger_1.perf_var = rng.exponential(
-            100, size=len(self.dummy_tagger_1.scores)
-        )
+        self.dummy_tagger_1.perf_vars = {
+            "pt": rng.exponential(100, size=len(self.dummy_tagger_1.scores))
+        }
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="cjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)

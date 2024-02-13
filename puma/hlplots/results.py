@@ -34,7 +34,7 @@ class Results:
     atlas_first_tag: str = "Simulation Internal"
     atlas_second_tag: str = None
     taggers: dict = field(default_factory=dict)
-    perf_var: str = "pt"
+    perf_vars: str | tuple | list = "pt"
     output_dir: str | Path = "."
     extension: str = "png"
     global_cuts: Cuts | list | None = None
@@ -57,6 +57,9 @@ class Results:
 
         if isinstance(self.output_dir, str):
             self.output_dir = Path(self.output_dir)
+
+        if isinstance(self.perf_vars, str):
+            self.perf_vars = [self.perf_vars]
 
     @property
     def flavours(self):
@@ -109,7 +112,7 @@ class Results:
         label_var="HadronConeExclTruthLabelID",
         cuts: Cuts | list | None = None,
         num_jets: int | None = None,
-        perf_var: str | None = None,
+        perf_vars: dict | None = None,
     ):
         """Load one or more taggers from a common file, and adds them to this
         results class
@@ -126,7 +129,7 @@ class Results:
             label_var=label_var,
             cuts=cuts,
             num_jets=num_jets,
-            perf_var=perf_var,
+            perf_vars=perf_vars,
         )
 
         for tagger in taggers:
@@ -140,7 +143,7 @@ class Results:
         label_var="HadronConeExclTruthLabelID",
         cuts: Cuts | list | None = None,
         num_jets: int | None = None,
-        perf_var: str | None = None,
+        perf_vars: dict | None = None,
     ):
         """Load one or more taggers from a common file. But assumes all taggers
         already been added.
@@ -159,8 +162,8 @@ class Results:
             Cuts to apply, by default None
         num_jets : int, optional
             Number of jets to load from the file, by default all jets
-        perf_var : np.ndarray, optional
-            Override the performance variable to use, by default None
+        perf_vars : dict, optional
+            Override the performance variables to use, by default None
         """
 
         def check_nan(data: np.ndarray) -> np.ndarray:
@@ -195,7 +198,7 @@ class Results:
         var_list = sum([tagger.variables for tagger in taggers], [label_var])
         var_list += cuts.variables
         var_list += sum([t.cuts.variables for t in taggers if t.cuts is not None], [])
-        var_list = list(set(var_list + [self.perf_var]))
+        var_list = list(set(var_list + self.perf_vars))
 
         # load data
         reader = H5Reader(file_path, precision="full")
@@ -203,33 +206,36 @@ class Results:
 
         # check for nan values
         data = check_nan(data)
-
         # apply common cuts
         if cuts:
             idx, data = cuts(data)
-            if perf_var is not None:
-                perf_var = perf_var[idx]
+            if perf_vars is not None:
+                for perf_var_array in perf_vars.values():
+                    perf_var_array = perf_var_array[idx]
 
         # for each tagger
         for tagger in taggers:
             sel_data = data
-            sel_perf_var = perf_var
+            # We apply per-tagger cuts below, and so we need ensure we're performing cuts
+            # on a copy
+            sel_perf_vars = perf_vars
 
             # apply tagger specific cuts
             if tagger.cuts:
                 idx, sel_data = tagger.cuts(data)
-                if perf_var is not None:
-                    sel_perf_var = perf_var[idx]
 
             # attach data to tagger objects
             tagger.extract_tagger_scores(sel_data, source_type="structured_array")
             tagger.labels = np.array(sel_data[label_var], dtype=[(label_var, "i4")])
-            if perf_var is None:
-                tagger.perf_var = sel_data[self.perf_var]
-                if any(x in self.perf_var for x in ["pt", "mass"]):
-                    tagger.perf_var = tagger.perf_var * 0.001
+            if perf_vars is None:
+                tagger.perf_vars = dict()
+                for perf_var in self.perf_vars:
+                    if any(x in perf_var for x in ["pt", "mass"]):
+                        tagger.perf_vars[perf_var] = sel_data[perf_var] * 0.001
+                    else:
+                        tagger.perf_vars[perf_var] = sel_data[perf_var]
             else:
-                tagger.perf_var = sel_perf_var
+                tagger.perf_vars = sel_perf_vars
 
     def __getitem__(self, tagger_name: str):
         """Retrieve Tagger object.
@@ -493,7 +499,7 @@ class Results:
         self,
         suffix: str | None = None,
         xlabel: str = r"$p_{T}$ [GeV]",
-        x_var: str = "pt",
+        perf_var: str = "pt",
         h_line: float | None = None,
         working_point: float | None = None,
         disc_cut: float | None = None,
@@ -510,9 +516,8 @@ class Results:
             suffix to add to output file name, by default None
         xlabel : regexp, optional
             _description_, by default "$p_{T}$ [GeV]"
-        x_var: str, optional
-            The x axis variable, used for providing details to the plot name, default
-            is 'pt'
+        perf_var: str, optional
+            The x axis variable, default is 'pt'
         h_line : float, optional
             draws a horizonatal line in the signal efficiency plot
         working_point: float, optional
@@ -569,9 +574,14 @@ class Results:
         for tagger in self.taggers.values():
             discs = tagger.discriminant(self.signal)
             is_signal = tagger.is_flav(self.signal)
+
+            assert (
+                perf_var in tagger.perf_vars.keys()
+            ), f"{perf_var} not in tagger {tagger.name} data! (available: {tagger.perf_vars.keys()}"
+
             plot_sig_eff.add(
                 VarVsEff(
-                    x_var_sig=tagger.perf_var[is_signal],
+                    x_var_sig=tagger.perf_vars[perf_var][is_signal],
                     disc_sig=discs[is_signal],
                     label=tagger.label,
                     colour=tagger.colour,
@@ -585,9 +595,9 @@ class Results:
                 is_bkg = tagger.is_flav(background)
                 plot_bkg[i].add(
                     VarVsEff(
-                        x_var_sig=tagger.perf_var[is_signal],
+                        x_var_sig=tagger.perf_vars[perf_var][is_signal],
                         disc_sig=discs[is_signal],
-                        x_var_bkg=tagger.perf_var[is_bkg],
+                        x_var_bkg=tagger.perf_vars[perf_var][is_bkg],
                         disc_bkg=discs[is_bkg],
                         label=tagger.label,
                         colour=tagger.colour,
@@ -608,15 +618,16 @@ class Results:
             else "profile_fixed_cut"
         )
         wp_disc = (
-            f"_disc_cut_{disc_cut}_" if disc_cut else f"_wp_{working_point}_"
+            f"disc_cut_{disc_cut}" if disc_cut else f"wp_{working_point}"
         ).replace(".", "p")
-        plot_details = f"{self.signal}_eff_vs_{x_var}_{wp_disc}"
-        plot_suffix = f"_{suffix}" if suffix else ""
+        
+        plot_details = f"{self.signal}_eff_vs_{perf_var}_{wp_disc}_"
+        plot_suffix = f"{suffix}_" if suffix else ""
         plot_sig_eff.savefig(self.get_filename(plot_details + plot_base, plot_suffix))
 
         for i, background in enumerate(self.backgrounds):
             plot_bkg[i].draw()
-            plot_details = f"{background}_rej_vs_{x_var}_{wp_disc}"
+            plot_details = f"{background}_rej_vs_{perf_var}_{wp_disc}_"
             plot_bkg[i].savefig(
                 self.get_filename(plot_details + plot_base, plot_suffix)
             )
@@ -626,7 +637,7 @@ class Results:
         fixed_rejections: dict[Flavour, float],
         suffix: str | None = None,
         xlabel: str = r"$p_{T}$ [GeV]",
-        x_var: str = "pt",
+        perf_var: str = "pt",
         h_line: float | None = None,
         **kwargs,
     ):
@@ -642,9 +653,8 @@ class Results:
             suffix to add to output file name, by default None
         xlabel : regexp, optional
             _description_, by default "$p_{T}$ [GeV]"
-        x_var: str, optional
-            The x axis variable, used for providing details to the plot name,
-            default is 'pt'
+        perf_var: str, optional
+            The x axis variable, default is 'pt'
         h_line : float, optional
             draws a horizonatal line in the signal efficiency plot
         **kwargs : kwargs
@@ -680,6 +690,11 @@ class Results:
             is_signal = tagger.is_flav(self.signal)
             for i, background in enumerate(self.backgrounds):
                 is_bkg = tagger.is_flav(background)
+
+                assert (
+                    perf_var in tagger.perf_vars
+                ), f"{perf_var} not in tagger {tagger.name} data!"
+
                 # We want x bins to all have the same background rejection, so we
                 # select the plot mode as 'bkg_eff', and then treat the signal as
                 # the background here. I.e, the API plots 'bkg_eff' on the y axis,
@@ -688,9 +703,9 @@ class Results:
                 # signal.
                 plot_bkg[i].add(
                     VarVsEff(
-                        x_var_sig=tagger.perf_var[is_bkg],
+                        x_var_sig=tagger.perf_vars[perf_var][is_bkg],
                         disc_sig=discs[is_bkg],
-                        x_var_bkg=tagger.perf_var[is_signal],
+                        x_var_bkg=tagger.perf_vars[perf_var][is_signal],
                         disc_bkg=discs[is_signal],
                         label=tagger.label,
                         colour=tagger.colour,
@@ -706,7 +721,7 @@ class Results:
             plot_bkg[i].draw()
             if h_line:
                 plot_bkg[i].draw_hline(h_line)
-            plot_details = f"{self.signal}_eff_vs_{x_var}_"
+            plot_details = f"{self.signal}_eff_vs_{perf_var}_"
             plot_base = (
                 f"profile_flat_{background}_"
                 + f"{int(fixed_rejections[background.name])}_rej_per_bin"
