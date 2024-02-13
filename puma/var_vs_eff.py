@@ -232,6 +232,8 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         float
             Efficiency error
         """
+        if len(arr) == 0:
+            return 0, 0
         eff = (
             sum(arr < cut) / len(arr) if self.inverse_cut else sum(arr > cut) / len(arr)
         )

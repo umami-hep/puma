@@ -1,0 +1,99 @@
+plot_dir: /home/output_dir
+timestamp: False
+
+results_default:
+  atlas_second_tag: $\sqrt{s} = 13.6$ TeV, MC23
+  # Required for plotting peff plots for variables with NaNs (e.g, Lxy)
+  remove_nan: True
+  num_jets: 100_000
+
+taggers_config: taggers.yaml
+taggers: 
+  - dummy1
+  - dummy2
+  - dummy3
+reference_tagger: dummy1
+
+
+sample:
+  name: ttbar
+  cuts:
+    - "pt > 20000"
+    - "pt < 250000"
+    - "eta < 2.5"
+    - "eta > -2.5"
+  str: $t\overline{t}$ 20 < $p_T$ < 250 GeV, $|\eta| < 2.5$
+
+roc_plots:
+  -  args:
+      signal: cjets
+      x_range: [0.5, 1.0]
+      plot_kwargs:
+        figsize: [8.5, 7.5]
+  -  args:
+      signal: bjets
+      x_range: [0.5, 1.0]
+      plot_kwargs:
+        figsize: [8.5, 7.5]
+  -  args:
+      signal: bjets
+      x_range: [0.5, 1.0]
+      include_taggers: ['dummy1']
+  -  args:
+      signal: bjets
+      x_range: [0.5, 1.0]
+      exclude_taggers: ['dummy1']
+
+fracscan_plots:
+  - args:
+      signal: bjets
+      frac_flav: c
+      efficiency: 0.70
+      backgrounds: [cjets, ujets]
+      plot_kwargs:
+        figsize: [8.5, 7.5]
+
+disc_plots:
+  - args:
+      signal: bjets
+      plot_kwargs:
+        wp_vlines: [70, 77, 80]
+
+prob_plots:
+  - args:
+      signal: bjets
+
+eff_vs_var_plots:
+  # performance vs efficiency plots by default plot against pT
+  - args:
+      signal: bjets
+      plot_kwargs:
+        flat_per_bin: True
+        working_point: 0.7
+  - args:
+      signal: bjets
+      plot_kwargs:
+        fixed_rejections: 
+          cjets: 10
+          ujets: 100
+  - args:
+      signal: bjets
+      plot_kwargs:
+        flat_per_bin: True
+        working_point: 0.7
+  # To plot against further variables, add 'perf_var', 'bins' and (optional 'xlabel')
+  - args:
+      signal: bjets
+      perf_var: eta
+      bins: [-2.5, -2.0, -1.5, -1.0, -0.5, 0, 0.5, 1.0, 1.5, 2.0, 2.5]
+      plot_kwargs:
+        flat_per_bin: False
+        working_point: 0.7
+  - args:
+      signal: bjets
+      perf_var: HadronConeExclTruthLabelPt
+      bins: [0, 10, 20, 30, 40, 50, 60, 70, 80]
+      plot_kwargs:
+        flat_per_bin: False
+        working_point: 0.7
+      

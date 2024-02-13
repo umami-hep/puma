@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import h5py
 import numpy as np
@@ -24,6 +25,7 @@ class Tagger:
     f_c: float = None
     f_b: float = None
     aux_tasks: list = field(default_factory=lambda: ["vertexing", "track_origin"])
+    sample_path: Path = None
 
     # this is only read by the Results class
     cuts: Cuts | list | None = None
@@ -37,6 +39,13 @@ class Tagger:
     output_flavours: list = field(
         default_factory=lambda: [Flavours.ujets, Flavours.cjets, Flavours.bjets]
     )
+    disc_cut: float = None
+    working_point: float = None
+    f_c: float = None
+    f_b: float = None
+
+    # Used only by YUMA
+    yaml_name: str = None
 
     def __post_init__(self):
         if self.label is None:
@@ -46,6 +55,8 @@ class Tagger:
         if self.aux_tasks is not None:
             self.aux_scores = dict.fromkeys(self.aux_tasks)
             self.aux_labels = dict.fromkeys(self.aux_tasks)
+        if self.sample_path is not None:
+            self.sample_path = Path(self.sample_path)
 
     def __repr__(self):
         return f"{self.name} ({self.label})"

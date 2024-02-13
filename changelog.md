@@ -1,8 +1,10 @@
 # Changelog
 
 ### [Latest]
-
 - Improve and generalize vertexing performance tools [!229](https://github.com/umami-hep/puma/pull/229)
+
+### [v0.3.2] (2024/02/13)
+- Added ability to plot from yaml configs [!204](https://github.com/umami-hep/puma/pull/204)
 - Add support for multiple perf_vars in HLAPI [!233](https://github.com/umami-hep/puma/pull/233)
 - Remove scipy dependency [!232](https://github.com/umami-hep/puma/pull/232)
 - Extended usable range for metrics.weighted_percentile with double precision [!231](https://github.com/umami-hep/puma/pull/231)
