@@ -322,13 +322,16 @@ class ResultsPlotsTestCase(unittest.TestCase):
             )
 
             self.assertIsFile(
-                Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_wp_0p7_profile_fixed_cut_.png"
+                Path(tmp_file)
+                / "test_bjets_bjets_eff_vs_pt_wp_0p7_profile_fixed_cut_.png"
             )
             self.assertIsFile(
-                Path(tmp_file) / "test_bjets_cjets_rej_vs_pt_wp_0p7_profile_fixed_cut_.png"
+                Path(tmp_file)
+                / "test_bjets_cjets_rej_vs_pt_wp_0p7_profile_fixed_cut_.png"
             )
             self.assertIsFile(
-                Path(tmp_file) / "test_bjets_ujets_rej_vs_pt_wp_0p7_profile_fixed_cut_.png"
+                Path(tmp_file)
+                / "test_bjets_ujets_rej_vs_pt_wp_0p7_profile_fixed_cut_.png"
             )
 
     def test_plot_var_perf_multi_bjets(self):
@@ -351,7 +354,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
             )
             results.plot_var_perf(
                 bins=np.linspace(-0.5, 0.5, 10), working_point=0.7, perf_var="eta"
-            )   
+            )
 
             self.assertIsFile(
                 Path(tmp_file)
@@ -366,13 +369,16 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 / "test_bjets_ujets_rej_vs_pt_wp_0p7_profile_fixed_cut_.png"
             )
             self.assertIsFile(
-                Path(tmp_file) / "test_bjets_bjets_eff_vs_eta_wp_0p7_profile_fixed_cut_.png"
+                Path(tmp_file)
+                / "test_bjets_bjets_eff_vs_eta_wp_0p7_profile_fixed_cut_.png"
             )
             self.assertIsFile(
-                Path(tmp_file) / "test_bjets_cjets_rej_vs_eta_wp_0p7_profile_fixed_cut_.png"
+                Path(tmp_file)
+                / "test_bjets_cjets_rej_vs_eta_wp_0p7_profile_fixed_cut_.png"
             )
             self.assertIsFile(
-                Path(tmp_file) / "test_bjets_ujets_rej_vs_eta_wp_0p7_profile_fixed_cut_.png"
+                Path(tmp_file)
+                / "test_bjets_ujets_rej_vs_eta_wp_0p7_profile_fixed_cut_.png"
             )
 
     def test_plot_var_perf_cjets(self):

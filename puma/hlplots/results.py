@@ -216,8 +216,6 @@ class Results:
         # for each tagger
         for tagger in taggers:
             sel_data = data
-            # We apply per-tagger cuts below, and so we need ensure we're performing cuts
-            # on a copy
             sel_perf_vars = perf_vars
 
             # apply tagger specific cuts
@@ -576,8 +574,8 @@ class Results:
             is_signal = tagger.is_flav(self.signal)
 
             assert (
-                perf_var in tagger.perf_vars.keys()
-            ), f"{perf_var} not in tagger {tagger.name} data! (available: {tagger.perf_vars.keys()}"
+                perf_var in tagger.perf_vars
+            ), f"{perf_var} not in tagger {tagger.name} data!"
 
             plot_sig_eff.add(
                 VarVsEff(
@@ -620,7 +618,7 @@ class Results:
         wp_disc = (
             f"disc_cut_{disc_cut}" if disc_cut else f"wp_{working_point}"
         ).replace(".", "p")
-        
+
         plot_details = f"{self.signal}_eff_vs_{perf_var}_{wp_disc}_"
         plot_suffix = f"{suffix}_" if suffix else ""
         plot_sig_eff.savefig(self.get_filename(plot_details + plot_base, plot_suffix))

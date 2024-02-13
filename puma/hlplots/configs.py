@@ -107,8 +107,10 @@ class PlotConfig:
         results_default.update(self.results_default)
         results_default["atlas_second_tag"] += "\n" + self.sample.get("str", "")
 
-        results_default["perf_vars"] = list(set([plot["args"].get('perf_var', 'pt') for plot in self.eff_vs_var_plots]))
-        
+        results_default["perf_vars"] = list(
+            set([plot["args"].get("perf_var", "pt") for plot in self.eff_vs_var_plots])
+        )
+
         # Store default tag incase other plots need to temporarily modify it
         self.default_second_atlas_tag = results_default["atlas_second_tag"]
         sample_cuts = Cuts.from_list(self.sample.get("cuts", []))
