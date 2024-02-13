@@ -1,4 +1,4 @@
-# YUMA
+# YUMA (Yaml Plotting)
 
 YUMA (Yaml for pUMA) removes boilerplate required for making simple flavour tagging plots, instead moving everything required into yaml config files, and acting as a wrapper around the high-level plotting functionality included in puma. To make plots, two config files are required, a ```taggers.yaml``` and ```plot_cfg.yaml```. Examples of these can be found in ```puma/examples```.
 
