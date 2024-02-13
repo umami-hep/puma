@@ -17,6 +17,7 @@ can be used as a starting point for your plotting scripts.
    line_plots.md
    high_level_api.md
    high_level_aux_api.md
+   yuma.md
 
 
 .. include:: index.md
