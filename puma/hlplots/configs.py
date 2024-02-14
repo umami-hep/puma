@@ -49,10 +49,8 @@ class PlotConfig:
         if not self.results_default:
             self.results_default = {}
 
-        with open(self.taggers_config) as f:
-            self.taggers_config = yaml.safe_load(f)
         tagger_defaults = self.taggers_config.get("tagger_defaults", {})
-        # print(self.taggers_config.get("taggers", {}))
+        
         taggers = self.taggers_config.get("taggers", {})
         assert (
             self.reference_tagger in taggers
@@ -80,13 +78,7 @@ class PlotConfig:
             raise FileNotFoundError(f"Config at {path} does not exist")
         with open(path) as f:
             config = yaml.safe_load(f)
-
-        # If the model config is not an absolute path, assume it is relative
-        if config["taggers_config"].startswith("/"):
-            config["taggers_config"] = Path(config["taggers_config"])
-        else:
-            config["taggers_config"] = path.parent / config["taggers_config"]
-
+        
         return cls(config_path=path, **config)
 
     def get_results(self):

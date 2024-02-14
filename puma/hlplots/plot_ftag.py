@@ -5,7 +5,8 @@ from pathlib import Path
 
 import numpy as np
 from ftag import Flavours
-
+from yamlinclude import YamlIncludeConstructor
+import yaml
 from puma.hlplots import (
     PlotConfig,
     get_included_taggers,
@@ -14,6 +15,7 @@ from puma.hlplots import (
     select_configs,
 )
 from puma.utils import logger
+
 
 ALL_PLOTS = ["roc", "scan", "disc", "prob", "peff"]
 
@@ -219,6 +221,10 @@ def main(args=None):
         args.plots = ALL_PLOTS
 
     config_path = Path(args.config)
+    # support inclusion of yaml files in the config dir
+    YamlIncludeConstructor.add_to_loader_class(
+        loader_class=yaml.SafeLoader, base_dir=config_path.parent
+    )
     plt_cfg = PlotConfig.load_config(config_path)
 
     signals = get_signals(plt_cfg)
