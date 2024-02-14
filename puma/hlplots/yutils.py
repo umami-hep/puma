@@ -73,6 +73,11 @@ def get_included_taggers(results, plot_config):
             if v.yaml_name not in exclude_taggers
         }
 
+    if len(include_taggers) == 0:
+        raise ValueError(
+            "No taggers included in plot, check that 'exclude_taggers' doesn't exclude all taggers"
+            ", or that atleast 1 tagger is defined in 'include_taggers'"
+            )
     logger.debug("Include taggers: %s", include_taggers)
 
     # Set which tagger to use as a reference, if no reference is set, use the first
@@ -114,10 +119,29 @@ def get_included_taggers(results, plot_config):
     )
 
 
-def get_tagger_name(name: str, sample_path: Path, flavours: list[Flavour]):
+def get_tagger_name(name: str, sample_path: Path, key : str, flavours: list[Flavour]):
     """Attempts to return the name of the tagger if it is not specified in the
-    config file by looking at available variable names.
+    config file by looking at available variable names, and the key of the tagger in the config
+    
+    Parameters
+    ----------
+    name : str
+        The name of the tagger, if specified in the config file
+    sample_path : Path
+        The path to the sample file
+    key : str
+        The key of the tagger in the config file, if multiple taggers are found in the sample 
+        path, this is used to select the correct tagger
+    flavours : list[Flavour]
+        The flavours of the tagger, used to identify the correct tagger. A 'valid' tagger in the
+        file is one where tagger_p{flav} exists for all flavours defined in this list
+    
+    Returns
+    -------
+    str
+        The name of the tagger to use
     """
+    
     if name:
         return name
 
@@ -126,6 +150,7 @@ def get_tagger_name(name: str, sample_path: Path, flavours: list[Flavour]):
     req_keys = [f"_p{flav.name[:-4]}" for flav in flavours]
 
     potential_taggers = {}
+    
 
     # Identify potential taggers
     for var in jet_vars:
@@ -147,6 +172,10 @@ def get_tagger_name(name: str, sample_path: Path, flavours: list[Flavour]):
     if len(valid_taggers) == 0:
         raise ValueError("No valid tagger found.")
     elif len(valid_taggers) > 1:
-        raise ValueError(f"Multiple valid taggers found: {', '.join(valid_taggers)}")
+        if key in valid_taggers:
+            return key
+        raise ValueError(
+            f"Multiple valid taggers found: {', '.join(valid_taggers)} in file {sample_path}, "
+            "please specify the tagger name in the config file")
     else:
         return valid_taggers[0]

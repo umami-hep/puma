@@ -121,10 +121,10 @@ class PlotConfig:
         good_colours = get_good_colours()
         col_idx = 0
         # Add taggers to results, then bulk load
-        for t in self.taggers.values():
+        for key, t in self.taggers.items():
             # Allows automatic selection of tagger name in eval files
             t["name"] = get_tagger_name(
-                t.get("name", None), t["sample_path"], results.flavours
+                t.get("name", None), t["sample_path"], key, results.flavours
             )
             # Enforces a tagger to have same colour across multiple plots
             if "colour" not in t:
