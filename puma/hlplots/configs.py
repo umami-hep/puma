@@ -24,7 +24,6 @@ class PlotConfig:
 
     sample: dict[str, str]
 
-    # global_plot_kwargs : dict[str, dict[str, str]] = None
     results_default: dict[str, dict[str, str]] = None
     timestamp: bool = True
 
@@ -35,8 +34,6 @@ class PlotConfig:
     eff_vs_var_plots: dict[str, dict] = None
 
     signal: str = None
-
-    # num_jets: int = None
 
     results: Results = None
     default_second_atlas_tag: str = None
