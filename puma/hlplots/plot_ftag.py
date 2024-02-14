@@ -20,7 +20,11 @@ ALL_PLOTS = ["roc", "scan", "disc", "prob", "peff"]
 
 def get_args(args):
     parser = argparse.ArgumentParser(description="YUMA: Plotting from Yaml in pUMA")
-    parser.add_argument("-c", "--config", type=str, help="Path to config")
+    parser.add_argument(
+        "-c", 
+        "--config", 
+        required=True,
+        type=str, help="Path to config")
 
     parser.add_argument(
         "-p",
