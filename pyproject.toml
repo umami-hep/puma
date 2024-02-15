@@ -26,3 +26,6 @@ convention = "numpy"  # Accepts: "google", "numpy", or "pep257".
 
 [mypy]
 ignore_missing_imports = "True"
+
+[project.scripts]
+yuma = "puma.hlplots.plot_ftag:main"
