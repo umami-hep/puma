@@ -323,15 +323,15 @@ class ResultsPlotsTestCase(unittest.TestCase):
 
             self.assertIsFile(
                 Path(tmp_file)
-                / "test_bjets_bjets_eff_vs_pt_wp_0p7_profile_fixed_cut_.png"
+                / "test_bjets_bjets_eff_vs_pt_wp_0p7_profile_fixed_cut.png"
             )
             self.assertIsFile(
                 Path(tmp_file)
-                / "test_bjets_cjets_rej_vs_pt_wp_0p7_profile_fixed_cut_.png"
+                / "test_bjets_cjets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
             )
             self.assertIsFile(
                 Path(tmp_file)
-                / "test_bjets_ujets_rej_vs_pt_wp_0p7_profile_fixed_cut_.png"
+                / "test_bjets_ujets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
             )
 
     def test_plot_var_perf_multi_bjets(self):
@@ -358,27 +358,27 @@ class ResultsPlotsTestCase(unittest.TestCase):
 
             self.assertIsFile(
                 Path(tmp_file)
-                / "test_bjets_bjets_eff_vs_pt_wp_0p7_profile_fixed_cut_.png"
+                / "test_bjets_bjets_eff_vs_pt_wp_0p7_profile_fixed_cut.png"
             )
             self.assertIsFile(
                 Path(tmp_file)
-                / "test_bjets_cjets_rej_vs_pt_wp_0p7_profile_fixed_cut_.png"
+                / "test_bjets_cjets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
             )
             self.assertIsFile(
                 Path(tmp_file)
-                / "test_bjets_ujets_rej_vs_pt_wp_0p7_profile_fixed_cut_.png"
+                / "test_bjets_ujets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
             )
             self.assertIsFile(
                 Path(tmp_file)
-                / "test_bjets_bjets_eff_vs_eta_wp_0p7_profile_fixed_cut_.png"
+                / "test_bjets_bjets_eff_vs_eta_wp_0p7_profile_fixed_cut.png"
             )
             self.assertIsFile(
                 Path(tmp_file)
-                / "test_bjets_cjets_rej_vs_eta_wp_0p7_profile_fixed_cut_.png"
+                / "test_bjets_cjets_rej_vs_eta_wp_0p7_profile_fixed_cut.png"
             )
             self.assertIsFile(
                 Path(tmp_file)
-                / "test_bjets_ujets_rej_vs_eta_wp_0p7_profile_fixed_cut_.png"
+                / "test_bjets_ujets_rej_vs_eta_wp_0p7_profile_fixed_cut.png"
             )
 
     def test_plot_var_perf_cjets(self):
@@ -400,15 +400,15 @@ class ResultsPlotsTestCase(unittest.TestCase):
             )
             self.assertIsFile(
                 Path(tmp_file)
-                / "test_cjets_bjets_rej_vs_pt_wp_0p7_profile_fixed_cut_.png"
+                / "test_cjets_bjets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
             )
             self.assertIsFile(
                 Path(tmp_file)
-                / "test_cjets_cjets_eff_vs_pt_wp_0p7_profile_fixed_cut_.png"
+                / "test_cjets_cjets_eff_vs_pt_wp_0p7_profile_fixed_cut.png"
             )
             self.assertIsFile(
                 Path(tmp_file)
-                / "test_cjets_ujets_rej_vs_pt_wp_0p7_profile_fixed_cut_.png"
+                / "test_cjets_ujets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
             )
 
     def test_plot_beff_vs_flat_rej(self):
@@ -429,11 +429,11 @@ class ResultsPlotsTestCase(unittest.TestCase):
             )
             self.assertIsFile(
                 Path(tmp_file)
-                / "test_bjets_bjets_eff_vs_pt_profile_flat_cjets_10_rej_per_bin_.png"
+                / "test_bjets_bjets_eff_vs_pt_profile_flat_cjets_10_rej_per_bin.png"
             )
             self.assertIsFile(
                 Path(tmp_file)
-                / "test_bjets_bjets_eff_vs_pt_profile_flat_ujets_100_rej_per_bin_.png"
+                / "test_bjets_bjets_eff_vs_pt_profile_flat_ujets_100_rej_per_bin.png"
             )
 
     def test_plot_ceff_vs_flat_rej(self):
@@ -453,11 +453,11 @@ class ResultsPlotsTestCase(unittest.TestCase):
             )
             self.assertIsFile(
                 Path(tmp_file)
-                / "test_cjets_cjets_eff_vs_pt_profile_flat_bjets_10_rej_per_bin_.png"
+                / "test_cjets_cjets_eff_vs_pt_profile_flat_bjets_10_rej_per_bin.png"
             )
             self.assertIsFile(
                 Path(tmp_file)
-                / "test_cjets_cjets_eff_vs_pt_profile_flat_ujets_100_rej_per_bin_.png"
+                / "test_cjets_cjets_eff_vs_pt_profile_flat_ujets_100_rej_per_bin.png"
             )
 
     def test_plot_fraction_scans_hbb_error(self):

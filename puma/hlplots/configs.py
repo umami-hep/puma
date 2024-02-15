@@ -48,7 +48,8 @@ class PlotConfig:
         self.plot_dir_final = Path(self.plot_dir) / plot_dir_name
         if not self.results_default:
             self.results_default = {}
-
+        print("UUUUUUUU")
+        print(self.taggers_config)
         tagger_defaults = self.taggers_config.get("tagger_defaults", {})
 
         taggers = self.taggers_config.get("taggers", {})
