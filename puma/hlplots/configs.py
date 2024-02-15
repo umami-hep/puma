@@ -50,7 +50,7 @@ class PlotConfig:
             self.results_default = {}
 
         tagger_defaults = self.taggers_config.get("tagger_defaults", {})
-        
+
         taggers = self.taggers_config.get("taggers", {})
         assert (
             self.reference_tagger in taggers
@@ -78,7 +78,7 @@ class PlotConfig:
             raise FileNotFoundError(f"Config at {path} does not exist")
         with open(path) as f:
             config = yaml.safe_load(f)
-        
+
         return cls(config_path=path, **config)
 
     def get_results(self):

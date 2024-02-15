@@ -4,9 +4,10 @@ import argparse
 from pathlib import Path
 
 import numpy as np
+import yaml
 from ftag import Flavours
 from yamlinclude import YamlIncludeConstructor
-import yaml
+
 from puma.hlplots import (
     PlotConfig,
     get_included_taggers,
@@ -16,17 +17,14 @@ from puma.hlplots import (
 )
 from puma.utils import logger
 
-
 ALL_PLOTS = ["roc", "scan", "disc", "prob", "peff"]
 
 
 def get_args(args):
     parser = argparse.ArgumentParser(description="YUMA: Plotting from Yaml in pUMA")
     parser.add_argument(
-        "-c", 
-        "--config", 
-        required=True,
-        type=str, help="Path to config")
+        "-c", "--config", required=True, type=str, help="Path to config"
+    )
 
     parser.add_argument(
         "-p",
