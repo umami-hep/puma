@@ -72,7 +72,7 @@ def make_eff_vs_var_plots(plt_cfg):
         plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(
             plt_cfg.results, eff_vs_var
         )
-        plot_kwargs = get_plot_kwargs(eff_vs_var, suffix="_" + inc_str + "_" + perf_var)
+        plot_kwargs = get_plot_kwargs(eff_vs_var, suffix=[inc_str, perf_var])
         if not (bins := eff_vs_var["args"].get("bins", None)):
             if plt_cfg.sample["name"] == "ttbar":
                 bins = [20, 30, 40, 60, 85, 110, 140, 175, 250]
@@ -102,7 +102,7 @@ def make_prob_plots(plt_cfg):
         plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(
             plt_cfg.results, prob
         )
-        plot_kwargs = get_plot_kwargs(prob, suffix="_" + inc_str)
+        plot_kwargs = get_plot_kwargs(prob, suffix=[inc_str])
         plt_cfg.results.plot_probs(**plot_kwargs)
         plt_cfg.results.taggers = all_taggers
 
@@ -117,7 +117,7 @@ def make_disc_plots(plt_cfg):
         plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(
             plt_cfg.results, disc
         )
-        plot_kwargs = get_plot_kwargs(disc, suffix="_" + inc_str)
+        plot_kwargs = get_plot_kwargs(disc, suffix=[inc_str])
         plt_cfg.results.plot_discs(**plot_kwargs)
         plt_cfg.results.taggers = all_taggers
 
@@ -161,7 +161,7 @@ def make_fracscan_plots(plt_cfg):
         plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(
             plt_cfg.results, fracscan
         )
-        plot_kwargs = get_plot_kwargs(fracscan, suffix=suffix + "_" + inc_str)
+        plot_kwargs = get_plot_kwargs(fracscan, suffix=[suffix, inc_str])
         plt_cfg.results.plot_fraction_scans(efficiency=efficiency, **plot_kwargs)
         plt_cfg.results.taggers = all_taggers
         plt_cfg.results.backgrounds = tmp_backgrounds
@@ -186,7 +186,7 @@ def make_roc_plots(plt_cfg):
         plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(
             plt_cfg.results, roc
         )
-        plot_kwargs = get_plot_kwargs(roc, inc_str)
+        plot_kwargs = get_plot_kwargs(roc, suffix=[inc_str])
 
         plt_cfg.results.plot_rocs(**plot_kwargs)
         plt_cfg.results.taggers = all_taggers

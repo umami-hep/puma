@@ -27,12 +27,19 @@ def select_configs(configs, plt_cfg):
     return [c for c in configs if c["args"]["signal"] == plt_cfg.signal]
 
 
-def get_plot_kwargs(config, suffix=""):
+def get_plot_kwargs(config, suffix=None):
     plot_kwargs = config["args"].get("plot_kwargs", {})
-    chosen_suffix = config["args"].get("suffix", "")
+    all_suffix = [plot_kwargs.get("suffix", ""), config["args"].get("suffix", "")]
+    if suffix:
+        if isinstance(suffix, str):
+            all_suffix += [suffix]
+        else:
+            all_suffix += suffix
+    
     plot_kwargs["suffix"] = "_".join(
-        [s for s in [plot_kwargs.get("suffix", ""), suffix, chosen_suffix] if s != ""]
+        [s for s in all_suffix if s != ""]
     )
+    
     return plot_kwargs
 
 
