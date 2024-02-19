@@ -24,7 +24,6 @@ class PlotConfig:
 
     sample: dict[str, str]
 
-    # global_plot_kwargs : dict[str, dict[str, str]] = None
     results_default: dict[str, dict[str, str]] = None
     timestamp: bool = True
 
@@ -35,8 +34,6 @@ class PlotConfig:
     eff_vs_var_plots: dict[str, dict] = None
 
     signal: str = None
-
-    # num_jets: int = None
 
     results: Results = None
     default_second_atlas_tag: str = None
@@ -51,11 +48,10 @@ class PlotConfig:
         self.plot_dir_final = Path(self.plot_dir) / plot_dir_name
         if not self.results_default:
             self.results_default = {}
-
-        with open(self.taggers_config) as f:
-            self.taggers_config = yaml.safe_load(f)
+        print("UUUUUUUU")
+        print(self.taggers_config)
         tagger_defaults = self.taggers_config.get("tagger_defaults", {})
-        # print(self.taggers_config.get("taggers", {}))
+
         taggers = self.taggers_config.get("taggers", {})
         assert (
             self.reference_tagger in taggers
@@ -83,12 +79,6 @@ class PlotConfig:
             raise FileNotFoundError(f"Config at {path} does not exist")
         with open(path) as f:
             config = yaml.safe_load(f)
-
-        # If the model config is not an absolute path, assume it is relative
-        if config["taggers_config"].startswith("/"):
-            config["taggers_config"] = Path(config["taggers_config"])
-        else:
-            config["taggers_config"] = path.parent / config["taggers_config"]
 
         return cls(config_path=path, **config)
 
@@ -121,10 +111,10 @@ class PlotConfig:
         good_colours = get_good_colours()
         col_idx = 0
         # Add taggers to results, then bulk load
-        for t in self.taggers.values():
+        for key, t in self.taggers.items():
             # Allows automatic selection of tagger name in eval files
             t["name"] = get_tagger_name(
-                t.get("name", None), t["sample_path"], results.flavours
+                t.get("name", None), t["sample_path"], key, results.flavours
             )
             # Enforces a tagger to have same colour across multiple plots
             if "colour" not in t:

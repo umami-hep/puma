@@ -7,7 +7,7 @@ results_default:
   remove_nan: True
   num_jets: 100_000
 
-taggers_config: taggers.yaml
+taggers_config: !include taggers.yaml
 taggers: 
   - dummy1
   - dummy2

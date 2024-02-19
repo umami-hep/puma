@@ -266,7 +266,7 @@ class Results:
             output name
         """
         base = f"{self.sample}_{self.signal}_{plot_name}"
-        if suffix is not None:
+        if suffix:
             base += f"_{suffix}"
         return Path(self.output_dir / base).with_suffix(f".{self.extension}")
 
