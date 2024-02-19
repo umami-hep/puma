@@ -1,10 +1,9 @@
 plot_dir: /home/output_dir
 timestamp: False
 
-sample_path: dummy/path/1
-
 results_config:
   sample: ttbar
+  sample_path: dummy/path/1
   atlas_first_tag: Simulation Internal
   atlas_second_tag: $\sqrt{s} = 13.6$ TeV, MC23
   atlas_third_tag: $t\overline{t}$ 20 < $p_T$ < 250 GeV, $|\eta| < 2.5$
