@@ -5,7 +5,7 @@ YUMA (Yaml for pUMA) removes boilerplate required for making simple flavour tagg
 To create plots, after modifying the two files, run
 
 ```bash
-python puma/hlplots/plot_ftag.py --config examples/plot_cfg.yaml 
+yuma --config examples/plot_cfg.yaml 
 ```
 
 Additional arguments can be included:
@@ -27,7 +27,7 @@ This file contains info on what taggers to load, what plots to make, and where t
 
 - ```plot_dir:``` - The base directory to write plots to. The pltos will be saved to a directory of the form ```plot_dir/plt_cfg```.
 - ```timestamp: False``` - If True, will create a new directory each time the script is run, with a timestamp included in the name. If False, then will save to the default directory, and overwrite any files.
-- ```results_default: ``` - Arguments to parse to the 'Results' class.
+- ```results_config: ``` - Arguments to parse to the 'Results' class.
 - ```taggers_config: ``` - Path to the ```taggers.yaml``` file.
 - ```taggers: ``` - List of tagger names that we wish to plot.
 - ```reference_tagger: ``` - Tagger name that shall be the 'reference' tagger. Any ratios by default are with respect to this tagger.

@@ -42,8 +42,24 @@ class Results:
     remove_nan: bool = False
 
     def __post_init__(self):
-        if isinstance(self.signal, str):
-            self.signal = Flavours[self.signal]
+        self.set_signal(self.signal)
+        if isinstance(self.output_dir, str):
+            self.output_dir = Path(self.output_dir)
+        if isinstance(self.perf_vars, str):
+            self.perf_vars = [self.perf_vars]
+
+        self.plot_funcs = {
+            "probs": self.plot_probs,
+            "disc": self.plot_discs,
+            "roc": self.plot_rocs,
+            "peff": self.plot_var_perf,
+            "scan": self.plot_fraction_scans,
+        }
+
+    def set_signal(self, signal: Flavour):
+        if isinstance(signal, str):
+            signal = Flavours[signal]
+        self.signal = signal
         if self.signal == Flavours.bjets:
             self.backgrounds = [Flavours.cjets, Flavours.ujets]
         elif self.signal == Flavours.cjets:
@@ -54,12 +70,6 @@ class Results:
             self.backgrounds = [Flavours.hbb, Flavours.top, Flavours.qcd]
         else:
             raise ValueError(f"Unsupported signal class {self.signal}.")
-
-        if isinstance(self.output_dir, str):
-            self.output_dir = Path(self.output_dir)
-
-        if isinstance(self.perf_vars, str):
-            self.perf_vars = [self.perf_vars]
 
     @property
     def flavours(self):
@@ -829,3 +839,19 @@ class Results:
         # Draw and save the plot
         plot.draw()
         plot.savefig(self.get_filename("fraction_scan", suffix))
+
+    def make_plot(self, plot_type, kwargs):
+        """Make a plot.
+
+        Parameters
+        ----------
+        plot_type : str
+            Type of plot
+        kwargs : dict
+            Keyword arguments for the plot
+        """
+        if plot_type not in self.plot_funcs:
+            raise ValueError(
+                f"Unknown plot type {plot_type}, choose from {self.plot_funcs.keys()}"
+            )
+        self.plot_funcs[plot_type](**kwargs)
