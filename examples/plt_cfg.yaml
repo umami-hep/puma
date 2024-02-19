@@ -20,8 +20,6 @@ results_config:
 taggers_config: !include taggers.yaml
 taggers: [dummy1, dummy2, dummy3]
 
-sample:
-
 roc_plots:
   -  args:
       signal: cjets

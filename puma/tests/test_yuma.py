@@ -52,8 +52,9 @@ class TestYutils(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp_file:
             fpath1, file = get_mock_file(fname=(Path(tmp_file) / "file1.h5").as_posix())
-            taggers["tagger_defaults"]["sample_path"] = fpath1
-            taggers["taggers"]["dummy3"]["sample_path"] = fpath1
+            taggers["dummy1"]["sample_path"] = fpath1
+            taggers["dummy2"]["sample_path"] = fpath1
+            taggers["dummy3"]["sample_path"] = fpath1
             updated_plt_cfg = Path(tmp_file) / "plt_cfg.yaml"
 
             plt_cfg["roc_plots"][0]["reference"] = "dummyNot"
@@ -109,8 +110,6 @@ class TestYumaPlots(unittest.TestCase):
             fpath1, file = get_mock_file(fname=(Path(tmp_file) / "file1.h5").as_posix())
             fpath2, file = get_mock_file(fname=(Path(tmp_file) / "file2.h5").as_posix())
 
-            taggers["tagger_defaults"]["sample_path"] = fpath1
-            taggers["taggers"]["dummy3"]["sample_path"] = fpath2
             updated_plt_cfg = Path(tmp_file) / "plt_cfg.yaml"
             plt_cfg["plot_dir"] = tmp_file + "/plots"
             plt_cfg["taggers_config"] = taggers
@@ -161,8 +160,9 @@ class TestYumaPlots(unittest.TestCase):
             fpath1, file = get_mock_file(fname=(Path(tmp_file) / "file1.h5").as_posix())
             fpath2, file = get_mock_file(fname=(Path(tmp_file) / "file2.h5").as_posix())
 
-            taggers["tagger_defaults"]["sample_path"] = fpath1
-            taggers["taggers"]["dummy3"]["sample_path"] = fpath2
+            taggers["dummy1"]["sample_path"] = fpath1
+            taggers["dummy2"]["sample_path"] = fpath1
+            taggers["dummy3"]["sample_path"] = fpath2
 
             updated_plt_cfg = Path(tmp_file) / "plt_cfg.yaml"
             plt_cfg["taggers_config"] = taggers
