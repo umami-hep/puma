@@ -30,14 +30,18 @@ def get_args(args):
         "-p",
         "--plots",
         nargs="+",
+        choices=ALL_PLOTS,
         help=f"Plot types to make. Allowed are: {ALL_PLOTS} ",
     )
     parser.add_argument(
         "-s",
         "--signals",
         nargs="+",
+        choices=["bjets", "cjets"],
         help="Signals to plot",
     )
+    parser.add_argument("-d", "--dir", type=Path, help="Base sample directory")
+
     return parser.parse_args(args)
 
 
@@ -198,7 +202,7 @@ def main(args=None):
     YamlIncludeConstructor.add_to_loader_class(
         loader_class=yaml.SafeLoader, base_dir=config_path.parent
     )
-    plt_cfg = PlotConfig.load_config(config_path)
+    plt_cfg = PlotConfig.load_config(config_path, base_path=args.dir)
 
     # select and check plots
     plots = args.plots if args.plots else ALL_PLOTS
@@ -219,7 +223,7 @@ def main(args=None):
         logger.info(f"Plotting signal {signal}")
         plt_cfg.signal = signal
         plt_cfg.results.set_signal(signal)
-        plt_cfg.results.output_dir = plt_cfg.plot_dir_final / f"{signal}_tagging"
+        plt_cfg.results.output_dir = plt_cfg.plot_dir_final / f"{signal[0]}tagging"
         os.makedirs(plt_cfg.results.output_dir, exist_ok=True)
         make_plots(plots, plt_cfg)
 
