@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """Unit test script for the functions in hlplots/tagger.py."""
+
 from __future__ import annotations
 
 import tempfile
@@ -12,7 +13,7 @@ from ftag import Flavours, get_mock_file
 from ftag.hdf5 import structured_from_dict
 from yamlinclude import YamlIncludeConstructor
 
-from puma.hlplots import PlotConfig, get_signals
+from puma.hlplots import PlotConfig
 from puma.hlplots.yuma import main
 from puma.hlplots.yutils import get_tagger_name
 
@@ -89,8 +90,7 @@ class TestYutils(unittest.TestCase):
     def testGetSignals(self):
         plt_cfg = EXAMPLES / "plt_cfg.yaml"
         plt_cfg = PlotConfig.load_config(plt_cfg)
-        valid = get_signals(plt_cfg)
-        assert sorted(valid) == ["bjets", "cjets"]
+        assert sorted(plt_cfg.signals) == ["bjets", "cjets"]
 
 
 class TestYumaPlots(unittest.TestCase):

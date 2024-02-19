@@ -12,9 +12,6 @@ requires-python = ">=3.8,<3.12"
 [project.scripts]
 yuma = "puma.hlplots.yuma:main"
 
-[tool.setuptools]
-packages = ["puma"]
-
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements.txt"]}
 
