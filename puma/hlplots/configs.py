@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
@@ -24,11 +24,11 @@ class PlotConfig:
     timestamp: bool = True
     sample_path: Path = None
 
-    roc_plots: dict[str, dict] = None
-    fracscan_plots: dict[str, dict] = None
-    disc_plots: dict[str, dict] = None
-    prob_plots: dict[str, dict] = None
-    eff_vs_var_plots: dict[str, dict] = None
+    roc_plots: dict[str, dict] = field(default_factory=dict)
+    fracscan_plots: dict[str, dict] = field(default_factory=dict)
+    disc_plots: dict[str, dict] = field(default_factory=dict)
+    prob_plots: dict[str, dict] = field(default_factory=dict)
+    eff_vs_var_plots: dict[str, dict] = field(default_factory=dict)
 
     def __post_init__(self):
         # Define a plot directory based on the plot config file name, and a date time
@@ -40,12 +40,6 @@ class PlotConfig:
 
         for k, kwargs in self.taggers_config.items():
             kwargs["yaml_name"] = k
-
-        self.roc_plots = self.roc_plots or {}
-        self.fracscan_plots = self.fracscan_plots or {}
-        self.disc_plots = self.disc_plots or {}
-        self.prob_plots = self.prob_plots or {}
-        self.eff_vs_var_plots = self.eff_vs_var_plots or {}
 
     @classmethod
     def load_config(cls, path: Path) -> PlotConfig:
