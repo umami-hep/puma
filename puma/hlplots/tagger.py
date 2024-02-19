@@ -36,8 +36,6 @@ class Tagger:
     )
     disc_cut: float = None
     working_point: float = None
-    f_c: float = None
-    f_b: float = None
 
     # Used only by YUMA
     yaml_name: str = None

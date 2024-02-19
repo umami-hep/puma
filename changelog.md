@@ -1,7 +1,8 @@
 # Changelog
 
 ### [Latest]
-- Autoinstall deps and steamline yuma config[!236](https://github.com/umami-hep/puma/pull/236)
+- More improvements to Yuma configuration [!237](https://github.com/umami-hep/puma/pull/237)
+- Autoinstall deps and steamline yuma config [!236](https://github.com/umami-hep/puma/pull/236)
 
 
 ### [v0.3.2] (2024/02/13)

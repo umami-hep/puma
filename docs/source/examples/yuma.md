@@ -15,8 +15,7 @@ Additional arguments can be included:
 
 ## taggers.yaml
 
-The ```taggers.yaml``` file contains required information for taggers we wish to load. A section 'tagger_defaults' can be used to include default values, such as f_c, f_b, or cuts. For all taggers that are loaded, these values will be used by default, unless overwritten by the tagger.
-
+The ```taggers.yaml``` file contains required information for taggers we wish to load.
 Under 'taggers' are the defined taggers. Each should be assigned a tag, which is used as the 'name' of the tagger and its settings. Within in tagger, arguments that can be parsed to the Tagger high-level class can be used.
 
 ## plot_cfg.yaml

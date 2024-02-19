@@ -54,10 +54,11 @@ def make_eff_vs_var_plots(plt_cfg):
             plt_cfg.results, eff_vs_var
         )
         plot_kwargs = get_plot_kwargs(eff_vs_var, suffix=[inc_str, perf_var])
+        # move this logic into the results class
         if not (bins := eff_vs_var["args"].get("bins", None)):
-            if plt_cfg.sample["sample"] == "ttbar":
+            if plt_cfg.results.sample == "ttbar":
                 bins = [20, 30, 40, 60, 85, 110, 140, 175, 250]
-            elif plt_cfg.sample["sample"] == "zprime":
+            elif plt_cfg.results.sample == "zprime":
                 bins = [250, 500, 750, 1000, 1500, 2000, 3000, 4000, 5500]
             else:
                 raise ValueError(
@@ -129,7 +130,7 @@ def make_fracscan_plots(plt_cfg):
         info_str = f"$f_{frac_flav}$ scan" if frac_flav != "tau" else "$f_{\\tau}$ scan"
         # info_str += f" {round(efficiency*100)}% {plt_cfg.results.signal.label} WP"
         plt_cfg.results.atlas_second_tag = (
-            plt_cfg.default_second_atlas_tag + "\n" + info_str
+            plt_cfg.results.default_atlas_second_tag + "\n" + info_str
         )
 
         eff_str = str(round(efficiency * 100, 3)).replace(".", "p")
@@ -146,7 +147,7 @@ def make_fracscan_plots(plt_cfg):
         plt_cfg.results.plot_fraction_scans(efficiency=efficiency, **plot_kwargs)
         plt_cfg.results.taggers = all_taggers
         plt_cfg.results.backgrounds = tmp_backgrounds
-        plt_cfg.results.atlas_second_tag = plt_cfg.default_second_atlas_tag
+        plt_cfg.results.atlas_second_tag = plt_cfg.results.default_atlas_second_tag
 
 
 def make_roc_plots(plt_cfg):

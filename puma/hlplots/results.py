@@ -33,6 +33,7 @@ class Results:
     backgrounds: list = field(init=False)
     atlas_first_tag: str = "Simulation Internal"
     atlas_second_tag: str = None
+    atlas_third_tag: str = None
     taggers: dict = field(default_factory=dict)
     perf_vars: str | tuple | list = "pt"
     output_dir: str | Path = "."
@@ -47,6 +48,8 @@ class Results:
             self.output_dir = Path(self.output_dir)
         if isinstance(self.perf_vars, str):
             self.perf_vars = [self.perf_vars]
+        if self.atlas_second_tag is not None and self.atlas_third_tag is not None:
+            self.atlas_second_tag = f"{self.atlas_second_tag}\n{self.atlas_third_tag}"
 
         self.plot_funcs = {
             "probs": self.plot_probs,
@@ -82,7 +85,7 @@ class Results:
         """
         return self.backgrounds + [self.signal]
 
-    def add(self, tagger):
+    def add(self, tagger: Tagger):
         """Add tagger to class.
 
         Parameters
@@ -126,7 +129,6 @@ class Results:
     ):
         """Load one or more taggers from a common file, and adds them to this
         results class
-
 
         Parameters
         ----------
