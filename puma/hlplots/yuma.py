@@ -54,10 +54,11 @@ def make_eff_vs_var_plots(plt_cfg):
             plt_cfg.results, eff_vs_var
         )
         plot_kwargs = get_plot_kwargs(eff_vs_var, suffix=[inc_str, perf_var])
+        # move this logic into the results class
         if not (bins := eff_vs_var["args"].get("bins", None)):
-            if plt_cfg.sample["sample"] == "ttbar":
+            if plt_cfg.results.sample == "ttbar":
                 bins = [20, 30, 40, 60, 85, 110, 140, 175, 250]
-            elif plt_cfg.sample["sample"] == "zprime":
+            elif plt_cfg.results.sample == "zprime":
                 bins = [250, 500, 750, 1000, 1500, 2000, 3000, 4000, 5500]
             else:
                 raise ValueError(
