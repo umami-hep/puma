@@ -172,20 +172,20 @@ def make_roc_plots(plt_cfg):
         plt_cfg.results.taggers = all_taggers
 
 
-def make_plots(args, plt_cfg):
-    if "roc" in args.plots:
+def make_plots(plots, plt_cfg):
+    if "roc" in plots:
         make_roc_plots(plt_cfg)
 
-    if "scan" in args.plots:
+    if "scan" in plots:
         make_fracscan_plots(plt_cfg)
 
-    if "disc" in args.plots:
+    if "disc" in plots:
         make_disc_plots(plt_cfg)
 
-    if "prob" in args.plots:
+    if "prob" in plots:
         make_prob_plots(plt_cfg)
 
-    if "peff" in args.plots:
+    if "peff" in plots:
         make_eff_vs_var_plots(plt_cfg)
 
 
@@ -211,14 +211,14 @@ def main(args=None):
     logger.info(f"Plotting in {plt_cfg.plot_dir_final}")
 
     logger.info("Instantiating Results")
-    plt_cfg.signal = args.signals[0]
+    plt_cfg.signal = signals[0]
     plt_cfg.get_results()  # only run once
-    for signal in args.signals:
+    for signal in signals:
         logger.info(f"Plotting signal {signal}")
         plt_cfg.signal = signal
         plt_cfg.results.set_signal(signal)
         plt_cfg.results.output_dir = plt_cfg.plot_dir_final / f"{signal}_tagging"
-        make_plots(args, plt_cfg)
+        make_plots(plots, plt_cfg)
 
 
 if __name__ == "__main__":
