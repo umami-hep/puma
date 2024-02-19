@@ -13,7 +13,7 @@ from ftag.hdf5 import structured_from_dict
 from yamlinclude import YamlIncludeConstructor
 
 from puma.hlplots import PlotConfig, get_signals
-from puma.hlplots.plot_ftag import main
+from puma.hlplots.yuma import main
 from puma.hlplots.yutils import get_tagger_name
 
 EXAMPLES = Path(__file__).parent.parent.parent / "examples"

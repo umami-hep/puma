@@ -9,19 +9,6 @@ from ftag.hdf5 import H5Reader
 from puma.utils import logger
 
 
-def get_signals(plt_cfg):
-    """Iterates all plots in the config and returns a list of all signals."""
-    all_plots = [
-        *plt_cfg.roc_plots,
-        *plt_cfg.fracscan_plots,
-        *plt_cfg.disc_plots,
-        *plt_cfg.prob_plots,
-        *plt_cfg.eff_vs_var_plots,
-    ]
-    all_sig = list(set([p["args"]["signal"] for p in all_plots]))
-    return all_sig
-
-
 def select_configs(configs, plt_cfg):
     """Selects only configs that match the current sample and signal"""
     return [c for c in configs if c["args"]["signal"] == plt_cfg.signal]
@@ -101,7 +88,7 @@ def get_included_taggers(results, plot_config):
             #  this but might be a bit slow
         else:
             reference = next(iter(include_taggers.keys()))
-            logger.warning(
+            logger.info(
                 "No reference set for plot, using " + reference + " as reference"
             )
         # We ensure that the model which is used for reference as default, is

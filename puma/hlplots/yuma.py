@@ -12,7 +12,6 @@ from puma.hlplots import (
     PlotConfig,
     get_included_taggers,
     get_plot_kwargs,
-    get_signals,
     select_configs,
 )
 from puma.utils import logger
@@ -41,23 +40,6 @@ def get_args(args):
     return parser.parse_args(args)
 
 
-def group_eff_vs_var_by_var(sel_configs):
-    """
-    Sorts eff vs var plots by the variable they plot, so that they can be plotted
-    together
-    """
-    configs_var = []
-    for c in sel_configs:
-        configs_var.append(c["args"].get("peff_var", "pt"))
-
-    grouped_configs = {
-        var: [conf for conf in sel_configs if conf["args"].get("peff_var", "pt") == var]
-        for var in set(configs_var)
-    }
-
-    return grouped_configs
-
-
 def make_eff_vs_var_plots(plt_cfg):
     if not plt_cfg.eff_vs_var_plots:
         logger.warning("No eff vs var plots in config")
@@ -72,9 +54,9 @@ def make_eff_vs_var_plots(plt_cfg):
         )
         plot_kwargs = get_plot_kwargs(eff_vs_var, suffix=[inc_str, perf_var])
         if not (bins := eff_vs_var["args"].get("bins", None)):
-            if plt_cfg.sample["name"] == "ttbar":
+            if plt_cfg.sample["sample"] == "ttbar":
                 bins = [20, 30, 40, 60, 85, 110, 140, 175, 250]
-            elif plt_cfg.sample["name"] == "zprime":
+            elif plt_cfg.sample["sample"] == "zprime":
                 bins = [250, 500, 750, 1000, 1500, 2000, 3000, 4000, 5500]
             else:
                 raise ValueError(
@@ -210,35 +192,32 @@ def make_plots(args, plt_cfg):
 def main(args=None):
     args = get_args(args)
 
-    # Allow selection of subset of plots, if not, plot all plots
-    if args.plots:
-        for p in args.plots:
-            if p not in ALL_PLOTS:
-                raise ValueError(f"Plot type {p} not in allowed list {ALL_PLOTS}")
-    else:
-        args.plots = ALL_PLOTS
-
     config_path = Path(args.config)
-    # support inclusion of yaml files in the config dir
     YamlIncludeConstructor.add_to_loader_class(
         loader_class=yaml.SafeLoader, base_dir=config_path.parent
     )
     plt_cfg = PlotConfig.load_config(config_path)
 
-    signals = get_signals(plt_cfg)
+    # select and check plots
+    plots = args.plots if args.plots else ALL_PLOTS
+    if missing := [p for p in plots if p not in ALL_PLOTS]:
+        raise ValueError(f"Unknown plot types {missing}, choose from {ALL_PLOTS}")
 
-    if args.signals:
-        assert all(
-            [s in signals for s in args.signals]
-        ), f"Signal {args.signals} not in config"
-    else:
-        args.signals = signals
+    # select and check signals
+    signals = args.signals if args.signals else plt_cfg.signals
+    if missing := [s for s in signals if s not in plt_cfg.signals]:
+        raise ValueError(f"Unknown signals {missing}, choose from {plt_cfg.signals}")
 
     logger.info(f"Plotting in {plt_cfg.plot_dir_final}")
 
+    logger.info("Instantiating Results")
+    plt_cfg.signal = args.signals[0]
+    plt_cfg.get_results()  # only run once
     for signal in args.signals:
+        logger.info(f"Plotting signal {signal}")
         plt_cfg.signal = signal
-        plt_cfg.get_results()
+        plt_cfg.results.set_signal(signal)
+        plt_cfg.results.output_dir = plt_cfg.plot_dir_final / f"{signal}_tagging"
         make_plots(args, plt_cfg)
 
 

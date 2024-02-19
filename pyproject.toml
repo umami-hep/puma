@@ -1,9 +1,22 @@
 [project]
 name = "puma-hep"
 description = "ATLAS Flavour Tagging Plotting Code"
-dynamic = ["version"]
+dynamic = ["version", "dependencies"]
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.8,<3.12"
+
+[project.urls]
+"Homepage" = "https://github.com/umami-hep/puma"
+"Issue Tracker" = "https://github.com/umami-hep/puma/issues"
+
+[project.scripts]
+yuma = "puma.hlplots.yuma:main"
+
+[tool.setuptools]
+packages = ["puma"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
 
 [build-system]
 requires = ["setuptools", "wheel"]
@@ -26,6 +39,3 @@ convention = "numpy"  # Accepts: "google", "numpy", or "pep257".
 
 [mypy]
 ignore_missing_imports = "True"
-
-[project.scripts]
-yuma = "puma.hlplots.plot_ftag:main"
