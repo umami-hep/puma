@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
 
 import numpy as np
@@ -218,6 +219,7 @@ def main(args=None):
         plt_cfg.signal = signal
         plt_cfg.results.set_signal(signal)
         plt_cfg.results.output_dir = plt_cfg.plot_dir_final / f"{signal}_tagging"
+        os.makedirs(plt_cfg.results.output_dir, exist_ok=True)
         make_plots(plots, plt_cfg)
 
 

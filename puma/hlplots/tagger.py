@@ -9,8 +9,6 @@ import numpy as np
 import pandas as pd
 from ftag import Cuts, Flavour, Flavours, get_discriminant
 
-from puma.utils import logger
-
 
 @dataclass
 class Tagger:
@@ -120,15 +118,9 @@ class Tagger:
             if source_type is wrongly specified
         """
         if source_type == "data_frame":
-            logger.debug("Retrieving tagger `%s` from data frame.", self.name)
             self.scores = source[self.variables]
             return
         if source_type == "structured_array":
-            logger.debug(
-                "Retrieving tagger %s from h5py fields %s.",
-                self.name,
-                source,
-            )
             self.scores = source[self.variables]
             return
         if key is None:
@@ -137,20 +129,10 @@ class Tagger:
                 " specify the `key`."
             )
         if source_type == "data_frame_path":
-            logger.debug(
-                "Retrieving tagger %s in data frame from file %s.",
-                self.name,
-                source,
-            )
             df_in = pd.read_hdf(source, key=key)
             self.scores = df_in[self.variables]
 
         elif source_type == "h5_file":
-            logger.debug(
-                "Retrieving tagger %s from structured h5 file %s.",
-                self.name,
-                source,
-            )
             with h5py.File(source, "r") as f_h5:
                 self.scores = f_h5[key].fields(self.variables)[:]
 

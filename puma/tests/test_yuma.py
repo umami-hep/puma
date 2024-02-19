@@ -95,7 +95,8 @@ class TestYutils(unittest.TestCase):
 
 class TestYumaPlots(unittest.TestCase):
     def testArgs(self):
-        args = ["--config", "config.yaml", "--signals", "bjets", "--plots", "not_valid"]
+        config_path = str(EXAMPLES / "plt_cfg.yaml")
+        args = ["--config", config_path, "--signals", "bjets", "--plots", "not_valid"]
         with self.assertRaises(ValueError):
             main(args)
 
