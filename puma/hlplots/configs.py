@@ -43,21 +43,8 @@ class PlotConfig:
             plot_dir_name += "_" + date_time_file
         self.plot_dir_final = Path(self.plot_dir) / plot_dir_name
 
-        tagger_defaults = self.taggers_config.get("tagger_defaults", {})
-        taggers = self.taggers_config.get("taggers", {})
-
-        if self.taggers is None:
-            self.taggers = list(taggers.keys())
-
-        self.taggers = {
-            k: {
-                **tagger_defaults,
-                **t,
-                "yaml_name": k,
-            }
-            for k, t in taggers.items()
-            if k in self.taggers
-        }
+        for k, kwargs in self.taggers_config.items():
+            kwargs["yaml_name"] = k
 
         self.roc_plots = self.roc_plots or {}
         self.fracscan_plots = self.fracscan_plots or {}
@@ -88,6 +75,7 @@ class PlotConfig:
         kwargs["perf_vars"] = list(
             {plot["args"].get("perf_var", "pt") for plot in self.eff_vs_var_plots}
         )
+        default_sample_path = kwargs.pop("sample_path", None)
 
         # Store default tag incase other plots need to temporarily modify it
         self.default_second_atlas_tag = kwargs["atlas_second_tag"]
@@ -98,7 +86,9 @@ class PlotConfig:
         good_colours = get_good_colours()
         col_idx = 0
         # Add taggers to results, then bulk load
-        for key, t in self.taggers.items():
+        for key, t in self.taggers_config.items():
+            if default_sample_path and not t.get("sample_path", None):
+                t["sample_path"] = default_sample_path
             # Allows automatic selection of tagger name in eval files
             t["name"] = get_tagger_name(
                 t.get("name", None), t["sample_path"], key, results.flavours

@@ -82,7 +82,7 @@ class Results:
         """
         return self.backgrounds + [self.signal]
 
-    def add(self, tagger):
+    def add(self, tagger: Tagger):
         """Add tagger to class.
 
         Parameters
@@ -126,7 +126,6 @@ class Results:
     ):
         """Load one or more taggers from a common file, and adds them to this
         results class
-
 
         Parameters
         ----------

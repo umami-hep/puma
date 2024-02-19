@@ -5,6 +5,7 @@ results_config:
   atlas_second_tag: $\sqrt{s} = 13.6$ TeV, MC23
   remove_nan: True # for plotting eff profiles for variables with NaNs (e.g, Lxy)
   num_jets: 100_000
+  sample_path: dummy/path/1
 
 taggers_config: !include taggers.yaml
 taggers: [dummy1, dummy2, dummy3]
@@ -16,6 +17,7 @@ sample:
     - "pt < 250000"
     - "eta < 2.5"
     - "eta > -2.5"
+    - "n_truth_promptLepton == 0"
   tag: $t\overline{t}$ 20 < $p_T$ < 250 GeV, $|\eta| < 2.5$
 
 roc_plots:
