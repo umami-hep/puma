@@ -1,11 +1,12 @@
 plot_dir: /home/output_dir
 timestamp: False
 
+sample_path: dummy/path/1
+
 results_config:
   atlas_second_tag: $\sqrt{s} = 13.6$ TeV, MC23
   remove_nan: True # for plotting eff profiles for variables with NaNs (e.g, Lxy)
   num_jets: 100_000
-  sample_path: dummy/path/1
 
 taggers_config: !include taggers.yaml
 taggers: [dummy1, dummy2, dummy3]

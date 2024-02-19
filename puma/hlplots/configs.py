@@ -30,10 +30,7 @@ class PlotConfig:
     prob_plots: dict[str, dict] = None
     eff_vs_var_plots: dict[str, dict] = None
 
-    signal: str = None
-
-    results: Results = None
-    default_second_atlas_tag: str = None
+    sample_path: Path = None
 
     def __post_init__(self):
         # Define a plot directory based on the plot config file name, and a date time
@@ -75,7 +72,6 @@ class PlotConfig:
         kwargs["perf_vars"] = list(
             {plot["args"].get("perf_var", "pt") for plot in self.eff_vs_var_plots}
         )
-        default_sample_path = kwargs.pop("sample_path", None)
 
         # Store default tag incase other plots need to temporarily modify it
         self.default_second_atlas_tag = kwargs["atlas_second_tag"]
@@ -87,8 +83,11 @@ class PlotConfig:
         col_idx = 0
         # Add taggers to results, then bulk load
         for key, t in self.taggers_config.items():
-            if default_sample_path and not t.get("sample_path", None):
-                t["sample_path"] = default_sample_path
+            # if the a sample is not defined for the tagger, use the default sample
+            if not self.sample_path and not t.get("sample_path", None):
+                raise ValueError(f"No sample path defined for tagger {key}")
+            if self.sample_path and not t.get("sample_path", None):
+                t["sample_path"] = self.sample_path
             # Allows automatic selection of tagger name in eval files
             t["name"] = get_tagger_name(
                 t.get("name", None), t["sample_path"], key, results.flavours
