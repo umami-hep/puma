@@ -17,20 +17,18 @@ class PlotConfig:
     config_path: Path
     plot_dir: Path
 
-    taggers_config: dict
-    sample: dict
-
     results_config: dict[str, dict[str, str]]
+    taggers_config: dict
     taggers: list[str] | list[Tagger] | None = None
+
     timestamp: bool = True
+    sample_path: Path = None
 
     roc_plots: dict[str, dict] = None
     fracscan_plots: dict[str, dict] = None
     disc_plots: dict[str, dict] = None
     prob_plots: dict[str, dict] = None
     eff_vs_var_plots: dict[str, dict] = None
-
-    sample_path: Path = None
 
     def __post_init__(self):
         # Define a plot directory based on the plot config file name, and a date time
@@ -65,19 +63,16 @@ class PlotConfig:
         file, and adds them.
         """
         kwargs = self.results_config
-        tag = kwargs.get("atlas_second_tag", "")
-        kwargs["atlas_second_tag"] = tag + "\n" + self.sample.pop("tag", "")
-        kwargs.update(self.sample)
         kwargs["signal"] = self.signal
         kwargs["perf_vars"] = list(
             {plot["args"].get("perf_var", "pt") for plot in self.eff_vs_var_plots}
         )
 
-        # Store default tag incase other plots need to temporarily modify it
-        self.default_second_atlas_tag = kwargs["atlas_second_tag"]
-
         # Instantiate the results object
         results = Results(**kwargs)
+
+        # Store default tag incase other plots need to temporarily modify it
+        results.default_atlas_second_tag = results.atlas_second_tag
 
         good_colours = get_good_colours()
         col_idx = 0

@@ -129,7 +129,7 @@ def make_fracscan_plots(plt_cfg):
         info_str = f"$f_{frac_flav}$ scan" if frac_flav != "tau" else "$f_{\\tau}$ scan"
         # info_str += f" {round(efficiency*100)}% {plt_cfg.results.signal.label} WP"
         plt_cfg.results.atlas_second_tag = (
-            plt_cfg.default_second_atlas_tag + "\n" + info_str
+            plt_cfg.results.default_atlas_second_tag + "\n" + info_str
         )
 
         eff_str = str(round(efficiency * 100, 3)).replace(".", "p")
@@ -146,7 +146,7 @@ def make_fracscan_plots(plt_cfg):
         plt_cfg.results.plot_fraction_scans(efficiency=efficiency, **plot_kwargs)
         plt_cfg.results.taggers = all_taggers
         plt_cfg.results.backgrounds = tmp_backgrounds
-        plt_cfg.results.atlas_second_tag = plt_cfg.default_second_atlas_tag
+        plt_cfg.results.atlas_second_tag = plt_cfg.results.default_atlas_second_tag
 
 
 def make_roc_plots(plt_cfg):
