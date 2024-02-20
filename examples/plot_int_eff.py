@@ -1,4 +1,5 @@
 """Produce Integrated Efficiency curves from tagger output and labels."""
+
 from __future__ import annotations
 
 from ftag import get_discriminant
