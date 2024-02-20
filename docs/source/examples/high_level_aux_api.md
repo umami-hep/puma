@@ -32,12 +32,13 @@ Vertexing performance plots can be produced for a specified jet flavour (all jet
 ```
 This function handles all considerations for vertexing performance, including removing PV, pileup and fake
 tracks from truth vertices and from reco vertices if a tagger has available track origin classification
-information. It also performs a 1:1 greedy matching procedure between truth and reconstructed vertices,
-with which it calculates all relevant performance metrics for plots. There is also a flag to turn on inclusive
-vertexing, which merges all tracks from HF into a single truth vertex per jet. For reconstructed vertices,
-this merges all tracks from HF if track origin classification information is available and all tracks marked
-as being contained in a secondary vertex if not. In total, 5 plots are produced (plotted against a specified
-performance variable):
+information. See [here](https://ftag.docs.cern.ch/algorithms/labelling/track_labels/) for more information
+about truth track origin and vertex definitions. It also performs a 1:1 greedy matching procedure between
+truth and reconstructed vertices, with which it calculates all relevant performance metrics for plots. There
+is also a flag to turn on inclusive vertexing, which merges all tracks from HF into a single truth vertex
+per jet. For reconstructed vertices, this merges all tracks from HF if track origin classification
+information is available and all tracks marked as being contained in a secondary vertex if not. In total, 5
+plots are produced (plotted against a specified performance variable):
 
 * Vertexing efficiency: defined as number of vertices matched divided by number of true vertices
 * Vertexing purity: defined as number of vertices matched divided by number of reconstructed vertices

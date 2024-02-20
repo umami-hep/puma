@@ -10,6 +10,7 @@ import pandas as pd
 from ftag import Cuts, Flavour, Flavours, get_discriminant
 
 from puma.utils import logger
+from puma.utils.aux import get_aux_labels
 from puma.utils.vertexing import clean_indices
 
 
@@ -24,7 +25,7 @@ class Tagger:
     colour: str = None
     f_c: float = None
     f_b: float = None
-    aux_tasks: list = field(default_factory=lambda: ["vertexing", "track_origin"])
+    aux_tasks: list = field(default_factory=lambda: get_aux_labels().keys())
     sample_path: Path = None
 
     # this is only read by the Results class

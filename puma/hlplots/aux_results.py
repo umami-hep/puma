@@ -10,16 +10,9 @@ from ftag.hdf5 import H5Reader
 
 from puma.hlplots.tagger import Tagger
 from puma.utils import logger
+from puma.utils.aux import get_aux_labels
 from puma.utils.vertexing import calculate_vertex_metrics
 from puma.var_vs_aux import VarVsAux, VarVsAuxPlot
-
-
-def get_aux_labels():
-    """Get the truth labels for all aux tasks."""
-    return {
-        "vertexing": "ftagTruthVertexIndex",
-        "track_origin": "ftagTruthOriginLabel",
-    }
 
 
 @dataclass
