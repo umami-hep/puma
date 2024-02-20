@@ -157,6 +157,9 @@ class VarVsVarPlot(PlotBase):
             raise ValueError("Not more than one ratio panel supported.")
         self.initialise_figure()
 
+    def __nonzero__(self):
+        return bool(self.plot_objects)
+
     def add(self, curve: VarVsVar, key: str | None = None, reference: bool = False):
         """Adding VarVsVar object to figure.
 

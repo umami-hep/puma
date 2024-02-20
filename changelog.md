@@ -1,6 +1,7 @@
 # Changelog
 
 ### [Latest]
+- Improve and generalize vertexing performance tools [!229](https://github.com/umami-hep/puma/pull/229)
 - More improvements to Yuma configuration [!237](https://github.com/umami-hep/puma/pull/237)
 - Autoinstall deps and steamline yuma config [!236](https://github.com/umami-hep/puma/pull/236)
 

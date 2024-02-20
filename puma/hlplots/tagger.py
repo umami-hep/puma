@@ -9,6 +9,9 @@ import numpy as np
 import pandas as pd
 from ftag import Cuts, Flavour, Flavours, get_discriminant
 
+from puma.utils.aux import get_aux_labels
+from puma.utils.vertexing import clean_indices
+
 
 @dataclass
 class Tagger:
@@ -21,16 +24,18 @@ class Tagger:
     colour: str = None
     f_c: float = None
     f_b: float = None
+    aux_tasks: list = field(default_factory=lambda: list(get_aux_labels().keys()))
     sample_path: Path = None
 
     # this is only read by the Results class
     cuts: Cuts | list | None = None
 
-    # commonly set by the Results class
+    # commonly set by the Results or AuxResults class
     scores: np.ndarray = None
     labels: np.ndarray = None
+    aux_scores: dict = None
+    aux_labels: dict = None
     perf_vars: dict = None
-    aux_metrics: dict = None
     output_flavours: list = field(
         default_factory=lambda: [Flavours.ujets, Flavours.cjets, Flavours.bjets]
     )
@@ -45,6 +50,9 @@ class Tagger:
             self.label = self.name
         if isinstance(self.cuts, list):
             self.cuts = Cuts.from_list(self.cuts)
+        if self.aux_tasks is not None:
+            self.aux_scores = dict.fromkeys(self.aux_tasks)
+            self.aux_labels = dict.fromkeys(self.aux_tasks)
         if self.sample_path is not None:
             self.sample_path = Path(self.sample_path)
 
@@ -88,6 +96,35 @@ class Tagger:
             List of the outputs variable names of the tagger
         """
         return [f"{self.name}_{prob}" for prob in self.probabilities]
+
+    @property
+    def aux_variables(self):
+        """Return a dict of the auxiliary outputs of the tagger for each task.
+
+        Returns
+        -------
+        aux_outputs: dict
+            Dictionary of auxiliary output variables of the tagger
+
+        Raises
+        ------
+        ValueError
+            If element in self.aux_tasks is unrecognized
+        """
+        aux_outputs = {}
+
+        for aux_type in self.aux_tasks:
+            if aux_type == "vertexing":
+                if self.name == "SV1" or self.name == "JF":
+                    aux_outputs[aux_type] = f"{self.name}VertexIndex"
+                else:
+                    aux_outputs[aux_type] = f"{self.name}_VertexIndex"
+            elif aux_type == "track_origin":
+                aux_outputs[aux_type] = f"{self.name}_TrackOrigin"
+            else:
+                raise ValueError(f"{aux_type} is not a recognized aux task.")
+
+        return aux_outputs
 
     def extract_tagger_scores(
         self, source: object, source_type: str = "data_frame", key: str | None = None
@@ -204,3 +241,85 @@ class Tagger:
             sig_var = self.variables[self.output_flavours.index(Flavours[signal])]
             return self.scores[sig_var]
         raise ValueError(f"No discriminant defined for {signal} signal.")
+
+    def vertex_indices(self, incl_vertexing=False):
+        """Retrieve cleaned vertex indices for the tagger.
+
+        Parameters
+        ----------
+        incl_vertexing : bool, optional
+            Whether to merge all vertex indices, by default False.
+
+        Returns
+        -------
+        np.ndarray
+            Vertex indices for the tagger
+        """
+        if "vertexing" not in self.aux_tasks:
+            raise ValueError("Vertexing aux task not available for this tagger.")
+        else:
+            truth_indices = self.aux_labels["vertexing"]
+            reco_indices = self.aux_scores["vertexing"]
+
+        # clean truth vertex indices - remove indices from true PV, PU, fake
+        truth_removal_cond = np.logical_or(
+            self.aux_labels["vertexing"] == 0,
+            np.isin(self.aux_labels["track_origin"], [0, 1, 2]),
+        )
+        truth_indices = clean_indices(
+            truth_indices,
+            truth_removal_cond,
+            mode="remove",
+        )
+
+        # merge truth vertices from HF for inclusive performance
+        if incl_vertexing:
+            truth_merge_cond = np.logical_and(
+                self.aux_labels["vertexing"] > 0,
+                np.isin(self.aux_labels["track_origin"], [3, 4, 5, 6]),
+            )
+            truth_indices = clean_indices(
+                truth_indices,
+                truth_merge_cond,
+                mode="merge",
+            )
+
+        # clean reco vertex indices - remove indices from reco PV, PU, fake
+        if "track_origin" in self.aux_tasks:
+            reco_indices = clean_indices(
+                reco_indices,
+                np.isin(self.aux_scores["track_origin"], [0, 1, 2]),
+                mode="remove",
+            )
+
+            # merge reco vertices - vertices with > 0 from HF if trk origin is available
+            if incl_vertexing:
+                hf_vertex_indices = np.unique(
+                    self.aux_scores["vertexing"][
+                        np.isin(self.aux_scores["track_origin"], [3, 4, 5, 6])
+                    ]
+                )
+                # remove remaining vertices without HF tracks
+                reco_indices = clean_indices(
+                    reco_indices,
+                    np.isin(
+                        self.aux_scores["vertexing"], hf_vertex_indices, invert=True
+                    ),
+                    mode="remove",
+                )
+                # merge remaining vertices with HF tracks
+                reco_indices = clean_indices(
+                    reco_indices,
+                    np.isin(self.aux_scores["vertexing"], hf_vertex_indices),
+                    mode="merge",
+                )
+        else:
+            # merge reco vertices - all if track origin isn't available
+            if incl_vertexing:
+                reco_indices = clean_indices(
+                    reco_indices,
+                    reco_indices >= 0,
+                    mode="merge",
+                )
+
+        return truth_indices, reco_indices

@@ -34,7 +34,8 @@ output, labels = get_dummy_multiclass_scores()
 ```
 
 Finally, the `get_dummy_tagger_aux` function returns a h5 file with both jet and
-track collections (needed for aux task plots). These include the following columns:
+track collections (needed for aux task plots). These include the following columns
+(aux task information is generated for both vertexing and track origin classification):
 
 jets:
 - `HadronConeExclTruthLabelID`
@@ -42,16 +43,19 @@ jets:
 - `GN2_pc`
 - `GN2_pb`
 - `pt`
+- `eta`
 - `n_truth_promptLepton`
 
 tracks:
-- `truthVertexIndex`
-- `VertexIndex`
+- `ftagTruthVertexIndex`
+- `GN2_VertexIndex`
+- `ftagTruthOriginLabel`
+- `GN2_TrackOrigin`
 
 which can be used in the following manner:
 
 ```python
-from puma.utils import get_dummy_2_taggers
+from puma.utils import get_dummy_tagger_aux
 
 df = get_dummy_tagger_aux()
 
