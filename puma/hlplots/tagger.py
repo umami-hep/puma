@@ -154,7 +154,7 @@ class Tagger:
             if source_type is wrongly specified
         """
         if source_type == "data_frame":
-            self.scores = source[self.variables]
+            self.scores = source[self.variables].to_records(index=False)
             return
         if source_type == "structured_array":
             self.scores = source[self.variables]
@@ -166,7 +166,7 @@ class Tagger:
             )
         if source_type == "data_frame_path":
             df_in = pd.read_hdf(source, key=key)
-            self.scores = df_in[self.variables]
+            self.scores = df_in[self.variables].to_records(index=False)
 
         elif source_type == "h5_file":
             with h5py.File(source, "r") as f_h5:
