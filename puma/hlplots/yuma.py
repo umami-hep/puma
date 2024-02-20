@@ -4,7 +4,6 @@ import argparse
 import os
 from pathlib import Path
 
-import numpy as np
 import yaml
 from ftag import Flavours
 from yamlinclude import YamlIncludeConstructor
@@ -158,13 +157,6 @@ def make_roc_plots(plt_cfg):
     roc_config = select_configs(plt_cfg.roc_plots, plt_cfg)
 
     for roc in roc_config:
-        x_range = roc["args"].get("x_range", [0.5, 1.0])
-        if len(x_range) <= 1 or len(x_range) > 3:
-            raise ValueError(f"Invalid x_range {x_range}")
-        elif len(x_range) == 2:
-            x_range = [x_range[0], x_range[1], 20]
-        plt_cfg.results.sig_eff = np.linspace(*x_range)
-
         plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(
             plt_cfg.results, roc
         )

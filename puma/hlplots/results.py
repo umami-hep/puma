@@ -447,7 +447,8 @@ class Results:
 
     def plot_rocs(
         self,
-        sig_effs: np.ndarray | None = None,
+        x_range: tuple[float, float] | None = None,
+        resolution: int = 100,
         suffix: str | None = None,
         **roc_kwargs,
     ):
@@ -455,15 +456,18 @@ class Results:
 
         Parameters
         ----------
-        sig_effs : np.ndarray, optional
-            signal efficiencies, by default None
+        x_range : tuple, optional
+            x-axis range, by default None
+        resolution : int, optional
+            number of points to use for the x-axis, by default 100
         suffix : str, optional
             suffix to add to output file name, by default None
         roc_kwargs: dict, optional
             key word arguments being passed to `RocPlot`
         """
-        if sig_effs is None:
-            sig_effs = np.linspace(0.5, 1.0, 100)
+        if x_range is None:
+            x_range = (0.5, 1.0)
+        sig_effs = np.linspace(*x_range, resolution)
         roc_plot_args = {
             "n_ratio_panels": len(self.backgrounds),
             "ylabel": "Background rejection",
