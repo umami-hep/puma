@@ -1,4 +1,4 @@
-"""Efficiency plots vs. specific variable."""
+"""Aux task efficiency plots vs. specific variable."""
 from __future__ import annotations
 
 from typing import ClassVar
@@ -95,7 +95,7 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
             x_var_widths=2 * self.bin_widths,
             key=key,
             fill=True,
-            plot_y_std=True,
+            plot_y_std=False,
             **kwargs,
         )
 
@@ -151,8 +151,9 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
             )
         )
 
-    def get_efficiency(self, n_match: np.ndarray, n_true: np.ndarray):
-        """Calculate classification efficiency and the associated error.
+    def get_performance_ratio(self, num: np.ndarray, denom: np.ndarray):
+        """Calculate performance ratio for aux task. Either n_matched/n_true
+        (efficiency) or n_matched/n_reco (purity).
 
         Parameters
         ----------
@@ -164,50 +165,25 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         Returns
         -------
         float
-            Efficiency
+            Performance ratio
         float
-            Efficiency error
+            Performance ratio error
         """
-        eff = save_divide(np.sum(n_match), np.sum(n_true), default=np.inf)
-        if eff == np.inf:
-            logger.warning("Your efficiency is infinity -> setting it to np.nan.")
+        pm = save_divide(np.sum(num), np.sum(denom), default=np.inf)
+        if pm == np.inf:
+            logger.warning(
+                "Your performance ratio is infinity -> setting it to np.nan."
+            )
             return np.nan, np.nan
-        elif len(n_match) == 0:
-            logger.warning("Your efficiency is zero -> setting error to zero.")
+        elif pm == 0:
+            logger.warning("Your performance ratio is zero -> setting error to zero.")
             return 0.0, 0.0
-        eff_error = eff_err(eff, len(n_match))
-        return eff, eff_error
-
-    def get_fake_rate(self, n_match: np.ndarray, n_reco: np.ndarray):
-        """Calculate classification fake rate and the associated error.
-
-        Parameters
-        ----------
-        arr : np.ndarray
-            Array with discriminants
-        cut : float
-            Cut value
-
-        Returns
-        -------
-        float
-            Efficiency
-        float
-            Efficiency error
-        """
-        fr = 1 - save_divide(np.sum(n_match), np.sum(n_reco), default=np.inf)
-        if fr == np.inf:
-            logger.warning("Your fake rate is infinity -> setting it to np.nan.")
-            return np.nan, np.nan
-        elif len(n_match) == 0:
-            logger.warning("Your fake rate is one -> setting error to zero.")
-            return 1.0, 0.0
-        fr_error = eff_err(fr, len(n_match))
-        return fr, fr_error
+        pm_error = eff_err(pm, len(num))
+        return pm, pm_error
 
     @property
     def efficiency(self):
-        """Calculate signal efficiency per bin.
+        """Calculate signal efficiency per bin. Defined as n_match/n_true.
 
         Returns
         -------
@@ -217,25 +193,58 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
             Efficiency_error
         """
         logger.debug("Calculating efficiency.")
-        eff = list(map(self.get_efficiency, self.match_binned, self.true_binned))
+        eff = list(
+            map(
+                self.get_performance_ratio,
+                self.match_binned,
+                self.true_binned,
+            )
+        )
         logger.debug("Retrieved efficiencies: %s", eff)
         return np.array(eff)[:, 0], np.array(eff)[:, 1]
 
     @property
-    def fake_rate(self):
-        """Calculate signal efficiency per bin.
+    def purity(self):
+        """Calculate signal purity per bin. Defined as n_match/n_reco.
 
         Returns
         -------
         np.ndarray
-            Efficiency
+            Purity
         np.ndarray
-            Efficiency_error
+            Purity_error
         """
-        logger.debug("Calculating fake rate.")
-        fr = list(map(self.get_fake_rate, self.match_binned, self.reco_binned))
-        logger.debug("Retrieved fake rate: %s", fr)
-        return np.array(fr)[:, 0], np.array(fr)[:, 1]
+        logger.debug("Calculating purity.")
+        purity = list(
+            map(
+                self.get_performance_ratio,
+                self.match_binned,
+                self.reco_binned,
+            )
+        )
+        logger.debug("Retrieved purity: %s", purity)
+        return np.array(purity)[:, 0], np.array(purity)[:, 1]
+
+    @property
+    def total_reco(self):
+        """Calculate total number of reconstructed objects per bin.
+
+        Returns
+        -------
+        np.ndarray
+            Total number of reconstructed objects
+        np.ndarray
+            Total number of reconstructed objects error
+        """
+        logger.debug("Calculating total number of reconstructed objects.")
+        total_reco = list(
+            zip(
+                list(map(np.mean, self.reco_binned)),
+                list(map(np.std, self.reco_binned)),
+            )
+        )
+        logger.debug("Retrieved total number of reconstructed objects: %s", total_reco)
+        return np.array(total_reco)[:, 0], np.array(total_reco)[:, 1]
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
@@ -255,14 +264,14 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         Parameters
         ----------
         mode : str
-            Can be "efficiency" or "fake_rate"
+            Can be "efficiency" or "purity"
 
         Returns
         -------
         np.ndarray
-            Efficiency or fake rate depending on `mode` value
+            Efficiency or purity depending on `mode` value
         np.ndarray
-            Efficiency or fake rate error depending on `mode` value
+            Efficiency or purity error depending on `mode` value
 
         Raises
         ------
@@ -272,8 +281,10 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         # TODO: python 3.10 switch to cases syntax
         if mode == "efficiency":
             return self.efficiency
-        if mode == "fake_rate":
-            return self.fake_rate
+        if mode == "purity":
+            return self.purity
+        if mode == "total_reco":
+            return self.total_reco
         raise ValueError(
             f"The selected mode {mode} is not supported. Use one of the following:"
             f" {VarVsAuxPlot.mode_options}."
@@ -285,7 +296,8 @@ class VarVsAuxPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
 
     mode_options: ClassVar[list[str]] = [
         "efficiency",
-        "fake_rate",
+        "purity",
+        "total_reco",
     ]
 
     def __init__(self, mode, grid: bool = False, **kwargs) -> None:
@@ -295,10 +307,11 @@ class VarVsAuxPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
         ----------
         mode : str
             Defines which quantity is plotted, the following options ar available:
-                efficiency - Plots signal efficiency vs. variable, with statistical
-                    error on N signal per bin
-                fake_rate - Plots background efficiency vs. variable, with statistical
-                    error on N background per bin
+                efficiency - Plots efficiency vs. variable, with statistical
+                    error on N per bin
+                purity - Plots purity vs. variable, with statistical
+                    error on N per bin
+                total_reco - Plots number of reconstructed objects per bin
         grid : bool, optional
             Set the grid for the plots.
         **kwargs : kwargs

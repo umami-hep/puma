@@ -65,18 +65,18 @@ class GetDummyTaggerAuxTestCase(unittest.TestCase):
 
     def test_size(self):
         """Check that correct size is returned."""
-        file = get_dummy_tagger_aux(size=10)
+        _, file = get_dummy_tagger_aux(size=10)
         # we expect here 9 entries, since 10 is not dividable by 3, and the function
         # returns 3 classes with the same amount of stats per class
         self.assertEqual(file["jets"].shape[0], 9)
 
     def test_ntracks(self):
         """Check correct amount of tracks."""
-        file = get_dummy_tagger_aux(n_tracks=10)
+        _, file = get_dummy_tagger_aux(n_tracks=10)
         self.assertEqual(file["tracks"].shape[1], 10)
 
     def test_columns(self):
         """Check correct amount of columns for jets and tracks."""
-        file = get_dummy_tagger_aux()
-        self.assertEqual(len(file["jets"][0]), 7)
-        self.assertEqual(len(file["tracks"][0][0]), 2)
+        _, file = get_dummy_tagger_aux()
+        self.assertEqual(len(file["jets"][0]), 8)
+        self.assertEqual(len(file["tracks"][0][0]), 4)

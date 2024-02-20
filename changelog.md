@@ -2,6 +2,7 @@
 
 ### [Latest]
 - Allow for base dir Yuma loading [!238](https://github.com/umami-hep/puma/pull/238)
+- Improve and generalize vertexing performance tools [!229](https://github.com/umami-hep/puma/pull/229)
 - More improvements to Yuma configuration [!237](https://github.com/umami-hep/puma/pull/237)
 - Autoinstall deps and steamline yuma config [!236](https://github.com/umami-hep/puma/pull/236)
 
