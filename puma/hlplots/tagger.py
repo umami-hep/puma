@@ -229,6 +229,7 @@ class Tagger:
         """
         if fxs is None:
             fxs = self.fxs
+        fxs = {k: v for k, v in fxs.items() if k != signal.frac_str}
         return get_discriminant(self.scores, self.name, signal, **fxs)
 
     def vertex_indices(self, incl_vertexing=False):
