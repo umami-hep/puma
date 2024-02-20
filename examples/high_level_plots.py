@@ -1,7 +1,6 @@
 """Produce roc curves from tagger output and labels."""
-from __future__ import annotations
 
-import numpy as np
+from __future__ import annotations
 
 from puma.hlplots import Results, Tagger
 from puma.utils import get_dummy_2_taggers, logger
@@ -57,7 +56,7 @@ results.plot_discs(logy=True, wp_vlines=[60, 85], suffix="log")
 
 # ROC curves
 logger.info("Plotting ROC curves.")
-results.plot_rocs(np.linspace(0.6, 0.95, 20))
+results.plot_rocs()
 
 # eff/rej vs. variable plots
 logger.info("Plotting efficiency/rejection vs pT curves.")
