@@ -292,11 +292,25 @@ class Tagger:
                 mode="remove",
             )
 
-            # merge reco vertices - from HF if track origin is available
+            # merge reco vertices - vertices with > 0 from HF if trk origin is available
             if incl_vertexing:
+                hf_vertex_indices = np.unique(
+                    self.aux_scores["vertexing"][
+                        np.isin(self.aux_scores["track_origin"], [3, 4, 5, 6])
+                    ]
+                )
+                # remove remaining vertices without HF tracks
                 reco_indices = clean_indices(
                     reco_indices,
-                    np.isin(self.aux_scores["track_origin"], [3, 4, 5, 6]),
+                    np.isin(
+                        self.aux_scores["vertexing"], hf_vertex_indices, invert=True
+                    ),
+                    mode="remove",
+                )
+                # merge remaining vertices with HF tracks
+                reco_indices = clean_indices(
+                    reco_indices,
+                    np.isin(self.aux_scores["vertexing"], hf_vertex_indices),
                     mode="merge",
                 )
         else:
