@@ -42,45 +42,13 @@ with h5py.File(ttbar_file, "r") as f:
 ```
 
 In the example below you can find an example on how you can calculate the tagger
-discriminant using the raw output (i.e. `p_u`, `p_c` and `p_b`) of the tagger.
+discriminant using the raw output (i.e. `p_u`, `p_c` and `p_b`) of the tagger,
+and a function from [atlas-ftag-tools](https://github.com/umami-hep/atlas-ftag-tools/).
 
 ```py
-# define a small function to calculate discriminant
-def disc_fct(arr: np.ndarray, f_c: float = 0.018) -> np.ndarray:
-    """Tagger discriminant
-
-    Parameters
-    ----------
-    arr : numpy.ndarray
-        array with with shape (, 3)
-    f_c : float, optional
-        f_c value in the discriminant (weight for c-jets rejection)
-
-    Returns
-    -------
-    np.ndarray
-        Array with the discriminant values inside.
-    """
-    # you can adapt this for your needs
-    return np.log(arr[2] / (f_c * arr[1] + (1 - f_c) * arr[0]))
-
-
-# you can also use a lambda function
-# discs_rnnip = np.apply_along_axis(
-#     lambda a: np.log(a[2] / (0.018 * a[1] + (1 - 0.018) * a[0])),
-#     1,
-#     df[["rnnip_pu", "rnnip_pc", "rnnip_pb"]].values,
-# )
-
-# calculate discriminant
-discs_rnnip = np.apply_along_axis(
-    disc_fct, 1, df[["rnnip_pu", "rnnip_pc", "rnnip_pb"]].values
-)
-discs_dips = np.apply_along_axis(
-    disc_fct,
-    1,
-    df[["dipsLoose20210729_pu", "dipsLoose20210729_pc", "dipsLoose20210729_pb"]].values,
-)
+from ftag import get_discriminant
+discs_rnnip = get_discriminant(df, "rnnip", signal="bjets", fc=0.018)
+discs_dips = get_discriminant(df, "dips", signal="bjets", fc=0.018)
 ```
 
 To calculate the rejection values you can do the following or using a results file
