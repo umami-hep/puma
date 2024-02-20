@@ -1,28 +1,24 @@
 plot_dir: /home/output_dir
 timestamp: False
 
-results_default:
+sample_path: dummy/path/1
+
+results_config:
+  sample: ttbar
+  atlas_first_tag: Simulation Internal
   atlas_second_tag: $\sqrt{s} = 13.6$ TeV, MC23
-  # Required for plotting peff plots for variables with NaNs (e.g, Lxy)
-  remove_nan: True
+  atlas_third_tag: $t\overline{t}$ 20 < $p_T$ < 250 GeV, $|\eta| < 2.5$
   num_jets: 100_000
-
-taggers_config: !include taggers.yaml
-taggers: 
-  - dummy1
-  - dummy2
-  - dummy3
-reference_tagger: dummy1
-
-
-sample:
-  name: ttbar
-  cuts:
-    - "pt > 20000"
-    - "pt < 250000"
+  remove_nan: True # for plotting eff profiles for variables with NaNs (e.g, Lxy)
+  global_cuts:
+    - "pt > 20_000"
+    - "pt < 250_000"
     - "eta < 2.5"
     - "eta > -2.5"
-  str: $t\overline{t}$ 20 < $p_T$ < 250 GeV, $|\eta| < 2.5$
+    - "n_truth_promptLepton == 0"
+
+taggers_config: !include taggers.yaml
+taggers: [dummy1, dummy2, dummy3]
 
 roc_plots:
   -  args:

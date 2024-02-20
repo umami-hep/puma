@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """Unit test script for the functions in hlplots/tagger.py."""
+
 from __future__ import annotations
 
 import tempfile
@@ -12,8 +13,8 @@ from ftag import Flavours, get_mock_file
 from ftag.hdf5 import structured_from_dict
 from yamlinclude import YamlIncludeConstructor
 
-from puma.hlplots import PlotConfig, get_signals
-from puma.hlplots.plot_ftag import main
+from puma.hlplots import PlotConfig
+from puma.hlplots.yuma import main
 from puma.hlplots.yutils import get_tagger_name
 
 EXAMPLES = Path(__file__).parent.parent.parent / "examples"
@@ -51,8 +52,9 @@ class TestYutils(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp_file:
             fpath1, file = get_mock_file(fname=(Path(tmp_file) / "file1.h5").as_posix())
-            taggers["tagger_defaults"]["sample_path"] = fpath1
-            taggers["taggers"]["dummy3"]["sample_path"] = fpath1
+            taggers["dummy1"]["sample_path"] = fpath1
+            taggers["dummy2"]["sample_path"] = fpath1
+            taggers["dummy3"]["sample_path"] = fpath1
             updated_plt_cfg = Path(tmp_file) / "plt_cfg.yaml"
 
             plt_cfg["roc_plots"][0]["reference"] = "dummyNot"
@@ -89,13 +91,13 @@ class TestYutils(unittest.TestCase):
     def testGetSignals(self):
         plt_cfg = EXAMPLES / "plt_cfg.yaml"
         plt_cfg = PlotConfig.load_config(plt_cfg)
-        valid = get_signals(plt_cfg)
-        assert sorted(valid) == ["bjets", "cjets"]
+        assert sorted(plt_cfg.signals) == ["bjets", "cjets"]
 
 
 class TestYumaPlots(unittest.TestCase):
     def testArgs(self):
-        args = ["--config", "config.yaml", "--signals", "bjets", "--plots", "not_valid"]
+        config_path = str(EXAMPLES / "plt_cfg.yaml")
+        args = ["--config", config_path, "--signals", "bjets", "--plots", "not_valid"]
         with self.assertRaises(ValueError):
             main(args)
 
@@ -107,9 +109,9 @@ class TestYumaPlots(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_file:
             fpath1, file = get_mock_file(fname=(Path(tmp_file) / "file1.h5").as_posix())
             fpath2, file = get_mock_file(fname=(Path(tmp_file) / "file2.h5").as_posix())
-
-            taggers["tagger_defaults"]["sample_path"] = fpath1
-            taggers["taggers"]["dummy3"]["sample_path"] = fpath2
+            taggers["dummy1"]["sample_path"] = fpath1
+            taggers["dummy2"]["sample_path"] = fpath1
+            taggers["dummy3"]["sample_path"] = fpath2
             updated_plt_cfg = Path(tmp_file) / "plt_cfg.yaml"
             plt_cfg["plot_dir"] = tmp_file + "/plots"
             plt_cfg["taggers_config"] = taggers
@@ -160,8 +162,9 @@ class TestYumaPlots(unittest.TestCase):
             fpath1, file = get_mock_file(fname=(Path(tmp_file) / "file1.h5").as_posix())
             fpath2, file = get_mock_file(fname=(Path(tmp_file) / "file2.h5").as_posix())
 
-            taggers["tagger_defaults"]["sample_path"] = fpath1
-            taggers["taggers"]["dummy3"]["sample_path"] = fpath2
+            taggers["dummy1"]["sample_path"] = fpath1
+            taggers["dummy2"]["sample_path"] = fpath1
+            taggers["dummy3"]["sample_path"] = fpath2
 
             updated_plt_cfg = Path(tmp_file) / "plt_cfg.yaml"
             plt_cfg["taggers_config"] = taggers

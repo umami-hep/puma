@@ -1,21 +1,14 @@
-tagger_defaults:
+dummy1: # Uses default sample path
+  label: Dummy default
+  f_c: 0.2
   f_b: 0.05
-  f_c: 0.1
-  sample_path: dummy/path/1
-  cuts: 
-    - "n_truth_promptLepton == 0"
-
-taggers:
-  # Uses default sample path, and default f_c
-  dummy1: 
-    label: Dummy default
-  # Uses default sample path, and updated f_c
-  dummy2:
-    f_c: 0.2
-    label: Dummy $f_c$ = 0.2
-  # Uses updated sample path, and default f_c
-  dummy3:
-    sample_path: /dummy/path
-    label: Dummy 3
-
-      
+  reference: True
+dummy2: # Uses default sample path
+  label: Dummy $f_c$ = 0.2
+  f_c: 0.2
+  f_b: 0.05
+dummy3: # Uses updated sample path
+  sample_path: /dummy/path
+  label: Dummy 3
+  f_c: 0.2
+  f_b: 0.05
