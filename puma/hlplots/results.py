@@ -781,7 +781,7 @@ class Results:
         if "logy" not in kwargs:
             kwargs["logy"] = True
 
-        fxs = fraction_scan.get_fx_values()
+        fxs = fraction_scan.get_fx_values(resolution=kwargs.pop("resolution", 100))
         tag = self.atlas_second_tag + "\n" if self.atlas_second_tag else ""
         tag += f"{self.signal.eff_str} = {efficiency:.0%}"
         plot = Line2DPlot(atlas_second_tag=tag, **kwargs)

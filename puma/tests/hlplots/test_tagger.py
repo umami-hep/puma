@@ -93,7 +93,7 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
         """Test passing data frame."""
         tagger = Tagger("dummy")
         tagger.extract_tagger_scores(self.df_dummy)
-        np.testing.assert_array_equal(tagger.scores, self.scores_expected)
+        np.testing.assert_array_equal(s2u(tagger.scores), self.scores_expected)
 
     def test_data_frame_path(self):
         """Test passing data frame path."""
@@ -105,7 +105,7 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
             tagger.extract_tagger_scores(
                 file_name, key="dummy_tagger", source_type="data_frame_path"
             )
-        np.testing.assert_array_equal(tagger.scores, self.scores_expected)
+        np.testing.assert_array_equal(s2u(tagger.scores), self.scores_expected)
 
     def test_h5_structured_numpy_path(self):
         """Test passing structured h5 path."""

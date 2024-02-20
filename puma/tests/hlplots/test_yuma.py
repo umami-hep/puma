@@ -17,7 +17,7 @@ from puma.hlplots import PlotConfig
 from puma.hlplots.yuma import main
 from puma.hlplots.yutils import get_tagger_name
 
-EXAMPLES = Path(__file__).parent.parent.parent / "examples"
+EXAMPLES = Path(__file__).parents[3] / "examples"
 
 
 def load_no_include(plt_cfg, taggers):
