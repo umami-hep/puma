@@ -20,24 +20,26 @@ taggers_config: !include taggers.yaml
 taggers: [dummy1, dummy2, dummy3]
 
 roc_plots:
-  -  args:
+  - args:
       signal: cjets
-      x_range: [0.5, 1.0]
       plot_kwargs:
+        x_range: [0.5, 1.0]
         figsize: [8.5, 7.5]
-  -  args:
+  - args:
       signal: bjets
-      x_range: [0.5, 1.0]
       plot_kwargs:
+        x_range: [0.5, 1.0]
         figsize: [8.5, 7.5]
-  -  args:
+  - args:
       signal: bjets
-      x_range: [0.5, 1.0]
-      include_taggers: ['dummy1']
-  -  args:
+      include_taggers: ["dummy1"]
+      plot_kwargs:
+        x_range: [0.5, 1.0]
+  - args:
       signal: bjets
-      x_range: [0.5, 1.0]
-      exclude_taggers: ['dummy1']
+      exclude_taggers: ["dummy1"]
+      plot_kwargs:
+        x_range: [0.5, 1.0]
 
 fracscan_plots:
   - args:
@@ -68,7 +70,7 @@ eff_vs_var_plots:
   - args:
       signal: bjets
       plot_kwargs:
-        fixed_rejections: 
+        fixed_rejections:
           cjets: 10
           ujets: 100
   - args:
@@ -91,4 +93,3 @@ eff_vs_var_plots:
       plot_kwargs:
         flat_per_bin: False
         working_point: 0.7
-      
