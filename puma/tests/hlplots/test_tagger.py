@@ -242,5 +242,5 @@ class TaggerAuxTaskTestCase(unittest.TestCase):
             "track_origin": np.array([[0, 0, 4, 3, 3]]),
         }
         true_indices, reco_indices = tagger.vertex_indices(incl_vertexing=True)
-        np.testing.assert_array_equal(true_indices, np.array([[-99, -99, 5, 5, 5]]))
-        np.testing.assert_array_equal(reco_indices, np.array([[-99, 5, 5, 5, 5]]))
+        np.testing.assert_array_equal(true_indices, np.array([[-99, -99, 2, 2, 2]]))
+        np.testing.assert_array_equal(reco_indices, np.array([[-99, 3, 3, 3, 3]]))

@@ -24,7 +24,7 @@ class Tagger:
     colour: str = None
     f_c: float = None
     f_b: float = None
-    aux_tasks: list = field(default_factory=lambda: get_aux_labels().keys())
+    aux_tasks: list = field(default_factory=lambda: list(get_aux_labels().keys()))
     sample_path: Path = None
 
     # this is only read by the Results class
