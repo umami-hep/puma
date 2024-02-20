@@ -227,6 +227,7 @@ class Tagger:
         np.ndarray
             Discriminant for given signal class
         """
+        signal = Flavours[signal]
         if fxs is None:
             fxs = self.fxs
         fxs = {k: v for k, v in fxs.items() if k != signal.frac_str}

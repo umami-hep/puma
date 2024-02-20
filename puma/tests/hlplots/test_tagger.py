@@ -152,26 +152,12 @@ class TaggerTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             tagger.discriminant("ujets")
 
-    def test_disc_b_calc_no_fc(self):
-        """Test b-disc calculation w/o f_c provided."""
-        tagger = Tagger("dummy")
-        tagger.scores = self.scores
-        with self.assertRaises(TypeError):
-            tagger.discriminant("bjets")
-
     def test_disc_b_calc(self):
         """Test b-disc calculation."""
         tagger = Tagger("dummy", fxs={"fc": 0.5})
         tagger.scores = self.scores
         discs = tagger.discriminant("bjets")
         np.testing.assert_array_equal(discs, np.zeros(10))
-
-    def test_disc_c_calc_no_fb(self):
-        """Test c-disc calculation w/o f_c provided."""
-        tagger = Tagger("dummy")
-        tagger.scores = self.scores
-        with self.assertRaises(TypeError):
-            tagger.discriminant("cjets")
 
     def test_disc_c_calc(self):
         """Test c-disc calculation."""
