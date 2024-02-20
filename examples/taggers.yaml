@@ -1,14 +1,11 @@
 dummy1: # Uses default sample path
   label: Dummy default
-  f_c: 0.2
-  f_b: 0.05
+  fxs: {fc: 0.2, fb: 0.05}
   reference: True
 dummy2: # Uses default sample path
   label: Dummy $f_c$ = 0.2
-  f_c: 0.2
-  f_b: 0.05
+  fxs: {fc: 0.2, fb: 0.05}
 dummy3: # Uses updated sample path
   sample_path: /dummy/path
   label: Dummy 3
-  f_c: 0.2
-  f_b: 0.05
+  fxs: {fc: 0.2, fb: 0.05}

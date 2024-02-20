@@ -1,4 +1,5 @@
 """Tagger module for high level API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -22,8 +23,7 @@ class Tagger:
     label: str = None
     reference: bool = False
     colour: str = None
-    f_c: float = None
-    f_b: float = None
+    fxs: dict[str, float] = field(default_factory=lambda: {"fc": 0.1, "fb": 0.2})
     aux_tasks: list = field(default_factory=lambda: list(get_aux_labels().keys()))
     sample_path: Path = None
 
@@ -72,7 +72,8 @@ class Tagger:
         np.ndarray
             Array of indices of the given flavour
         """
-        flavour = Flavours[flavour] if isinstance(flavour, str) else flavour
+        flavour = Flavours[flavour]
+        print(flavour.cuts(self.labels))
         return flavour.cuts(self.labels).idx
 
     @property
@@ -187,7 +188,7 @@ class Tagger:
         int
             Number of jets of given flavour
         """
-        flavour = Flavours[flavour] if isinstance(flavour, str) else flavour
+        flavour = Flavours[flavour]
         return len(flavour.cuts(self.labels).values)
 
     def probs(self, prob_flavour: Flavour, label_flavour: Flavour = None):
@@ -205,42 +206,30 @@ class Tagger:
         np.ndarray
             Probabilities for given flavour
         """
-        return self.scores[self.is_flav(label_flavour)][
-            f"{self.name}_{prob_flavour.px}"
-        ]
+        prob_flavour = Flavours[prob_flavour]
+        scores = self.scores
+        if label_flavour is not None:
+            scores = scores[self.is_flav(label_flavour)]
+        return scores[f"{self.name}_{prob_flavour.px}"]
 
-    def discriminant(self, signal: Flavour, fx: float | None = None):
+    def discriminant(self, signal: Flavour, fxs: dict | None = None):
         """Retrieve the discriminant for a given signal class.
 
         Parameters
         ----------
         signal : Flavour
             Signal class for which the discriminant should be retrieved
-        fx : float, optional
-            fc or fb value, by default None
+        fxs : dict, optional
+            dict of fractions to use instead of the default ones, by default None
 
         Returns
         -------
         np.ndarray
             Discriminant for given signal class
-
-        Raises
-        ------
-        ValueError
-            If no discriminant is defined for given signal class
         """
-        if fx is not None and signal not in (Flavours.bjets, Flavours.cjets):
-            raise ValueError("fx only valid for bjets and cjets.")
-        if fx is None:
-            fx = self.f_c if Flavours[signal] == Flavours.bjets else self.f_b
-        if Flavours[signal] == Flavours.bjets:
-            return get_discriminant(self.scores, self.name, signal, fx)
-        if Flavours[signal] == Flavours.cjets:
-            return get_discriminant(self.scores, self.name, signal, fx)
-        if Flavours[signal] in (Flavours.hbb, Flavours.hcc):
-            sig_var = self.variables[self.output_flavours.index(Flavours[signal])]
-            return self.scores[sig_var]
-        raise ValueError(f"No discriminant defined for {signal} signal.")
+        if fxs is None:
+            fxs = self.fxs
+        return get_discriminant(self.scores, self.name, signal, **fxs)
 
     def vertex_indices(self, incl_vertexing=False):
         """Retrieve cleaned vertex indices for the tagger.

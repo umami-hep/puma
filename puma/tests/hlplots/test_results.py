@@ -204,7 +204,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_plot_probs_bjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.f_c = 0.05
+        self.dummy_tagger_1.fxs = {"fc": 0.05}
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
@@ -219,7 +219,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_plot_discs_bjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.f_c = 0.05
+        self.dummy_tagger_1.fxs = {"fc": 0.05}
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
@@ -229,7 +229,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_plot_discs_cjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.f_b = 0.05
+        self.dummy_tagger_1.fxs = {"fb": 0.05}
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="cjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
@@ -239,7 +239,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_plot_roc_bjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.f_c = 0.05
+        self.dummy_tagger_1.fxs = {"fc": 0.05}
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
@@ -249,7 +249,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_plot_roc_cjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.f_b = 0.05
+        self.dummy_tagger_1.fxs = {"fb": 0.05}
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="cjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
@@ -259,7 +259,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_plot_var_perf_err(self):
         """Tests the performance plots throws errors with invalid inputs"""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.f_c = 0.05
+        self.dummy_tagger_1.fxs = {"fc": 0.05}
         self.dummy_tagger_1.disc_cut = 2
         rng = np.random.default_rng(seed=16)
         self.dummy_tagger_1.perf_vars = {
@@ -284,7 +284,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
         with invalid inputs
         """
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.f_c = 0.05
+        self.dummy_tagger_1.fxs = {"fc": 0.05}
         self.dummy_tagger_1.disc_cut = 2
         rng = np.random.default_rng(seed=16)
         self.dummy_tagger_1.perf_vars = {
@@ -307,7 +307,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_plot_var_perf_bjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.f_c = 0.05
+        self.dummy_tagger_1.fxs = {"fc": 0.05}
         self.dummy_tagger_1.disc_cut = 2
         rng = np.random.default_rng(seed=16)
         self.dummy_tagger_1.perf_vars = {
@@ -337,7 +337,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_plot_var_perf_multi_bjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.f_c = 0.05
+        self.dummy_tagger_1.fxs = {"fc": 0.05}
         self.dummy_tagger_1.disc_cut = 2
         rng = np.random.default_rng(seed=16)
         self.dummy_tagger_1.perf_vars = {
@@ -384,7 +384,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_plot_var_perf_cjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.f_b = 0.05
+        self.dummy_tagger_1.fxs = {"fb": 0.05}
         self.dummy_tagger_1.working_point = 0.5
         rng = np.random.default_rng(seed=16)
         self.dummy_tagger_1.perf_vars = {
@@ -413,7 +413,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
 
     def test_plot_beff_vs_flat_rej(self):
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.f_c = 0.05
+        self.dummy_tagger_1.fxs = {"fc": 0.05}
         self.dummy_tagger_1.working_point = 0.5
         rng = np.random.default_rng(seed=16)
         self.dummy_tagger_1.perf_vars = {
@@ -438,7 +438,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
 
     def test_plot_ceff_vs_flat_rej(self):
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.f_b = 0.05
+        self.dummy_tagger_1.fxs = {"fb": 0.05}
         self.dummy_tagger_1.working_point = 0.5
         rng = np.random.default_rng(seed=16)
         self.dummy_tagger_1.perf_vars = {
@@ -463,7 +463,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_plot_fraction_scans_hbb_error(self):
         """Test that correct error is raised."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.f_c = 0.05
+        self.dummy_tagger_1.fxs = {"fc": 0.05}
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="hbb", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
@@ -473,7 +473,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_plot_fraction_scans_bjets_eff(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.f_c = 0.05
+        self.dummy_tagger_1.fxs = {"fc": 0.05}
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
@@ -494,7 +494,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_plot_fraction_scans_cjets_rej(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.f_b = 0.05
+        self.dummy_tagger_1.fxs = {"fb": 0.05}
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="cjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)

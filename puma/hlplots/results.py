@@ -1,4 +1,5 @@
 """Results module for high level API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -772,6 +773,8 @@ class Results:
         if len(self.backgrounds) != 2:
             raise ValueError("Only two background flavours are supported")
 
+        frac = "fc" if self.signal == Flavours.bjets else "fb"
+
         # set defaults
         if "logx" not in kwargs:
             kwargs["logx"] = True
@@ -791,12 +794,12 @@ class Results:
             bkg_1_idx = tagger.is_flav(self.backgrounds[0])
             bkg_2_idx = tagger.is_flav(self.backgrounds[1])
             for j, fx in enumerate(fxs):
-                disc = tagger.discriminant(self.signal, fx=fx)
+                disc = tagger.discriminant(self.signal, fxs={frac: fx})
                 xs[j] = eff_or_rej(disc[sig_idx], disc[bkg_1_idx], efficiency)
                 ys[j] = eff_or_rej(disc[sig_idx], disc[bkg_2_idx], efficiency)
 
             # add curve for this tagger
-            tagger_fx = tagger.f_c if self.signal == Flavours.bjets else tagger.f_b
+            tagger_fx = tagger.fxs["fc" if self.signal == Flavours.bjets else "fb"]
             plot.add(
                 Line2D(
                     x_values=xs,
