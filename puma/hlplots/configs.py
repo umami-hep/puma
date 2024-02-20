@@ -21,8 +21,8 @@ class PlotConfig:
     taggers_config: dict
     taggers: list[str] | list[Tagger] | None = None
 
-    timestamp: bool = True
-    sample_path: Path = None
+    timestamp: bool = False
+    base_path: Path = None
 
     roc_plots: dict[str, dict] = field(default_factory=dict)
     fracscan_plots: dict[str, dict] = field(default_factory=dict)
@@ -42,13 +42,12 @@ class PlotConfig:
             kwargs["yaml_name"] = k
 
     @classmethod
-    def load_config(cls, path: Path) -> PlotConfig:
+    def load_config(cls, path: Path, **kwargs) -> PlotConfig:
         if not path.exists():
             raise FileNotFoundError(f"Config at {path} does not exist")
         with open(path) as f:
             config = yaml.safe_load(f)
-
-        return cls(config_path=path, **config)
+        return cls(config_path=path, **config, **kwargs)
 
     def get_results(self):
         """
@@ -62,6 +61,10 @@ class PlotConfig:
             {plot["args"].get("perf_var", "pt") for plot in self.eff_vs_var_plots}
         )
 
+        sample_path = kwargs.pop("sample_path", None)
+        if self.base_path and sample_path:
+            sample_path = self.base_path / sample_path
+
         # Instantiate the results object
         results = Results(**kwargs)
 
@@ -73,10 +76,10 @@ class PlotConfig:
         # Add taggers to results, then bulk load
         for key, t in self.taggers_config.items():
             # if the a sample is not defined for the tagger, use the default sample
-            if not self.sample_path and not t.get("sample_path", None):
+            if not sample_path and not t.get("sample_path", None):
                 raise ValueError(f"No sample path defined for tagger {key}")
-            if self.sample_path and not t.get("sample_path", None):
-                t["sample_path"] = self.sample_path
+            if sample_path and not t.get("sample_path", None):
+                t["sample_path"] = sample_path
             # Allows automatic selection of tagger name in eval files
             t["name"] = get_tagger_name(
                 t.get("name", None), t["sample_path"], key, results.flavours

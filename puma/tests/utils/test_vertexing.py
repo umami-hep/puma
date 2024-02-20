@@ -12,9 +12,37 @@ from puma.utils.vertexing import (
     associate_vertices,
     build_vertices,
     calculate_vertex_metrics,
+    clean_indices,
 )
 
 set_log_level(logger, "DEBUG")
+
+
+class CleanIndicesTestCase(unittest.TestCase):
+    """Test case for clean_indices function."""
+
+    def test_remove(self):
+        """Check case where indices are removed."""
+        vertex_ids = np.array([[0, 1, 1, 2, 1]])
+        condition = np.array([[True, False, False, False, True]])
+        updated_ids = clean_indices(vertex_ids, condition, mode="remove")
+        expected_result = np.array([[-99, 1, 1, 2, -99]])
+        np.testing.assert_array_equal(updated_ids, expected_result)
+
+    def test_merge(self):
+        """Check case where indices are merged."""
+        vertex_ids = np.array([[0, 1, 1, 2, 1]])
+        condition = np.array([[True, False, False, True, False]])
+        updated_ids = clean_indices(vertex_ids, condition, mode="merge")
+        expected_result = np.array([[3, 1, 1, 3, 1]])
+        np.testing.assert_array_equal(updated_ids, expected_result)
+
+    def test_invalid_mode(self):
+        """Check case where an invalid mode is provided."""
+        vertex_ids = np.array([[0, 1, 1, 2, 1]])
+        condition = np.array([[True, False, False, False, True]])
+        with self.assertRaises(ValueError):
+            clean_indices(vertex_ids, condition, mode="invalid")
 
 
 class BuildVerticesTestCase(unittest.TestCase):
@@ -62,13 +90,6 @@ class BuildVerticesTestCase(unittest.TestCase):
         vertices = build_vertices(indices)
         np.testing.assert_array_equal(vertices, expected_result)
 
-    def test_ignore_indices(self):
-        """Check case where ignore_indices is given."""
-        indices = np.array([0, 0, 1, 2, 1, 2])
-        expected_result = np.array([[False, False, False, True, False, True]])
-        vertices = build_vertices(indices, ignore_indices=[0, 1])
-        np.testing.assert_array_equal(vertices, expected_result)
-
 
 class AssociateVerticesTestCase(unittest.TestCase):
     """Test case for associate_vertices function."""
@@ -87,7 +108,7 @@ class AssociateVerticesTestCase(unittest.TestCase):
         )
         expected_assoc = np.array([[False]])
         expected_common = np.array([[0]])
-        assoc, common = associate_vertices(vertices1, vertices2)
+        assoc, common = associate_vertices(vertices1, vertices2, 0.0, 0.0)
         np.testing.assert_array_equal(assoc, expected_assoc)
         np.testing.assert_array_equal(common, expected_common)
 
@@ -111,7 +132,7 @@ class AssociateVerticesTestCase(unittest.TestCase):
             ]
         )
         expected_common = np.array([[2], [1]])
-        assoc, common = associate_vertices(vertices1, vertices2)
+        assoc, common = associate_vertices(vertices1, vertices2, 0.0, 0.0)
         np.testing.assert_array_equal(assoc, expected_assoc)
         np.testing.assert_array_equal(common, expected_common)
 
@@ -137,13 +158,13 @@ class AssociateVerticesTestCase(unittest.TestCase):
             ]
         )
         expected_common = np.array([[2], [2]])
-        assoc, common = associate_vertices(vertices1, vertices2)
+        assoc, common = associate_vertices(vertices1, vertices2, 0.0, 0.0)
         np.testing.assert_array_equal(assoc, expected_assoc)
         np.testing.assert_array_equal(common, expected_common)
 
     def test_association_condition3(self):
         """Check case where associations are made based on
-        lowest fake rate (tiebreaker 2).
+        highest purity (tiebreaker 2).
         """
         vertices1 = np.array(
             [
@@ -158,7 +179,7 @@ class AssociateVerticesTestCase(unittest.TestCase):
         )
         expected_assoc = np.array([[True, False]])
         expected_common = np.array([[2, 2]])
-        assoc, common = associate_vertices(vertices1, vertices2)
+        assoc, common = associate_vertices(vertices1, vertices2, 0.0, 0.0)
         np.testing.assert_array_equal(assoc, expected_assoc)
         np.testing.assert_array_equal(common, expected_common)
 
@@ -184,7 +205,7 @@ class AssociateVerticesTestCase(unittest.TestCase):
             ]
         )
         expected_common = np.array([[2], [2]])
-        assoc, common = associate_vertices(vertices1, vertices2)
+        assoc, common = associate_vertices(vertices1, vertices2, 0.0, 0.0)
         np.testing.assert_array_equal(assoc, expected_assoc)
         np.testing.assert_array_equal(common, expected_common)
 
@@ -202,7 +223,7 @@ class AssociateVerticesTestCase(unittest.TestCase):
         )
         expected_assoc = np.array([[True]])
         expected_common = np.array([[2]])
-        assoc, common = associate_vertices(vertices1, vertices2)
+        assoc, common = associate_vertices(vertices1, vertices2, 0.0, 0.0)
         np.testing.assert_array_equal(assoc, expected_assoc)
         np.testing.assert_array_equal(common, expected_common)
 
@@ -214,7 +235,13 @@ class CalculateVertexMetricsTestCase(unittest.TestCase):
         """Check case where there are no vertices."""
         indices1 = np.array([[0, 1, 2, 3, 4]])
         indices2 = np.array([[0, 1, 2, 3, 4]])
-        metrics = calculate_vertex_metrics(indices1, indices2, max_vertices=2)
+        metrics = calculate_vertex_metrics(
+            indices1,
+            indices2,
+            max_vertices=2,
+            eff_req=0.0,
+            purity_req=0.0,
+        )
         np.testing.assert_array_equal(metrics["n_match"], [0])
         np.testing.assert_array_equal(metrics["n_test"], [0])
         np.testing.assert_array_equal(metrics["n_ref"], [0])
@@ -226,7 +253,13 @@ class CalculateVertexMetricsTestCase(unittest.TestCase):
         """Check case where there are no reco vertices."""
         indices1 = np.array([[0, 1, 2, 3, 4]])
         indices2 = np.array([[0, 1, 2, 2, 3]])
-        metrics = calculate_vertex_metrics(indices1, indices2, max_vertices=2)
+        metrics = calculate_vertex_metrics(
+            indices1,
+            indices2,
+            max_vertices=2,
+            eff_req=0.0,
+            purity_req=0.0,
+        )
         np.testing.assert_array_equal(metrics["n_match"], [0])
         np.testing.assert_array_equal(metrics["n_test"], [0])
         np.testing.assert_array_equal(metrics["n_ref"], [1])
@@ -238,7 +271,13 @@ class CalculateVertexMetricsTestCase(unittest.TestCase):
         """Check case where there are no truth vertices."""
         indices1 = np.array([[0, 0, 1, 2, 3]])
         indices2 = np.array([[0, 1, 2, 3, 4]])
-        metrics = calculate_vertex_metrics(indices1, indices2, max_vertices=2)
+        metrics = calculate_vertex_metrics(
+            indices1,
+            indices2,
+            max_vertices=2,
+            eff_req=0.0,
+            purity_req=0.0,
+        )
         np.testing.assert_array_equal(metrics["n_match"], [0])
         np.testing.assert_array_equal(metrics["n_test"], [1])
         np.testing.assert_array_equal(metrics["n_ref"], [0])
@@ -250,7 +289,13 @@ class CalculateVertexMetricsTestCase(unittest.TestCase):
         """Check case where there are no vertex matches."""
         indices1 = np.array([[0, 0, 1, 2, 3]])
         indices2 = np.array([[0, 1, 2, 2, 3]])
-        metrics = calculate_vertex_metrics(indices1, indices2, max_vertices=2)
+        metrics = calculate_vertex_metrics(
+            indices1,
+            indices2,
+            max_vertices=2,
+            eff_req=0.0,
+            purity_req=0.0,
+        )
         np.testing.assert_array_equal(metrics["n_match"], [0])
         np.testing.assert_array_equal(metrics["n_test"], [1])
         np.testing.assert_array_equal(metrics["n_ref"], [1])
@@ -262,7 +307,13 @@ class CalculateVertexMetricsTestCase(unittest.TestCase):
         """Check case where there is one vertex match."""
         indices1 = np.array([[0, 0, 1, 2, 2]])
         indices2 = np.array([[0, 0, 0, 1, 2]])
-        metrics = calculate_vertex_metrics(indices1, indices2, max_vertices=2)
+        metrics = calculate_vertex_metrics(
+            indices1,
+            indices2,
+            max_vertices=2,
+            eff_req=0.0,
+            purity_req=0.0,
+        )
         np.testing.assert_array_equal(metrics["n_match"], [1])
         np.testing.assert_array_equal(metrics["n_test"], [2])
         np.testing.assert_array_equal(metrics["n_ref"], [1])
@@ -271,13 +322,55 @@ class CalculateVertexMetricsTestCase(unittest.TestCase):
         np.testing.assert_array_equal(metrics["ref_vertex_size"], [[3, -1]])
 
     def test_mult_matches(self):
-        """Check case wehre there are multiple vertex matches."""
+        """Check case where there are multiple vertex matches."""
         indices1 = np.array([[0, 0, 1, 1, 0, 1, 2, 2, 3]])
         indices2 = np.array([[0, 1, 0, 2, 0, 2, 3, 3, 1]])
-        metrics = calculate_vertex_metrics(indices1, indices2, max_vertices=3)
+        metrics = calculate_vertex_metrics(
+            indices1,
+            indices2,
+            max_vertices=3,
+            eff_req=0.0,
+            purity_req=0.0,
+        )
         np.testing.assert_array_equal(metrics["n_match"], [3])
         np.testing.assert_array_equal(metrics["n_test"], [3])
         np.testing.assert_array_equal(metrics["n_ref"], [4])
         np.testing.assert_array_equal(metrics["track_overlap"], [[2, 2, 2]])
         np.testing.assert_array_equal(metrics["test_vertex_size"], [[3, 3, 2]])
         np.testing.assert_array_equal(metrics["ref_vertex_size"], [[3, 2, 2]])
+
+    def test_eff_req(self):
+        """Check case where efficiency requirement is not met."""
+        indices1 = np.array([[0, 0, 1, 1, 2, 3]])
+        indices2 = np.array([[0, 0, 1, 1, 1, 1]])
+        metrics = calculate_vertex_metrics(
+            indices1,
+            indices2,
+            max_vertices=2,
+            eff_req=0.7,
+            purity_req=0.0,
+        )
+        np.testing.assert_array_equal(metrics["n_match"], [1])
+        np.testing.assert_array_equal(metrics["n_test"], [2])
+        np.testing.assert_array_equal(metrics["n_ref"], [2])
+        np.testing.assert_array_equal(metrics["track_overlap"], [[2, -1]])
+        np.testing.assert_array_equal(metrics["test_vertex_size"], [[2, -1]])
+        np.testing.assert_array_equal(metrics["ref_vertex_size"], [[2, -1]])
+
+    def test_purity_req(self):
+        """Check case where purity requirement is not met."""
+        indices1 = np.array([[0, 0, 1, 1, 1, 1]])
+        indices2 = np.array([[0, 0, 1, 1, 2, 3]])
+        metrics = calculate_vertex_metrics(
+            indices1,
+            indices2,
+            max_vertices=2,
+            eff_req=0.0,
+            purity_req=0.7,
+        )
+        np.testing.assert_array_equal(metrics["n_match"], [1])
+        np.testing.assert_array_equal(metrics["n_test"], [2])
+        np.testing.assert_array_equal(metrics["n_ref"], [2])
+        np.testing.assert_array_equal(metrics["track_overlap"], [[2, -1]])
+        np.testing.assert_array_equal(metrics["test_vertex_size"], [[2, -1]])
+        np.testing.assert_array_equal(metrics["ref_vertex_size"], [[2, -1]])

@@ -5,7 +5,7 @@ from puma.hlplots import AuxResults, Tagger
 from puma.utils import get_dummy_tagger_aux, logger
 
 # The line below generates dummy data which is similar to a NN output
-file = get_dummy_tagger_aux()
+fname, file = get_dummy_tagger_aux()
 
 # define jet selections
 cuts = [("n_truth_promptLepton", "==", 0)]
@@ -19,15 +19,13 @@ GN2 = Tagger(
 )
 
 # create the AuxResults object
-# for c-tagging use signal="cjets"
-# for Xbb/cc-tagging use signal="hbb"/"hcc"
-aux_results = AuxResults(signal="bjets", sample="dummy")
+aux_results = AuxResults(sample="dummy")
 
 # load tagger from the file object
 logger.info("Loading taggers.")
 aux_results.add_taggers_from_file(
     [GN2],
-    file.filename,
+    fname,
     cuts=cuts,
     num_jets=len(file["jets"]),
 )
@@ -36,12 +34,6 @@ aux_results.atlas_second_tag = (
     "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$, $20$ GeV $< p_{T} <250$ GeV"
 )
 
-# vertexing efficiency and fake rate
-logger.info("Plotting vertexing efficiency and fake rate.")
-aux_results.plot_var_vtx_eff()
-aux_results.plot_var_vtx_fr()
-
-# track to vertex association efficiency and fake rate
-logger.info("Plotting track to vertex association efficiency and fake rate.")
-aux_results.plot_var_vtx_trk_eff()
-aux_results.plot_var_vtx_trk_fr()
+# vertexing performance for b-jets
+logger.info("Plotting vertexing performance.")
+aux_results.plot_var_vtx_perf(flavour="bjets")

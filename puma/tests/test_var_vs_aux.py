@@ -81,7 +81,7 @@ class VarVsAuxTestCase(unittest.TestCase):
         np.testing.assert_array_almost_equal(var_plot.bin_edges, [0, 1, 2])
 
     def test_var_vs_aux_set_bin_edges(self):
-        """Test var_vs_aux _set_bin_edges."""
+        """Test var_vs_aux set_bin_edges."""
         var_plot = VarVsAux(
             x_var=[0, 1, 2],
             n_match=[3, 4, 5],
@@ -91,8 +91,34 @@ class VarVsAuxTestCase(unittest.TestCase):
         )
         np.testing.assert_array_almost_equal(var_plot.bin_edges, [0, 1, 2], decimal=4)
 
+    def test_var_vs_aux_get_perf_ratio_zero(self):
+        """Test var_vs_aux get_performance_ratio with zero efficiency case."""
+        var_plot = VarVsAux(
+            x_var=[0, 1, 2],
+            n_match=[0, 0, 0],
+            n_true=[3, 4, 5],
+            n_reco=[3, 4, 5],
+            bins=2,
+        )
+        pm, pm_error = var_plot.get_performance_ratio(var_plot.n_match, var_plot.n_true)
+        self.assertEqual(pm, 0)
+        self.assertEqual(pm_error, 0)
+
+    def test_var_vs_aux_get_perf_ratio_infinity(self):
+        """Test var_vs_aux get_performance_ratio with undefined efficiency case."""
+        var_plot = VarVsAux(
+            x_var=[0, 1, 2],
+            n_match=[0, 0, 0],
+            n_true=[0, 0, 0],
+            n_reco=[0, 0, 0],
+            bins=2,
+        )
+        pm, pm_error = var_plot.get_performance_ratio(var_plot.n_match, var_plot.n_true)
+        np.testing.assert_equal(pm, np.nan)
+        np.testing.assert_equal(pm_error, np.nan)
+
     def test_var_vs_aux_eq_different_classes(self):
-        """Test var_vs_eff eq."""
+        """Test var_vs_aux eq."""
         var_plot = VarVsAux(
             x_var=[0, 1, 2],
             n_match=[3, 4, 5],
@@ -102,7 +128,7 @@ class VarVsAuxTestCase(unittest.TestCase):
         )
         self.assertNotEqual(var_plot, np.ones(6))
 
-    def test_var_vs_eff_get(self):
+    def test_var_vs_aux_get(self):
         var_plot = VarVsAux(
             x_var=self.x_var,
             n_match=self.n_match,
@@ -110,7 +136,7 @@ class VarVsAuxTestCase(unittest.TestCase):
             n_reco=self.n_reco,
             bins=1,
         )
-        mode_options = ["efficiency", "fake_rate"]
+        mode_options = ["efficiency", "purity", "total_reco"]
         for mode in mode_options:
             var_plot.get(mode)
 
@@ -147,7 +173,7 @@ class VarVsAuxPlotTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             VarVsAuxPlot(
                 mode="test",
-                ylabel="Aux fake rate",
+                ylabel="Aux purity",
                 xlabel=r"$p_{T}$ [GeV]",
                 logy=True,
                 atlas_second_tag="test",
@@ -204,8 +230,8 @@ class VarVsAuxPlotTestCase(unittest.TestCase):
         #     ),
         # )
 
-    def test_var_vs_aux_plot_mode_fake_rate(self):
-        """Test aux output plot - fake rate."""
+    def test_var_vs_aux_plot_mode_purity(self):
+        """Test aux output plot - purity."""
         # define the curves
         tagger1 = VarVsAux(
             x_var=self.x_var,
@@ -224,24 +250,72 @@ class VarVsAuxPlotTestCase(unittest.TestCase):
             label="tagger 2",
         )
 
-        plot_fr = VarVsAuxPlot(
-            mode="fake_rate",
-            ylabel="Aux fake rate",
+        plot_pur = VarVsAuxPlot(
+            mode="purity",
+            ylabel="Aux purity",
             xlabel=r"$p_{T}$ [GeV]",
             logy=True,
             y_scale=1.5,
             n_ratio_panels=1,
             figsize=(9, 6),
         )
-        plot_fr.add(tagger1, reference=True)
-        plot_fr.add(tagger2)
+        plot_pur.add(tagger1, reference=True)
+        plot_pur.add(tagger2)
 
-        plot_fr.draw()
+        plot_pur.draw()
 
-        plotname = "test_aux_fake_rate.png"
-        plot_fr.savefig(f"{self.actual_plots_dir}/{plotname}")
+        plotname = "test_aux_purity.png"
+        plot_pur.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
-        # plot_fr.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # plot_pur.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # TODO: Investigate small shifts in labels/scale causing this test to fail
+        # self.assertEqual(
+        #     None,
+        #     compare_images(
+        #         f"{self.actual_plots_dir}/{plotname}",
+        #         f"{self.expected_plots_dir}/{plotname}",
+        #         tol=5,
+        #     ),
+        # )
+
+    def test_var_vs_aux_plot_mode_total_reco(self):
+        """Test aux output plot - total_reco."""
+        # define the curves
+        tagger1 = VarVsAux(
+            x_var=self.x_var,
+            n_true=self.n_true,
+            n_reco=self.n_reco_1,
+            n_match=self.n_match_1,
+            bins=self.bins,
+            label="tagger 1",
+        )
+        tagger2 = VarVsAux(
+            x_var=self.x_var,
+            n_true=self.n_true,
+            n_reco=self.n_reco_2,
+            n_match=self.n_match_2,
+            bins=self.bins,
+            label="tagger 2",
+        )
+
+        plot_tot_reco = VarVsAuxPlot(
+            mode="total_reco",
+            ylabel="Aux total reconstructed",
+            xlabel=r"$p_{T}$ [GeV]",
+            logy=True,
+            y_scale=1.5,
+            n_ratio_panels=1,
+            figsize=(9, 6),
+        )
+        plot_tot_reco.add(tagger1, reference=True)
+        plot_tot_reco.add(tagger2)
+
+        plot_tot_reco.draw()
+
+        plotname = "test_aux_total_reco.png"
+        plot_tot_reco.savefig(f"{self.actual_plots_dir}/{plotname}")
+        # Uncomment line below to update expected image
+        # plot_tot_reco.savefig(f"{self.expected_plots_dir}/{plotname}")
         # TODO: Investigate small shifts in labels/scale causing this test to fail
         # self.assertEqual(
         #     None,
