@@ -24,14 +24,14 @@ preview = "True"
 
 [tool.ruff]
 target-version = "py38"
-select = ["I", "E", "W", "F", "B", "UP", "ARG", "SIM", "TID", "RUF", "D2", "D3", "D4"]
-ignore = ["D211", "D213", "RUF005", "D401", "D205", "D403", "D400", "D404", "SIM117"]
+lint.select = ["I", "E", "W", "F", "B", "UP", "ARG", "SIM", "TID", "RUF", "D2", "D3", "D4"]
+lint.ignore = ["D211", "D213", "RUF005", "D401", "D205", "D403", "D400", "D404", "SIM117"]
 line-length = 88
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 required-imports = ["from __future__ import annotations"]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "numpy"  # Accepts: "google", "numpy", or "pep257".
 
 [mypy]
