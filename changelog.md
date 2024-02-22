@@ -1,6 +1,7 @@
 # Changelog
 
 ### [Latest]
+- Update ruff [!241](https://github.com/umami-hep/puma/pull/241)
 - Extend ftau support and remove discriminant code [!240](https://github.com/umami-hep/puma/pull/240)
 - Fix ROC x-range config for yuma [!239](https://github.com/umami-hep/puma/pull/239)
 - Allow for base dir Yuma loading [!238](https://github.com/umami-hep/puma/pull/238)
