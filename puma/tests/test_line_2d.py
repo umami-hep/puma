@@ -20,7 +20,7 @@ class Line2DTestCase(unittest.TestCase):
 
     def test_wrong_inputs_xvalues(self):
         """Test if providing wrong input type to Line2D raises ValueError."""
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             Line2D(
                 x_values="Test",
                 y_values=5,
