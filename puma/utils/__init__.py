@@ -2,13 +2,11 @@
 
 # flake8: noqa
 
-
 import numpy as np
 import pandas as pd
 from palettable.colorbrewer.qualitative import Dark2_8
 
 from puma.utils.aux import get_aux_labels
-from puma.utils.discriminant import calc_disc, calc_disc_b, calc_disc_c
 from puma.utils.generate import (
     get_dummy_2_taggers,
     get_dummy_tagger_aux,

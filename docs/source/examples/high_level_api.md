@@ -17,14 +17,14 @@ The `Results` object is initialised with the signal class, by default this is `b
 to produce the c-tagging plots, or `Hbb`/`Hcc` for Xbb tagging.
 
 ```py
-§§§examples/high_level_plots.py:1:48§§§
+§§§examples/high_level_plots.py:1:46§§§
 ```
 
 
 ## Probability distributions
 You can get the output probability distributions just run
 ```py
-§§§examples/high_level_plots.py:50:51§§§
+§§§examples/high_level_plots.py:47:48§§§
 ```
 <img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_probs_bjets.png width=500>
 <img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_probs_cjets.png width=500>
@@ -35,7 +35,7 @@ You can get the output probability distributions just run
 To plot the discriminant, you can now simply call one function and everything else is handled automatically,
 here for the _b_-jet discriminant
 ```py
-§§§examples/high_level_plots.py:53:56§§§
+§§§examples/high_level_plots.py:50:53§§§
 ```
 
 <img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_disc.png width=500>
@@ -45,7 +45,7 @@ here for the _b_-jet discriminant
 
 In the same manner you can plot ROC curves, here for the _b_-tagging performance
 ```py
-§§§examples/high_level_plots.py:58:60§§§
+§§§examples/high_level_plots.py:55:57§§§
 ```
 <img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_roc.png width=500>
 
@@ -54,7 +54,7 @@ In the same manner you can plot ROC curves, here for the _b_-tagging performance
 ## Performance vs a variable
 In this case we plot the performance as a function of the jet pT with the same syntax as above for an inclusive working point of 70%
 ```py
-§§§examples/high_level_plots.py:62:75§§§
+§§§examples/high_level_plots.py:59:72§§§
 ```
 <img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_profile_fixed_bjets_eff.png width=500>
 <img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_profile_fixed_cjets_rej.png width=500>
@@ -62,7 +62,7 @@ In this case we plot the performance as a function of the jet pT with the same s
 
 and similar for a fixed b-efficiency per bin.
 ```py
-§§§examples/high_level_plots.py:77:86§§§
+§§§examples/high_level_plots.py:74:83§§§
 ```
 
 <img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_profile_flat_bjets_eff.png width=500>
@@ -78,7 +78,7 @@ Similar to above you can also do these plots for _c_-tagging by changing the `si
 Plot the two background efficiencies as a function of the $f_c$ or $f_b$ value.
 
 ```py
-§§§examples/high_level_plots.py:88:91§§§
+§§§examples/high_level_plots.py:85:88§§§
 ```
 
 <img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_fraction_scan.png width=500>

@@ -1,6 +1,7 @@
 # Changelog
 
 ### [Latest]
+- Extend ftau support and remove discriminant code [!240](https://github.com/umami-hep/puma/pull/240)
 - Fix ROC x-range config for yuma [!239](https://github.com/umami-hep/puma/pull/239)
 - Allow for base dir Yuma loading [!238](https://github.com/umami-hep/puma/pull/238)
 - Improve and generalize vertexing performance tools [!229](https://github.com/umami-hep/puma/pull/229)

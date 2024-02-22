@@ -2,6 +2,7 @@
 
 
 """Unit test script for the functions in roc.py."""
+
 from __future__ import annotations
 
 import os
@@ -9,6 +10,7 @@ import tempfile
 import unittest
 
 import numpy as np
+from ftag import get_discriminant
 from matplotlib.testing.compare import compare_images
 
 from puma import IntegratedEfficiency, IntegratedEfficiencyPlot
@@ -50,34 +52,31 @@ class IntegratedEfficiencyPlotTestCase(unittest.TestCase):
 
         # Set up dummy data
         df = get_dummy_2_taggers(size=int(1e6))
-        fc = 0.018
-        df["disc_dips"] = np.log(
-            df["dips_pb"] / (fc * df["dips_pc"] + (1 - fc) * df["dips_pu"])
-        )
-        df["disc_rnnip"] = np.log(
-            df["rnnip_pb"] / (fc * df["rnnip_pc"] + (1 - fc) * df["rnnip_pu"])
-        )
         is_light = df["HadronConeExclTruthLabelID"] == 0
         is_c = df["HadronConeExclTruthLabelID"] == 4
         is_b = df["HadronConeExclTruthLabelID"] == 5
+
+        disc_dips = get_discriminant(df, "dips", "bjets", fc=0.018)
+        disc_rnnip = get_discriminant(df, "rnnip", "bjets", fc=0.018)
+
         self.dips_int_effs = {
             "light": IntegratedEfficiency(
-                df["disc_dips"][is_b],
-                df["disc_dips"][is_light],
+                disc_dips[is_b],
+                disc_dips[is_light],
                 n_vals=200,
                 tagger="DIPS",
                 flavour="ujets",
             ),
             "c": IntegratedEfficiency(
-                df["disc_dips"][is_b],
-                df["disc_dips"][is_c],
+                disc_dips[is_b],
+                disc_dips[is_c],
                 n_vals=200,
                 tagger="DIPS",
                 flavour="cjets",
             ),
             "b": IntegratedEfficiency(
-                df["disc_dips"][is_b],
-                df["disc_dips"][is_b],
+                disc_dips[is_b],
+                disc_dips[is_b],
                 n_vals=200,
                 tagger="DIPS",
                 flavour="bjets",
@@ -85,22 +84,22 @@ class IntegratedEfficiencyPlotTestCase(unittest.TestCase):
         }
         self.rnnip_int_effs = {
             "light": IntegratedEfficiency(
-                df["disc_rnnip"][is_b],
-                df["disc_rnnip"][is_light],
+                disc_rnnip[is_b],
+                disc_rnnip[is_light],
                 n_vals=200,
                 tagger="RNNIP",
                 flavour="ujets",
             ),
             "c": IntegratedEfficiency(
-                df["disc_rnnip"][is_b],
-                df["disc_rnnip"][is_c],
+                disc_rnnip[is_b],
+                disc_rnnip[is_c],
                 n_vals=200,
                 tagger="RNNIP",
                 flavour="cjets",
             ),
             "b": IntegratedEfficiency(
-                df["disc_rnnip"][is_b],
-                df["disc_rnnip"][is_b],
+                disc_rnnip[is_b],
+                disc_rnnip[is_b],
                 n_vals=200,
                 tagger="RNNIP",
                 flavour="bjets",

@@ -7,7 +7,7 @@ results_config:
   atlas_first_tag: Simulation Internal
   atlas_second_tag: $\sqrt{s} = 13.6$ TeV, MC23
   atlas_third_tag: $t\overline{t}$ 20 < $p_T$ < 250 GeV, $|\eta| < 2.5$
-  num_jets: 100_000
+  num_jets: 10_000
   remove_nan: True # for plotting eff profiles for variables with NaNs (e.g, Lxy)
   global_cuts:
     - "pt > 20_000"

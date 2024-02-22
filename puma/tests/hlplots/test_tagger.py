@@ -1,14 +1,17 @@
 #!/usr/bin/env python
 
 """Unit test script for the functions in hlplots/tagger.py."""
+
 from __future__ import annotations
 
 import tempfile
 import unittest
+from pathlib import Path
 
 import h5py
 import numpy as np
 import pandas as pd
+from ftag import Cuts
 from numpy.lib.recfunctions import structured_to_unstructured as s2u
 from numpy.lib.recfunctions import unstructured_to_structured as u2s
 
@@ -25,6 +28,12 @@ class TaggerBasisTestCase(unittest.TestCase):
         """Test empty string as model name."""
         tagger = Tagger("")
         self.assertEqual(tagger.name, "")
+
+    def test_more_tagger_args(self):
+        tagger = Tagger("dummy", sample_path="dummy_path", cuts=[("pt", ">", 20)])
+        assert isinstance(tagger.sample_path, Path)
+        assert isinstance(tagger.cuts, Cuts)
+        assert repr(tagger) == "dummy (dummy)"
 
     def test_wrong_template(self):
         """Test wrong template."""
@@ -49,6 +58,7 @@ class TaggerBasisTestCase(unittest.TestCase):
             self.assertEqual(tagger.n_jets("cjets"), 5)
         with self.subTest():
             self.assertEqual(tagger.n_jets("bjets"), 15)
+        assert np.sum(tagger.is_flav("ujets")) == 3160
 
 
 class TaggerScoreExtractionTestCase(unittest.TestCase):
@@ -83,7 +93,7 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
         """Test passing data frame."""
         tagger = Tagger("dummy")
         tagger.extract_tagger_scores(self.df_dummy)
-        np.testing.assert_array_equal(tagger.scores, self.scores_expected)
+        np.testing.assert_array_equal(s2u(tagger.scores), self.scores_expected)
 
     def test_data_frame_path(self):
         """Test passing data frame path."""
@@ -95,7 +105,7 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
             tagger.extract_tagger_scores(
                 file_name, key="dummy_tagger", source_type="data_frame_path"
             )
-        np.testing.assert_array_equal(tagger.scores, self.scores_expected)
+        np.testing.assert_array_equal(s2u(tagger.scores), self.scores_expected)
 
     def test_h5_structured_numpy_path(self):
         """Test passing structured h5 path."""
@@ -138,34 +148,20 @@ class TaggerTestCase(unittest.TestCase):
         tagger = Tagger("dummy")
         tagger.scores = self.scores
         with self.assertRaises(ValueError):
-            tagger.discriminant("hbb", fx=0.1)
+            tagger.discriminant("qcd")
         with self.assertRaises(ValueError):
             tagger.discriminant("ujets")
 
-    def test_disc_b_calc_no_fc(self):
-        """Test b-disc calculation w/o f_c provided."""
-        tagger = Tagger("dummy")
-        tagger.scores = self.scores
-        with self.assertRaises(TypeError):
-            tagger.discriminant("bjets")
-
     def test_disc_b_calc(self):
         """Test b-disc calculation."""
-        tagger = Tagger("dummy", f_c=0.5)
+        tagger = Tagger("dummy", fxs={"fc": 0.5})
         tagger.scores = self.scores
         discs = tagger.discriminant("bjets")
         np.testing.assert_array_equal(discs, np.zeros(10))
 
-    def test_disc_c_calc_no_fb(self):
-        """Test c-disc calculation w/o f_c provided."""
-        tagger = Tagger("dummy")
-        tagger.scores = self.scores
-        with self.assertRaises(TypeError):
-            tagger.discriminant("cjets")
-
     def test_disc_c_calc(self):
         """Test c-disc calculation."""
-        tagger = Tagger("dummy", f_b=0.5)
+        tagger = Tagger("dummy", fxs={"fb": 0.5})
         tagger.scores = self.scores
         discs = tagger.discriminant("cjets")
         np.testing.assert_array_equal(discs, np.zeros(10))
@@ -175,10 +171,12 @@ class TaggerTestCase(unittest.TestCase):
         from ftag import Flavours as F
 
         tagger = Tagger(
-            "dummy", output_flavours=[F["hbb"], F["hcc"], F["top"], F["qcd"]]
+            "dummy",
+            fxs={"fhcc": 0.1, "ftop": 0.1},
+            output_flavours=[F["hbb"], F["hcc"], F["top"], F["qcd"]],
         )
         tagger.scores = u2s(
-            np.column_stack((np.ones(10), np.ones(10), np.ones(10), np.ones(10))),
+            np.column_stack((np.ones(10) * 2, np.ones(10), np.ones(10), np.ones(10))),
             dtype=[
                 ("dummy_phbb", "f4"),
                 ("dummy_phcc", "f4"),
@@ -187,7 +185,7 @@ class TaggerTestCase(unittest.TestCase):
             ],
         )
         discs = tagger.discriminant("hbb")
-        np.testing.assert_array_equal(discs, np.ones(10))
+        np.testing.assert_array_equal(discs, np.ones([10]) * 0.6931471824645996)
 
 
 class TaggerAuxTaskTestCase(unittest.TestCase):
@@ -259,3 +257,41 @@ class TaggerAuxTaskTestCase(unittest.TestCase):
         true_indices, reco_indices = tagger.vertex_indices(incl_vertexing=True)
         np.testing.assert_array_equal(true_indices, np.array([[-99, -99, 2, 2, 2]]))
         np.testing.assert_array_equal(reco_indices, np.array([[-99, -99, -99, 3, 3]]))
+
+
+class TaggerProbsTestCase(unittest.TestCase):
+    """Test class for the probs method in Tagger class."""
+
+    def setUp(self) -> None:
+        """Set up for tests."""
+        scores = np.column_stack((np.ones(10), np.zeros(10), np.ones(10) * 5))
+        self.scores = u2s(
+            scores,
+            dtype=[("dummy_pu", "f4"), ("dummy_pc", "f4"), ("dummy_pb", "f4")],
+        )
+        self.tagger = Tagger("dummy")
+        self.tagger.scores = self.scores
+        self.tagger.labels = np.array(
+            np.zeros(len(self.scores)), dtype=[("HadronConeExclTruthLabelID", "i4")]
+        )
+
+    def test_probs_without_label_flavour(self):
+        """Test probs method without label_flavour parameter."""
+        prob_flavour = "bjets"
+        expected_probs = np.ones(10) * 5
+        np.testing.assert_array_equal(self.tagger.probs(prob_flavour), expected_probs)
+
+    def test_probs_with_label_flavour(self):
+        """Test probs method with label_flavour parameter."""
+        prob_flavour = "bjets"
+        label_flavour = "cjets"
+        expected_probs = np.zeros(0)
+        np.testing.assert_array_equal(
+            self.tagger.probs(prob_flavour, label_flavour), expected_probs
+        )
+        prob_flavour = "cjets"
+        label_flavour = "ujets"
+        expected_probs = np.zeros(10)
+        np.testing.assert_array_equal(
+            self.tagger.probs(prob_flavour, label_flavour), expected_probs
+        )

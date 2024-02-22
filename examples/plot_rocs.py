@@ -2,51 +2,19 @@
 from __future__ import annotations
 
 import numpy as np
+from ftag import get_discriminant
 
 from puma import Roc, RocPlot
 from puma.metrics import calc_rej
 from puma.utils import get_dummy_2_taggers, logger
 
 # The line below generates dummy data which is similar to a NN output
-df = get_dummy_2_taggers()
+df = get_dummy_2_taggers(add_pt=True)
 
 logger.info("caclulate tagger discriminants")
+discs_rnnip = get_discriminant(df, "rnnip", signal="bjets", fc=0.018)
+discs_dips = get_discriminant(df, "dips", signal="bjets", fc=0.018)
 
-
-# define a small function to calculate discriminant
-def disc_fct(arr: np.ndarray, f_c: float = 0.018) -> np.ndarray:
-    """Tagger discriminant.
-
-    Parameters
-    ----------
-    arr : numpy.ndarray
-        array with with shape (, 3)
-    f_c : float, optional
-        f_c value in the discriminant (weight for c-jets rejection)
-
-    Returns
-    -------
-    np.ndarray
-        Array with the discriminant values inside.
-    """
-    # you can adapt this for your needs
-    return np.log(arr[2] / (f_c * arr[1] + (1 - f_c) * arr[0]))
-
-
-# you can also use a lambda function
-# discs_rnnip = np.apply_along_axis(
-#     lambda a: np.log(a[2] / (0.018 * a[1] + (1 - 0.018) * a[0])),
-#     1,
-#     df[["rnnip_pu", "rnnip_pc", "rnnip_pb"]].values,
-# )
-
-# calculate discriminant
-discs_rnnip = np.apply_along_axis(
-    disc_fct, 1, df[["rnnip_pu", "rnnip_pc", "rnnip_pb"]].values
-)
-discs_dips = np.apply_along_axis(
-    disc_fct, 1, df[["dips_pu", "dips_pc", "dips_pb"]].values
-)
 # defining target efficiency
 sig_eff = np.linspace(0.49, 1, 20)
 # defining boolean arrays to select the different flavour classes

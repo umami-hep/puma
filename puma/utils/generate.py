@@ -1,4 +1,5 @@
 """Dummy data generation for plotting."""
+
 from __future__ import annotations
 
 from tempfile import NamedTemporaryFile
@@ -52,7 +53,11 @@ def get_dummy_multiclass_scores(
         output, dtype=np.dtype([("ujets", "f4"), ("cjets", "f4"), ("bjets", "f4")])
     )
     labels = np.concatenate(
-        (np.zeros(size_class), np.ones(size_class) * 4, np.ones(size_class) * 5)
+        (
+            np.zeros(size_class),
+            np.ones(size_class) * 4,
+            np.ones(size_class) * 5,
+        )
     )
     return output, labels
 
@@ -121,7 +126,7 @@ def get_dummy_2_taggers(
         file.create_dataset(name="jets", data=df_gen.to_records())
         return file
 
-    return df_gen
+    return df_gen.to_records()
 
 
 def get_dummy_tagger_aux(

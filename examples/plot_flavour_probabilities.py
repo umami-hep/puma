@@ -1,4 +1,5 @@
 """Example plot script for flavour probability comparison."""
+
 from __future__ import annotations
 
 from puma import Histogram, HistogramPlot
@@ -22,9 +23,9 @@ plot_histo = HistogramPlot(
 )
 
 # Add the ttbar histograms
-u_jets = df.query("HadronConeExclTruthLabelID==0")
-c_jets = df.query("HadronConeExclTruthLabelID==4")
-b_jets = df.query("HadronConeExclTruthLabelID==5")
+u_jets = df[df["HadronConeExclTruthLabelID"] == 0]
+c_jets = df[df["HadronConeExclTruthLabelID"] == 4]
+b_jets = df[df["HadronConeExclTruthLabelID"] == 5]
 
 # the "flavour" argument will add a "light-flavour jets" (or other) prefix to the label
 # + set the colour to the one that is defined in puma.utils.global_config

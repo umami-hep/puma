@@ -15,15 +15,13 @@ cuts = [("n_truth_promptLepton", "==", 0)]
 dips = Tagger(
     name="dips",
     label="dummy DIPS ($f_{c}=0.005$)",
-    f_c=0.005,
-    f_b=0.04,
+    fxs={"fc": 0.005, "fb": 0.04},
     colour="#AA3377",
 )
 rnnip = Tagger(
     name="rnnip",
     label="dummy RNNIP ($f_{c}=0.07$)",
-    f_c=0.07,
-    f_b=0.04,
+    fxs={"fc": 0.07, "fb": 0.04},
     colour="#4477AA",
     reference=True,
 )
