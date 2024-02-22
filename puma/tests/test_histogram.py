@@ -21,7 +21,7 @@ class HistogramTestCase(unittest.TestCase):
 
     def test_empty_histogram(self):
         """Test if providing wrong input type to histogram raises ValueError."""
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             Histogram(values=5)
 
     def test_divide_before_plotting(self):
@@ -132,7 +132,7 @@ class HistogramPlotTestCase(unittest.TestCase):
         """Check if ValueError is raised when using invalid type in `bins` argument."""
         hist_plot = HistogramPlot(bins=1.1)
         hist_plot.add(self.hist_1, reference=True)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             hist_plot.plot()
 
     def test_add_bin_width_to_ylabel(self):
