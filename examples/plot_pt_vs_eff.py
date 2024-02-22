@@ -1,4 +1,5 @@
 """Produce pT vs efficiency plot from tagger output and labels."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -26,7 +27,7 @@ discs_dips = get_discriminant(df, "dips", signal="bjets", fc=0.018)
 # is_b = df["labels"] == 2
 
 # Getting jet pt in GeV
-pt = df["pt"].values / 1e3
+pt = df["pt"] / 1e3
 # defining target efficiency
 sig_eff = np.linspace(0.49, 1, 20)
 # defining boolean arrays to select the different flavour classes
