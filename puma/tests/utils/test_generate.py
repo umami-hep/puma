@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """Unit test script for the functions in utils/generate.py."""
+
 from __future__ import annotations
 
 import unittest
@@ -52,12 +53,12 @@ class GetDummy2TaggersTestCase(unittest.TestCase):
     def test_columns(self):
         """Check correct amount of columns."""
         df_gen = get_dummy_2_taggers()
-        self.assertEqual(len(df_gen.columns.values), 8)
+        self.assertEqual(len(df_gen.dtype.names), 8)
 
     def test_columns_pt(self):
         """Check correct amount of columns when using pt as well."""
         df_gen = get_dummy_2_taggers(add_pt=True)
-        self.assertEqual(len(df_gen.columns.values), 9)
+        self.assertEqual(len(df_gen.dtype.names), 9)
 
 
 class GetDummyTaggerAuxTestCase(unittest.TestCase):

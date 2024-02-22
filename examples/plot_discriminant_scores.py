@@ -1,8 +1,9 @@
 """Produce histogram of discriminant from tagger output and labels."""
+
 from __future__ import annotations
 
 import numpy as np
-from ftag import Flavours
+from ftag import Flavours, get_discriminant
 
 from puma import Histogram, HistogramPlot
 from puma.utils import get_dummy_2_taggers, get_good_linestyles
@@ -11,13 +12,8 @@ from puma.utils import get_dummy_2_taggers, get_good_linestyles
 df = get_dummy_2_taggers()
 
 # Calculate discriminant scores for DIPS and RNNIP, and add them to the dataframe
-FRAC_C = 0.018
-df["disc_dips"] = np.log(
-    df["dips_pb"] / (FRAC_C * df["dips_pc"] + (1 - FRAC_C) * df["dips_pu"])
-)
-df["disc_rnnip"] = np.log(
-    df["rnnip_pb"] / (FRAC_C * df["rnnip_pc"] + (1 - FRAC_C) * df["rnnip_pu"])
-)
+disc_dips = get_discriminant(df, "dips", "bjets", fc=0.018)
+disc_rnnip = get_discriminant(df, "rnnip", "bjets", fc=0.018)
 
 # defining boolean arrays to select the different flavour classes
 is_light = df["HadronConeExclTruthLabelID"] == 0
@@ -25,6 +21,7 @@ is_c = df["HadronConeExclTruthLabelID"] == 4
 is_b = df["HadronConeExclTruthLabelID"] == 5
 
 taggers = ["dips", "rnnip"]
+discs = {"dips": disc_dips, "rnnip": disc_rnnip}
 linestyles = get_good_linestyles()[:2]
 
 # Initialise histogram plot
@@ -47,7 +44,7 @@ plot_histo = HistogramPlot(
 for tagger, linestyle in zip(taggers, linestyles):
     plot_histo.add(
         Histogram(
-            df[is_light][f"disc_{tagger}"],
+            discs[tagger][is_light],
             # Only specify the label for the case of the "DIPS" light-jets, since we
             # want to hide the legend entry for "RNNIP" light-jets as it has the same
             # linecolour. Instead, we specify a "linestyle legend" further down in the
@@ -61,7 +58,7 @@ for tagger, linestyle in zip(taggers, linestyles):
     )
     plot_histo.add(
         Histogram(
-            df[is_c][f"disc_{tagger}"],
+            discs[tagger][is_c],
             label="$c$-jets" if tagger == "dips" else None,
             colour=Flavours["cjets"].colour,
             ratio_group="cjets",
@@ -71,7 +68,7 @@ for tagger, linestyle in zip(taggers, linestyles):
     )
     plot_histo.add(
         Histogram(
-            df[is_b][f"disc_{tagger}"],
+            discs[tagger][is_b],
             label="$b$-jets" if tagger == "dips" else None,
             colour=Flavours["bjets"].colour,
             ratio_group="bjets",

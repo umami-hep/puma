@@ -73,7 +73,6 @@ class Tagger:
             Array of indices of the given flavour
         """
         flavour = Flavours[flavour]
-        print(flavour.cuts(self.labels))
         return flavour.cuts(self.labels).idx
 
     @property
