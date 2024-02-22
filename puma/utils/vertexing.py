@@ -1,4 +1,5 @@
 """Support functions for vertexing performance in flavour tagging."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -68,9 +69,7 @@ def build_vertices(vertex_ids):
 
     vertices = np.tile(vertex_ids, (unique_ids.size, 1))
     comparison_ids = np.tile(unique_ids, (vertex_ids.size, 1)).T
-    vertices = vertices == comparison_ids
-
-    return vertices
+    return vertices == comparison_ids
 
 
 def associate_vertices(test_vertices, ref_vertices, eff_req, purity_req):
@@ -204,10 +203,10 @@ def calculate_vertex_metrics(
         # handle edge cases
         if not ref_vertices.any() and not test_vertices.any():
             continue
-        elif not ref_vertices.any():
+        if not ref_vertices.any():
             metrics["n_test"][i] = test_vertices.shape[0]
             continue
-        elif not test_vertices.any():
+        if not test_vertices.any():
             metrics["n_ref"][i] = ref_vertices.shape[0]
             continue
 

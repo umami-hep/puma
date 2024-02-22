@@ -1,18 +1,22 @@
 """Auxiliary task results module for high level API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 from ftag import Cuts, Flavour, Flavours
 from ftag.hdf5 import H5Reader
 
-from puma.hlplots.tagger import Tagger
 from puma.utils import logger
 from puma.utils.aux import get_aux_labels
 from puma.utils.vertexing import calculate_vertex_metrics
 from puma.var_vs_aux import VarVsAux, VarVsAuxPlot
+
+if TYPE_CHECKING:
+    from puma.hlplots.tagger import Tagger
 
 
 @dataclass
@@ -108,8 +112,8 @@ class AuxResults:
             idx, data = cuts(data)
             aux_data = aux_data[idx]
             if perf_vars is not None:
-                for perf_var_array in perf_vars.values():
-                    perf_var_array = perf_var_array[idx]
+                for name, array in perf_vars.items():
+                    perf_vars[name] = array[idx]
 
         # for each tagger
         for tagger in taggers:
@@ -122,8 +126,8 @@ class AuxResults:
                 idx, sel_data = tagger.cuts(data)
                 sel_aux_data = aux_data[idx]
                 if perf_vars is not None:
-                    for perf_var_array in sel_perf_vars.values():
-                        perf_var_array = perf_var_array[idx]
+                    for name, array in sel_perf_vars.items():
+                        sel_perf_vars[name] = array[idx]
 
             # attach data to tagger objects
             tagger.labels = np.array(sel_data[label_var], dtype=[(label_var, "i4")])
@@ -132,7 +136,7 @@ class AuxResults:
             for task in aux_labels:
                 tagger.aux_labels[task] = sel_aux_data[aux_labels[task]]
             if perf_vars is None:
-                tagger.perf_vars = dict()
+                tagger.perf_vars = {}
                 for perf_var in self.perf_vars:
                     if any(x in perf_var for x in ["pt", "mass"]):
                         tagger.perf_vars[perf_var] = sel_data[perf_var] * 0.001

@@ -1,4 +1,5 @@
 """ROC curve functions."""
+
 from __future__ import annotations
 
 import matplotlib as mpl
@@ -479,17 +480,16 @@ class RocPlot(PlotBase):
                 )
 
         else:
-            line_list_rej = []
-            for rej_class in self.rej_axes:
-                line_list_rej.append(
-                    mpl.lines.Line2D(
-                        [],
-                        [],
-                        color="k",
-                        label=self.leg_rej_labels[rej_class],
-                        linestyle=self.rej_class_ls[rej_class],
-                    )
+            line_list_rej = [
+                mpl.lines.Line2D(
+                    [],
+                    [],
+                    color="k",
+                    label=self.leg_rej_labels[rej_class],
+                    linestyle=self.rej_class_ls[rej_class],
                 )
+                for rej_class in self.rej_axes
+            ]
 
             self.legend_flavs = self.axis_top.legend(
                 handles=line_list_rej,

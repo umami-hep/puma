@@ -1,16 +1,20 @@
 from __future__ import annotations
 
 import copy
-from pathlib import Path
+from typing import TYPE_CHECKING
 
-from ftag import Flavour
 from ftag.hdf5 import H5Reader
 
 from puma.utils import logger
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from ftag import Flavour
+
 
 def select_configs(configs, plt_cfg):
-    """Selects only configs that match the current sample and signal"""
+    """Selects only configs that match the current sample and signal."""
     return [c for c in configs if c["args"]["signal"] == plt_cfg.signal]
 
 
@@ -23,13 +27,13 @@ def get_plot_kwargs(config, suffix=None):
         else:
             all_suffix += suffix
 
-    plot_kwargs["suffix"] = "_".join([s for s in all_suffix if s != ""])
+    plot_kwargs["suffix"] = "_".join([s for s in all_suffix if s])
 
     return plot_kwargs
 
 
 def get_include_exclude_str(include_taggers, all_taggers):
-    """Generates the name of the plot, based on the included taggers"""
+    """Generates the name of the plot, based on the included taggers."""
     if len(include_taggers) == len(all_taggers):
         return ""
 
@@ -38,27 +42,26 @@ def get_include_exclude_str(include_taggers, all_taggers):
 
 def get_included_taggers(results, plot_config):
     """Converts 'include_taggers' or 'exclude_taggers' into a list of the taggers
-    to include
+    to include.
     """
     all_taggers = results.taggers
     all_tagger_names = [t.yaml_name for t in all_taggers.values()]
-    if (
-        "args" not in plot_config
-        or "include_taggers" not in plot_config["args"]
+    if "args" not in plot_config or (
+        "include_taggers" not in plot_config["args"]
         and "exclude_taggers" not in plot_config["args"]
     ):
         include_taggers = results.taggers
     elif include_taggers := plot_config["args"].get("include_taggers", None):
         assert all(
-            [t in all_tagger_names for t in include_taggers]
-        ), f"Not all taggers in include_taggers are in the results: {include_taggers}"
+            t in all_tagger_names for t in include_taggers
+        ), f"Not all taggers are in the results: {include_taggers}"
 
         include_taggers = {
             t: v for t, v in results.taggers.items() if v.yaml_name in include_taggers
         }
 
     elif exclude_taggers := plot_config["args"].get("exclude_taggers", None):
-        assert all([t in all_tagger_names for t in exclude_taggers])
+        assert all(t in all_tagger_names for t in exclude_taggers)
         include_taggers = {
             t: v for t, v in results.taggers.items() if v.yaml_name not in exclude_taggers
         }
@@ -72,7 +75,7 @@ def get_included_taggers(results, plot_config):
 
     # Set which tagger to use as a reference, if no reference is set, use the first
     #  tagger.This is only needed for plots with a ratio, but still...
-    if not any([t.reference for t in include_taggers.values()]):
+    if not any(t.reference for t in include_taggers.values()):
         if reference := plot_config["args"].get("reference", None):
             if reference not in [t.yaml_name for t in include_taggers.values()]:
                 raise ValueError(
@@ -104,7 +107,7 @@ def get_included_taggers(results, plot_config):
 
 def get_tagger_name(name: str, sample_path: Path, key: str, flavours: list[Flavour]):
     """Attempts to return the name of the tagger if it is not specified in the config
-    file by looking at available variable names, and the key of the tagger in the config
+    file by looking at available variable names, and the key of the tagger in the config.
 
     Parameters
     ----------
@@ -151,12 +154,11 @@ def get_tagger_name(name: str, sample_path: Path, key: str, flavours: list[Flavo
 
     if len(valid_taggers) == 0:
         raise ValueError("No valid tagger found.")
-    elif len(valid_taggers) > 1:
+    if len(valid_taggers) > 1:
         if key in valid_taggers:
             return key
         raise ValueError(
             f"Multiple valid taggers found: {', '.join(valid_taggers)} in file "
             f"{sample_path}, please specify the tagger name in the config file"
         )
-    else:
-        return valid_taggers[0]
+    return valid_taggers[0]

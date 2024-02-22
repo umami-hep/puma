@@ -57,9 +57,9 @@ class PlotConfig:
         """
         kwargs = self.results_config
         kwargs["signal"] = self.signal
-        kwargs["perf_vars"] = list(
-            {plot["args"].get("perf_var", "pt") for plot in self.eff_vs_var_plots}
-        )
+        kwargs["perf_vars"] = list({
+            plot["args"].get("perf_var", "pt") for plot in self.eff_vs_var_plots
+        })
 
         sample_path = kwargs.pop("sample_path", None)
         if self.base_path and sample_path:

@@ -1,7 +1,5 @@
-#!/usr/bin/env python
-
-
 """Unit test script for the functions in var_vs_eff.py."""
+
 from __future__ import annotations
 
 import os
@@ -260,18 +258,14 @@ class VarVsEffOutputTestCase(unittest.TestCase):
         self.x_var_sig_1 = np.random.uniform(0, 250, size=2 * n_random)
 
         # new tagger (better separation for pT > 110)
-        self.disc_sig_2 = np.concatenate(
-            (
-                np.random.normal(loc=1, size=n_random),
-                np.random.normal(loc=3, size=n_random),
-            )
-        )
-        self.x_var_sig_2 = np.concatenate(
-            (
-                np.random.uniform(0, 110, size=n_random),
-                np.random.uniform(110, 250, size=n_random),
-            )
-        )
+        self.disc_sig_2 = np.concatenate((
+            np.random.normal(loc=1, size=n_random),
+            np.random.normal(loc=3, size=n_random),
+        ))
+        self.x_var_sig_2 = np.concatenate((
+            np.random.uniform(0, 110, size=n_random),
+            np.random.uniform(110, 250, size=n_random),
+        ))
 
         # Define pT bins
         self.bins = [20, 30, 40, 60, 85, 110, 140, 175, 250]

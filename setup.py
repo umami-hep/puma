@@ -1,5 +1,7 @@
 """
-This script is used to install the package and all its dependencies. Run
+Install the package and all its dependencies.
+
+Run
 
     python -m pip install .
 

@@ -48,13 +48,11 @@ def get_dummy_multiclass_scores(
     bjets = softmax(rng.normal(loc=[0, 0, bjets_mean], scale=2, size=(size_class, 3)), axis=1)
     output = np.concatenate((ujets, cjets, bjets))
     output = u2s(output, dtype=np.dtype([("ujets", "f4"), ("cjets", "f4"), ("bjets", "f4")]))
-    labels = np.concatenate(
-        (
-            np.zeros(size_class),
-            np.ones(size_class) * 4,
-            np.ones(size_class) * 5,
-        )
-    )
+    labels = np.concatenate((
+        np.zeros(size_class),
+        np.ones(size_class) * 4,
+        np.ones(size_class) * 5,
+    ))
     return output, labels
 
 
@@ -173,14 +171,12 @@ def get_dummy_tagger_aux(
     )
     trk_or_labels = np.random.choice(8, size=(len(df_gen), n_tracks)).astype(int)
     trk_or_reco = np.random.choice(8, size=(len(df_gen), n_tracks)).astype(int)
-    aux_dtype = np.dtype(
-        [
-            ("ftagTruthVertexIndex", "i4"),
-            ("GN2_VertexIndex", "i4"),
-            ("ftagTruthOriginLabel", "i4"),
-            ("GN2_TrackOrigin", "i4"),
-        ]
-    )
+    aux_dtype = np.dtype([
+        ("ftagTruthVertexIndex", "i4"),
+        ("GN2_VertexIndex", "i4"),
+        ("ftagTruthOriginLabel", "i4"),
+        ("GN2_TrackOrigin", "i4"),
+    ])
     aux_info = np.rec.fromarrays(
         [vtx_labels, vtx_reco, trk_or_labels, trk_or_reco], dtype=aux_dtype
     )

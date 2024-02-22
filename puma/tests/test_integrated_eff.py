@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-
-
 """Unit test script for the functions in roc.py."""
 
 from __future__ import annotations
@@ -32,7 +29,7 @@ class IntegratedEfficiencyCase(unittest.TestCase):
         IntegratedEfficiency(self.disc_sig, self.disc_rej)
 
     def test_add_label_flavour(self):
-        """Test both label and flavour"""
+        """Test both label and flavour."""
         int_eff = IntegratedEfficiency(
             self.disc_sig, self.disc_rej, label="b-jets", flavour="ujets"
         )

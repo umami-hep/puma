@@ -1,5 +1,5 @@
-#!/usr/bin/env python
 """Unit test script for the functions in hlplots/aux_results.py."""
+
 from __future__ import annotations
 
 import tempfile
@@ -92,7 +92,7 @@ class AuxResultsPlotsTestCase(unittest.TestCase):
 
     def assertIsFile(self, path: str):
         """Check for file to exist.
-        Taken from https://stackoverflow.com/a/59198749/10896585
+        Taken from https://stackoverflow.com/a/59198749/10896585.
 
         Parameters
         ----------

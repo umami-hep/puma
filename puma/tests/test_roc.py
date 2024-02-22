@@ -1,7 +1,5 @@
-#!/usr/bin/env python
-
-
 """Unit test script for the functions in roc.py."""
+
 from __future__ import annotations
 
 import os
@@ -412,7 +410,7 @@ class RocOutputTestCase(unittest.TestCase):
         )
 
     def test_output_ratio_legend_four_curves_two_ratio(self):
-        """Test with two curves for each flavour, two ratio panels, and ratio legend"""
+        """Test with two curves for each flavour, two ratio panels, and ratio legend."""
         plot = RocPlot(
             n_ratio_panels=2,
             ylabel="Background rejection",

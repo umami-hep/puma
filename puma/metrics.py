@@ -1,4 +1,5 @@
 """Tools for metrics module."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -79,7 +80,6 @@ def calc_eff(
         Cutvalue if return_cuts is True.
         Return float if target_eff is a float, else np.ndarray
     """
-    # TODO: with python 3.10 using type union operator
     # float | np.ndarray for both target_eff and the returned values
     return_float = False
     if isinstance(target_eff, float):
@@ -138,7 +138,6 @@ def calc_rej(
         Cutvalue if return_cuts is True.
         If target_eff is a float, a float is returned if it's a list a np.ndarray
     """
-    # TODO: with python 3.10 using type union operator
     # float | np.ndarray for both target_eff and the returned values
     eff = calc_eff(
         sig_disc=sig_disc,
@@ -194,8 +193,6 @@ def eff_err(
     logger.debug("n_counts: %i", n_counts)
     logger.debug("suppress_zero_divison_error: %s", suppress_zero_divison_error)
     logger.debug("norm: %s", norm)
-    # TODO: suppress_zero_divison_error should not be necessary, but functions calling
-    # eff_err seem to need this functionality - should be deprecated though.
     if np.any(n_counts <= 0) and not suppress_zero_divison_error:
         raise ValueError(f"You passed as argument `N` {n_counts} but it has to be larger 0.")
     if norm:

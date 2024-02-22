@@ -7,6 +7,7 @@ the fact that this button prefers urls instead of local filenames).
 
 This script has to be executed in the root of the repository!
 """
+
 from __future__ import annotations
 
 import os
@@ -34,7 +35,7 @@ def build_docs_version(version):
 
     # run librep on markdown files (render placeholders with sytax §§§filename§§§)
     run(
-        "librep --ref_dir $PWD --input 'docs/**/*.md' --no_backup",
+        "librep --ref_dir $PWD --input 'docs/**/*.md' --no_backup",  # noqa: S607
         shell=True,
         check=True,
     )
@@ -45,11 +46,11 @@ def build_docs_version(version):
         shell=True,
         check=True,
     )
-    run("git stash", shell=True, check=True)
+    run("git stash", shell=True, check=True)  # noqa: S607
 
 
 def main():
-    """main function that is executed when the script is called."""
+    """Main function that is executed when the script is called."""
     # get currently active branch
     command = "git rev-parse --abbrev-ref HEAD".split()
     initial_branch = run(command, capture_output=True, check=True).stdout.strip().decode("utf-8")

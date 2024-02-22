@@ -1,4 +1,5 @@
 """Classes for 2D line plots."""
+
 from __future__ import annotations
 
 import matplotlib as mpl
@@ -79,7 +80,7 @@ class Line2D(PlotLineObject):
                 )
 
         else:
-            raise ValueError(
+            raise TypeError(
                 "Invalid type of input data. Allowed values are numpy.ndarray, list," " int, float"
             )
 

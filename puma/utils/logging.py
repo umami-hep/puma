@@ -1,4 +1,5 @@
 """Configuration for logger of puma."""
+
 from __future__ import annotations
 
 import logging

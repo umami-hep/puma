@@ -1,7 +1,5 @@
-#!/usr/bin/env python
-
-
 """Unit test script for the functions in metrics.py."""
+
 from __future__ import annotations
 
 import unittest

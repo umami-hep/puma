@@ -117,7 +117,7 @@ def make_fracscan_plots(plt_cfg):
 
         efficiency = fracscan["args"]["efficiency"]
         frac_flav = fracscan["args"]["frac_flav"]
-        if frac_flav not in ["b", "c"]:
+        if frac_flav not in {"b", "c"}:
             raise ValueError(f"Unknown flavour {frac_flav}")
         info_str = f"$f_{frac_flav}$ scan" if frac_flav != "tau" else "$f_{\\tau}$ scan"
         # info_str += f" {round(efficiency*100)}% {plt_cfg.results.signal.label} WP"
@@ -129,7 +129,7 @@ def make_fracscan_plots(plt_cfg):
         back_str = "_".join([f.name for f in backgrounds])
         suffix = f"_back_{back_str}_eff_{eff_str}_change_f_{frac_flav}"
 
-        # TODO - we have a 'frac flav' which can be used in cases where there are more
+        # we have a 'frac flav' which can be used in cases where there are more
         # than 2 backgrounds, such as if we want to extend to tau-jets. It might also be
         # useful for making frac scan plots for X->bb
         plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(

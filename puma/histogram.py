@@ -88,7 +88,7 @@ class Histogram(PlotLineObject):
             if len(values) == 0:
                 logger.warning("Histogram is empty.")
         else:
-            raise ValueError(
+            raise TypeError(
                 "Invalid type of histogram input data. Allowed values are "
                 "numpy.ndarray, list, pandas.core.series.Series"
             )
@@ -199,7 +199,7 @@ class Histogram(PlotLineObject):
         ref_hist: np.ndarray,
     ) -> tuple:
         """
-        Similar as divide, but the second item doesn't need to be a histogram object
+        Similar as divide, but the second item doesn't need to be a histogram object.
 
         Parameters
         ----------
@@ -245,7 +245,7 @@ class HistogramPlot(PlotBase):
         histtype: str = "bar",
         **kwargs,
     ) -> None:
-        """histogram plot properties.
+        """Histogram plot properties.
 
         Parameters
         ----------
@@ -290,8 +290,6 @@ class HistogramPlot(PlotBase):
         ValueError
             If n_ratio_panels > 1
         """
-        # TODO: use union operator `|` for multiple types of `bins` in python 3.10
-
         super().__init__(grid=grid, **kwargs)
         self.logy = logy
         self.bins = bins
@@ -425,12 +423,12 @@ class HistogramPlot(PlotBase):
         elif isinstance(self.bins, int):
             logger.debug("Calculating bin edges of %i equal-width bins", self.bins)
             _, self.bins = np.histogram(
-                np.hstack([elem.values for elem in self.plot_objects.values()]),
+                np.hstack([elem.to_numpy() for elem in self.plot_objects.values()]),
                 bins=self.bins,
                 range=self.bins_range,
             )
         else:
-            raise ValueError("Unsupported type for bins. Supported types: int, numpy.array, list")
+            raise TypeError("Unsupported type for bins. Supported types: int, numpy.array, list")
 
         # Loop over all plot objects and plot them
         bins = self.bins
@@ -495,78 +493,76 @@ class HistogramPlot(PlotBase):
                     )
                 )
 
-            else:
-                # If stacking is true, append all needed vars to the dict
-                if self.stacked:
-                    self.stacked_dict["x"].append(bins[:-1])
-                    self.stacked_dict["weights"].append(elem.hist)
-                    self.stacked_dict["color"].append(elem.colour)
+            elif self.stacked:
+                self.stacked_dict["x"].append(bins[:-1])
+                self.stacked_dict["weights"].append(elem.hist)
+                self.stacked_dict["color"].append(elem.colour)
 
-                    if self.stacked_dict["band"] is None:
-                        self.stacked_dict["band"] = elem.band
-
-                    else:
-                        self.stacked_dict["band"] += elem.band
-
-                    if self.stacked_dict["unc"] is None:
-                        self.stacked_dict["unc"] = elem.unc
-
-                    else:
-                        self.stacked_dict["unc"] += elem.unc
-
-                    # Add the element to the legend with a "bar"
-                    plt_handles.append(
-                        mpl.patches.Patch(
-                            color=elem.colour,
-                            label=elem.label,
-                            alpha=elem.alpha,
-                        )
-                    )
+                if self.stacked_dict["band"] is None:
+                    self.stacked_dict["band"] = elem.band
 
                 else:
-                    # Plot histogram
-                    self.axis_top.hist(
-                        x=bins[:-1],
-                        bins=bins,
-                        weights=elem.hist,
-                        histtype=elem.histtype,
+                    self.stacked_dict["band"] += elem.band
+
+                if self.stacked_dict["unc"] is None:
+                    self.stacked_dict["unc"] = elem.unc
+
+                else:
+                    self.stacked_dict["unc"] += elem.unc
+
+                # Add the element to the legend with a "bar"
+                plt_handles.append(
+                    mpl.patches.Patch(
+                        color=elem.colour,
+                        label=elem.label,
+                        alpha=elem.alpha,
+                    )
+                )
+
+            else:
+                # Plot histogram
+                self.axis_top.hist(
+                    x=bins[:-1],
+                    bins=bins,
+                    weights=elem.hist,
+                    histtype=elem.histtype,
+                    color=elem.colour,
+                    label=elem.label,
+                    alpha=elem.alpha,
+                    linewidth=elem.linewidth,
+                    linestyle=elem.linestyle,
+                    **kwargs,
+                )
+
+                # Plot histogram uncertainty
+                if self.draw_errors:
+                    bottom_error = np.array([elem.band[0], *elem.band.tolist()])
+                    top_error = elem.band + 2 * elem.unc
+                    top_error = np.array([top_error[0], *top_error.tolist()])
+                    self.axis_top.fill_between(
+                        x=elem.bin_edges,
+                        y1=bottom_error,
+                        y2=top_error,
+                        color=elem.colour,
+                        alpha=0.3,
+                        zorder=1,
+                        step="pre",
+                        edgecolor="none",
+                    )
+
+                # Add standard "Line" to legend
+                plt_handles.append(
+                    mpl.lines.Line2D(
+                        [],
+                        [],
                         color=elem.colour,
                         label=elem.label,
                         alpha=elem.alpha,
                         linewidth=elem.linewidth,
                         linestyle=elem.linestyle,
-                        **kwargs,
+                        marker=elem.marker,
                     )
-
-                    # Plot histogram uncertainty
-                    if self.draw_errors:
-                        bottom_error = np.array([elem.band[0], *elem.band.tolist()])
-                        top_error = elem.band + 2 * elem.unc
-                        top_error = np.array([top_error[0], *top_error.tolist()])
-                        self.axis_top.fill_between(
-                            x=elem.bin_edges,
-                            y1=bottom_error,
-                            y2=top_error,
-                            color=elem.colour,
-                            alpha=0.3,
-                            zorder=1,
-                            step="pre",
-                            edgecolor="none",
-                        )
-
-                    # Add standard "Line" to legend
-                    plt_handles.append(
-                        mpl.lines.Line2D(
-                            [],
-                            [],
-                            color=elem.colour,
-                            label=elem.label,
-                            alpha=elem.alpha,
-                            linewidth=elem.linewidth,
-                            linestyle=elem.linestyle,
-                            marker=elem.marker,
-                        )
-                    )
+                )
 
         if self.stacked:
             self.axis_top.hist(
@@ -631,20 +627,12 @@ class HistogramPlot(PlotBase):
         """
         if len(elem.bin_edges) > 1:
             if abs(elem.bin_edges[1] - elem.bin_edges[0]) <= 1:
-                indice = []
-                for i in range(len(elem.bin_edges) - 1):
-                    # Only keep this bin edge if one of the discrete
-                    # values is withing this and the next bin edge
-                    # TODO: This has to be improved.
-                    # The current implementation
-                    #       a)  requires to specify a range which includes all the
-                    #           specified value --> this could be done automatically?
-                    #       b)  crashes if the specified range ends at a value which
-                    #           is equal to a value in self.discrete_vals (since we
-                    #           do not accept "<=" in the last bin)
-                    for discrete_val in self.discrete_vals:
-                        if elem.bin_edges[i] <= discrete_val < elem.bin_edges[i + 1]:
-                            indice.append(i)
+                indice = [
+                    i
+                    for i in range(len(elem.bin_edges) - 1)
+                    for discrete_val in self.discrete_vals
+                    if elem.bin_edges[i] <= discrete_val < elem.bin_edges[i + 1]
+                ]
                 elem.hist = elem.hist[indice]
                 elem.unc = elem.unc[indice]
                 elem.band = elem.band[indice]

@@ -1,4 +1,5 @@
 """IntegratedEfficiency functions."""
+
 from __future__ import annotations
 
 import matplotlib as mpl
@@ -175,17 +176,16 @@ class IntegratedEfficiencyPlot(PlotBase):
         handles : list
             List of handles
         """
-        line_list_tagger = []
-        for tagger in self.tagger_ls:
-            line_list_tagger.append(
-                mpl.lines.Line2D(
-                    [],
-                    [],
-                    color="k",
-                    linestyle=self.tagger_ls[tagger],
-                    label=tagger,
-                )
+        line_list_tagger = [
+            mpl.lines.Line2D(
+                [],
+                [],
+                color="k",
+                linestyle=self.tagger_ls[tagger],
+                label=tagger,
             )
+            for tagger in self.tagger_ls
+        ]
         self.legend_flavs = self.axis_top.legend(
             handles=line_list_tagger,
             labels=[handle.get_label() for handle in line_list_tagger],

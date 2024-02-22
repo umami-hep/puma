@@ -1,6 +1,5 @@
-#!/usr/bin/env python
-
 """Unit test script for the functions in utils/histogram.py."""
+
 from __future__ import annotations
 
 import unittest
@@ -169,16 +168,14 @@ class HistWUncTestCase(unittest.TestCase):
         """Test if infinity values are treated as expected."""
         values_with_infs = np.array([1, 2, 3, -np.inf, +np.inf, +np.inf])
 
-        with self.subTest("Test if the warning for number of inf values is raised in hist_w_unc"):
+        with self.subTest("Test if the warning for number of inf values is raised in hist_w_unc"):  # noqa: SIM117
             with LogCapture("puma") as log:
                 _ = hist_w_unc(values_with_infs, bins=np.linspace(0, 3, 3))
-                log.check(
-                    (
-                        "puma",
-                        "WARNING",
-                        "Histogram values contain 3 +-inf values!",
-                    )
-                )
+                log.check((
+                    "puma",
+                    "WARNING",
+                    "Histogram values contain 3 +-inf values!",
+                ))
         with self.subTest(
             "Test if error is raised if inf values are in input but no range is defined"
         ), self.assertRaises(ValueError):
@@ -190,15 +187,11 @@ class HistWUncTestCase(unittest.TestCase):
 
         with LogCapture("puma") as log:
             _ = hist_w_unc(values_with_nans, bins=4)
-            log.check(
-                (
-                    "puma",
-                    "WARNING",
-                    "Histogram values contain 2 nan values!",
-                )
-            )
-
-    # TODO: Add unit tests for hist_ratio
+            log.check((
+                "puma",
+                "WARNING",
+                "Histogram values contain 2 nan values!",
+            ))
 
 
 class SaveDivideTestCase(unittest.TestCase):
@@ -239,9 +232,15 @@ class HistRatioTestCase(unittest.TestCase):
         self.numerator_unc = np.array([0.5, 1, 0.3, 0.2, 0.5, 0.3])
         self.denominator_unc = np.array([1, 0.3, 2, 1, 5, 3])
         self.step = np.array([1.6666667, 1.6666667, 0.5, 1, 0.7142857, 0.6, 0.1666667])
-        self.step_unc = np.array(
-            [0.16666667, 0.16666667, 0.16666667, 0.15, 0.02857143, 0.05, 0.025]
-        )
+        self.step_unc = np.array([
+            0.16666667,
+            0.16666667,
+            0.16666667,
+            0.15,
+            0.02857143,
+            0.05,
+            0.025,
+        ])
 
     def test_hist_ratio(self):
         """Test if ratio is correctly calculated."""

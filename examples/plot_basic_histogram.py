@@ -1,4 +1,5 @@
 """Example of histogram plot that deviates from puma default plots."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -10,9 +11,10 @@ N_BKG = int(1e6)
 N_SIG = int(2e4)
 rng = np.random.default_rng(seed=42)
 expectation = rng.exponential(size=N_BKG)
-measurement = np.concatenate(
-    (rng.exponential(size=N_BKG), rng.normal(loc=2, scale=0.2, size=N_SIG))
-)
+measurement = np.concatenate((
+    rng.exponential(size=N_BKG),
+    rng.normal(loc=2, scale=0.2, size=N_SIG),
+))
 expectation_hist = Histogram(expectation, label="MC", histtype="stepfilled", alpha=1)
 measurement_hist = Histogram(measurement, label="dummy data")
 

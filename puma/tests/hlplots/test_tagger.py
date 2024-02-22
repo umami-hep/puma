@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """Unit test script for the functions in hlplots/tagger.py."""
 
 from __future__ import annotations
@@ -66,13 +64,11 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
 
     def setUp(self) -> None:
         """Set up for tests."""
-        self.df_dummy = pd.DataFrame(
-            {
-                "dummy_pc": np.zeros(10),
-                "dummy_pu": np.ones(10),
-                "dummy_pb": np.zeros(10),
-            }
-        )
+        self.df_dummy = pd.DataFrame({
+            "dummy_pc": np.zeros(10),
+            "dummy_pu": np.ones(10),
+            "dummy_pb": np.zeros(10),
+        })
         self.scores_expected = np.column_stack((np.ones(10), np.zeros(10), np.zeros(10)))
 
     def test_wrong_source_type(self):

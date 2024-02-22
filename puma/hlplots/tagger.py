@@ -115,7 +115,7 @@ class Tagger:
 
         for aux_type in self.aux_tasks:
             if aux_type == "vertexing":
-                if self.name == "SV1" or self.name == "JF":
+                if self.name in {"SV1", "JF"}:
                     aux_outputs[aux_type] = f"{self.name}VertexIndex"
                 else:
                     aux_outputs[aux_type] = f"{self.name}_VertexIndex"
@@ -247,9 +247,8 @@ class Tagger:
         """
         if "vertexing" not in self.aux_tasks:
             raise ValueError("Vertexing aux task not available for this tagger.")
-        else:
-            truth_indices = self.aux_labels["vertexing"]
-            reco_indices = self.aux_scores["vertexing"]
+        truth_indices = self.aux_labels["vertexing"]
+        reco_indices = self.aux_scores["vertexing"]
 
         # clean truth vertex indices - remove indices from true PV, PU, fake
         truth_removal_cond = np.logical_or(
@@ -301,13 +300,11 @@ class Tagger:
                     np.isin(self.aux_scores["vertexing"], hf_vertex_indices),
                     mode="merge",
                 )
-        else:
-            # merge reco vertices - all if track origin isn't available
-            if incl_vertexing:
-                reco_indices = clean_indices(
-                    reco_indices,
-                    reco_indices >= 0,
-                    mode="merge",
-                )
+        elif incl_vertexing:
+            reco_indices = clean_indices(
+                reco_indices,
+                reco_indices >= 0,
+                mode="merge",
+            )
 
         return truth_indices, reco_indices

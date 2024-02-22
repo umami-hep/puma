@@ -13,10 +13,10 @@ from puma.hlplots.yutils import (
 )
 
 __all__ = [
-    "Results",
-    "Tagger",
     "AuxResults",
     "PlotConfig",
+    "Results",
+    "Tagger",
     "get_included_taggers",
     "get_plot_kwargs",
     "select_configs",

@@ -1,6 +1,5 @@
-#!/usr/bin/env python
-
 """Unit test script for the functions in histogram.py."""
+
 from __future__ import annotations
 
 import os
@@ -25,7 +24,7 @@ class PiePlotTestCase(unittest.TestCase):
         self.expected_plots_dir = os.path.join(os.path.dirname(__file__), "expected_plots")
 
     def test_plot_pie_chart_default_style(self):
-        """check if pie chart is plotted correctly (using default style)."""
+        """Check if pie chart is plotted correctly (using default style)."""
         pie_plot = PiePlot(
             wedge_sizes=[20, 40, 30, 10],
             labels=["light-flavour jets", "c-jets", "b-jets", "tau-jets"],
@@ -44,7 +43,7 @@ class PiePlotTestCase(unittest.TestCase):
         )
 
     def test_plot_pie_chart_custom_style(self):
-        """check if pie chart is plotted correctly (using default style)."""
+        """Check if pie chart is plotted correctly (using default style)."""
         pie_plot = PiePlot(
             wedge_sizes=[20, 40, 30, 10],
             labels=["light-flavour jets", "c-jets", "b-jets", "tau-jets"],

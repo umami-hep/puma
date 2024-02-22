@@ -1,4 +1,5 @@
 """Unit test script for the functions in utils.logging."""
+
 from __future__ import annotations
 
 import unittest

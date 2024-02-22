@@ -4,12 +4,10 @@ import numpy as np
 
 
 def get_fx_values(resolution=100):
-    return np.concatenate(
-        (
-            np.logspace(-3, -1, resolution // 2),
-            np.linspace(0.1, 1.0, resolution // 2),
-        )
-    )
+    return np.concatenate((
+        np.logspace(-3, -1, resolution // 2),
+        np.linspace(0.1, 1.0, resolution // 2),
+    ))
 
 
 def get_efficiency(scores, fx):

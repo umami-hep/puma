@@ -1,4 +1,5 @@
 """Plotting bases for specialised plotting."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -12,8 +13,6 @@ from puma.utils import logger, set_xaxis_ticklabels_invisible
 atlasify.LINE_SPACING = 1.3  # overwrite the default, which is 1.2
 
 
-# TODO: enable `kw_only` when switching to Python 3.10
-# @dataclass(kw_only=True)
 @dataclass
 class PlotLineObject:
     """Base data class defining properties of a plot object.
@@ -57,8 +56,6 @@ class PlotLineObject:
     is_marker: bool = None
 
 
-# TODO: enable `kw_only` when switching to Python 3.10
-# @dataclass(kw_only=True)
 @dataclass
 class PlotObject:
     """Data base class defining properties of a plot object.
@@ -295,8 +292,6 @@ class PlotBase(PlotObject):
         Initialising matplotlib.figure.Figure for different scenarios depending on how
         many ratio panels are requested.
         """
-        # TODO: switch to cases syntax in python 3.10
-
         if self.vertical_split:  # split figure vertically instead of horizonally
             if self.n_ratio_panels >= 1:
                 logger.warning(
@@ -591,9 +586,6 @@ class PlotBase(PlotObject):
         if self.apply_atlas_style or force:
             logger.debug("Initialise ATLAS style using atlasify.")
             if self.use_atlas_tag is True:
-                # TODO: for some reason, pylint complains about the used arguments
-                # when calling atlasify ("unexpected-keyword-arg") error
-                # --> fix this
                 atlasify.atlasify(
                     atlas=self.atlas_first_tag,
                     subtext=self.atlas_second_tag,
@@ -719,8 +711,7 @@ class PlotBase(PlotObject):
         ValueError
             If requested ratio panels and given ratio_panel do not match.
         """
-        # TODO: could add possibility to specify ratio label as function of rej_class
-        if self.n_ratio_panels < ratio_panel and ratio_panel not in [1, 2]:
+        if self.n_ratio_panels < ratio_panel and ratio_panel not in {1, 2}:
             raise ValueError("Requested ratio panels and given ratio_panel do not match.")
         self.ylabel_ratio[ratio_panel - 1] = label
 

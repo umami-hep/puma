@@ -49,7 +49,6 @@ def get_good_pie_colours(colour_scheme=None):
     KeyError
         If colour_scheme is not in ["blue", "red", "green", "yellow", None]
     """
-    # TODO change in python 3.10 -> case syntax
     if colour_scheme is None:
         return [
             "#1F77B4",
@@ -125,8 +124,6 @@ def get_good_colours(colour_scheme=None):
     list
         list with colours
     """
-    # TODO change in python 3.10 -> case syntax
-    # TODO needs improvements
     if colour_scheme is None:
         return [
             "#AA3377",
@@ -149,8 +146,6 @@ def get_good_markers():
     list
         list with markers
     """
-    # TODO needs improvements
-
     return [
         "o",  # Circle
         "x",  # x

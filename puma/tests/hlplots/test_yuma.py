@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Unit test script for the functions in hlplots/tagger.py."""
 
 from __future__ import annotations
@@ -49,7 +48,7 @@ class TestYutils(unittest.TestCase):
         plt_cfg, taggers = load_no_include(plt_cfg, taggers)
 
         with tempfile.TemporaryDirectory() as tmp_file:
-            fpath1, file = get_mock_file(fname=(Path(tmp_file) / "file1.h5").as_posix())
+            fpath1, _file = get_mock_file(fname=(Path(tmp_file) / "file1.h5").as_posix())
             taggers["dummy1"]["sample_path"] = fpath1
             taggers["dummy2"]["sample_path"] = fpath1
             taggers["dummy3"]["sample_path"] = fpath1
@@ -68,12 +67,12 @@ class TestYutils(unittest.TestCase):
             main(args)
 
     def testGetTaggerName(self):
-        fpath, file = get_mock_file()
+        fpath, _file = get_mock_file()
         name = get_tagger_name(None, fpath, key="TestName1", flavours=self.flavours)
         assert name == "MockTagger"
 
     def testBreakGetTaggerName(self):
-        fpath, file = get_mock_file()
+        _fpath, file = get_mock_file()
         updated = {k: file["jets"][k] for k in file["jets"].dtype.names}
         updated["Tagger2_pu"] = updated["MockTagger_pu"]
         updated["Tagger2_pb"] = updated["MockTagger_pb"]
@@ -105,8 +104,8 @@ class TestYumaPlots(unittest.TestCase):
         plt_cfg, taggers = load_no_include(plt_cfg, taggers)
 
         with tempfile.TemporaryDirectory() as tmp_file:
-            fpath1, file = get_mock_file(fname=(Path(tmp_file) / "file1.h5").as_posix())
-            fpath2, file = get_mock_file(fname=(Path(tmp_file) / "file2.h5").as_posix())
+            fpath1, _file = get_mock_file(fname=(Path(tmp_file) / "file1.h5").as_posix())
+            fpath2, _file = get_mock_file(fname=(Path(tmp_file) / "file2.h5").as_posix())
             taggers["dummy1"]["sample_path"] = fpath1
             taggers["dummy2"]["sample_path"] = fpath1
             taggers["dummy3"]["sample_path"] = fpath2
@@ -155,8 +154,8 @@ class TestYumaPlots(unittest.TestCase):
         plt_cfg, taggers = load_no_include(plt_cfg, taggers)
 
         with tempfile.TemporaryDirectory() as tmp_file:
-            fpath1, file = get_mock_file(fname=(Path(tmp_file) / "file1.h5").as_posix())
-            fpath2, file = get_mock_file(fname=(Path(tmp_file) / "file2.h5").as_posix())
+            fpath1, _file = get_mock_file(fname=(Path(tmp_file) / "file1.h5").as_posix())
+            fpath2, _file = get_mock_file(fname=(Path(tmp_file) / "file2.h5").as_posix())
 
             taggers["dummy1"]["sample_path"] = fpath1
             taggers["dummy2"]["sample_path"] = fpath1
