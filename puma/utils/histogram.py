@@ -122,15 +122,11 @@ def hist_w_unc(
     # and bin edges
     if not filled:
         # Calculate the counts and the bin edges
-        counts, bin_edges = np.histogram(
-            arr, bins=bins, range=bins_range, weights=weights
-        )
+        counts, bin_edges = np.histogram(arr, bins=bins, range=bins_range, weights=weights)
 
         # calculate the uncertainty with sum of squared weights (per bin, so we use
         # np.histogram again here)
-        unc = np.sqrt(
-            np.histogram(arr, bins=bins, range=bins_range, weights=weights**2)[0]
-        )
+        unc = np.sqrt(np.histogram(arr, bins=bins, range=bins_range, weights=weights**2)[0])
 
         if underoverflow:
             # add two dummy bins (from outermost bins to +-infinity)

@@ -194,8 +194,7 @@ class Results:
             if np.sum(~mask) > 0:
                 if self.remove_nan:
                     logger.warning(
-                        f"{np.sum(~mask)} NaN values found in loaded data. Removing"
-                        " them."
+                        f"{np.sum(~mask)} NaN values found in loaded data. Removing" " them."
                     )
                     return data[mask]
                 raise ValueError(f"{np.sum(~mask)} NaN values found in loaded data.")
@@ -590,9 +589,7 @@ class Results:
             discs = tagger.discriminant(self.signal)
             is_signal = tagger.is_flav(self.signal)
 
-            assert (
-                perf_var in tagger.perf_vars
-            ), f"{perf_var} not in tagger {tagger.name} data!"
+            assert perf_var in tagger.perf_vars, f"{perf_var} not in tagger {tagger.name} data!"
 
             plot_sig_eff.add(
                 VarVsEff(
@@ -627,14 +624,8 @@ class Results:
         if h_line:
             plot_sig_eff.draw_hline(h_line)
 
-        plot_base = (
-            "profile_flat_per_bin"
-            if kwargs.get("flat_per_bin")
-            else "profile_fixed_cut"
-        )
-        wp_disc = (
-            f"disc_cut_{disc_cut}" if disc_cut else f"wp_{working_point}"
-        ).replace(".", "p")
+        plot_base = "profile_flat_per_bin" if kwargs.get("flat_per_bin") else "profile_fixed_cut"
+        wp_disc = (f"disc_cut_{disc_cut}" if disc_cut else f"wp_{working_point}").replace(".", "p")
 
         plot_details = f"{self.signal}_eff_vs_{perf_var}_{wp_disc}_"
         plot_suffix = f"{suffix}_" if suffix else ""
@@ -643,9 +634,7 @@ class Results:
         for i, background in enumerate(self.backgrounds):
             plot_bkg[i].draw()
             plot_details = f"{background}_rej_vs_{perf_var}_{wp_disc}_"
-            plot_bkg[i].savefig(
-                self.get_filename(plot_details + plot_base, plot_suffix)
-            )
+            plot_bkg[i].savefig(self.get_filename(plot_details + plot_base, plot_suffix))
 
     def plot_flat_rej_var_perf(
         self,
@@ -706,9 +695,7 @@ class Results:
             for i, background in enumerate(self.backgrounds):
                 is_bkg = tagger.is_flav(background)
 
-                assert (
-                    perf_var in tagger.perf_vars
-                ), f"{perf_var} not in tagger {tagger.name} data!"
+                assert perf_var in tagger.perf_vars, f"{perf_var} not in tagger {tagger.name} data!"
 
                 # We want x bins to all have the same background rejection, so we
                 # select the plot mode as 'bkg_eff', and then treat the signal as
@@ -741,9 +728,7 @@ class Results:
                 f"profile_flat_{background}_"
                 + f"{int(fixed_rejections[background.name])}_rej_per_bin"
             )
-            plot_bkg[i].savefig(
-                self.get_filename(plot_details + plot_base, plot_suffix)
-            )
+            plot_bkg[i].savefig(self.get_filename(plot_details + plot_base, plot_suffix))
 
     def plot_fraction_scans(
         self,
@@ -860,7 +845,5 @@ class Results:
             Keyword arguments for the plot
         """
         if plot_type not in self.plot_funcs:
-            raise ValueError(
-                f"Unknown plot type {plot_type}, choose from {self.plot_funcs.keys()}"
-            )
+            raise ValueError(f"Unknown plot type {plot_type}, choose from {self.plot_funcs.keys()}")
         self.plot_funcs[plot_type](**kwargs)

@@ -247,17 +247,11 @@ class AuxResults:
 
         for tagger in self.taggers.values():
             if "vertexing" not in tagger.aux_tasks:
-                logger.warning(
-                    f"{tagger.name} does not have vertexing aux task defined. Skipping."
-                )
-            assert (
-                perf_var in tagger.perf_vars
-            ), f"{perf_var} not in tagger {tagger.name} data!"
+                logger.warning(f"{tagger.name} does not have vertexing aux task defined. Skipping.")
+            assert perf_var in tagger.perf_vars, f"{perf_var} not in tagger {tagger.name} data!"
 
             # get cleaned vertex indices
-            truth_indices, reco_indices = tagger.vertex_indices(
-                incl_vertexing=incl_vertexing
-            )
+            truth_indices, reco_indices = tagger.vertex_indices(incl_vertexing=incl_vertexing)
 
             # calculate vertexing metrics
             vtx_metrics = calculate_vertex_metrics(reco_indices, truth_indices)
@@ -313,24 +307,16 @@ class AuxResults:
             raise ValueError("No taggers with vertexing aux task added.")
 
         plot_vtx_eff.draw()
-        plot_vtx_eff.savefig(
-            self.get_filename(prefix + f"vtx_eff_vs_{perf_var}", suffix)
-        )
+        plot_vtx_eff.savefig(self.get_filename(prefix + f"vtx_eff_vs_{perf_var}", suffix))
 
         plot_vtx_purity.draw()
-        plot_vtx_purity.savefig(
-            self.get_filename(prefix + f"vtx_purity_vs_{perf_var}", suffix)
-        )
+        plot_vtx_purity.savefig(self.get_filename(prefix + f"vtx_purity_vs_{perf_var}", suffix))
 
         plot_vtx_nreco.draw()
-        plot_vtx_nreco.savefig(
-            self.get_filename(prefix + f"vtx_nreco_vs_{perf_var}", suffix)
-        )
+        plot_vtx_nreco.savefig(self.get_filename(prefix + f"vtx_nreco_vs_{perf_var}", suffix))
 
         plot_vtx_trk_eff.draw()
-        plot_vtx_trk_eff.savefig(
-            self.get_filename(prefix + f"vtx_trk_eff_vs_{perf_var}", suffix)
-        )
+        plot_vtx_trk_eff.savefig(self.get_filename(prefix + f"vtx_trk_eff_vs_{perf_var}", suffix))
 
         plot_vtx_trk_purity.draw()
         plot_vtx_trk_purity.savefig(

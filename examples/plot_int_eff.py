@@ -46,35 +46,17 @@ plot = IntegratedEfficiencyPlot(
     y_scale=1.4,
 )
 plot.add(
-    IntegratedEfficiency(
-        rnnip["sig_disc"], rnnip["bkg_disc_b"], flavour="bjets", tagger="RRNIP"
-    )
+    IntegratedEfficiency(rnnip["sig_disc"], rnnip["bkg_disc_b"], flavour="bjets", tagger="RRNIP")
 )
 plot.add(
-    IntegratedEfficiency(
-        rnnip["sig_disc"], rnnip["bkg_disc_c"], flavour="cjets", tagger="RRNIP"
-    )
+    IntegratedEfficiency(rnnip["sig_disc"], rnnip["bkg_disc_c"], flavour="cjets", tagger="RRNIP")
 )
 plot.add(
-    IntegratedEfficiency(
-        rnnip["sig_disc"], rnnip["bkg_disc_l"], flavour="ujets", tagger="RRNIP"
-    )
+    IntegratedEfficiency(rnnip["sig_disc"], rnnip["bkg_disc_l"], flavour="ujets", tagger="RRNIP")
 )
-plot.add(
-    IntegratedEfficiency(
-        dips["sig_disc"], dips["bkg_disc_b"], flavour="bjets", tagger="DIPS"
-    )
-)
-plot.add(
-    IntegratedEfficiency(
-        dips["sig_disc"], dips["bkg_disc_c"], flavour="cjets", tagger="DIPS"
-    )
-)
-plot.add(
-    IntegratedEfficiency(
-        dips["sig_disc"], dips["bkg_disc_l"], flavour="ujets", tagger="DIPS"
-    )
-)
+plot.add(IntegratedEfficiency(dips["sig_disc"], dips["bkg_disc_b"], flavour="bjets", tagger="DIPS"))
+plot.add(IntegratedEfficiency(dips["sig_disc"], dips["bkg_disc_c"], flavour="cjets", tagger="DIPS"))
+plot.add(IntegratedEfficiency(dips["sig_disc"], dips["bkg_disc_l"], flavour="ujets", tagger="DIPS"))
 
 plot.draw()
 plot.savefig("integrated_efficiency.png", transparent=False)

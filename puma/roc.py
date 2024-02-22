@@ -63,15 +63,11 @@ class Roc(PlotLineObject):
         self.bkg_rej = bkg_rej
         self.n_test = None if n_test is None else int(n_test)
         self.signal_class = signal_class
-        self.rej_class = (
-            Flavours[rej_class] if isinstance(rej_class, str) else rej_class
-        )
+        self.rej_class = Flavours[rej_class] if isinstance(rej_class, str) else rej_class
         self.key = key
         self.ratio_group = ratio_group if ratio_group else str(rej_class)
 
-    def binomial_error(
-        self, norm: bool = False, n_test: int | None = None
-    ) -> np.ndarray:
+    def binomial_error(self, norm: bool = False, n_test: int | None = None) -> np.ndarray:
         """Calculate binomial error of roc curve.
 
         Parameters
@@ -245,9 +241,7 @@ class RocPlot(PlotBase):
         if key is None:
             key = len(self.rocs) + 1
         if key in self.rocs:
-            raise KeyError(
-                f"Duplicated key {key} already used for roc unique identifier."
-            )
+            raise KeyError(f"Duplicated key {key} already used for roc unique identifier.")
 
         self.rocs[key] = roc_curve
         # set linestyle
@@ -277,8 +271,7 @@ class RocPlot(PlotBase):
                 else roc_curve.colour
             )
         elif (
-            roc_curve.colour != self.label_colours[roc_curve.label]
-            and roc_curve.colour is not None
+            roc_curve.colour != self.label_colours[roc_curve.label] and roc_curve.colour is not None
         ):
             logger.warning(
                 "You specified a different colour for the same label"
@@ -290,9 +283,7 @@ class RocPlot(PlotBase):
             roc_curve.colour = self.label_colours[roc_curve.label]
 
         if reference:
-            logger.debug(
-                "Setting roc %s as reference for %s.", key, roc_curve.rej_class
-            )
+            logger.debug("Setting roc %s as reference for %s.", key, roc_curve.rej_class)
             self.set_roc_reference(key, roc_curve.rej_class, roc_curve.ratio_group)
 
     def set_roc_reference(
@@ -353,9 +344,7 @@ class RocPlot(PlotBase):
         """
         rej_class = Flavours[rej_class] if isinstance(rej_class, str) else rej_class
         if self.n_ratio_panels < ratio_panel:
-            raise ValueError(
-                "Requested ratio panels and given ratio_panel do not match."
-            )
+            raise ValueError("Requested ratio panels and given ratio_panel do not match.")
         self.rej_axes[rej_class] = self.ratio_axes[ratio_panel - 1]
         label = rej_class.label.replace("jets", "jet")
         self.set_ratio_label(ratio_panel, f"{label} ratio")
@@ -377,9 +366,7 @@ class RocPlot(PlotBase):
                 f"{self.n_ratio_panels} ratio panels."
             )
         if len(self.rej_axes) != self.n_ratio_panels:
-            raise ValueError(
-                "Ratio classes not set, set them first with `set_ratio_class`."
-            )
+            raise ValueError("Ratio classes not set, set them first with `set_ratio_class`.")
 
         for rej_class, axis in self.rej_axes.items():
             self.plot_ratios(axis=axis, rej_class=rej_class)
@@ -412,9 +399,7 @@ class RocPlot(PlotBase):
             if elem.rej_class != rej_class:
                 continue
 
-            if self.reference_roc and self.reference_roc[rej_class].get(
-                elem.ratio_group
-            ):
+            if self.reference_roc and self.reference_roc[rej_class].get(elem.ratio_group):
                 ratio_sig_eff, ratio, ratio_err = elem.divide(
                     self.rocs[self.reference_roc[rej_class][elem.ratio_group]]
                 )
@@ -615,12 +600,10 @@ class RocPlot(PlotBase):
                 # if uncertainties are available for roc plotting their uncertainty as
                 # a band around the roc itself
                 rej_band_down = (
-                    elem.bkg_rej[elem.non_zero_mask]
-                    - elem.binomial_error()[elem.non_zero_mask]
+                    elem.bkg_rej[elem.non_zero_mask] - elem.binomial_error()[elem.non_zero_mask]
                 )
                 rej_band_up = (
-                    elem.bkg_rej[elem.non_zero_mask]
-                    + elem.binomial_error()[elem.non_zero_mask]
+                    elem.bkg_rej[elem.non_zero_mask] + elem.binomial_error()[elem.non_zero_mask]
                 )
                 self.axis_top.fill_between(
                     elem.sig_eff[elem.non_zero_mask],

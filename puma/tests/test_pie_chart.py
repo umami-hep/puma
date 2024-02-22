@@ -22,9 +22,7 @@ class PiePlotTestCase(unittest.TestCase):
         # Set up directories for comparison plots
         self.tmp_dir = tempfile.TemporaryDirectory()  # pylint: disable=R1732
         self.actual_plots_dir = f"{self.tmp_dir.name}/"
-        self.expected_plots_dir = os.path.join(
-            os.path.dirname(__file__), "expected_plots"
-        )
+        self.expected_plots_dir = os.path.join(os.path.dirname(__file__), "expected_plots")
 
     def test_plot_pie_chart_default_style(self):
         """check if pie chart is plotted correctly (using default style)."""
@@ -64,9 +62,7 @@ class PiePlotTestCase(unittest.TestCase):
                 "pctdistance": 0.4,
             },
             # kwargs passed to puma.PlotObject
-            atlas_second_tag=(
-                "Unit test plot to test if the custom\nstyling of the pie plot"
-            ),
+            atlas_second_tag=("Unit test plot to test if the custom\nstyling of the pie plot"),
             figsize=(5.5, 3.5),
             y_scale=1.3,
         )

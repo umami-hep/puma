@@ -113,9 +113,7 @@ class IntegratedEfficiencyPlot(PlotBase):
         if key is None:
             key = len(self.int_effs) + 1
         if key in self.int_effs:
-            raise KeyError(
-                f"Duplicated key {key} already used for roc unique identifier."
-            )
+            raise KeyError(f"Duplicated key {key} already used for roc unique identifier.")
 
         self.int_effs[key] = int_eff
         # set linestyle
@@ -125,10 +123,7 @@ class IntegratedEfficiencyPlot(PlotBase):
                 if int_eff.linestyle is None
                 else int_eff.linestyle
             )
-        elif (
-            int_eff.linestyle != self.tagger_ls[int_eff.tagger]
-            and int_eff.linestyle is not None
-        ):
+        elif int_eff.linestyle != self.tagger_ls[int_eff.tagger] and int_eff.linestyle is not None:
             logger.warning(
                 "You specified a different linestyle for the same tagger"
                 " %s. This will lead to a mismatch in the line colours"
@@ -148,10 +143,7 @@ class IntegratedEfficiencyPlot(PlotBase):
                 self.label_colours[int_eff.label] = (
                     possible_colours.pop() if int_eff.colour is None else int_eff.colour
                 )
-        elif (
-            int_eff.colour != self.label_colours[int_eff.label]
-            and int_eff.colour is not None
-        ):
+        elif int_eff.colour != self.label_colours[int_eff.label] and int_eff.colour is not None:
             logger.warning(
                 "You specified a different colour for the same label"
                 " %s. This will lead to a mismatch in the line colours"

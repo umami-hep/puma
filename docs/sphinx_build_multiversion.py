@@ -52,9 +52,7 @@ def main():
     """main function that is executed when the script is called."""
     # get currently active branch
     command = "git rev-parse --abbrev-ref HEAD".split()
-    initial_branch = (
-        run(command, capture_output=True, check=True).stdout.strip().decode("utf-8")
-    )
+    initial_branch = run(command, capture_output=True, check=True).stdout.strip().decode("utf-8")
 
     # copy the latest conf.py, since we want to use that configuration for all the
     # docs versions that are built

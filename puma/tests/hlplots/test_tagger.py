@@ -73,9 +73,7 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
                 "dummy_pb": np.zeros(10),
             }
         )
-        self.scores_expected = np.column_stack(
-            (np.ones(10), np.zeros(10), np.zeros(10))
-        )
+        self.scores_expected = np.column_stack((np.ones(10), np.zeros(10), np.zeros(10)))
 
     def test_wrong_source_type(self):
         """Test using wrong source type."""
@@ -113,13 +111,9 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir:
             file_name = f"{tmp_dir}/dummy_df.h5"
             with h5py.File(file_name, "w") as f_h5:
-                f_h5.create_dataset(
-                    data=self.df_dummy.to_records(), name="dummy_tagger"
-                )
+                f_h5.create_dataset(data=self.df_dummy.to_records(), name="dummy_tagger")
 
-            tagger.extract_tagger_scores(
-                file_name, key="dummy_tagger", source_type="h5_file"
-            )
+            tagger.extract_tagger_scores(file_name, key="dummy_tagger", source_type="h5_file")
         np.testing.assert_array_equal(s2u(tagger.scores), self.scores_expected)
 
     def test_structured_array(self):

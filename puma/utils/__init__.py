@@ -220,7 +220,5 @@ def get_good_linestyles(names=None):
     elif isinstance(names, str):
         return linestyle_tuples[names]
     elif not isinstance(names, list):
-        raise ValueError(
-            "Invalid type of `names`, has to be a list of strings or a sting."
-        )
+        raise ValueError("Invalid type of `names`, has to be a list of strings or a sting.")
     return [linestyle_tuples[name] for name in names]

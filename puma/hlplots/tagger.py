@@ -292,9 +292,7 @@ class Tagger:
                 # remove remaining vertices without HF tracks
                 reco_indices = clean_indices(
                     reco_indices,
-                    np.isin(
-                        self.aux_scores["vertexing"], hf_vertex_indices, invert=True
-                    ),
+                    np.isin(self.aux_scores["vertexing"], hf_vertex_indices, invert=True),
                     mode="remove",
                 )
                 # merge remaining vertices with HF tracks

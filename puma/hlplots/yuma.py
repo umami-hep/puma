@@ -21,9 +21,7 @@ ALL_PLOTS = ["roc", "scan", "disc", "prob", "peff"]
 
 def get_args(args):
     parser = argparse.ArgumentParser(description="YUMA: Plotting from Yaml in pUMA")
-    parser.add_argument(
-        "-c", "--config", required=True, type=str, help="Path to config"
-    )
+    parser.add_argument("-c", "--config", required=True, type=str, help="Path to config")
 
     parser.add_argument(
         "-p",
@@ -65,13 +63,10 @@ def make_eff_vs_var_plots(plt_cfg):
                 bins = [250, 500, 750, 1000, 1500, 2000, 3000, 4000, 5500]
             else:
                 raise ValueError(
-                    "No bins provided, and no default pt bins for sample"
-                    f" {plt_cfg.sample}"
+                    "No bins provided, and no default pt bins for sample" f" {plt_cfg.sample}"
                 )
         if plot_kwargs.get("fixed_rejections", False):
-            plt_cfg.results.plot_flat_rej_var_perf(
-                bins=bins, perf_var=perf_var, **plot_kwargs
-            )
+            plt_cfg.results.plot_flat_rej_var_perf(bins=bins, perf_var=perf_var, **plot_kwargs)
         else:
             plt_cfg.results.plot_var_perf(bins=bins, perf_var=perf_var, **plot_kwargs)
         plt_cfg.results.taggers = all_taggers
@@ -84,9 +79,7 @@ def make_prob_plots(plt_cfg):
     prob_plots = select_configs(plt_cfg.prob_plots, plt_cfg)
 
     for prob in prob_plots:
-        plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(
-            plt_cfg.results, prob
-        )
+        plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(plt_cfg.results, prob)
         plot_kwargs = get_plot_kwargs(prob, suffix=[inc_str])
         plt_cfg.results.plot_probs(**plot_kwargs)
         plt_cfg.results.taggers = all_taggers
@@ -99,9 +92,7 @@ def make_disc_plots(plt_cfg):
     disc_plots = select_configs(plt_cfg.disc_plots, plt_cfg)
 
     for disc in disc_plots:
-        plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(
-            plt_cfg.results, disc
-        )
+        plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(plt_cfg.results, disc)
         plot_kwargs = get_plot_kwargs(disc, suffix=[inc_str])
         plt_cfg.results.plot_discs(**plot_kwargs)
         plt_cfg.results.taggers = all_taggers
@@ -119,9 +110,7 @@ def make_fracscan_plots(plt_cfg):
         # always be [cjets, ujets] or [bjets, ujets]
         backgrounds = [Flavours[k] for k in fracscan["args"].get("backgrounds", [])]
         if len(backgrounds) != 2:
-            raise ValueError(
-                f"Background must be a list of two flavours, got {backgrounds}"
-            )
+            raise ValueError(f"Background must be a list of two flavours, got {backgrounds}")
 
         tmp_backgrounds = plt_cfg.results.backgrounds
         plt_cfg.results.backgrounds = backgrounds
@@ -161,9 +150,7 @@ def make_roc_plots(plt_cfg):
     roc_config = select_configs(plt_cfg.roc_plots, plt_cfg)
 
     for roc in roc_config:
-        plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(
-            plt_cfg.results, roc
-        )
+        plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(plt_cfg.results, roc)
         plot_kwargs = get_plot_kwargs(roc, suffix=[inc_str])
 
         plt_cfg.results.plot_rocs(**plot_kwargs)

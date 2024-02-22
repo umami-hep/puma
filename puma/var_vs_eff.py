@@ -115,9 +115,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         if disc_cut is not None:
             if working_point is not None:
                 raise ValueError("You cannot specify `disc_cut` when providing `wp`.")
-            if isinstance(disc_cut, (list, np.ndarray)) and self.n_bins != len(
-                disc_cut
-            ):
+            if isinstance(disc_cut, (list, np.ndarray)) and self.n_bins != len(disc_cut):
                 raise ValueError(
                     "`disc_cut` has to be a float or has to have the same length as"
                     " number of bins."
@@ -234,9 +232,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         """
         if len(arr) == 0:
             return 0, 0
-        eff = (
-            sum(arr < cut) / len(arr) if self.inverse_cut else sum(arr > cut) / len(arr)
-        )
+        eff = sum(arr < cut) / len(arr) if self.inverse_cut else sum(arr > cut) / len(arr)
         eff_error = eff_err(eff, len(arr))
         return eff, eff_error
 
@@ -274,12 +270,8 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         background error per bin.
         """
         logger.debug("Calculating signal efficiency.")
-        eff = np.array(list(map(self.efficiency, self.disc_binned_bkg, self.disc_cut)))[
-            :, 0
-        ]
-        err = np.array(list(map(self.efficiency, self.disc_binned_sig, self.disc_cut)))[
-            :, 1
-        ]
+        eff = np.array(list(map(self.efficiency, self.disc_binned_bkg, self.disc_cut)))[:, 0]
+        err = np.array(list(map(self.efficiency, self.disc_binned_sig, self.disc_cut)))[:, 1]
         logger.debug("Retrieved signal efficiencies: %s", eff)
         return eff, err
 

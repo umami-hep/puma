@@ -18,15 +18,11 @@ dependencies = {file = ["requirements.txt"]}
 [build-system]
 requires = ["setuptools", "wheel"]
 
-[tool.black]
-line-length = 88
-preview = "True"
-
 [tool.ruff]
 target-version = "py38"
 lint.select = ["I", "E", "W", "F", "B", "UP", "ARG", "SIM", "TID", "RUF", "D2", "D3", "D4"]
-lint.ignore = ["D211", "D213", "RUF005", "D401", "D205", "D403", "D400", "D404", "SIM117"]
-line-length = 88
+lint.ignore = ["D211", "D213", "RUF005", "D401", "D205", "D403", "D400", "D404", "SIM117", "RUF017"]
+line-length = 100
 
 [tool.ruff.lint.isort]
 required-imports = ["from __future__ import annotations"]

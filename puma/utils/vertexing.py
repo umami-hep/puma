@@ -224,9 +224,7 @@ def calculate_vertex_metrics(
         metrics["n_test"][i] = test_vertices.shape[0]
 
         # write out vertexing purity metrics
-        metrics["track_overlap"][i, : metrics["n_match"][i]] = common_tracks[
-            associations
-        ]
+        metrics["track_overlap"][i, : metrics["n_match"][i]] = common_tracks[associations]
         metrics["test_vertex_size"][i, : metrics["n_match"][i]] = test_vertices[
             associations.sum(axis=1).astype(bool)
         ].sum(axis=1)

@@ -115,9 +115,7 @@ class ResultsTestCase(unittest.TestCase):
                 f.create_dataset("jets", data=array)
 
             results = Results(signal="hbb", sample="test")
-            results.add_taggers_from_file(
-                [Tagger("MockTagger")], fname, label_var="R10TruthLabel"
-            )
+            results.add_taggers_from_file([Tagger("MockTagger")], fname, label_var="R10TruthLabel")
 
     def test_add_taggers_keep_nan(self):
         # get mock file and add nans
@@ -162,10 +160,7 @@ class ResultsTestCase(unittest.TestCase):
                 results.add_taggers_from_file([Tagger("MockTagger")], fname)
             self.assertEqual(
                 cm.output,
-                [
-                    f"WARNING:puma:{len(n_nans)} NaN values found in loaded data."
-                    " Removing them."
-                ],
+                [f"WARNING:puma:{len(n_nans)} NaN values found in loaded data." " Removing them."],
             )
 
 
@@ -322,16 +317,13 @@ class ResultsPlotsTestCase(unittest.TestCase):
             )
 
             self.assertIsFile(
-                Path(tmp_file)
-                / "test_bjets_bjets_eff_vs_pt_wp_0p7_profile_fixed_cut.png"
+                Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_wp_0p7_profile_fixed_cut.png"
             )
             self.assertIsFile(
-                Path(tmp_file)
-                / "test_bjets_cjets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
+                Path(tmp_file) / "test_bjets_cjets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
             )
             self.assertIsFile(
-                Path(tmp_file)
-                / "test_bjets_ujets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
+                Path(tmp_file) / "test_bjets_ujets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
             )
 
     def test_plot_var_perf_multi_bjets(self):
@@ -357,28 +349,22 @@ class ResultsPlotsTestCase(unittest.TestCase):
             )
 
             self.assertIsFile(
-                Path(tmp_file)
-                / "test_bjets_bjets_eff_vs_pt_wp_0p7_profile_fixed_cut.png"
+                Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_wp_0p7_profile_fixed_cut.png"
             )
             self.assertIsFile(
-                Path(tmp_file)
-                / "test_bjets_cjets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
+                Path(tmp_file) / "test_bjets_cjets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
             )
             self.assertIsFile(
-                Path(tmp_file)
-                / "test_bjets_ujets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
+                Path(tmp_file) / "test_bjets_ujets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
             )
             self.assertIsFile(
-                Path(tmp_file)
-                / "test_bjets_bjets_eff_vs_eta_wp_0p7_profile_fixed_cut.png"
+                Path(tmp_file) / "test_bjets_bjets_eff_vs_eta_wp_0p7_profile_fixed_cut.png"
             )
             self.assertIsFile(
-                Path(tmp_file)
-                / "test_bjets_cjets_rej_vs_eta_wp_0p7_profile_fixed_cut.png"
+                Path(tmp_file) / "test_bjets_cjets_rej_vs_eta_wp_0p7_profile_fixed_cut.png"
             )
             self.assertIsFile(
-                Path(tmp_file)
-                / "test_bjets_ujets_rej_vs_eta_wp_0p7_profile_fixed_cut.png"
+                Path(tmp_file) / "test_bjets_ujets_rej_vs_eta_wp_0p7_profile_fixed_cut.png"
             )
 
     def test_plot_var_perf_cjets(self):
@@ -399,16 +385,13 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 working_point=0.7,
             )
             self.assertIsFile(
-                Path(tmp_file)
-                / "test_cjets_bjets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
+                Path(tmp_file) / "test_cjets_bjets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
             )
             self.assertIsFile(
-                Path(tmp_file)
-                / "test_cjets_cjets_eff_vs_pt_wp_0p7_profile_fixed_cut.png"
+                Path(tmp_file) / "test_cjets_cjets_eff_vs_pt_wp_0p7_profile_fixed_cut.png"
             )
             self.assertIsFile(
-                Path(tmp_file)
-                / "test_cjets_ujets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
+                Path(tmp_file) / "test_cjets_ujets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
             )
 
     def test_plot_beff_vs_flat_rej(self):
@@ -428,12 +411,10 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 h_line=0.5,
             )
             self.assertIsFile(
-                Path(tmp_file)
-                / "test_bjets_bjets_eff_vs_pt_profile_flat_cjets_10_rej_per_bin.png"
+                Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_profile_flat_cjets_10_rej_per_bin.png"
             )
             self.assertIsFile(
-                Path(tmp_file)
-                / "test_bjets_bjets_eff_vs_pt_profile_flat_ujets_100_rej_per_bin.png"
+                Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_profile_flat_ujets_100_rej_per_bin.png"
             )
 
     def test_plot_ceff_vs_flat_rej(self):
@@ -452,12 +433,10 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
             )
             self.assertIsFile(
-                Path(tmp_file)
-                / "test_cjets_cjets_eff_vs_pt_profile_flat_bjets_10_rej_per_bin.png"
+                Path(tmp_file) / "test_cjets_cjets_eff_vs_pt_profile_flat_bjets_10_rej_per_bin.png"
             )
             self.assertIsFile(
-                Path(tmp_file)
-                / "test_cjets_cjets_eff_vs_pt_profile_flat_ujets_100_rej_per_bin.png"
+                Path(tmp_file) / "test_cjets_cjets_eff_vs_pt_profile_flat_ujets_100_rej_per_bin.png"
             )
 
     def test_plot_fraction_scans_hbb_error(self):

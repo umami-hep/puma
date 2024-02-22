@@ -41,9 +41,7 @@ class TestYutils(unittest.TestCase):
     def setUp(self):
         self.flavours = [Flavours[f] for f in ["ujets", "cjets", "bjets"]]
         # support inclusion of yaml files in the config dir
-        YamlIncludeConstructor.add_to_loader_class(
-            loader_class=yaml.SafeLoader, base_dir=EXAMPLES
-        )
+        YamlIncludeConstructor.add_to_loader_class(loader_class=yaml.SafeLoader, base_dir=EXAMPLES)
 
     def testGetIncludeTaggers(self):
         plt_cfg = EXAMPLES / "plt_cfg.yaml"
@@ -129,9 +127,7 @@ class TestYumaPlots(unittest.TestCase):
             assert btagging.exists(), "No b-tagging plots produced"
             assert not ctagging.exists(), "No c-tagging plots should have been produced"
             btag_plots = [p.name for p in btagging.glob("*")]
-            assert (
-                len(btag_plots) == 22
-            ), f"Expected 22 b-tagging plot, found {len(btag_plots)}"
+            assert len(btag_plots) == 22, f"Expected 22 b-tagging plot, found {len(btag_plots)}"
 
             args = [
                 "--config",
@@ -191,6 +187,4 @@ class TestYumaPlots(unittest.TestCase):
             assert btagging.exists(), "No b-tagging plots produced"
             assert not ctagging.exists(), "No c-tagging plots should have been produced"
             btag_plots = [p.name for p in btagging.glob("*")]
-            assert (
-                len(btag_plots) == 3
-            ), f"Expected 3 b-tagging plot, found {len(btag_plots)}"
+            assert len(btag_plots) == 3, f"Expected 3 b-tagging plot, found {len(btag_plots)}"
