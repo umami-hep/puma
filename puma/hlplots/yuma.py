@@ -11,8 +11,7 @@ from yamlinclude import YamlIncludeConstructor
 from puma.hlplots import (
     PlotConfig,
     get_included_taggers,
-    get_plot_kwargs,
-    select_configs,
+    combine_suffixes
 )
 from puma.utils import logger
 
@@ -61,7 +60,8 @@ def make_plots(plots, plt_cfg):
         plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(
             plt_cfg.results, plot
         )
-        plot_kwargs = get_plot_kwargs(plot, suffix=[inc_str])
+        plot_kwargs = plot.get('plot_kwargs', {})
+        plot_kwargs['suffix'] = combine_suffixes([plot_kwargs.get('suffix', ''), inc_str])
         plt_cfg.results.make_plot(plot['plot_type'], plot_kwargs)
         plt_cfg.results.taggers = all_taggers
 

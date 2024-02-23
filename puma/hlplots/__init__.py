@@ -8,8 +8,7 @@ from puma.hlplots.results import Results
 from puma.hlplots.tagger import Tagger
 from puma.hlplots.yutils import (
     get_included_taggers,
-    get_plot_kwargs,
-    select_configs,
+    combine_suffixes
 )
 
 __all__ = [
@@ -18,6 +17,5 @@ __all__ = [
     "AuxResults",
     "PlotConfig",
     "get_included_taggers",
-    "get_plot_kwargs",
-    "select_configs",
+    "combine_suffixes"
 ]
