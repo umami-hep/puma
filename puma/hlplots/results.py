@@ -101,6 +101,10 @@ class Results:
         """
         if str(tagger) in self.taggers:
             raise KeyError(f"{tagger} was already added.")
+        if not tagger.colour:
+            good_colours = get_good_colours()
+            current_colours = [t.colour for t in self.taggers.values()]
+            tagger.colour = next(c for c in good_colours if c not in current_colours)
         if tagger.output_flavours is None:
             tagger.output_flavours = self.flavours
         self.taggers[str(tagger)] = tagger

@@ -67,8 +67,6 @@ class PlotConfig:
         # Store default tag incase other plots need to temporarily modify it
         results.default_atlas_second_tag = results.atlas_second_tag
 
-        good_colours = get_good_colours()
-        col_idx = 0
         # Add taggers to results, then bulk load
         for key, t in self.taggers_config.items():
             # if the a sample is not defined for the tagger, use the default sample
@@ -80,10 +78,6 @@ class PlotConfig:
             t["name"] = get_tagger_name(
                 t.get("name", None), t["sample_path"], key, results.flavours
             )
-            # Enforces a tagger to have same colour across multiple plots
-            if "colour" not in t:
-                t["colour"] = good_colours[col_idx]
-                col_idx += 1
             results.add(Tagger(**t))
 
         results.load()
