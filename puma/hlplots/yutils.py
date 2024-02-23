@@ -9,13 +9,13 @@ from ftag.hdf5 import H5Reader
 from puma.utils import logger
 
 
-
 def combine_suffixes(suffixes):
     """Combines a list of suffixes into a single suffix"""
     clean_suffixes = [s for s in suffixes if s not in {"", None}]
     if len(clean_suffixes) == 0:
         return None
     return "_".join([s for s in suffixes if s not in {"", None}])
+
 
 def get_include_exclude_str(include_taggers, all_taggers):
     """Generates the name of the plot, based on the included taggers"""
@@ -31,10 +31,7 @@ def get_included_taggers(results, plot_config):
     """
     all_taggers = results.taggers
     all_tagger_names = [t.yaml_name for t in all_taggers.values()]
-    if (
-        "include_taggers" not in plot_config
-        and "exclude_taggers" not in plot_config
-    ):
+    if "include_taggers" not in plot_config and "exclude_taggers" not in plot_config:
         include_taggers = results.taggers
     elif include_taggers := plot_config.get("include_taggers", None):
         assert all(

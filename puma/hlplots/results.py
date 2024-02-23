@@ -21,9 +21,10 @@ from puma import (
     VarVsEffPlot,
 )
 from puma.hlplots.tagger import Tagger
+from puma.hlplots.yutils import combine_suffixes
 from puma.metrics import calc_eff, calc_rej
 from puma.utils import get_good_colours, get_good_linestyles, logger
-from puma.hlplots.yutils import combine_suffixes
+
 
 @dataclass
 class Results:
@@ -541,14 +542,14 @@ class Results:
         h_line : float, optional
             draws a horizonatal line in the signal efficiency plot
         working_point: float, optional
-            The working point to use for the plot. Only one out of 
+            The working point to use for the plot. Only one out of
             [working_point, disc_cut, fixed_rejections] can be set
         disc_cut: float, optional
-            The cut on the discriminant to use for the plot. Only one out of 
+            The cut on the discriminant to use for the plot. Only one out of
             [working_point, disc_cut, fixed_rejections] can be set
         fixed_rejections: dict[Flavour, float]
-            Show signal efficiency as a function of fixed background rejection. Only one out 
-            of [working_point, disc_cut, fixed_rejections] can be set
+            Show signal efficiency as a function of fixed background rejection. Only one
+            out of [working_point, disc_cut, fixed_rejections] can be set
         **kwargs : kwargs
             key word arguments for `puma.VarVsEff`
         """
@@ -557,7 +558,9 @@ class Results:
         if not any([working_point, disc_cut, fixed_rejections]):
             raise ValueError("Either working_point or disc_cut must be set")
         if fixed_rejections:
-            self.plot_flat_rej_var_perf(fixed_rejections, suffix, xlabel, perf_var, h_line, **kwargs)
+            self.plot_flat_rej_var_perf(
+                fixed_rejections, suffix, xlabel, perf_var, h_line, **kwargs
+            )
             return
         # define the curves
         plot_sig_eff = VarVsEffPlot(
@@ -762,7 +765,7 @@ class Results:
         efficiency: float = 0.7,
         rej: bool = False,
         optimal_fc: bool = False,
-        backgrounds : list[Flavour] | None = None,
+        backgrounds: list[Flavour] | None = None,
         **kwargs,
     ):
         """Produce fraction scan (fc/fb) iso-efficiency plots.
@@ -784,7 +787,7 @@ class Results:
         """
         if self.signal not in (Flavours.bjets, Flavours.cjets):
             raise ValueError("Signal flavour must be bjets or cjets")
-        
+
         backgrounds = backgrounds if backgrounds is not None else self.backgrounds
         if len(backgrounds) != 2:
             raise ValueError("Only two background flavours are supported")
@@ -793,8 +796,7 @@ class Results:
         eff_str = str(round(efficiency * 100, 3)).replace(".", "p")
         back_str = "_".join([f.name for f in backgrounds])
         suffix = combine_suffixes(
-            [f"back_{back_str}_eff_{eff_str}_scan_{frac}",
-                suffix]
+            [f"back_{back_str}_eff_{eff_str}_scan_{frac}", suffix]
         )
 
         # set defaults

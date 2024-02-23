@@ -9,7 +9,6 @@ import yaml
 from puma.hlplots.results import Results
 from puma.hlplots.tagger import Tagger
 from puma.hlplots.yutils import get_tagger_name
-from puma.utils import get_good_colours
 
 
 @dataclass
@@ -23,7 +22,7 @@ class PlotConfig:
 
     timestamp: bool = False
     base_path: Path = None
-    
+
     plots: list[dict[str, dict[str, str]]] = field(default_factory=list)
 
     def __post_init__(self):
@@ -34,7 +33,7 @@ class PlotConfig:
             plot_dir_name += "_" + date_time_file
         self.plot_dir_final = Path(self.plot_dir) / plot_dir_name
 
-        self.plots = [p['args'] for p in self.plots]
+        self.plots = [p["args"] for p in self.plots]
 
         for k, kwargs in self.taggers_config.items():
             kwargs["yaml_name"] = k
@@ -84,7 +83,14 @@ class PlotConfig:
     def signals(self):
         """Iterates all plots in the config and returns a list of all signals."""
         return list({p["signal"] for p in self.plots})
+
     @property
     def peff_vars(self):
-        """Iterates all plots in the config and returns a list of all performance variables."""
-        return list({p["plot_kwargs"].get("perf_var", 'pt') for p in self.plots if p['plot_type']=='peff'})
+        """Iterates plots and returns a list of all performance variables."""
+        return list(
+            {
+                p["plot_kwargs"].get("perf_var", "pt")
+                for p in self.plots
+                if p["plot_type"] == "peff"
+            }
+        )

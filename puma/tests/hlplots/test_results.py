@@ -2,7 +2,6 @@
 """Unit test script for the functions in hlplots/tagger.py."""
 from __future__ import annotations
 
-import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -11,7 +10,6 @@ import h5py
 import numpy as np
 from ftag import get_mock_file
 from ftag.hdf5 import structured_from_dict
-
 
 from puma.hlplots import Results
 from puma.hlplots.tagger import Tagger

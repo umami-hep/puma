@@ -5,14 +5,9 @@ import os
 from pathlib import Path
 
 import yaml
-from ftag import Flavours
 from yamlinclude import YamlIncludeConstructor
 
-from puma.hlplots import (
-    PlotConfig,
-    get_included_taggers,
-    combine_suffixes
-)
+from puma.hlplots import PlotConfig, combine_suffixes, get_included_taggers
 from puma.utils import logger
 
 ALL_PLOTS = ["roc", "scan", "disc", "probs", "peff"]
@@ -43,18 +38,18 @@ def get_args(args):
     return parser.parse_args(args)
 
 
-
 def make_plots(plots, plt_cfg):
-    
     for plot in plt_cfg.plots:
-        if not (plot["plot_type"] in plots and plot['signal'] == plt_cfg.signal):
+        if not (plot["plot_type"] in plots and plot["signal"] == plt_cfg.signal):
             continue
         plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(
             plt_cfg.results, plot
         )
-        plot_kwargs = plot.get('plot_kwargs', {})
-        plot_kwargs['suffix'] = combine_suffixes([plot_kwargs.get('suffix', ''), inc_str])
-        plt_cfg.results.make_plot(plot['plot_type'], plot_kwargs)
+        plot_kwargs = plot.get("plot_kwargs", {})
+        plot_kwargs["suffix"] = combine_suffixes(
+            [plot_kwargs.get("suffix", ""), inc_str]
+        )
+        plt_cfg.results.make_plot(plot["plot_type"], plot_kwargs)
         plt_cfg.results.taggers = all_taggers
 
 
