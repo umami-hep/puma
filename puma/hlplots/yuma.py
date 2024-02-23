@@ -42,14 +42,6 @@ def get_args(args):
 
     return parser.parse_args(args)
 
-def make_plot(full_config, plot_cfg):
-    full_config.results.taggers, all_taggers, inc_str = get_included_taggers(
-            full_config.results, plot_cfg
-        )
-    plot_kwargs = get_plot_kwargs(plot_cfg, suffix=[inc_str])
-    full_config.results.make_plot(plot_cfg['plot_type'], plot_kwargs)
-    full_config.results.taggers = all_taggers
-    
 
 
 def make_plots(plots, plt_cfg):
