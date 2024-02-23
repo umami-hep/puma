@@ -11,12 +11,18 @@ from puma.utils import logger
 
 def select_configs(configs, plt_cfg):
     """Selects only configs that match the current sample and signal"""
-    return [c for c in configs if c["args"]["signal"] == plt_cfg.signal]
+    return [c for c in configs if c["signal"] == plt_cfg.signal]
 
+
+def combine_suffixes(suffixes):
+    """Combines a list of suffixes into a single suffix"""
+    return "_".join([s for s in suffixes if s not in {"", None}])
 
 def get_plot_kwargs(config, suffix=None):
-    plot_kwargs = config["args"].get("plot_kwargs", {})
-    all_suffix = [plot_kwargs.get("suffix", ""), config["args"].get("suffix", "")]
+    '''Combines suffixes defined in the main plot config, with default suffixes 
+    for this plot type'''
+    plot_kwargs = config.get("plot_kwargs", {})
+    all_suffix = [plot_kwargs.get("suffix", ""), config.get("suffix", "")]
     if suffix:
         if isinstance(suffix, str):
             all_suffix += [suffix]
@@ -44,11 +50,11 @@ def get_included_taggers(results, plot_config):
     all_tagger_names = [t.yaml_name for t in all_taggers.values()]
     if (
         "args" not in plot_config
-        or "include_taggers" not in plot_config["args"]
-        and "exclude_taggers" not in plot_config["args"]
+        or "include_taggers" not in plot_config
+        and "exclude_taggers" not in plot_config
     ):
         include_taggers = results.taggers
-    elif include_taggers := plot_config["args"].get("include_taggers", None):
+    elif include_taggers := plot_config.get("include_taggers", None):
         assert all(
             [t in all_tagger_names for t in include_taggers]
         ), f"Not all taggers in include_taggers are in the results: {include_taggers}"
@@ -57,7 +63,7 @@ def get_included_taggers(results, plot_config):
             t: v for t, v in results.taggers.items() if v.yaml_name in include_taggers
         }
 
-    elif exclude_taggers := plot_config["args"].get("exclude_taggers", None):
+    elif exclude_taggers := plot_config.get("exclude_taggers", None):
         assert all([t in all_tagger_names for t in exclude_taggers])
         include_taggers = {
             t: v
@@ -75,7 +81,7 @@ def get_included_taggers(results, plot_config):
     # Set which tagger to use as a reference, if no reference is set, use the first
     #  tagger.This is only needed for plots with a ratio, but still...
     if not any([t.reference for t in include_taggers.values()]):
-        if reference := plot_config["args"].get("reference", None):
+        if reference := plot_config.get("reference", None):
             if reference not in [t.yaml_name for t in include_taggers.values()]:
                 raise ValueError(
                     f"Reference {reference} not in included taggers"

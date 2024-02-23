@@ -23,12 +23,13 @@ class PlotConfig:
 
     timestamp: bool = False
     base_path: Path = None
-
-    roc_plots: dict[str, dict] = field(default_factory=dict)
-    fracscan_plots: dict[str, dict] = field(default_factory=dict)
-    disc_plots: dict[str, dict] = field(default_factory=dict)
-    prob_plots: dict[str, dict] = field(default_factory=dict)
-    eff_vs_var_plots: dict[str, dict] = field(default_factory=dict)
+    
+    plots: list[dict[str, dict[str, str]]] = field(default_factory=list)
+    # roc_plots: dict[str, dict] = field(default_factory=dict)
+    # fracscan_plots: dict[str, dict] = field(default_factory=dict)
+    # disc_plots: dict[str, dict] = field(default_factory=dict)
+    # prob_plots: dict[str, dict] = field(default_factory=dict)
+    # eff_vs_var_plots: dict[str, dict] = field(default_factory=dict)
 
     def __post_init__(self):
         # Define a plot directory based on the plot config file name, and a date time
@@ -37,6 +38,8 @@ class PlotConfig:
             date_time_file = datetime.now().strftime("%Y%m%d_%H%M%S")
             plot_dir_name += "_" + date_time_file
         self.plot_dir_final = Path(self.plot_dir) / plot_dir_name
+
+        self.plots = [p['args'] for p in self.plots]
 
         for k, kwargs in self.taggers_config.items():
             kwargs["yaml_name"] = k
@@ -57,9 +60,7 @@ class PlotConfig:
         """
         kwargs = self.results_config
         kwargs["signal"] = self.signal
-        kwargs["perf_vars"] = list(
-            {plot["args"].get("perf_var", "pt") for plot in self.eff_vs_var_plots}
-        )
+        kwargs["perf_vars"] = self.peff_vars
 
         sample_path = kwargs.pop("sample_path", None)
         if self.base_path and sample_path:
@@ -96,11 +97,9 @@ class PlotConfig:
     @property
     def signals(self):
         """Iterates all plots in the config and returns a list of all signals."""
-        all_plots = [
-            *self.roc_plots,
-            *self.fracscan_plots,
-            *self.disc_plots,
-            *self.prob_plots,
-            *self.eff_vs_var_plots,
-        ]
-        return list({p["args"]["signal"] for p in all_plots})
+        print(self.plots)
+        return list({p["signal"] for p in self.plots})
+    @property
+    def peff_vars(self):
+        """Iterates all plots in the config and returns a list of all performance variables."""
+        return list({p["plot_kwargs"].get("perf_var", 'pt') for p in self.plots if p['plot_type']=='peff'})
