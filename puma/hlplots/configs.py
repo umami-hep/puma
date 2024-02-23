@@ -25,11 +25,6 @@ class PlotConfig:
     base_path: Path = None
     
     plots: list[dict[str, dict[str, str]]] = field(default_factory=list)
-    # roc_plots: dict[str, dict] = field(default_factory=dict)
-    # fracscan_plots: dict[str, dict] = field(default_factory=dict)
-    # disc_plots: dict[str, dict] = field(default_factory=dict)
-    # prob_plots: dict[str, dict] = field(default_factory=dict)
-    # eff_vs_var_plots: dict[str, dict] = field(default_factory=dict)
 
     def __post_init__(self):
         # Define a plot directory based on the plot config file name, and a date time
