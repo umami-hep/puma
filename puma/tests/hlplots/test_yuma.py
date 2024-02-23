@@ -57,8 +57,8 @@ class TestYutils(unittest.TestCase):
             taggers["dummy3"]["sample_path"] = fpath1
             updated_plt_cfg = Path(tmp_file) / "plt_cfg.yaml"
 
-            plt_cfg["roc_plots"][0]["reference"] = "dummyNot"
-            plt_cfg["roc_plots"][0]["include_taggers"] = ["dummy1"]
+            plt_cfg["plots"][0]["reference"] = "dummyNot"
+            plt_cfg["plots"][0]["include_taggers"] = ["dummy1"]
 
             plt_cfg["plot_dir"] = tmp_file + "/plots"
             plt_cfg["taggers_config"] = taggers
@@ -129,6 +129,7 @@ class TestYumaPlots(unittest.TestCase):
             assert btagging.exists(), "No b-tagging plots produced"
             assert not ctagging.exists(), "No c-tagging plots should have been produced"
             btag_plots = [p.name for p in btagging.glob("*")]
+            print(btag_plots)
             assert (
                 len(btag_plots) == 22
             ), f"Expected 22 b-tagging plot, found {len(btag_plots)}"
@@ -170,13 +171,16 @@ class TestYumaPlots(unittest.TestCase):
             plt_cfg["taggers_config"] = taggers
             plt_cfg["plot_dir"] = tmp_file + "/plots"
 
-            for plot_type in [
-                "fracscan_plots",
-                "disc_plots",
-                "prob_plots",
-                "eff_vs_var_plots",
-            ]:
-                plt_cfg[plot_type] = []
+            plt_cfg["plots"] = [
+                p for p in plt_cfg["plots"] if p["args"]["plot_type"] == "roc"
+            ]
+            # for plot_type in [
+            #     "fracscan_plots",
+            #     "disc_plots",
+            #     "prob_plots",
+            #     "eff_vs_var_plots",
+            # ]:
+            #     plt_cfg[plot_type] = []
 
             with open(updated_plt_cfg, "w") as f:
                 yaml.dump(plt_cfg, f)
