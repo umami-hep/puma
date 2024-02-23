@@ -19,77 +19,81 @@ results_config:
 taggers_config: !include taggers.yaml
 taggers: [dummy1, dummy2, dummy3]
 
-roc_plots:
+plots:
   - args:
       signal: cjets
+      plot_type: roc
       plot_kwargs:
         x_range: [0.5, 1.0]
         figsize: [8.5, 7.5]
   - args:
       signal: bjets
+      plot_type: roc
       plot_kwargs:
         x_range: [0.5, 1.0]
         figsize: [8.5, 7.5]
   - args:
       signal: bjets
+      plot_type: roc
       include_taggers: ["dummy1"]
       plot_kwargs:
         x_range: [0.5, 1.0]
   - args:
       signal: bjets
+      plot_type: roc
       exclude_taggers: ["dummy1"]
       plot_kwargs:
         x_range: [0.5, 1.0]
 
-fracscan_plots:
+
   - args:
       signal: bjets
-      frac_flav: c
+      plot_type: scan
       efficiency: 0.70
-      backgrounds: [cjets, ujets]
       plot_kwargs:
         figsize: [8.5, 7.5]
 
-disc_plots:
   - args:
       signal: bjets
+      plot_type: disc
       plot_kwargs:
         wp_vlines: [70, 77, 80]
 
-prob_plots:
+
   - args:
+      plot_type: probs
       signal: bjets
 
-eff_vs_var_plots:
-  # performance vs efficiency plots by default plot against pT
   - args:
       signal: bjets
+      plot_type: peff
       plot_kwargs:
         flat_per_bin: True
         working_point: 0.7
   - args:
       signal: bjets
+      plot_type: peff
       plot_kwargs:
         fixed_rejections:
           cjets: 10
           ujets: 100
   - args:
       signal: bjets
+      plot_type: peff
       plot_kwargs:
         flat_per_bin: True
         working_point: 0.7
-  # To plot against further variables, add 'perf_var', 'bins' and (optional 'xlabel')
   - args:
       signal: bjets
-      perf_var: eta
-      bins: [-2.5, -2.0, -1.5, -1.0, -0.5, 0, 0.5, 1.0, 1.5, 2.0, 2.5]
+      plot_type: peff
       plot_kwargs:
+        perf_var: eta
         flat_per_bin: False
         working_point: 0.7
   - args:
       signal: bjets
-      perf_var: HadronConeExclTruthLabelPt
-      bins: [0, 10, 20, 30, 40, 50, 60, 70, 80]
+      plot_type: peff
       plot_kwargs:
+        perf_var: HadronConeExclTruthLabelPt
         flat_per_bin: False
         working_point: 0.7

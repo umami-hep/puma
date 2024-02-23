@@ -64,9 +64,6 @@ class PlotConfig:
         # Instantiate the results object
         results = Results(**kwargs)
 
-        # Store default tag incase other plots need to temporarily modify it
-        results.default_atlas_second_tag = results.atlas_second_tag
-
         # Add taggers to results, then bulk load
         for key, t in self.taggers_config.items():
             # if the a sample is not defined for the tagger, use the default sample
@@ -86,7 +83,6 @@ class PlotConfig:
     @property
     def signals(self):
         """Iterates all plots in the config and returns a list of all signals."""
-        print(self.plots)
         return list({p["signal"] for p in self.plots})
     @property
     def peff_vars(self):
