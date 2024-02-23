@@ -9,30 +9,13 @@ from ftag.hdf5 import H5Reader
 from puma.utils import logger
 
 
-def select_configs(configs, plt_cfg):
-    """Selects only configs that match the current sample and signal"""
-    return [c for c in configs if c["signal"] == plt_cfg.signal]
-
 
 def combine_suffixes(suffixes):
     """Combines a list of suffixes into a single suffix"""
+    clean_suffixes = [s for s in suffixes if s not in {"", None}]
+    if len(clean_suffixes) == 0:
+        return None
     return "_".join([s for s in suffixes if s not in {"", None}])
-
-def get_plot_kwargs(config, suffix=None):
-    '''Combines suffixes defined in the main plot config, with default suffixes 
-    for this plot type'''
-    plot_kwargs = config.get("plot_kwargs", {})
-    all_suffix = [plot_kwargs.get("suffix", ""), config.get("suffix", "")]
-    if suffix:
-        if isinstance(suffix, str):
-            all_suffix += [suffix]
-        else:
-            all_suffix += suffix
-
-    plot_kwargs["suffix"] = "_".join([s for s in all_suffix if s != ""])
-
-    return plot_kwargs
-
 
 def get_include_exclude_str(include_taggers, all_taggers):
     """Generates the name of the plot, based on the included taggers"""
@@ -49,8 +32,7 @@ def get_included_taggers(results, plot_config):
     all_taggers = results.taggers
     all_tagger_names = [t.yaml_name for t in all_taggers.values()]
     if (
-        "args" not in plot_config
-        or "include_taggers" not in plot_config
+        "include_taggers" not in plot_config
         and "exclude_taggers" not in plot_config
     ):
         include_taggers = results.taggers
