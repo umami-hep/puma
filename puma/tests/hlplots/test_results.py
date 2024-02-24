@@ -292,6 +292,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 fixed_rejections={"cjets": 10, "ujets": 100},
                 working_point=0.5,
             )
+        with tempfile.TemporaryDirectory() as tmp_file, self.assertRaises(ValueError):
             results.plot_flat_rej_var_perf(
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
                 fixed_rejections={"cjets": 10, "ujets": 100},

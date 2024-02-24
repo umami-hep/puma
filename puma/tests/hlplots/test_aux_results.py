@@ -141,3 +141,26 @@ class AuxResultsPlotsTestCase(unittest.TestCase):
             auxresults.add(self.dummy_tagger_no_aux)
             with self.assertRaises(ValueError):
                 auxresults.plot_var_vtx_perf()
+
+    def test_plot_var_vtx_perf_inclusive_vertexing(self):
+        """Test that png files are being created for tagger with inclusive vertexing enabled."""
+        self.dummy_tagger.reference = True
+        with tempfile.TemporaryDirectory() as tmp_file:
+            auxresults = AuxResults(sample="test", output_dir=tmp_file)
+            auxresults.add(self.dummy_tagger)
+            auxresults.plot_var_vtx_perf(incl_vertexing=True)
+            self.assertIsFile(
+                auxresults.get_filename("alljets_vtx_eff_vs_pt", suffix="incl_vertexing")
+            )
+            self.assertIsFile(
+                auxresults.get_filename("alljets_vtx_purity_vs_pt", suffix="incl_vertexing")
+            )
+            self.assertIsFile(
+                auxresults.get_filename("alljets_vtx_nreco_vs_pt", suffix="incl_vertexing")
+            )
+            self.assertIsFile(
+                auxresults.get_filename("alljets_vtx_trk_eff_vs_pt", suffix="incl_vertexing")
+            )
+            self.assertIsFile(
+                auxresults.get_filename("alljets_vtx_trk_purity_vs_pt", suffix="incl_vertexing")
+            )
