@@ -191,11 +191,8 @@ class AuxResults:
     ):
         if isinstance(flavour, str):
             flavour = Flavours[flavour]
-
-        if suffix is None:
-            suffix = ""
         if incl_vertexing:
-            suffix += "incl"
+            suffix = "incl" if not suffix else f"{suffix}_incl"
         vtx_string = "Inclusive vertexing" if incl_vertexing else "Exclusive vertexing"
         atlas_second_tag = self.atlas_second_tag if self.atlas_second_tag else ""
         atlas_second_tag += vtx_string
