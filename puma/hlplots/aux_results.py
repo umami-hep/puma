@@ -192,12 +192,13 @@ class AuxResults:
         if isinstance(flavour, str):
             flavour = Flavours[flavour]
 
+        if suffix is None:
+            suffix = ""
+        if incl_vertexing:
+            suffix += "incl"
         vtx_string = "Inclusive vertexing" if incl_vertexing else "Exclusive vertexing"
-
-        if self.atlas_second_tag:
-            second_tag = self.atlas_second_tag + ", " + vtx_string
-        else:
-            second_tag = vtx_string
+        atlas_second_tag = self.atlas_second_tag if self.atlas_second_tag else ""
+        atlas_second_tag += vtx_string
 
         # define the curves
         plot_vtx_eff = VarVsAuxPlot(
@@ -206,7 +207,7 @@ class AuxResults:
             xlabel=xlabel,
             logy=False,
             atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=second_tag,
+            atlas_second_tag=atlas_second_tag,
             y_scale=1.4,
         )
         plot_vtx_purity = VarVsAuxPlot(
@@ -215,7 +216,7 @@ class AuxResults:
             xlabel=xlabel,
             logy=False,
             atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=second_tag,
+            atlas_second_tag=atlas_second_tag,
             y_scale=1.4,
         )
         plot_vtx_nreco = VarVsAuxPlot(
@@ -224,7 +225,7 @@ class AuxResults:
             xlabel=xlabel,
             logy=False,
             atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=second_tag,
+            atlas_second_tag=atlas_second_tag,
             y_scale=1.4,
         )
         plot_vtx_trk_eff = VarVsAuxPlot(
@@ -233,7 +234,7 @@ class AuxResults:
             xlabel=xlabel,
             logy=False,
             atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=second_tag,
+            atlas_second_tag=atlas_second_tag,
             y_scale=1.4,
         )
         plot_vtx_trk_purity = VarVsAuxPlot(
@@ -242,7 +243,7 @@ class AuxResults:
             xlabel=xlabel,
             logy=False,
             atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=second_tag,
+            atlas_second_tag=self.atlas_second_tag,
             y_scale=1.4,
         )
 

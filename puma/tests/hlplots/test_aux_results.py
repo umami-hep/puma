@@ -149,18 +149,10 @@ class AuxResultsPlotsTestCase(unittest.TestCase):
             auxresults = AuxResults(sample="test", output_dir=tmp_file)
             auxresults.add(self.dummy_tagger)
             auxresults.plot_var_vtx_perf(incl_vertexing=True)
+            self.assertIsFile(auxresults.get_filename("alljets_vtx_eff_vs_pt", suffix="incl"))
+            self.assertIsFile(auxresults.get_filename("alljets_vtx_purity_vs_pt", suffix="incl"))
+            self.assertIsFile(auxresults.get_filename("alljets_vtx_nreco_vs_pt", suffix="incl"))
+            self.assertIsFile(auxresults.get_filename("alljets_vtx_trk_eff_vs_pt", suffix="incl"))
             self.assertIsFile(
-                auxresults.get_filename("alljets_vtx_eff_vs_pt", suffix="incl_vertexing")
-            )
-            self.assertIsFile(
-                auxresults.get_filename("alljets_vtx_purity_vs_pt", suffix="incl_vertexing")
-            )
-            self.assertIsFile(
-                auxresults.get_filename("alljets_vtx_nreco_vs_pt", suffix="incl_vertexing")
-            )
-            self.assertIsFile(
-                auxresults.get_filename("alljets_vtx_trk_eff_vs_pt", suffix="incl_vertexing")
-            )
-            self.assertIsFile(
-                auxresults.get_filename("alljets_vtx_trk_purity_vs_pt", suffix="incl_vertexing")
+                auxresults.get_filename("alljets_vtx_trk_purity_vs_pt", suffix="incl")
             )
