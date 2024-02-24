@@ -4,19 +4,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import numpy as np
 from ftag import Cuts, Flavour, Flavours
 from ftag.hdf5 import H5Reader
 
+from puma.hlplots.tagger import Tagger
 from puma.utils import logger
 from puma.utils.aux import get_aux_labels
 from puma.utils.vertexing import calculate_vertex_metrics
 from puma.var_vs_aux import VarVsAux, VarVsAuxPlot
-
-if TYPE_CHECKING:
-    from puma.hlplots.tagger import Tagger
 
 
 @dataclass

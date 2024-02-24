@@ -286,6 +286,12 @@ class PlotBase(PlotObject):
         self.ratio_axes = []
         self.axis_leg = None
         self.fig = None
+        self.set_title()
+        self.set_log()
+        self.set_y_lim()
+        self.set_xlabel()
+        self.set_ylabel(self.axis_top)
+        self.set_tick_params()
 
     def initialise_figure(self):
         """
@@ -404,30 +410,18 @@ class PlotBase(PlotObject):
         """
         self.axis_top.set_title(self.title if title is None else title, **kwargs)
 
-    def set_log(self, force_x: bool = False, force_y: bool = False):
-        """Set log scale of the axes. For the y-axis, only the main panel is
-        set. For the x-axes (also from the ratio subpanels), all are changed.
+    def set_log(self):
+        """Set log scale of the axes.
 
-        Parameters
-        ----------
-        force_x : bool, optional
-            Forcing log on x-axis even if `logx` attribute is False, by default False
-        force_y : bool, optional
-            Forcing log on y-axis even if `logy` attribute is False, by default False
+        For the y-axis, only the main panel is set. For the x-axes also set the
+        ratio panels.
         """
-        if self.logx or force_x:
-            if not self.logx:
-                logger.warning("Setting log of x-axis but `logx` flag was set to False.")
-
-            # Set log scale for all plots
+        if self.logx:
             self.axis_top.set_xscale("log")
             for ratio_axis in self.ratio_axes:
                 ratio_axis.set_xscale("log")
 
-        if self.logy or force_y:
-            if not self.logy:
-                logger.warning("Setting log of y-axis but `logy` flag was set to False.")
-
+        if self.logy:
             self.axis_top.set_yscale("log")
             ymin, ymax = self.axis_top.get_ylim()
             self.y_scale = ymin * ((ymax / ymin) ** self.y_scale) / ymax
@@ -702,27 +696,15 @@ class PlotBase(PlotObject):
         Parameters
         ----------
         ratio_panel : int
-            Indicates which ratio panel to modify (either 1 or 2).
+            Index of the ratio panel to label.
         label : str
-            y-axis label of the ratio panel
+            y-axis label of the ratio panel.
 
         Raises
         ------
         ValueError
-            If requested ratio panels and given ratio_panel do not match.
+            If the requested ratio panel does not exist.
         """
-        if self.n_ratio_panels < ratio_panel and ratio_panel not in {1, 2}:
-            raise ValueError("Requested ratio panels and given ratio_panel do not match.")
+        if ratio_panel > self.n_ratio_panels:
+            raise ValueError(f"Plot has {self.n_ratio_panels} ratio panels, not {ratio_panel}")
         self.ylabel_ratio[ratio_panel - 1] = label
-
-    def initialise_plot(self):
-        """Calls other methods which are usually used when plotting."""
-        self.set_title()
-        self.set_log()
-        self.set_y_lim()
-        self.set_xlabel()
-        self.set_ylabel(self.axis_top)
-        self.set_tick_params()
-        self.plotting_done = True
-        if self.apply_atlas_style:
-            self.atlasify()

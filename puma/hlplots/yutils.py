@@ -1,16 +1,12 @@
 from __future__ import annotations
 
 import copy
-from typing import TYPE_CHECKING
+from pathlib import Path
 
+from ftag import Flavour
 from ftag.hdf5 import H5Reader
 
 from puma.utils import logger
-
-if TYPE_CHECKING:
-    from pathlib import Path
-
-    from ftag import Flavour
 
 
 def select_configs(configs, plt_cfg):
@@ -87,13 +83,6 @@ def get_included_taggers(results, plot_config):
         else:
             reference = next(iter(include_taggers.keys()))
             logger.info("No reference set for plot, using " + reference + " as reference")
-        # We ensure that the model which is used for reference as default, is
-        # not used as a reference here if don't want it to be.
-        default_ref = [k for k in include_taggers if include_taggers[k].reference]
-        if len(default_ref) > 0:
-            assert len(default_ref) == 1, "More than 1 tagger set as a reference..."
-            include_taggers[default_ref[0]] = copy.deepcopy(include_taggers[default_ref[0]])
-            include_taggers[default_ref[0]].reference = False
 
         include_taggers[reference] = copy.deepcopy(include_taggers[reference])
         include_taggers[reference].reference = True

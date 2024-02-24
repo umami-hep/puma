@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import numpy as np
 from ftag import Cuts, Flavour, Flavours
@@ -21,11 +20,9 @@ from puma import (
     VarVsEffPlot,
     fraction_scan,
 )
+from puma.hlplots.tagger import Tagger
 from puma.metrics import calc_eff, calc_rej
 from puma.utils import get_good_colours, get_good_linestyles, logger
-
-if TYPE_CHECKING:
-    from puma.hlplots.tagger import Tagger
 
 
 @dataclass

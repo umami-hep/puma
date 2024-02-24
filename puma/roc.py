@@ -344,8 +344,6 @@ class RocPlot(PlotBase):
             if requested ratio panels and given ratio_panel do not match.
         """
         rej_class = Flavours[rej_class] if isinstance(rej_class, str) else rej_class
-        if self.n_ratio_panels < ratio_panel:
-            raise ValueError("Requested ratio panels and given ratio_panel do not match.")
         self.rej_axes[rej_class] = self.ratio_axes[ratio_panel - 1]
         label = rej_class.label.replace("jets", "jet")
         self.set_ratio_label(ratio_panel, f"{label} ratio")
