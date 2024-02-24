@@ -286,12 +286,6 @@ class PlotBase(PlotObject):
         self.ratio_axes = []
         self.axis_leg = None
         self.fig = None
-        self.set_title()
-        self.set_log()
-        self.set_y_lim()
-        self.set_xlabel()
-        self.set_ylabel(self.axis_top)
-        self.set_tick_params()
 
     def initialise_figure(self):
         """
