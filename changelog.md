@@ -1,6 +1,7 @@
 # Changelog
 
 ### [Latest]
+- Fix marker resizing in VarVsVar [!243](https://github.com/umami-hep/puma/pull/243)
 
 ### [v0.3.3] (2024/02/26)
 - Load ptau in Results class [!242](https://github.com/umami-hep/puma/pull/242)
