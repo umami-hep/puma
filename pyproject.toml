@@ -33,6 +33,10 @@ lint.ignore = [
     "PTH113", "S113", "TCH"
 ]
 
+[tool.ruff.lint.flake8-pytest-style]
+fixture-parentheses = false
+mark-parentheses = false
+
 [tool.ruff.lint.isort]
 required-imports = ["from __future__ import annotations"]
 

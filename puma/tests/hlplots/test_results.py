@@ -98,6 +98,15 @@ class ResultsTestCase(unittest.TestCase):
         results.add_taggers_from_file(taggers, fname, cuts=cuts)
         self.assertEqual(list(results.taggers.values()), taggers)
 
+    def test_add_taggers_taujets(self):
+        # get mock file and rename variables match taujets
+        fname = get_mock_file()[0]
+        results = Results(signal="bjets", sample="test")
+        taggers = [Tagger("MockTagger", fxs={"fc": 0.1, "fb": 0.1, "ftau": 0.1})]
+        results.add_taggers_from_file(taggers, fname)
+        assert "MockTagger_ptau" in taggers[0].scores.dtype.names
+        taggers[0].discriminant("bjets")
+
     def test_add_taggers_hbb(self):
         # get mock file and rename variables match hbb
         f = get_mock_file()[1]
