@@ -1,11 +1,11 @@
 """Efficiency plots vs. specific variable."""
+
 from __future__ import annotations
 
 from typing import ClassVar
 
 import numpy as np
 
-# TODO: fix the import below
 from puma.metrics import eff_err, rej_err
 from puma.utils import logger
 from puma.utils.histogram import save_divide
@@ -13,10 +13,7 @@ from puma.var_vs_var import VarVsVar, VarVsVarPlot
 
 
 class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
-    """
-    var_vs_eff class storing info about curve and allows to calculate ratio w.r.t other
-    efficiency plots.
-    """
+    """Class for efficiency vs. variable plot."""
 
     def __init__(
         self,
@@ -115,9 +112,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         if disc_cut is not None:
             if working_point is not None:
                 raise ValueError("You cannot specify `disc_cut` when providing `wp`.")
-            if isinstance(disc_cut, (list, np.ndarray)) and self.n_bins != len(
-                disc_cut
-            ):
+            if isinstance(disc_cut, (list, np.ndarray)) and self.n_bins != len(disc_cut):
                 raise ValueError(
                     "`disc_cut` has to be a float or has to have the same length as"
                     " number of bins."
@@ -178,20 +173,16 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             logger.error("All your signal is in the underflow bin. Check your input.")
             # retrieve for each bin the part of self.disc_sig corresponding to this bin
             # and put them in a list
-        self.disc_binned_sig = list(
-            map(
-                lambda x: self.disc_sig[np.where(self.bin_indices_sig == x)[0]],
-                range(1, len(self.bin_edges)),
-            )
-        )
+        self.disc_binned_sig = [
+            self.disc_sig[np.where(self.bin_indices_sig == x)[0]]
+            for x in range(1, len(self.bin_edges))
+        ]
         if self.x_var_bkg is not None:
             self.bin_indices_bkg = np.digitize(self.x_var_bkg, self.bin_edges)
-            self.disc_binned_bkg = list(
-                map(
-                    lambda x: self.disc_bkg[np.where(self.bin_indices_bkg == x)[0]],
-                    range(1, len(self.bin_edges)),
-                )
-            )
+            self.disc_binned_bkg = [
+                self.disc_bkg[np.where(self.bin_indices_bkg == x)[0]]
+                for x in range(1, len(self.bin_edges))
+            ]
 
     def _get_disc_cuts(self):
         """Retrieve cut values on discriminant. If `disc_cut` is not given, retrieve
@@ -203,12 +194,9 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         elif isinstance(self.disc_cut, (list, np.ndarray)):
             self.disc_cut = self.disc_cut
         elif self.flat_per_bin:
-            self.disc_cut = list(
-                map(
-                    lambda x: np.percentile(x, (1 - self.working_point) * 100),
-                    self.disc_binned_sig,
-                )
-            )
+            self.disc_cut = [
+                np.percentile(x, (1 - self.working_point) * 100) for x in self.disc_binned_sig
+            ]
         else:
             self.disc_cut = [
                 np.percentile(self.disc_sig, (1 - self.working_point) * 100)
@@ -234,9 +222,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         """
         if len(arr) == 0:
             return 0, 0
-        eff = (
-            sum(arr < cut) / len(arr) if self.inverse_cut else sum(arr > cut) / len(arr)
-        )
+        eff = sum(arr < cut) / len(arr) if self.inverse_cut else sum(arr > cut) / len(arr)
         eff_error = eff_err(eff, len(arr))
         return eff, eff_error
 
@@ -274,12 +260,8 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         background error per bin.
         """
         logger.debug("Calculating signal efficiency.")
-        eff = np.array(list(map(self.efficiency, self.disc_binned_bkg, self.disc_cut)))[
-            :, 0
-        ]
-        err = np.array(list(map(self.efficiency, self.disc_binned_sig, self.disc_cut)))[
-            :, 1
-        ]
+        eff = np.array(list(map(self.efficiency, self.disc_binned_bkg, self.disc_cut)))[:, 0]
+        err = np.array(list(map(self.efficiency, self.disc_binned_sig, self.disc_cut)))[:, 1]
         logger.debug("Retrieved signal efficiencies: %s", eff)
         return eff, err
 
@@ -387,7 +369,6 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             If mode not supported
         """
         self.inverse_cut = inverse_cut
-        # TODO: python 3.10 switch to cases syntax
         if mode == "sig_eff":
             return self.sig_eff
         if mode == "bkg_eff":
@@ -407,7 +388,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
 
 
 class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attributes
-    """var_vs_eff plot class"""
+    """var_vs_eff plot class."""
 
     mode_options: ClassVar[list[str]] = [
         "sig_eff",
@@ -467,10 +448,10 @@ class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
         flat_per_bin=False,
     ):
         """Modifies the atlas_second_tag to include info on the type of p-eff plot
-        being displayed
+        being displayed.
         """
         if working_point:
-            mid_str = f"{round(working_point*100, 3)}% " + signal.eff_str
+            mid_str = f"{round(working_point * 100, 3)}% " + signal.eff_str
         elif disc_cut:
             mid_str = rf"$D_{{{signal.name.rstrip('jets')}}}$ > {disc_cut}"
         tag = f"Flat {mid_str} per bin" if flat_per_bin else f"{mid_str}"

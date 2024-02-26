@@ -1,4 +1,5 @@
 """Plotting bases for specialised plotting."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -12,8 +13,6 @@ from puma.utils import logger, set_xaxis_ticklabels_invisible
 atlasify.LINE_SPACING = 1.3  # overwrite the default, which is 1.2
 
 
-# TODO: enable `kw_only` when switching to Python 3.10
-# @dataclass(kw_only=True)
 @dataclass
 class PlotLineObject:
     """Base data class defining properties of a plot object.
@@ -57,8 +56,6 @@ class PlotLineObject:
     is_marker: bool = None
 
 
-# TODO: enable `kw_only` when switching to Python 3.10
-# @dataclass(kw_only=True)
 @dataclass
 class PlotObject:
     """Data base class defining properties of a plot object.
@@ -295,8 +292,6 @@ class PlotBase(PlotObject):
         Initialising matplotlib.figure.Figure for different scenarios depending on how
         many ratio panels are requested.
         """
-        # TODO: switch to cases syntax in python 3.10
-
         if self.vertical_split:  # split figure vertically instead of horizonally
             if self.n_ratio_panels >= 1:
                 logger.warning(
@@ -305,9 +300,7 @@ class PlotBase(PlotObject):
                     " created.",
                     self.n_ratio_panels,
                 )
-            self.fig = Figure(
-                figsize=(6, 4.5) if self.figsize is None else self.figsize
-            )
+            self.fig = Figure(figsize=(6, 4.5) if self.figsize is None else self.figsize)
             g_spec = gridspec.GridSpec(1, 11, figure=self.fig)
             self.axis_top = self.fig.add_subplot(g_spec[0, :9])
             self.axis_leg = self.fig.add_subplot(g_spec[0, 9:])
@@ -331,9 +324,7 @@ class PlotBase(PlotObject):
                 for i in range(1, self.n_ratio_panels + 1):
                     start = int((top_height + ratio_height * (i - 1)) * 10)
                     stop = int(start + ratio_height * 10)
-                    sub_axis = self.fig.add_subplot(
-                        g_spec[start:stop, 0], sharex=self.axis_top
-                    )
+                    sub_axis = self.fig.add_subplot(g_spec[start:stop, 0], sharex=self.axis_top)
                     if i < self.n_ratio_panels:
                         set_xaxis_ticklabels_invisible(sub_axis)
                     self.ratio_axes.append(sub_axis)
@@ -398,9 +389,7 @@ class PlotBase(PlotObject):
             )
 
             for ratio_axis in self.ratio_axes:
-                ratio_axis.axvline(
-                    x=vline_x, color=colour, linestyle=linestyle, linewidth=1.0
-                )
+                ratio_axis.axvline(x=vline_x, color=colour, linestyle=linestyle, linewidth=1.0)
 
     def set_title(self, title: str | None = None, **kwargs):
         """Set title of top panel.
@@ -415,34 +404,18 @@ class PlotBase(PlotObject):
         """
         self.axis_top.set_title(self.title if title is None else title, **kwargs)
 
-    def set_log(self, force_x: bool = False, force_y: bool = False):
-        """Set log scale of the axes. For the y-axis, only the main panel is
-        set. For the x-axes (also from the ratio subpanels), all are changed.
+    def set_log(self):
+        """Set log scale of the axes.
 
-        Parameters
-        ----------
-        force_x : bool, optional
-            Forcing log on x-axis even if `logx` attribute is False, by default False
-        force_y : bool, optional
-            Forcing log on y-axis even if `logy` attribute is False, by default False
+        For the y-axis, only the main panel is set. For the x-axes also set the
+        ratio panels.
         """
-        if self.logx or force_x:
-            if not self.logx:
-                logger.warning(
-                    "Setting log of x-axis but `logx` flag was set to False."
-                )
-
-            # Set log scale for all plots
+        if self.logx:
             self.axis_top.set_xscale("log")
             for ratio_axis in self.ratio_axes:
                 ratio_axis.set_xscale("log")
 
-        if self.logy or force_y:
-            if not self.logy:
-                logger.warning(
-                    "Setting log of y-axis but `logy` flag was set to False."
-                )
-
+        if self.logy:
             self.axis_top.set_yscale("log")
             ymin, ymax = self.axis_top.get_ylim()
             self.y_scale = ymin * ((ymax / ymin) ** self.y_scale) / ymax
@@ -462,9 +435,7 @@ class PlotBase(PlotObject):
                 ymax = self.ymax_ratio[i] if self.ymax_ratio[i] else ymax
                 ratio_axis.set_ylim(bottom=ymin, top=ymax)
 
-    def set_ylabel(
-        self, ax_mpl, label: str | None = None, align_right: bool = True, **kwargs
-    ):
+    def set_ylabel(self, ax_mpl, label: str | None = None, align_right: bool = True, **kwargs):
         """Set y-axis label.
 
         Parameters
@@ -603,9 +574,6 @@ class PlotBase(PlotObject):
         if self.apply_atlas_style or force:
             logger.debug("Initialise ATLAS style using atlasify.")
             if self.use_atlas_tag is True:
-                # TODO: for some reason, pylint complains about the used arguments
-                # when calling atlasify ("unexpected-keyword-arg") error
-                # --> fix this
                 atlasify.atlasify(
                     atlas=self.atlas_first_tag,
                     subtext=self.atlas_second_tag,
@@ -634,13 +602,10 @@ class PlotBase(PlotObject):
                     )
                 if self.plotting_done is False:
                     logger.warning(
-                        "Initialising ATLAS style even though `plotting_done` is set to"
-                        " False."
+                        "Initialising ATLAS style even though `plotting_done` is set to" " False."
                     )
 
-    def make_legend(
-        self, handles: list, ax_mpl: axis, labels: list | None = None, **kwargs
-    ):
+    def make_legend(self, handles: list, ax_mpl: axis, labels: list | None = None, **kwargs):
         """Drawing legend on axis.
 
         Parameters
@@ -661,11 +626,7 @@ class PlotBase(PlotObject):
         ax_mpl.add_artist(
             ax_mpl.legend(
                 handles=handles,
-                labels=(
-                    [handle.get_label() for handle in handles]
-                    if labels is None
-                    else labels
-                ),
+                labels=([handle.get_label() for handle in handles] if labels is None else labels),
                 loc=self.leg_loc,
                 fontsize=self.leg_fontsize,
                 ncol=self.leg_ncol,
@@ -729,30 +690,15 @@ class PlotBase(PlotObject):
         Parameters
         ----------
         ratio_panel : int
-            Indicates which ratio panel to modify (either 1 or 2).
+            Index of the ratio panel to label.
         label : str
-            y-axis label of the ratio panel
+            y-axis label of the ratio panel.
 
         Raises
         ------
         ValueError
-            If requested ratio panels and given ratio_panel do not match.
+            If the requested ratio panel does not exist.
         """
-        # TODO: could add possibility to specify ratio label as function of rej_class
-        if self.n_ratio_panels < ratio_panel and ratio_panel not in [1, 2]:
-            raise ValueError(
-                "Requested ratio panels and given ratio_panel do not match."
-            )
+        if ratio_panel > self.n_ratio_panels:
+            raise ValueError(f"Plot has {self.n_ratio_panels} ratio panels, not {ratio_panel}")
         self.ylabel_ratio[ratio_panel - 1] = label
-
-    def initialise_plot(self):
-        """Calls other methods which are usually used when plotting."""
-        self.set_title()
-        self.set_log()
-        self.set_y_lim()
-        self.set_xlabel()
-        self.set_ylabel(self.axis_top)
-        self.set_tick_params()
-        self.plotting_done = True
-        if self.apply_atlas_style:
-            self.atlasify()

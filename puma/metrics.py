@@ -1,4 +1,5 @@
 """Tools for metrics module."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -79,7 +80,6 @@ def calc_eff(
         Cutvalue if return_cuts is True.
         Return float if target_eff is a float, else np.ndarray
     """
-    # TODO: with python 3.10 using type union operator
     # float | np.ndarray for both target_eff and the returned values
     return_float = False
     if isinstance(target_eff, float):
@@ -88,12 +88,8 @@ def calc_eff(
     target_eff = np.asarray([target_eff]).flatten()
 
     cutvalue = weighted_percentile(sig_disc, 1.0 - target_eff, weights=sig_weights)
-    sorted_args = np.argsort(
-        1 - target_eff
-    )  # need to sort the cutvalues to get the correct order
-    hist, _ = np.histogram(
-        bkg_disc, (-np.inf, *cutvalue[sorted_args], np.inf), weights=bkg_weights
-    )
+    sorted_args = np.argsort(1 - target_eff)  # need to sort the cutvalues to get the correct order
+    hist, _ = np.histogram(bkg_disc, (-np.inf, *cutvalue[sorted_args], np.inf), weights=bkg_weights)
     eff = hist[::-1].cumsum()[-2::-1] / hist.sum()
     eff = eff[sorted_args]
 
@@ -142,7 +138,6 @@ def calc_rej(
         Cutvalue if return_cuts is True.
         If target_eff is a float, a float is returned if it's a list a np.ndarray
     """
-    # TODO: with python 3.10 using type union operator
     # float | np.ndarray for both target_eff and the returned values
     eff = calc_eff(
         sig_disc=sig_disc,
@@ -198,12 +193,8 @@ def eff_err(
     logger.debug("n_counts: %i", n_counts)
     logger.debug("suppress_zero_divison_error: %s", suppress_zero_divison_error)
     logger.debug("norm: %s", norm)
-    # TODO: suppress_zero_divison_error should not be necessary, but functions calling
-    # eff_err seem to need this functionality - should be deprecated though.
     if np.any(n_counts <= 0) and not suppress_zero_divison_error:
-        raise ValueError(
-            f"You passed as argument `N` {n_counts} but it has to be larger 0."
-        )
+        raise ValueError(f"You passed as argument `N` {n_counts} but it has to be larger 0.")
     if norm:
         return np.sqrt(arr * (1 - arr) / n_counts) / arr
     return np.sqrt(arr * (1 - arr) / n_counts)
@@ -246,9 +237,7 @@ def rej_err(
     logger.debug("n_counts: %i", n_counts)
     logger.debug("norm: %s", norm)
     if np.any(n_counts <= 0):
-        raise ValueError(
-            f"You passed as argument `n_counts` {n_counts} but it has to be larger 0."
-        )
+        raise ValueError(f"You passed as argument `n_counts` {n_counts} but it has to be larger 0.")
     if np.any(arr == 0):
         raise ValueError("One rejection value is 0, cannot calculate error.")
     if norm:
@@ -293,9 +282,7 @@ def calc_separation(
     numpy.ndarray
         Bin edges of the two histograms (only returned if `return_hist` is True)
     """
-    _, bin_edges = np.histogram(
-        np.hstack([values_a, values_b]), bins=bins, range=bins_range
-    )
+    _, bin_edges = np.histogram(np.hstack([values_a, values_b]), bins=bins, range=bins_range)
 
     _, hist_a, unc_a, _ = hist_w_unc(values_a, bin_edges)
     _, hist_b, unc_b, _ = hist_w_unc(values_b, bin_edges)

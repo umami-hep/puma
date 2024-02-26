@@ -1,5 +1,5 @@
-#!/usr/bin/env python
 """Unit test script for the functions in utils/__init__.py."""
+
 from __future__ import annotations
 
 import os
@@ -22,9 +22,7 @@ class LinestylesTestCase(unittest.TestCase):
         # Set up directories for comparison plots
         self.tmp_dir = tempfile.TemporaryDirectory()  # pylint: disable=R1732
         self.actual_plots_dir = f"{self.tmp_dir.name}/"
-        self.expected_plots_dir = os.path.join(
-            os.path.dirname(__file__), "expected_plots"
-        )
+        self.expected_plots_dir = os.path.join(os.path.dirname(__file__), "expected_plots")
 
     def test_raise_value_error(self):
         """Test if ValueError is raised for wrong argument type."""

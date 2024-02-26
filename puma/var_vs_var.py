@@ -1,11 +1,11 @@
 """Variable vs another variable plot."""
+
 from __future__ import annotations
 
 import matplotlib as mpl
 import numpy as np
 from matplotlib.patches import Rectangle
 
-# TODO: fix the import below
 from puma.plot_base import PlotBase, PlotLineObject
 from puma.utils import get_good_colours, get_good_markers, logger
 from puma.utils.histogram import hist_ratio
@@ -157,7 +157,7 @@ class VarVsVarPlot(PlotBase):
             raise ValueError("Not more than one ratio panel supported.")
         self.initialise_figure()
 
-    def __nonzero__(self):
+    def __nonzero__(self):  # noqa: PLW3201
         return bool(self.plot_objects)
 
     def add(self, curve: VarVsVar, key: str | None = None, reference: bool = False):

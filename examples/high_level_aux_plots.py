@@ -1,4 +1,5 @@
 """Produce aux task plots from tagger output and labels."""
+
 from __future__ import annotations
 
 from puma.hlplots import AuxResults, Tagger

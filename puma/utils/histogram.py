@@ -1,4 +1,5 @@
 """Helper function for histogram handling."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -122,21 +123,19 @@ def hist_w_unc(
     # and bin edges
     if not filled:
         # Calculate the counts and the bin edges
-        counts, bin_edges = np.histogram(
-            arr, bins=bins, range=bins_range, weights=weights
-        )
+        counts, bin_edges = np.histogram(arr, bins=bins, range=bins_range, weights=weights)
 
         # calculate the uncertainty with sum of squared weights (per bin, so we use
         # np.histogram again here)
-        unc = np.sqrt(
-            np.histogram(arr, bins=bins, range=bins_range, weights=weights**2)[0]
-        )
+        unc = np.sqrt(np.histogram(arr, bins=bins, range=bins_range, weights=weights**2)[0])
 
         if underoverflow:
             # add two dummy bins (from outermost bins to +-infinity)
-            bins_with_overunderflow = np.hstack(
-                [np.array([-np.inf]), bin_edges, np.array([np.inf])]
-            )
+            bins_with_overunderflow = np.hstack([
+                np.array([-np.inf]),
+                bin_edges,
+                np.array([np.inf]),
+            ])
             # recalculate the histogram with this adjusted binning
             counts, _ = np.histogram(arr, bins=bins_with_overunderflow, weights=weights)
             counts[1] += counts[0]  # add underflow values to underflow bin
@@ -193,7 +192,7 @@ def hist_ratio(
     step: bool = True,
 ):
     """
-    This method calculates the ratio of the given bincounts and
+    Calculate the ratio of the given bincounts and
     returns the input for a step function that plots the ratio.
 
     Parameters

@@ -1,4 +1,5 @@
 """Checks repository in main and prints the content for a ToDo issue."""
+
 from __future__ import annotations
 
 from pylint import epylint as lint

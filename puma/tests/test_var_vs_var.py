@@ -1,7 +1,5 @@
-#!/usr/bin/env python
-
-
 """Unit test script for the functions in var_vs_var.py."""
+
 from __future__ import annotations
 
 import os
@@ -110,9 +108,7 @@ class VarVsVarPlotTestCase(unittest.TestCase):
         # Set up temp directory for comparison plots
         self.tmp_dir = tempfile.TemporaryDirectory()  # pylint:disable=R1732
         self.actual_plots_dir = f"{self.tmp_dir.name}/"
-        self.expected_plots_dir = os.path.join(
-            os.path.dirname(__file__), "expected_plots"
-        )
+        self.expected_plots_dir = os.path.join(os.path.dirname(__file__), "expected_plots")
         np.random.seed(42)
         n_random = 21
 

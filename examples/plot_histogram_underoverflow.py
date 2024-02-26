@@ -1,4 +1,5 @@
 """Example script that demonstrates under/overflow bins."""
+
 from __future__ import annotations
 
 import numpy as np

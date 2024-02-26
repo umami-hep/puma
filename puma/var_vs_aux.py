@@ -1,11 +1,11 @@
 """Aux task efficiency plots vs. specific variable."""
+
 from __future__ import annotations
 
 from typing import ClassVar
 
 import numpy as np
 
-# TODO: fix the import below
 from puma.metrics import eff_err
 from puma.utils import logger
 from puma.utils.histogram import save_divide
@@ -53,19 +53,17 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         ValueError
             If provided options are not compatible with each other
         """
-        # TODO: in python 3.10 add multipe type operator | for bins and disc_cut
-
         if len(x_var) != len(n_match):
             raise ValueError(
                 f"Length of `x_var` ({len(x_var)}) and `n_match` "
                 f"({len(n_match)}) have to be identical."
             )
-        elif len(x_var) != len(n_true):
+        if len(x_var) != len(n_true):
             raise ValueError(
                 f"Length of `x_var` ({len(x_var)}) and `n_true` "
                 f"({len(n_true)}) have to be identical."
             )
-        elif len(x_var) != len(n_reco):
+        if len(x_var) != len(n_reco):
             raise ValueError(
                 f"Length of `x_var` ({len(x_var)}) and `n_reco` "
                 f"({len(n_reco)}) have to be identical."
@@ -132,24 +130,15 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         """Get binned distributions for number of matches, truth and reco objects."""
         logger.debug("Applying binning.")
         self.bin_indices = np.digitize(self.x_var, self.bin_edges)
-        self.match_binned = list(
-            map(
-                lambda x: self.n_match[np.where(self.bin_indices == x)[0]],
-                range(1, len(self.bin_edges)),
-            )
-        )
-        self.true_binned = list(
-            map(
-                lambda x: self.n_true[np.where(self.bin_indices == x)[0]],
-                range(1, len(self.bin_edges)),
-            )
-        )
-        self.reco_binned = list(
-            map(
-                lambda x: self.n_reco[np.where(self.bin_indices == x)[0]],
-                range(1, len(self.bin_edges)),
-            )
-        )
+        self.match_binned = [
+            self.n_match[np.where(self.bin_indices == x)[0]] for x in range(1, len(self.bin_edges))
+        ]
+        self.true_binned = [
+            self.n_true[np.where(self.bin_indices == x)[0]] for x in range(1, len(self.bin_edges))
+        ]
+        self.reco_binned = [
+            self.n_reco[np.where(self.bin_indices == x)[0]] for x in range(1, len(self.bin_edges))
+        ]
 
     def get_performance_ratio(self, num: np.ndarray, denom: np.ndarray):
         """Calculate performance ratio for aux task. Either n_matched/n_true
@@ -171,11 +160,9 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         """
         pm = save_divide(np.sum(num), np.sum(denom), default=np.inf)
         if pm == np.inf:
-            logger.warning(
-                "Your performance ratio is infinity -> setting it to np.nan."
-            )
+            logger.warning("Your performance ratio is infinity -> setting it to np.nan.")
             return np.nan, np.nan
-        elif pm == 0:
+        if pm == 0:
             logger.warning("Your performance ratio is zero -> setting error to zero.")
             return 0.0, 0.0
         pm_error = eff_err(pm, len(num))
@@ -278,7 +265,6 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         ValueError
             If mode not supported
         """
-        # TODO: python 3.10 switch to cases syntax
         if mode == "efficiency":
             return self.efficiency
         if mode == "purity":
@@ -292,8 +278,6 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
 
 
 class VarVsAuxPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attributes
-    """var_vs_aux plot class"""
-
     mode_options: ClassVar[list[str]] = [
         "efficiency",
         "purity",

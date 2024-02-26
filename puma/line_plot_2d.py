@@ -1,4 +1,5 @@
 """Classes for 2D line plots."""
+
 from __future__ import annotations
 
 import matplotlib as mpl
@@ -55,9 +56,7 @@ class Line2D(PlotLineObject):
                     f"y_values: {type(y_values)}"
                 )
 
-            if isinstance(x_values, (int, float)) and isinstance(
-                y_values, (int, float)
-            ):
+            if isinstance(x_values, (int, float)) and isinstance(y_values, (int, float)):
                 # Convert input into numpy array
                 x_values = np.array([x_values])
                 y_values = np.array([y_values])
@@ -81,9 +80,8 @@ class Line2D(PlotLineObject):
                 )
 
         else:
-            raise ValueError(
-                "Invalid type of input data. Allowed values are numpy.ndarray, list,"
-                " int, float"
+            raise TypeError(
+                "Invalid type of input data. Allowed values are numpy.ndarray, list," " int, float"
             )
 
         # Set inputs as attributes
