@@ -343,10 +343,10 @@ class VarVsVarPlot(PlotBase):
             # draw markers
             if elem.is_marker is True:
                 self.ratio_axes[0].scatter(
-                    x=elem.x_var, 
-                    y=ratio, 
-                    marker=elem.marker, 
-                    color=elem.colour, 
+                    x=elem.x_var,
+                    y=ratio,
+                    marker=elem.marker,
+                    color=elem.colour,
                     s=elem.markersize**2,
                 )
             if elem.x_var_widths is not None and elem.fill:
