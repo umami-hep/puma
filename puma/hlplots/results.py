@@ -203,6 +203,8 @@ class Results:
         # set tagger output nodes
         for tagger in taggers:
             tagger.output_flavours = self.flavours
+            if "ftau" in tagger.fxs:
+                tagger.output_flavours += [Flavours.taujets]
 
         # get a list of all variables to be loaded from the file
         if not isinstance(cuts, Cuts):
