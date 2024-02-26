@@ -202,7 +202,7 @@ class VarVsVarPlot(PlotBase):
                 curve.marker = get_good_markers()[len(self.plot_objects)]
             # Set markersize
             if curve.markersize is None:
-                curve.markersize = 15
+                curve.markersize = 8
             if curve.markeredgewidth is None:
                 curve.markeredgewidth = 2
 
@@ -343,7 +343,11 @@ class VarVsVarPlot(PlotBase):
             # draw markers
             if elem.is_marker is True:
                 self.ratio_axes[0].scatter(
-                    x=elem.x_var, y=ratio, marker=elem.marker, color=elem.colour, s=elem.markersize**2
+                    x=elem.x_var, 
+                    y=ratio, 
+                    marker=elem.marker, 
+                    color=elem.colour, 
+                    s=elem.markersize**2
                 )
             if elem.x_var_widths is not None and elem.fill:
                 for x_pos, y_pos, width, height in zip(
