@@ -266,6 +266,7 @@ class VarVsVarPlot(PlotBase):
                 label=elem.label,
                 alpha=elem.alpha,
                 linewidth=elem.linewidth,
+                ms=elem.markersize,
                 **kwargs,
             )
             # # set linestyle for errorbar
@@ -276,6 +277,7 @@ class VarVsVarPlot(PlotBase):
                     x=elem.x_var,
                     y=elem.y_var_mean,
                     marker=elem.marker,
+                    s=elem.markersize**2,
                     color=elem.colour,
                 )
             if elem.x_var_widths is not None and elem.fill:
@@ -307,6 +309,7 @@ class VarVsVarPlot(PlotBase):
                     label=elem.label,
                     linestyle=elem.linestyle,
                     marker=elem.marker,
+                    markersize=elem.markersize,
                 )
             )
         return plt_handles
@@ -333,13 +336,14 @@ class VarVsVarPlot(PlotBase):
                 fmt="none",
                 alpha=elem.alpha,
                 linewidth=elem.linewidth,
+                ms=elem.markersize,
             )
             # set linestyle for errorbar
             error_bar[-1][0].set_linestyle(elem.linestyle)
             # draw markers
             if elem.is_marker is True:
                 self.ratio_axes[0].scatter(
-                    x=elem.x_var, y=ratio, marker=elem.marker, color=elem.colour
+                    x=elem.x_var, y=ratio, marker=elem.marker, color=elem.colour, s=elem.markersize**2
                 )
             if elem.x_var_widths is not None and elem.fill:
                 for x_pos, y_pos, width, height in zip(
