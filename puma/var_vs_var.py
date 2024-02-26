@@ -347,7 +347,7 @@ class VarVsVarPlot(PlotBase):
                     y=ratio, 
                     marker=elem.marker, 
                     color=elem.colour, 
-                    s=elem.markersize**2
+                    s=elem.markersize**2,
                 )
             if elem.x_var_widths is not None and elem.fill:
                 for x_pos, y_pos, width, height in zip(
