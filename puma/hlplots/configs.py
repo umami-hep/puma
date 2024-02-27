@@ -37,7 +37,7 @@ class PlotConfig:
             date_time_file = datetime.now().strftime("%Y%m%d_%H%M%S")
             plot_dir_name += "_" + date_time_file
         self.plot_dir_final = Path(self.plot_dir) / plot_dir_name
-        # print(self.taggers_config)
+
         for k, kwargs in self.taggers_config.items():
             kwargs["yaml_name"] = k
 
