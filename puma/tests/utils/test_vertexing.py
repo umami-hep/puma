@@ -1,6 +1,5 @@
-#!/usr/bin/env python
-
 """Unit test script for the functions in utils/vertexing.py."""
+
 from __future__ import annotations
 
 import unittest
@@ -64,22 +63,21 @@ class BuildVerticesTestCase(unittest.TestCase):
     def test_complex_case(self):
         """Check complex case with multiple vertices."""
         indices = np.array([0, 1, 2, 2, 3, 1, 3, 3, 4, 1])
-        expected_result = np.array(
-            [
-                [False, True, False, False, False, True, False, False, False, True],
-                [False, False, True, True, False, False, False, False, False, False],
-                [False, False, False, False, True, False, True, True, False, False],
-            ]
-        )
+        expected_result = np.array([
+            [False, True, False, False, False, True, False, False, False, True],
+            [False, False, True, True, False, False, False, False, False, False],
+            [False, False, False, False, True, False, True, True, False, False],
+        ])
         vertices = build_vertices(indices)
         np.testing.assert_array_equal(vertices, expected_result)
 
     def test_arbitrary_indices(self):
         """Check case where vertex indices are arbitrary."""
         indices = np.array([22, 19, 22, 103, 103])
-        expected_result = np.array(
-            [[True, False, True, False, False], [False, False, False, True, True]]
-        )
+        expected_result = np.array([
+            [True, False, True, False, False],
+            [False, False, False, True, True],
+        ])
         vertices = build_vertices(indices)
         np.testing.assert_array_equal(vertices, expected_result)
 
@@ -96,16 +94,12 @@ class AssociateVerticesTestCase(unittest.TestCase):
 
     def test_no_associations(self):
         """Check case where there are no associations to make."""
-        vertices1 = np.array(
-            [
-                [True, True, False, False, False],
-            ]
-        )
-        vertices2 = np.array(
-            [
-                [False, False, True, True, False],
-            ]
-        )
+        vertices1 = np.array([
+            [True, True, False, False, False],
+        ])
+        vertices2 = np.array([
+            [False, False, True, True, False],
+        ])
         expected_assoc = np.array([[False]])
         expected_common = np.array([[0]])
         assoc, common = associate_vertices(vertices1, vertices2, 0.0, 0.0)
@@ -114,23 +108,17 @@ class AssociateVerticesTestCase(unittest.TestCase):
 
     def test_association_condition1(self):
         """Check case where associations are made based on most common tracks."""
-        vertices1 = np.array(
-            [
-                [True, False, True, False, False, False, True],
-                [False, True, False, True, False, False, False],
-            ]
-        )
-        vertices2 = np.array(
-            [
-                [True, True, True, False, False, False, False],
-            ]
-        )
-        expected_assoc = np.array(
-            [
-                [True],
-                [False],
-            ]
-        )
+        vertices1 = np.array([
+            [True, False, True, False, False, False, True],
+            [False, True, False, True, False, False, False],
+        ])
+        vertices2 = np.array([
+            [True, True, True, False, False, False, False],
+        ])
+        expected_assoc = np.array([
+            [True],
+            [False],
+        ])
         expected_common = np.array([[2], [1]])
         assoc, common = associate_vertices(vertices1, vertices2, 0.0, 0.0)
         np.testing.assert_array_equal(assoc, expected_assoc)
@@ -140,23 +128,17 @@ class AssociateVerticesTestCase(unittest.TestCase):
         """Check case where associations are made based on
         highest efficiency (tiebreaker 1).
         """
-        vertices1 = np.array(
-            [
-                [True, False, True, False, False, False, True],
-                [False, True, False, True, False, False, False],
-            ]
-        )
-        vertices2 = np.array(
-            [
-                [True, True, True, True, False, False, False],
-            ]
-        )
-        expected_assoc = np.array(
-            [
-                [False],
-                [True],
-            ]
-        )
+        vertices1 = np.array([
+            [True, False, True, False, False, False, True],
+            [False, True, False, True, False, False, False],
+        ])
+        vertices2 = np.array([
+            [True, True, True, True, False, False, False],
+        ])
+        expected_assoc = np.array([
+            [False],
+            [True],
+        ])
         expected_common = np.array([[2], [2]])
         assoc, common = associate_vertices(vertices1, vertices2, 0.0, 0.0)
         np.testing.assert_array_equal(assoc, expected_assoc)
@@ -166,17 +148,13 @@ class AssociateVerticesTestCase(unittest.TestCase):
         """Check case where associations are made based on
         highest purity (tiebreaker 2).
         """
-        vertices1 = np.array(
-            [
-                [True, False, True, False, True, False, True],
-            ]
-        )
-        vertices2 = np.array(
-            [
-                [True, False, True, False, False, False, False],
-                [False, True, False, True, True, False, True],
-            ]
-        )
+        vertices1 = np.array([
+            [True, False, True, False, True, False, True],
+        ])
+        vertices2 = np.array([
+            [True, False, True, False, False, False, False],
+            [False, True, False, True, True, False, True],
+        ])
         expected_assoc = np.array([[True, False]])
         expected_common = np.array([[2, 2]])
         assoc, common = associate_vertices(vertices1, vertices2, 0.0, 0.0)
@@ -187,23 +165,17 @@ class AssociateVerticesTestCase(unittest.TestCase):
         """Check case where associations are made based on
         first match (tiebreaker 3).
         """
-        vertices1 = np.array(
-            [
-                [True, False, True, False, False, False, False],
-                [False, True, False, True, False, False, False],
-            ]
-        )
-        vertices2 = np.array(
-            [
-                [True, True, True, True, False, False, False],
-            ]
-        )
-        expected_assoc = np.array(
-            [
-                [True],
-                [False],
-            ]
-        )
+        vertices1 = np.array([
+            [True, False, True, False, False, False, False],
+            [False, True, False, True, False, False, False],
+        ])
+        vertices2 = np.array([
+            [True, True, True, True, False, False, False],
+        ])
+        expected_assoc = np.array([
+            [True],
+            [False],
+        ])
         expected_common = np.array([[2], [2]])
         assoc, common = associate_vertices(vertices1, vertices2, 0.0, 0.0)
         np.testing.assert_array_equal(assoc, expected_assoc)
@@ -211,16 +183,12 @@ class AssociateVerticesTestCase(unittest.TestCase):
 
     def test_full_associations(self):
         """Check case where associations are a perfect match."""
-        vertices1 = np.array(
-            [
-                [True, True, False, False, False],
-            ]
-        )
-        vertices2 = np.array(
-            [
-                [True, True, False, False, False],
-            ]
-        )
+        vertices1 = np.array([
+            [True, True, False, False, False],
+        ])
+        vertices2 = np.array([
+            [True, True, False, False, False],
+        ])
         expected_assoc = np.array([[True]])
         expected_common = np.array([[2]])
         assoc, common = associate_vertices(vertices1, vertices2, 0.0, 0.0)

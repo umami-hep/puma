@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Unit test script for the functions in hlplots/tagger.py."""
 
 from __future__ import annotations
@@ -41,9 +40,7 @@ class TestYutils(unittest.TestCase):
     def setUp(self):
         self.flavours = [Flavours[f] for f in ["ujets", "cjets", "bjets"]]
         # support inclusion of yaml files in the config dir
-        YamlIncludeConstructor.add_to_loader_class(
-            loader_class=yaml.SafeLoader, base_dir=EXAMPLES
-        )
+        YamlIncludeConstructor.add_to_loader_class(loader_class=yaml.SafeLoader, base_dir=EXAMPLES)
 
     def testGetIncludeTaggers(self):
         plt_cfg = EXAMPLES / "plt_cfg.yaml"
@@ -51,7 +48,7 @@ class TestYutils(unittest.TestCase):
         plt_cfg, taggers = load_no_include(plt_cfg, taggers)
 
         with tempfile.TemporaryDirectory() as tmp_file:
-            fpath1, file = get_mock_file(fname=(Path(tmp_file) / "file1.h5").as_posix())
+            fpath1, _file = get_mock_file(fname=(Path(tmp_file) / "file1.h5").as_posix())
             taggers["dummy1"]["sample_path"] = fpath1
             taggers["dummy2"]["sample_path"] = fpath1
             taggers["dummy3"]["sample_path"] = fpath1
@@ -70,12 +67,12 @@ class TestYutils(unittest.TestCase):
             main(args)
 
     def testGetTaggerName(self):
-        fpath, file = get_mock_file()
+        fpath, _file = get_mock_file()
         name = get_tagger_name(None, fpath, key="TestName1", flavours=self.flavours)
         assert name == "MockTagger"
 
     def testBreakGetTaggerName(self):
-        fpath, file = get_mock_file()
+        _fpath, file = get_mock_file()
         updated = {k: file["jets"][k] for k in file["jets"].dtype.names}
         updated["Tagger2_pu"] = updated["MockTagger_pu"]
         updated["Tagger2_pb"] = updated["MockTagger_pb"]
@@ -107,8 +104,8 @@ class TestYumaPlots(unittest.TestCase):
         plt_cfg, taggers = load_no_include(plt_cfg, taggers)
 
         with tempfile.TemporaryDirectory() as tmp_file:
-            fpath1, file = get_mock_file(fname=(Path(tmp_file) / "file1.h5").as_posix())
-            fpath2, file = get_mock_file(fname=(Path(tmp_file) / "file2.h5").as_posix())
+            fpath1, _file = get_mock_file(fname=(Path(tmp_file) / "file1.h5").as_posix())
+            fpath2, _file = get_mock_file(fname=(Path(tmp_file) / "file2.h5").as_posix())
             taggers["dummy1"]["sample_path"] = fpath1
             taggers["dummy2"]["sample_path"] = fpath1
             taggers["dummy3"]["sample_path"] = fpath2
@@ -129,7 +126,6 @@ class TestYumaPlots(unittest.TestCase):
             assert btagging.exists(), "No b-tagging plots produced"
             assert not ctagging.exists(), "No c-tagging plots should have been produced"
             btag_plots = [p.name for p in btagging.glob("*")]
-            print(btag_plots)
             assert (
                 len(btag_plots) == 22
             ), f"Expected 22 b-tagging plot, found {len(btag_plots)}"
@@ -160,8 +156,8 @@ class TestYumaPlots(unittest.TestCase):
         plt_cfg, taggers = load_no_include(plt_cfg, taggers)
 
         with tempfile.TemporaryDirectory() as tmp_file:
-            fpath1, file = get_mock_file(fname=(Path(tmp_file) / "file1.h5").as_posix())
-            fpath2, file = get_mock_file(fname=(Path(tmp_file) / "file2.h5").as_posix())
+            fpath1, _file = get_mock_file(fname=(Path(tmp_file) / "file1.h5").as_posix())
+            fpath2, _file = get_mock_file(fname=(Path(tmp_file) / "file2.h5").as_posix())
 
             taggers["dummy1"]["sample_path"] = fpath1
             taggers["dummy2"]["sample_path"] = fpath1
@@ -174,13 +170,6 @@ class TestYumaPlots(unittest.TestCase):
             plt_cfg["plots"] = [
                 p for p in plt_cfg["plots"] if p["args"]["plot_type"] == "roc"
             ]
-            # for plot_type in [
-            #     "fracscan_plots",
-            #     "disc_plots",
-            #     "prob_plots",
-            #     "eff_vs_var_plots",
-            # ]:
-            #     plt_cfg[plot_type] = []
 
             with open(updated_plt_cfg, "w") as f:
                 yaml.dump(plt_cfg, f)
@@ -195,6 +184,4 @@ class TestYumaPlots(unittest.TestCase):
             assert btagging.exists(), "No b-tagging plots produced"
             assert not ctagging.exists(), "No c-tagging plots should have been produced"
             btag_plots = [p.name for p in btagging.glob("*")]
-            assert (
-                len(btag_plots) == 3
-            ), f"Expected 3 b-tagging plot, found {len(btag_plots)}"
+            assert len(btag_plots) == 3, f"Expected 3 b-tagging plot, found {len(btag_plots)}"

@@ -19,13 +19,13 @@ import requests
 
 import puma
 
-sys.path.insert(0, os.path.abspath("../../puma"))
+sys.path.insert(0, os.path.abspath("../../puma"))  # noqa: PTH100
 
 
 # -- Project information -----------------------------------------------------
 
 project = "puma"
-copyright = "2022, puma developers"
+copyright = "2022, puma developers"  # noqa: A001
 author = "puma developers"
 
 # The full version, including alpha/beta/rc tags
@@ -70,7 +70,7 @@ json_url = "https://umami-hep.github.io/puma/main/_static/switcher.json"
 release = puma.__version__
 
 # get git hash we are currently on (when building the docs)
-current_hash = check_output(["git", "rev-parse", "HEAD"]).decode("ascii").split("\n")[0]
+current_hash = check_output(["git", "rev-parse", "HEAD"]).decode("ascii").split("\n")[0]  # noqa: S607
 # get git hash of latest commit on main branch
 commits = requests.get("https://api.github.com/repos/umami-hep/puma/commits/main")
 latest_commit_hash = commits.json()["sha"]

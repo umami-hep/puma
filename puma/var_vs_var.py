@@ -1,11 +1,11 @@
 """Variable vs another variable plot."""
+
 from __future__ import annotations
 
 import matplotlib as mpl
 import numpy as np
 from matplotlib.patches import Rectangle
 
-# TODO: fix the import below
 from puma.plot_base import PlotBase, PlotLineObject
 from puma.utils import get_good_colours, get_good_markers, logger
 from puma.utils.histogram import hist_ratio
@@ -157,7 +157,7 @@ class VarVsVarPlot(PlotBase):
             raise ValueError("Not more than one ratio panel supported.")
         self.initialise_figure()
 
-    def __nonzero__(self):
+    def __nonzero__(self):  # noqa: PLW3201
         return bool(self.plot_objects)
 
     def add(self, curve: VarVsVar, key: str | None = None, reference: bool = False):
@@ -202,7 +202,7 @@ class VarVsVarPlot(PlotBase):
                 curve.marker = get_good_markers()[len(self.plot_objects)]
             # Set markersize
             if curve.markersize is None:
-                curve.markersize = 15
+                curve.markersize = 8
             if curve.markeredgewidth is None:
                 curve.markeredgewidth = 2
 
@@ -266,6 +266,7 @@ class VarVsVarPlot(PlotBase):
                 label=elem.label,
                 alpha=elem.alpha,
                 linewidth=elem.linewidth,
+                ms=elem.markersize,
                 **kwargs,
             )
             # # set linestyle for errorbar
@@ -276,6 +277,7 @@ class VarVsVarPlot(PlotBase):
                     x=elem.x_var,
                     y=elem.y_var_mean,
                     marker=elem.marker,
+                    s=elem.markersize**2,
                     color=elem.colour,
                 )
             if elem.x_var_widths is not None and elem.fill:
@@ -307,6 +309,7 @@ class VarVsVarPlot(PlotBase):
                     label=elem.label,
                     linestyle=elem.linestyle,
                     marker=elem.marker,
+                    markersize=elem.markersize,
                 )
             )
         return plt_handles
@@ -333,13 +336,18 @@ class VarVsVarPlot(PlotBase):
                 fmt="none",
                 alpha=elem.alpha,
                 linewidth=elem.linewidth,
+                ms=elem.markersize,
             )
             # set linestyle for errorbar
             error_bar[-1][0].set_linestyle(elem.linestyle)
             # draw markers
             if elem.is_marker is True:
                 self.ratio_axes[0].scatter(
-                    x=elem.x_var, y=ratio, marker=elem.marker, color=elem.colour
+                    x=elem.x_var,
+                    y=ratio,
+                    marker=elem.marker,
+                    color=elem.colour,
+                    s=elem.markersize**2,
                 )
             if elem.x_var_widths is not None and elem.fill:
                 for x_pos, y_pos, width, height in zip(

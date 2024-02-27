@@ -1,6 +1,5 @@
-#!/usr/bin/env python
-
 """Unit test script for the functions in plot_base.py."""
+
 from __future__ import annotations
 
 import unittest
@@ -53,6 +52,13 @@ class PlotObjectTestCase(unittest.TestCase):
         """Test wrong ymax_ratio."""
         with self.assertRaises(ValueError):
             PlotObject(n_ratio_panels=2, ymax_ratio=[0])
+
+    def test_set_ratio_label_invalid_ratio_panel(self):
+        plot_object = PlotBase(n_ratio_panels=2)
+        plot_object.set_ratio_label(ratio_panel=1, label="Label")
+        plot_object.set_ratio_label(ratio_panel=2, label="Label")
+        with self.assertRaises(ValueError):
+            plot_object.set_ratio_label(ratio_panel=3, label="Label")
 
 
 class PlotBaseTestCase(unittest.TestCase):

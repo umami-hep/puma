@@ -1,4 +1,5 @@
 """Example script for plotting weighted histograms."""
+
 from __future__ import annotations
 
 import numpy as np

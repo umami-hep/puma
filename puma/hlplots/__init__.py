@@ -9,10 +9,10 @@ from puma.hlplots.tagger import Tagger
 from puma.hlplots.yutils import combine_suffixes, get_included_taggers
 
 __all__ = [
-    "Results",
-    "Tagger",
     "AuxResults",
     "PlotConfig",
+    "Results",
+    "Tagger",
     "get_included_taggers",
     "combine_suffixes",
 ]

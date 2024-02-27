@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-
-
 """Unit test script for the functions in roc.py."""
 
 from __future__ import annotations
@@ -32,7 +29,7 @@ class IntegratedEfficiencyCase(unittest.TestCase):
         IntegratedEfficiency(self.disc_sig, self.disc_rej)
 
     def test_add_label_flavour(self):
-        """Test both label and flavour"""
+        """Test both label and flavour."""
         int_eff = IntegratedEfficiency(
             self.disc_sig, self.disc_rej, label="b-jets", flavour="ujets"
         )
@@ -46,9 +43,7 @@ class IntegratedEfficiencyPlotTestCase(unittest.TestCase):
         # Set up temp directory for comparison plots
         self.tmp_dir = tempfile.TemporaryDirectory()  # pylint: disable=R1732
         self.actual_plots_dir = f"{self.tmp_dir.name}/"
-        self.expected_plots_dir = os.path.join(
-            os.path.dirname(__file__), "expected_plots"
-        )
+        self.expected_plots_dir = os.path.join(os.path.dirname(__file__), "expected_plots")
 
         # Set up dummy data
         df = get_dummy_2_taggers(size=int(1e6))

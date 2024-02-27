@@ -1,7 +1,5 @@
-#!/usr/bin/env python
-
-
 """Unit test script for the functions in var_vs_eff.py."""
+
 from __future__ import annotations
 
 import os
@@ -78,9 +76,7 @@ class VarVsEffTestCase(unittest.TestCase):
 
     def test_var_vs_eff_set_bin_edges_only_signal(self):
         """Test var_vs_eff _set_bin_edges."""
-        var_plot = VarVsEff(
-            x_var_sig=[0, 1, 2], disc_sig=[3, 4, 5], bins=2, working_point=0.7
-        )
+        var_plot = VarVsEff(x_var_sig=[0, 1, 2], disc_sig=[3, 4, 5], bins=2, working_point=0.7)
         np.testing.assert_array_almost_equal(var_plot.bin_edges, [0, 1, 2], decimal=4)
 
     def test_var_vs_eff_set_bin_edges(self):
@@ -156,13 +152,9 @@ class VarVsEffTestCase(unittest.TestCase):
             bins=n_bins,
         )
         with self.subTest("Comparison var_plot_comp"):
-            np.testing.assert_array_almost_equal(
-                var_plot.sig_eff, var_plot_comp.sig_eff
-            )
+            np.testing.assert_array_almost_equal(var_plot.sig_eff, var_plot_comp.sig_eff)
         with self.subTest("Comparison var_plot_list"):
-            np.testing.assert_array_almost_equal(
-                var_plot.sig_eff, var_plot_list.sig_eff
-            )
+            np.testing.assert_array_almost_equal(var_plot.sig_eff, var_plot_list.sig_eff)
 
     def test_var_vs_eff_divide_same(self):
         """Test var_vs_eff divide."""
@@ -221,9 +213,7 @@ class VarVsEffTestCase(unittest.TestCase):
 
     def test_var_vs_eff_eq_different_classes(self):
         """Test var_vs_eff eq."""
-        var_plot = VarVsEff(
-            x_var_sig=[0, 1, 2], disc_sig=[3, 4, 5], bins=2, working_point=0.7
-        )
+        var_plot = VarVsEff(x_var_sig=[0, 1, 2], disc_sig=[3, 4, 5], bins=2, working_point=0.7)
         self.assertNotEqual(var_plot, np.ones(6))
 
     def test_var_vs_eff_get(self):
@@ -248,9 +238,7 @@ class VarVsEffOutputTestCase(unittest.TestCase):
         # Set up temp directory for comparison plots
         self.tmp_dir = tempfile.TemporaryDirectory()  # pylint:disable=R1732
         self.actual_plots_dir = f"{self.tmp_dir.name}/"
-        self.expected_plots_dir = os.path.join(
-            os.path.dirname(__file__), "expected_plots"
-        )
+        self.expected_plots_dir = os.path.join(os.path.dirname(__file__), "expected_plots")
         # Generate discriminant and pT distribution for sig and bkg for two taggers
         # We want that both taggers yield the same discriminant values for the bkg
         # jets, a gaussian located at 0.
@@ -270,18 +258,14 @@ class VarVsEffOutputTestCase(unittest.TestCase):
         self.x_var_sig_1 = np.random.uniform(0, 250, size=2 * n_random)
 
         # new tagger (better separation for pT > 110)
-        self.disc_sig_2 = np.concatenate(
-            (
-                np.random.normal(loc=1, size=n_random),
-                np.random.normal(loc=3, size=n_random),
-            )
-        )
-        self.x_var_sig_2 = np.concatenate(
-            (
-                np.random.uniform(0, 110, size=n_random),
-                np.random.uniform(110, 250, size=n_random),
-            )
-        )
+        self.disc_sig_2 = np.concatenate((
+            np.random.normal(loc=1, size=n_random),
+            np.random.normal(loc=3, size=n_random),
+        ))
+        self.x_var_sig_2 = np.concatenate((
+            np.random.uniform(0, 110, size=n_random),
+            np.random.uniform(110, 250, size=n_random),
+        ))
 
         # Define pT bins
         self.bins = [20, 30, 40, 60, 85, 110, 140, 175, 250]

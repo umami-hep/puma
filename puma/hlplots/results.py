@@ -9,7 +9,6 @@ import numpy as np
 from ftag import Cuts, Flavour, Flavours
 from ftag.hdf5 import H5Reader
 
-import puma.fraction_scan as fraction_scan
 from puma import (
     Histogram,
     HistogramPlot,
@@ -19,6 +18,7 @@ from puma import (
     RocPlot,
     VarVsEff,
     VarVsEffPlot,
+    fraction_scan,
 )
 from puma.hlplots.tagger import Tagger
 from puma.hlplots.yutils import combine_suffixes
@@ -85,7 +85,7 @@ class Results:
         list
             List of all flavours
         """
-        return self.backgrounds + [self.signal]
+        return [*self.backgrounds, self.signal]
 
     def add(self, tagger: Tagger):
         """Add tagger to class.
@@ -111,9 +111,9 @@ class Results:
         self.taggers[str(tagger)] = tagger
 
     def load(self):
-        """Iterates all taggers, and loads data if it hasn't already been loaded"""
+        """Iterates all taggers, and loads data if it hasn't already been loaded."""
         req_load = [tagger for tagger in self.taggers.values() if tagger.scores is None]
-        tagger_paths = list(set([tagger.sample_path for tagger in req_load]))
+        tagger_paths = list({tagger.sample_path for tagger in req_load})
         for tp in tagger_paths:
             tp_taggers = [tagger for tagger in req_load if tagger.sample_path == tp]
             self.load_taggers_from_file(
@@ -134,7 +134,7 @@ class Results:
         perf_vars: dict | None = None,
     ):
         """Load one or more taggers from a common file, and adds them to this
-        results class
+        results class.
 
         Parameters
         ----------
@@ -194,13 +194,12 @@ class Results:
                 Data to filter
             """
             mask = np.ones(len(data), dtype=bool)
-            for key in data.dtype.names:
-                mask = np.logical_and(mask, ~np.isnan(data[key]))
+            for name in data.dtype.names:
+                mask = np.logical_and(mask, ~np.isnan(data[name]))
             if np.sum(~mask) > 0:
                 if self.remove_nan:
                     logger.warning(
-                        f"{np.sum(~mask)} NaN values found in loaded data. Removing"
-                        " them."
+                        f"{np.sum(~mask)} NaN values found in loaded data. Removing" " them."
                     )
                     return data[mask]
                 raise ValueError(f"{np.sum(~mask)} NaN values found in loaded data.")
@@ -209,6 +208,8 @@ class Results:
         # set tagger output nodes
         for tagger in taggers:
             tagger.output_flavours = self.flavours
+            if "ftau" in tagger.fxs:
+                tagger.output_flavours += [Flavours.taujets]
 
         # get a list of all variables to be loaded from the file
         if not isinstance(cuts, Cuts):
@@ -228,8 +229,8 @@ class Results:
         if cuts:
             idx, data = cuts(data)
             if perf_vars is not None:
-                for perf_var_array in perf_vars.values():
-                    perf_var_array = perf_var_array[idx]
+                for perf_var_name, perf_var_array in perf_vars.items():
+                    perf_vars[perf_var_name] = perf_var_array[idx]
 
         # for each tagger
         for tagger in taggers:
@@ -244,7 +245,7 @@ class Results:
             tagger.extract_tagger_scores(sel_data, source_type="structured_array")
             tagger.labels = np.array(sel_data[label_var], dtype=[(label_var, "i4")])
             if perf_vars is None:
-                tagger.perf_vars = dict()
+                tagger.perf_vars = {}
                 for perf_var in self.perf_vars:
                     if any(x in perf_var for x in ["pt", "mass"]):
                         tagger.perf_vars[perf_var] = sel_data[perf_var] * 0.001
@@ -303,7 +304,7 @@ class Results:
             key word arguments for `puma.HistogramPlot`
         """
         line_styles = get_good_linestyles()
-        flavours = self.backgrounds + [self.signal]
+        flavours = [*self.backgrounds, self.signal]
 
         # group by output probability
         for flav_prob in flavours:
@@ -604,9 +605,7 @@ class Results:
             discs = tagger.discriminant(self.signal)
             is_signal = tagger.is_flav(self.signal)
 
-            assert (
-                perf_var in tagger.perf_vars
-            ), f"{perf_var} not in tagger {tagger.name} data!"
+            assert perf_var in tagger.perf_vars, f"{perf_var} not in tagger {tagger.name} data!"
 
             plot_sig_eff.add(
                 VarVsEff(
@@ -641,14 +640,8 @@ class Results:
         if h_line:
             plot_sig_eff.draw_hline(h_line)
 
-        plot_base = (
-            "profile_flat_per_bin"
-            if kwargs.get("flat_per_bin")
-            else "profile_fixed_cut"
-        )
-        wp_disc = (
-            f"disc_cut_{disc_cut}" if disc_cut else f"wp_{working_point}"
-        ).replace(".", "p")
+        plot_base = "profile_flat_per_bin" if kwargs.get("flat_per_bin") else "profile_fixed_cut"
+        wp_disc = (f"disc_cut_{disc_cut}" if disc_cut else f"wp_{working_point}").replace(".", "p")
 
         plot_details = f"{self.signal}_eff_vs_{perf_var}_{wp_disc}_"
         plot_suffix = f"{suffix}_" if suffix else ""
@@ -657,9 +650,7 @@ class Results:
         for i, background in enumerate(self.backgrounds):
             plot_bkg[i].draw()
             plot_details = f"{background}_rej_vs_{perf_var}_{wp_disc}_"
-            plot_bkg[i].savefig(
-                self.get_filename(plot_details + plot_base, plot_suffix)
-            )
+            plot_bkg[i].savefig(self.get_filename(plot_details + plot_base, plot_suffix))
 
     def plot_flat_rej_var_perf(
         self,
@@ -690,7 +681,7 @@ class Results:
             key word arguments for `puma.VarVsEff`
         """
         assert all(
-            [b.name in fixed_rejections for b in self.backgrounds]
+            b.name in fixed_rejections for b in self.backgrounds
         ), "Not all backgrounds have a fixed rejection"
         if "disc_cut" in kwargs:
             raise ValueError("disc_cut should not be set for this plot")
@@ -720,9 +711,7 @@ class Results:
             for i, background in enumerate(self.backgrounds):
                 is_bkg = tagger.is_flav(background)
 
-                assert (
-                    perf_var in tagger.perf_vars
-                ), f"{perf_var} not in tagger {tagger.name} data!"
+                assert perf_var in tagger.perf_vars, f"{perf_var} not in tagger {tagger.name} data!"
 
                 # We want x bins to all have the same background rejection, so we
                 # select the plot mode as 'bkg_eff', and then treat the signal as
@@ -752,12 +741,9 @@ class Results:
                 plot_bkg[i].draw_hline(h_line)
             plot_details = f"{self.signal}_eff_vs_{perf_var}_"
             plot_base = (
-                f"profile_flat_{background}_"
-                + f"{int(fixed_rejections[background.name])}_rej_per_bin"
+                f"profile_flat_{background}_{int(fixed_rejections[background.name])}_rej_per_bin"
             )
-            plot_bkg[i].savefig(
-                self.get_filename(plot_details + plot_base, plot_suffix)
-            )
+            plot_bkg[i].savefig(self.get_filename(plot_details + plot_base, plot_suffix))
 
     def plot_fraction_scans(
         self,
@@ -785,7 +771,7 @@ class Results:
         **kwargs
             Keyword arguments for `puma.Line2DPlot
         """
-        if self.signal not in (Flavours.bjets, Flavours.cjets):
+        if self.signal not in {Flavours.bjets, Flavours.cjets}:
             raise ValueError("Signal flavour must be bjets or cjets")
 
         backgrounds = backgrounds if backgrounds is not None else self.backgrounds
@@ -886,7 +872,5 @@ class Results:
             Keyword arguments for the plot
         """
         if plot_type not in self.plot_funcs:
-            raise ValueError(
-                f"Unknown plot type {plot_type}, choose from {self.plot_funcs.keys()}"
-            )
+            raise ValueError(f"Unknown plot type {plot_type}, choose from {self.plot_funcs.keys()}")
         self.plot_funcs[plot_type](**kwargs)

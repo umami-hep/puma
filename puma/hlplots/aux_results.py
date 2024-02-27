@@ -1,4 +1,5 @@
 """Auxiliary task results module for high level API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -108,8 +109,8 @@ class AuxResults:
             idx, data = cuts(data)
             aux_data = aux_data[idx]
             if perf_vars is not None:
-                for perf_var_array in perf_vars.values():
-                    perf_var_array = perf_var_array[idx]
+                for name, array in perf_vars.items():
+                    perf_vars[name] = array[idx]
 
         # for each tagger
         for tagger in taggers:
@@ -122,8 +123,8 @@ class AuxResults:
                 idx, sel_data = tagger.cuts(data)
                 sel_aux_data = aux_data[idx]
                 if perf_vars is not None:
-                    for perf_var_array in sel_perf_vars.values():
-                        perf_var_array = perf_var_array[idx]
+                    for name, array in sel_perf_vars.items():
+                        sel_perf_vars[name] = array[idx]
 
             # attach data to tagger objects
             tagger.labels = np.array(sel_data[label_var], dtype=[(label_var, "i4")])
@@ -132,7 +133,7 @@ class AuxResults:
             for task in aux_labels:
                 tagger.aux_labels[task] = sel_aux_data[aux_labels[task]]
             if perf_vars is None:
-                tagger.perf_vars = dict()
+                tagger.perf_vars = {}
                 for perf_var in self.perf_vars:
                     if any(x in perf_var for x in ["pt", "mass"]):
                         tagger.perf_vars[perf_var] = sel_data[perf_var] * 0.001
@@ -190,13 +191,11 @@ class AuxResults:
     ):
         if isinstance(flavour, str):
             flavour = Flavours[flavour]
-
+        if incl_vertexing:
+            suffix = "incl" if not suffix else f"{suffix}_incl"
         vtx_string = "Inclusive vertexing" if incl_vertexing else "Exclusive vertexing"
-
-        if self.atlas_second_tag:
-            second_tag = self.atlas_second_tag + ", " + vtx_string
-        else:
-            second_tag = vtx_string
+        atlas_second_tag = self.atlas_second_tag if self.atlas_second_tag else ""
+        atlas_second_tag += vtx_string
 
         # define the curves
         plot_vtx_eff = VarVsAuxPlot(
@@ -205,7 +204,7 @@ class AuxResults:
             xlabel=xlabel,
             logy=False,
             atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=second_tag,
+            atlas_second_tag=atlas_second_tag,
             y_scale=1.4,
         )
         plot_vtx_purity = VarVsAuxPlot(
@@ -214,7 +213,7 @@ class AuxResults:
             xlabel=xlabel,
             logy=False,
             atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=second_tag,
+            atlas_second_tag=atlas_second_tag,
             y_scale=1.4,
         )
         plot_vtx_nreco = VarVsAuxPlot(
@@ -223,7 +222,7 @@ class AuxResults:
             xlabel=xlabel,
             logy=False,
             atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=second_tag,
+            atlas_second_tag=atlas_second_tag,
             y_scale=1.4,
         )
         plot_vtx_trk_eff = VarVsAuxPlot(
@@ -232,7 +231,7 @@ class AuxResults:
             xlabel=xlabel,
             logy=False,
             atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=second_tag,
+            atlas_second_tag=atlas_second_tag,
             y_scale=1.4,
         )
         plot_vtx_trk_purity = VarVsAuxPlot(
@@ -241,23 +240,17 @@ class AuxResults:
             xlabel=xlabel,
             logy=False,
             atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=second_tag,
+            atlas_second_tag=self.atlas_second_tag,
             y_scale=1.4,
         )
 
         for tagger in self.taggers.values():
             if "vertexing" not in tagger.aux_tasks:
-                logger.warning(
-                    f"{tagger.name} does not have vertexing aux task defined. Skipping."
-                )
-            assert (
-                perf_var in tagger.perf_vars
-            ), f"{perf_var} not in tagger {tagger.name} data!"
+                logger.warning(f"{tagger.name} does not have vertexing aux task defined. Skipping.")
+            assert perf_var in tagger.perf_vars, f"{perf_var} not in tagger {tagger.name} data!"
 
             # get cleaned vertex indices
-            truth_indices, reco_indices = tagger.vertex_indices(
-                incl_vertexing=incl_vertexing
-            )
+            truth_indices, reco_indices = tagger.vertex_indices(incl_vertexing=incl_vertexing)
 
             # calculate vertexing metrics
             vtx_metrics = calculate_vertex_metrics(reco_indices, truth_indices)
@@ -313,24 +306,16 @@ class AuxResults:
             raise ValueError("No taggers with vertexing aux task added.")
 
         plot_vtx_eff.draw()
-        plot_vtx_eff.savefig(
-            self.get_filename(prefix + f"vtx_eff_vs_{perf_var}", suffix)
-        )
+        plot_vtx_eff.savefig(self.get_filename(prefix + f"vtx_eff_vs_{perf_var}", suffix))
 
         plot_vtx_purity.draw()
-        plot_vtx_purity.savefig(
-            self.get_filename(prefix + f"vtx_purity_vs_{perf_var}", suffix)
-        )
+        plot_vtx_purity.savefig(self.get_filename(prefix + f"vtx_purity_vs_{perf_var}", suffix))
 
         plot_vtx_nreco.draw()
-        plot_vtx_nreco.savefig(
-            self.get_filename(prefix + f"vtx_nreco_vs_{perf_var}", suffix)
-        )
+        plot_vtx_nreco.savefig(self.get_filename(prefix + f"vtx_nreco_vs_{perf_var}", suffix))
 
         plot_vtx_trk_eff.draw()
-        plot_vtx_trk_eff.savefig(
-            self.get_filename(prefix + f"vtx_trk_eff_vs_{perf_var}", suffix)
-        )
+        plot_vtx_trk_eff.savefig(self.get_filename(prefix + f"vtx_trk_eff_vs_{perf_var}", suffix))
 
         plot_vtx_trk_purity.draw()
         plot_vtx_trk_purity.savefig(
