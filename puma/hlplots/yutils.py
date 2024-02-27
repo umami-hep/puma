@@ -10,7 +10,7 @@ from puma.utils import logger
 
 
 def combine_suffixes(suffixes):
-    """Combines a list of suffixes into a single suffix"""
+    """Combines a list of suffixes into a single suffix."""
     clean_suffixes = [s for s in suffixes if s not in {"", None}]
     if len(clean_suffixes) == 0:
         return None
@@ -43,7 +43,7 @@ def get_included_taggers(results, plot_config):
         }
 
     elif exclude_taggers := plot_config.get("exclude_taggers", None):
-        assert all([t in all_tagger_names for t in exclude_taggers])
+        assert all(t in all_tagger_names for t in exclude_taggers)
         include_taggers = {
             t: v for t, v in results.taggers.items() if v.yaml_name not in exclude_taggers
         }
@@ -57,7 +57,7 @@ def get_included_taggers(results, plot_config):
 
     # Set which tagger to use as a reference, if no reference is set, use the first
     #  tagger.This is only needed for plots with a ratio, but still...
-    if not any([t.reference for t in include_taggers.values()]):
+    if not any(t.reference for t in include_taggers.values()):
         if reference := plot_config.get("reference", None):
             if reference not in [t.yaml_name for t in include_taggers.values()]:
                 raise ValueError(
