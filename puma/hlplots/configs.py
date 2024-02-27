@@ -90,7 +90,8 @@ class PlotConfig:
             if "colour" not in t:
                 t["colour"] = good_colours[col_idx]
                 col_idx += 1
-            results.add(Tagger(**t))
+            if key in self.taggers:
+                results.add(Tagger(**t))
 
         results.load()
         self.results = results

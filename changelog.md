@@ -1,6 +1,7 @@
 # Changelog
 
 ### [Latest]
+- Fix taggers selection configuration for yuma [!247](https://github.com/umami-hep/puma/pull/247)
 - Allow yuma base path to work with tagger sample dir [!246](https://github.com/umami-hep/puma/pull/246)
 - Fix marker resizing in VarVsVar [!243](https://github.com/umami-hep/puma/pull/243)
 
