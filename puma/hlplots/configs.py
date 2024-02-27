@@ -87,10 +87,6 @@ class PlotConfig:
     @property
     def peff_vars(self):
         """Iterates plots and returns a list of all performance variables."""
-        return list(
-            {
-                p["plot_kwargs"].get("perf_var", "pt")
-                for p in self.plots
-                if p["plot_type"] == "peff"
-            }
-        )
+        return list({
+            p["plot_kwargs"].get("perf_var", "pt") for p in self.plots if p["plot_type"] == "peff"
+        })

@@ -13,6 +13,6 @@ __all__ = [
     "PlotConfig",
     "Results",
     "Tagger",
-    "get_included_taggers",
     "combine_suffixes",
+    "get_included_taggers",
 ]

@@ -781,9 +781,7 @@ class Results:
         frac = "fc" if self.signal == Flavours.bjets else "fb"
         eff_str = str(round(efficiency * 100, 3)).replace(".", "p")
         back_str = "_".join([f.name for f in backgrounds])
-        suffix = combine_suffixes(
-            [f"back_{back_str}_eff_{eff_str}_scan_{frac}", suffix]
-        )
+        suffix = combine_suffixes([f"back_{back_str}_eff_{eff_str}_scan_{frac}", suffix])
 
         # set defaults
         if "logx" not in kwargs:

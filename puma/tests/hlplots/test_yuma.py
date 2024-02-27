@@ -126,9 +126,7 @@ class TestYumaPlots(unittest.TestCase):
             assert btagging.exists(), "No b-tagging plots produced"
             assert not ctagging.exists(), "No c-tagging plots should have been produced"
             btag_plots = [p.name for p in btagging.glob("*")]
-            assert (
-                len(btag_plots) == 22
-            ), f"Expected 22 b-tagging plot, found {len(btag_plots)}"
+            assert len(btag_plots) == 22, f"Expected 22 b-tagging plot, found {len(btag_plots)}"
 
             args = [
                 "--config",
@@ -167,9 +165,7 @@ class TestYumaPlots(unittest.TestCase):
             plt_cfg["taggers_config"] = taggers
             plt_cfg["plot_dir"] = tmp_file + "/plots"
 
-            plt_cfg["plots"] = [
-                p for p in plt_cfg["plots"] if p["args"]["plot_type"] == "roc"
-            ]
+            plt_cfg["plots"] = [p for p in plt_cfg["plots"] if p["args"]["plot_type"] == "roc"]
 
             with open(updated_plt_cfg, "w") as f:
                 yaml.dump(plt_cfg, f)
