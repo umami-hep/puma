@@ -8,7 +8,7 @@ jobs:
   update_issue:
     name: Update the TODO Issue
     runs-on: ubuntu-latest
-    container: python:3.10.0-slim
+    container: python:3.8.15-slim
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3

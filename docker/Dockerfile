@@ -1,4 +1,4 @@
-FROM python:3.10.0
+FROM python:3.8.15
 
 RUN apt update && apt install -y vim
 
