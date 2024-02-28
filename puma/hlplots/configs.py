@@ -80,6 +80,8 @@ class PlotConfig:
                 raise ValueError(f"No sample path defined for tagger {key}")
             if sample_path and not t.get("sample_path", None):
                 t["sample_path"] = sample_path
+            if self.base_path and t.get("sample_path", None):
+                t["sample_path"] = self.base_path / t["sample_path"]
             # Allows automatic selection of tagger name in eval files
             t["name"] = get_tagger_name(
                 t.get("name", None), t["sample_path"], key, results.flavours
@@ -88,7 +90,8 @@ class PlotConfig:
             if "colour" not in t:
                 t["colour"] = good_colours[col_idx]
                 col_idx += 1
-            results.add(Tagger(**t))
+            if key in self.taggers:
+                results.add(Tagger(**t))
 
         results.load()
         self.results = results
