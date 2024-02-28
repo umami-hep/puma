@@ -12,8 +12,7 @@ from ftag import Flavours, get_mock_file
 from ftag.hdf5 import structured_from_dict
 from yamlinclude import YamlIncludeConstructor
 
-from puma.hlplots import PlotConfig
-from puma.hlplots.yuma import main
+from puma.hlplots.yuma import main, YumaConfig
 from puma.hlplots.yutils import get_tagger_name
 
 EXAMPLES = Path(__file__).parents[3] / "examples"
@@ -87,7 +86,7 @@ class TestYutils(unittest.TestCase):
 
     def testGetSignals(self):
         plt_cfg = EXAMPLES / "plt_cfg.yaml"
-        plt_cfg = PlotConfig.load_config(plt_cfg)
+        plt_cfg = YumaConfig.load_config(plt_cfg)
         assert sorted(plt_cfg.signals) == ["bjets", "cjets"]
 
 
