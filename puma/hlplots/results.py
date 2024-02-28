@@ -751,9 +751,10 @@ class Results:
             raise ValueError("Only two background flavours are supported")
 
         frac = "fc" if self.signal == Flavours.bjets else "fb"
-        eff_str = str(round(efficiency * 100, 3)).replace(".", "p")
+        
         back_str = "_".join([f.name for f in backgrounds])
-        suffix = combine_suffixes([f"back_{back_str}_eff_{eff_str}_scan_{frac}", suffix])
+        plot_name = f"{frac}_scan"
+        suffix = combine_suffixes([f"{back_str}_eff{int(efficiency * 100)}", suffix])
 
         # set defaults
         if "logx" not in kwargs:
@@ -829,7 +830,7 @@ class Results:
                 plot.ylabel = backgrounds[1].rej_str
         # Draw and save the plot
         plot.draw()
-        plot.savefig(self.get_filename("fraction_scan", suffix))
+        plot.savefig(self.get_filename(plot_name, suffix))
 
     def make_plot(self, plot_type, kwargs):
         """Make a plot.

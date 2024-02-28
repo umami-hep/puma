@@ -464,8 +464,9 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
             results.plot_fraction_scans(rej=False, optimal_fc=True)
+            print(Path(tmp_file).glob("*"))
             self.assertIsFile(
-                Path(tmp_file) / "test_bjets_fraction_scan_back_cjets_ujets_eff_70p0_scan_fc.png"
+                Path(tmp_file) / "test_bjets_fc_scan_cjets_ujets_eff70.png"
             )
 
     def test_plot_fraction_scans_cjets_rej(self):
@@ -477,5 +478,5 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results.add(self.dummy_tagger_1)
             results.plot_fraction_scans(rej=True, optimal_fc=True)
             self.assertIsFile(
-                Path(tmp_file) / "test_cjets_fraction_scan_back_bjets_ujets_eff_70p0_scan_fb.png"
+                Path(tmp_file) / "test_cjets_fc_scan_bjets_ujets_eff70.png"
             )
