@@ -464,7 +464,6 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
             results.plot_fraction_scans(rej=False, optimal_fc=True)
-            print(Path(tmp_file).glob("*"))
             self.assertIsFile(
                 Path(tmp_file) / "test_bjets_fc_scan_cjets_ujets_eff70.png"
             )
