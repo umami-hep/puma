@@ -179,3 +179,4 @@ class TestYumaPlots(unittest.TestCase):
             assert not ctagging.exists(), "No c-tagging plots should have been produced"
             btag_plots = [p.name for p in btagging.glob("*")]
             assert len(btag_plots) == 3, f"Expected 3 b-tagging plot, found {len(btag_plots)}"
+        

@@ -100,6 +100,8 @@ class YumaConfig:
 
         # Add taggers to results, then bulk load
         for key, t in self.taggers_config.items():
+            if key not in self.taggers:
+                continue
             # if the a sample is not defined for the tagger, use the default sample
             if not sample_path and not t.get("sample_path", None):
                 raise ValueError(f"No sample path defined for tagger {key}")
@@ -109,6 +111,7 @@ class YumaConfig:
             t["name"] = get_tagger_name(
                 t.get("name", None), t["sample_path"], key, results.flavours
             )
+            
             results.add(Tagger(**t))
 
         results.load()
