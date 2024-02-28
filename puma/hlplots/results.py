@@ -713,7 +713,7 @@ class Results:
                 plot_bkg[i].draw_hline(h_line)
             plot_details = f"{self.signal}_eff_vs_{perf_var}_"
             plot_base = (
-                f"profile_flat_{background}_{int(fixed_rejections[background.name])}_rej_per_bin"
+                f"{background}_rej_flat_{int(fixed_rejections[background.name])}"
             )
             plot_bkg[i].savefig(self.get_filename(plot_details + plot_base, plot_suffix))
 

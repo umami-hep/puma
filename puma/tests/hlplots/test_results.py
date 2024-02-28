@@ -418,10 +418,10 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 h_line=0.5,
             )
             self.assertIsFile(
-                Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_profile_flat_cjets_10_rej_per_bin.png"
+                Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_cjets_rej_flat_10.png"
             )
             self.assertIsFile(
-                Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_profile_flat_ujets_100_rej_per_bin.png"
+                Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_ujets_rej_flat_100.png"
             )
 
     def test_plot_ceff_vs_flat_rej(self):
@@ -439,11 +439,12 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 fixed_rejections={"bjets": 10, "ujets": 100},
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
             )
+            print(Path(tmp_file).glob("*"))
             self.assertIsFile(
-                Path(tmp_file) / "test_cjets_cjets_eff_vs_pt_profile_flat_bjets_10_rej_per_bin.png"
+                Path(tmp_file) / "test_cjets_cjets_eff_vs_pt_bjets_rej_flat_10.png"
             )
             self.assertIsFile(
-                Path(tmp_file) / "test_cjets_cjets_eff_vs_pt_profile_flat_ujets_100_rej_per_bin.png"
+                Path(tmp_file) / "test_cjets_cjets_eff_vs_pt_ujets_rej_flat_100.png"
             )
 
     def test_plot_fraction_scans_hbb_error(self):
@@ -477,5 +478,5 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results.add(self.dummy_tagger_1)
             results.plot_fraction_scans(rej=True, optimal_fc=True)
             self.assertIsFile(
-                Path(tmp_file) / "test_cjets_fc_scan_bjets_ujets_eff70.png"
+                Path(tmp_file) / "test_cjets_fb_scan_bjets_ujets_eff70.png"
             )
