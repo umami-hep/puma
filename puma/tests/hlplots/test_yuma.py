@@ -12,7 +12,7 @@ from ftag import Flavours, get_mock_file
 from ftag.hdf5 import structured_from_dict
 from yamlinclude import YamlIncludeConstructor
 
-from puma.hlplots.yuma import main, YumaConfig
+from puma.hlplots.yuma import YumaConfig, main
 from puma.hlplots.yutils import get_tagger_name
 
 EXAMPLES = Path(__file__).parents[3] / "examples"
@@ -53,8 +53,8 @@ class TestYutils(unittest.TestCase):
             taggers["dummy3"]["sample_path"] = fpath1
             updated_plt_cfg = Path(tmp_file) / "plt_cfg.yaml"
 
-            plt_cfg["plots"]['roc'][0]["reference"] = "dummyNot"
-            plt_cfg["plots"]['roc'][0]["include_taggers"] = ["dummy1"]
+            plt_cfg["plots"]["roc"][0]["reference"] = "dummyNot"
+            plt_cfg["plots"]["roc"][0]["include_taggers"] = ["dummy1"]
 
             plt_cfg["plot_dir"] = tmp_file + "/plots"
             plt_cfg["taggers_config"] = taggers
@@ -164,7 +164,7 @@ class TestYumaPlots(unittest.TestCase):
             plt_cfg["taggers_config"] = taggers
             plt_cfg["plot_dir"] = tmp_file + "/plots"
 
-            plt_cfg["plots"] = {'roc' : plt_cfg['plots']['roc']}
+            plt_cfg["plots"] = {"roc": plt_cfg["plots"]["roc"]}
             with open(updated_plt_cfg, "w") as f:
                 yaml.dump(plt_cfg, f)
 
@@ -179,4 +179,3 @@ class TestYumaPlots(unittest.TestCase):
             assert not ctagging.exists(), "No c-tagging plots should have been produced"
             btag_plots = [p.name for p in btagging.glob("*")]
             assert len(btag_plots) == 3, f"Expected 3 b-tagging plot, found {len(btag_plots)}"
-        

@@ -1,22 +1,17 @@
-
 from __future__ import annotations
 
 import argparse
 import os
-from pathlib import Path
 from dataclasses import dataclass, field
 from datetime import datetime
+from pathlib import Path
 
 import yaml
 from yamlinclude import YamlIncludeConstructor
 
-from puma.hlplots import  combine_suffixes, get_included_taggers, Results, Tagger
+from puma.hlplots import Results, Tagger, combine_suffixes, get_included_taggers
 from puma.hlplots.yutils import get_tagger_name
 from puma.utils import logger
-
-
-
-
 
 ALL_PLOTS = ["roc", "scan", "disc", "probs", "peff"]
 
@@ -44,7 +39,6 @@ def get_args(args):
     return parser.parse_args(args)
 
 
-
 @dataclass
 class YumaConfig:
     config_path: Path
@@ -67,8 +61,6 @@ class YumaConfig:
             date_time_file = datetime.now().strftime("%Y%m%d_%H%M%S")
             plot_dir_name += "_" + date_time_file
         self.plot_dir_final = Path(self.plot_dir) / plot_dir_name
-
-
 
         for k, kwargs in self.taggers_config.items():
             kwargs["yaml_name"] = k
@@ -111,7 +103,7 @@ class YumaConfig:
             t["name"] = get_tagger_name(
                 t.get("name", None), t["sample_path"], key, results.flavours
             )
-            
+
             results.add(Tagger(**t))
 
         results.load()
@@ -125,26 +117,25 @@ class YumaConfig:
     @property
     def peff_vars(self):
         """Iterates plots and returns a list of all performance variables."""
-        return list({
-            p["plot_kwargs"].get("perf_var", "pt") for p in self.plots.get("peff", [])
-        })
-
+        return list({p["plot_kwargs"].get("perf_var", "pt") for p in self.plots.get("peff", [])})
 
     def make_plots(self, plot_types):
-        '''Makes all desired plots.
-         
+        """Makes all desired plots.
+
         Parameters
         ----------
         plot_types : list[str]
             List of plot types to make.
-        '''
+        """
         for plot_type, plots in self.plots.items():
-            if not plot_type in plot_types:
+            if plot_type not in plot_types:
                 continue
             for plot in plots:
-                if plot['signal'] != self.signal:
+                if plot["signal"] != self.signal:
                     continue
-                self.results.taggers, all_taggers, inc_str = get_included_taggers(self.results, plot)
+                self.results.taggers, all_taggers, inc_str = get_included_taggers(
+                    self.results, plot
+                )
                 plot_kwargs = plot.get("plot_kwargs", {})
                 plot_kwargs["suffix"] = combine_suffixes([plot_kwargs.get("suffix", ""), inc_str])
                 self.results.make_plot(plot_type, plot_kwargs)

@@ -613,7 +613,9 @@ class Results:
             plot_sig_eff.draw_hline(h_line)
 
         plot_base = "flat_per_bin" if kwargs.get("flat_per_bin") else "fixed_cut"
-        wp_disc = (f"disc_cut{disc_cut}" if disc_cut else f"wp{int(working_point*100)}").replace(".", "p")
+        wp_disc = (f"disc_cut{disc_cut}" if disc_cut else f"wp{int(working_point * 100)}").replace(
+            ".", "p"
+        )
 
         plot_details = f"{self.signal}_eff_vs_{perf_var}_{plot_base}_{wp_disc}"
         plot_suffix = f"{suffix}_" if suffix else ""
@@ -712,9 +714,7 @@ class Results:
             if h_line:
                 plot_bkg[i].draw_hline(h_line)
             plot_details = f"{self.signal}_eff_vs_{perf_var}_"
-            plot_base = (
-                f"{background}_rej_flat_{int(fixed_rejections[background.name])}"
-            )
+            plot_base = f"{background}_rej_flat_{int(fixed_rejections[background.name])}"
             plot_bkg[i].savefig(self.get_filename(plot_details + plot_base, plot_suffix))
 
     def plot_fraction_scans(
@@ -751,7 +751,7 @@ class Results:
             raise ValueError("Only two background flavours are supported")
 
         frac = "fc" if self.signal == Flavours.bjets else "fb"
-        
+
         back_str = "_".join([f.name for f in backgrounds])
         plot_name = f"{frac}_scan"
         suffix = combine_suffixes([f"{back_str}_eff{int(efficiency * 100)}", suffix])
