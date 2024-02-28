@@ -20,79 +20,69 @@ taggers_config: !include taggers.yaml
 taggers: [dummy1, dummy2, dummy3]
 
 plots:
-  - args:
-      signal: cjets
-      plot_type: roc
+  roc:
+    - signal: cjets
       plot_kwargs:
         x_range: [0.5, 1.0]
         figsize: [8.5, 7.5]
-  - args:
-      signal: bjets
-      plot_type: roc
+    
+  
+    - signal: bjets
       plot_kwargs:
         x_range: [0.5, 1.0]
         figsize: [8.5, 7.5]
-  - args:
-      signal: bjets
-      plot_type: roc
+  
+    - signal: bjets
       include_taggers: ["dummy1"]
       plot_kwargs:
         x_range: [0.5, 1.0]
-  - args:
-      signal: bjets
-      plot_type: roc
+  
+    - signal: bjets
       exclude_taggers: ["dummy1"]
       plot_kwargs:
         x_range: [0.5, 1.0]
 
 
-  - args:
-      signal: bjets
-      plot_type: scan
+  scan:
+    - signal: bjets
       efficiency: 0.70
       plot_kwargs:
         figsize: [8.5, 7.5]
-
-  - args:
-      signal: bjets
-      plot_type: disc
+  
+  disc:
+    - signal: bjets
       plot_kwargs:
         wp_vlines: [70, 77, 80]
 
 
-  - args:
-      plot_type: probs
-      signal: bjets
+  
+  probs:
+    - signal: bjets
 
-  - args:
-      signal: bjets
-      plot_type: peff
+  peff:
+    - signal: bjets
       plot_kwargs:
         flat_per_bin: True
         working_point: 0.7
-  - args:
-      signal: bjets
-      plot_type: peff
+  
+    - signal: bjets
       plot_kwargs:
         fixed_rejections:
           cjets: 10
           ujets: 100
-  - args:
-      signal: bjets
-      plot_type: peff
+  
+    - signal: bjets
       plot_kwargs:
         flat_per_bin: True
         working_point: 0.7
-  - args:
-      signal: bjets
-      plot_type: peff
+  
+    - signal: bjets
       plot_kwargs:
         perf_var: eta
         flat_per_bin: False
         working_point: 0.7
-  - args:
-      signal: bjets
-      plot_type: peff
+  
+    - signal: bjets
       plot_kwargs:
         perf_var: HadronConeExclTruthLabelPt
         flat_per_bin: False

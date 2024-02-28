@@ -53,8 +53,8 @@ class TestYutils(unittest.TestCase):
             taggers["dummy3"]["sample_path"] = fpath1
             updated_plt_cfg = Path(tmp_file) / "plt_cfg.yaml"
 
-            plt_cfg["plots"][0]["reference"] = "dummyNot"
-            plt_cfg["plots"][0]["include_taggers"] = ["dummy1"]
+            plt_cfg["plots"]['roc'][0]["reference"] = "dummyNot"
+            plt_cfg["plots"]['roc'][0]["include_taggers"] = ["dummy1"]
 
             plt_cfg["plot_dir"] = tmp_file + "/plots"
             plt_cfg["taggers_config"] = taggers
@@ -141,7 +141,7 @@ class TestYumaPlots(unittest.TestCase):
             assert ctagging.exists(), "No c-tagging plots produced"
             assert (
                 len(ctag_plots) == 1
-            ), f"Only expected one c-tagging plot, found {len(ctag_plots)}"
+            ), f"Only expected one c-tagging plot, found {len(ctag_plots)}: , {ctag_plots}"
 
             args = ["--config", updated_plt_cfg.as_posix()]
             main(args)
@@ -164,8 +164,7 @@ class TestYumaPlots(unittest.TestCase):
             plt_cfg["taggers_config"] = taggers
             plt_cfg["plot_dir"] = tmp_file + "/plots"
 
-            plt_cfg["plots"] = [p for p in plt_cfg["plots"] if p["args"]["plot_type"] == "roc"]
-
+            plt_cfg["plots"] = {'roc' : plt_cfg['plots']['roc']}
             with open(updated_plt_cfg, "w") as f:
                 yaml.dump(plt_cfg, f)
 

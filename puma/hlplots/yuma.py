@@ -57,7 +57,8 @@ class YumaConfig:
     timestamp: bool = False
     base_path: Path = None
 
-    plots: list[dict[str, dict[str, str]]] = field(default_factory=list)
+    # dict like {roc : [list of roc plots], scan: [list of scan plots], ...}
+    plots: dict[list[dict[str, dict[str, str]]]] = field(default_factory=list)
 
     def __post_init__(self):
         # Define a plot directory based on the plot config file name, and a date time
@@ -67,7 +68,7 @@ class YumaConfig:
             plot_dir_name += "_" + date_time_file
         self.plot_dir_final = Path(self.plot_dir) / plot_dir_name
 
-        self.plots = [p["args"] for p in self.plots]
+
 
         for k, kwargs in self.taggers_config.items():
             kwargs["yaml_name"] = k
@@ -116,25 +117,35 @@ class YumaConfig:
     @property
     def signals(self):
         """Iterates all plots in the config and returns a list of all signals."""
-        return list({p["signal"] for p in self.plots})
+        return list({p["signal"] for pt in self.plots.values() for p in pt})
 
     @property
     def peff_vars(self):
         """Iterates plots and returns a list of all performance variables."""
         return list({
-            p["plot_kwargs"].get("perf_var", "pt") for p in self.plots if p["plot_type"] == "peff"
+            p["plot_kwargs"].get("perf_var", "pt") for p in self.plots.get("peff", [])
         })
 
 
-    def make_plots(self, plots):
-        for plot in self.plots:
-            if not (plot["plot_type"] in plots and plot["signal"] == self.signal):
+    def make_plots(self, plot_types):
+        '''Makes all desired plots.
+         
+        Parameters
+        ----------
+        plot_types : list[str]
+            List of plot types to make.
+        '''
+        for plot_type, plots in self.plots.items():
+            if not plot_type in plot_types:
                 continue
-            self.results.taggers, all_taggers, inc_str = get_included_taggers(self.results, plot)
-            plot_kwargs = plot.get("plot_kwargs", {})
-            plot_kwargs["suffix"] = combine_suffixes([plot_kwargs.get("suffix", ""), inc_str])
-            self.results.make_plot(plot["plot_type"], plot_kwargs)
-            self.results.taggers = all_taggers
+            for plot in plots:
+                if plot['signal'] != self.signal:
+                    continue
+                self.results.taggers, all_taggers, inc_str = get_included_taggers(self.results, plot)
+                plot_kwargs = plot.get("plot_kwargs", {})
+                plot_kwargs["suffix"] = combine_suffixes([plot_kwargs.get("suffix", ""), inc_str])
+                self.results.make_plot(plot_type, plot_kwargs)
+                self.results.taggers = all_taggers
 
 
 def main(args=None):
