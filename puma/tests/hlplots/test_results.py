@@ -324,13 +324,13 @@ class ResultsPlotsTestCase(unittest.TestCase):
             )
 
             self.assertIsFile(
-                Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_wp_0p7_profile_fixed_cut.png"
+                Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_fixed_cut_wp70.png"
             )
             self.assertIsFile(
-                Path(tmp_file) / "test_bjets_cjets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
+                Path(tmp_file) / "test_bjets_cjets_rej_vs_pt_fixed_cut_wp70.png"
             )
             self.assertIsFile(
-                Path(tmp_file) / "test_bjets_ujets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
+                Path(tmp_file) / "test_bjets_ujets_rej_vs_pt_fixed_cut_wp70.png"
             )
 
     def test_plot_var_perf_multi_bjets(self):
@@ -354,24 +354,23 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results.plot_var_perf(
                 bins=np.linspace(-0.5, 0.5, 10), working_point=0.7, perf_var="eta"
             )
-
             self.assertIsFile(
-                Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_wp_0p7_profile_fixed_cut.png"
+                Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_fixed_cut_wp70.png"
             )
             self.assertIsFile(
-                Path(tmp_file) / "test_bjets_cjets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
+                Path(tmp_file) / "test_bjets_cjets_rej_vs_pt_fixed_cut_wp70.png"
             )
             self.assertIsFile(
-                Path(tmp_file) / "test_bjets_ujets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
+                Path(tmp_file) / "test_bjets_ujets_rej_vs_pt_fixed_cut_wp70.png"
             )
             self.assertIsFile(
-                Path(tmp_file) / "test_bjets_bjets_eff_vs_eta_wp_0p7_profile_fixed_cut.png"
+                Path(tmp_file) / "test_bjets_bjets_eff_vs_eta_fixed_cut_wp70.png"
             )
             self.assertIsFile(
-                Path(tmp_file) / "test_bjets_cjets_rej_vs_eta_wp_0p7_profile_fixed_cut.png"
+                Path(tmp_file) / "test_bjets_cjets_rej_vs_eta_fixed_cut_wp70.png"
             )
             self.assertIsFile(
-                Path(tmp_file) / "test_bjets_ujets_rej_vs_eta_wp_0p7_profile_fixed_cut.png"
+                Path(tmp_file) / "test_bjets_ujets_rej_vs_eta_fixed_cut_wp70.png"
             )
 
     def test_plot_var_perf_cjets(self):
@@ -391,14 +390,15 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
                 working_point=0.7,
             )
+            print(Path(tmp_file).glob("*"))
             self.assertIsFile(
-                Path(tmp_file) / "test_cjets_bjets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
+                Path(tmp_file) / "test_cjets_cjets_eff_vs_pt_fixed_cut_wp70.png"
             )
             self.assertIsFile(
-                Path(tmp_file) / "test_cjets_cjets_eff_vs_pt_wp_0p7_profile_fixed_cut.png"
+                Path(tmp_file) / "test_cjets_bjets_rej_vs_pt_fixed_cut_wp70.png"
             )
             self.assertIsFile(
-                Path(tmp_file) / "test_cjets_ujets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
+                Path(tmp_file) / "test_cjets_ujets_rej_vs_pt_fixed_cut_wp70.png"
             )
 
     def test_plot_beff_vs_flat_rej(self):

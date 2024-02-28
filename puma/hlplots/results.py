@@ -612,17 +612,17 @@ class Results:
         if h_line:
             plot_sig_eff.draw_hline(h_line)
 
-        plot_base = "profile_flat_per_bin" if kwargs.get("flat_per_bin") else "profile_fixed_cut"
-        wp_disc = (f"disc_cut_{disc_cut}" if disc_cut else f"wp_{working_point}").replace(".", "p")
+        plot_base = "flat_per_bin" if kwargs.get("flat_per_bin") else "fixed_cut"
+        wp_disc = (f"disc_cut{disc_cut}" if disc_cut else f"wp{int(working_point*100)}").replace(".", "p")
 
-        plot_details = f"{self.signal}_eff_vs_{perf_var}_{wp_disc}_"
+        plot_details = f"{self.signal}_eff_vs_{perf_var}_{plot_base}_{wp_disc}"
         plot_suffix = f"{suffix}_" if suffix else ""
-        plot_sig_eff.savefig(self.get_filename(plot_details + plot_base, plot_suffix))
+        plot_sig_eff.savefig(self.get_filename(plot_details, plot_suffix))
 
         for i, background in enumerate(self.backgrounds):
             plot_bkg[i].draw()
-            plot_details = f"{background}_rej_vs_{perf_var}_{wp_disc}_"
-            plot_bkg[i].savefig(self.get_filename(plot_details + plot_base, plot_suffix))
+            plot_details = f"{background}_rej_vs_{perf_var}_{plot_base}_{wp_disc}"
+            plot_bkg[i].savefig(self.get_filename(plot_details, plot_suffix))
 
     def plot_flat_rej_var_perf(
         self,
