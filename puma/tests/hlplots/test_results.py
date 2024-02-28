@@ -52,39 +52,39 @@ class ResultsTestCase(unittest.TestCase):
         retrieved_dummy_tagger_2 = results["dummy_2 (dummy_2)"]
         self.assertEqual(retrieved_dummy_tagger_2.name, dummy_tagger_2.name)
 
-    def test_add_taggers_from_file(self):
-        """Test for Results.add_taggers_from_file function."""
+    def test_load_taggers_from_file(self):
+        """Test for Results.load_taggers_from_file function."""
         fname = get_mock_file()[0]
         results = Results(signal="bjets", sample="test")
         taggers = [Tagger("MockTagger")]
-        results.add_taggers_from_file(taggers, fname)
+        results.load_taggers_from_file(taggers, fname)
         self.assertEqual(list(results.taggers.values()), taggers)
 
-    def test_add_taggers_from_file_with_perf_vars(self):
-        """Test for Results.add_taggers_from_file function."""
+    def test_load_taggers_from_file_with_perf_vars(self):
+        """Test for Results.load_taggers_from_file function."""
         fname = get_mock_file()[0]
         results = Results(signal="bjets", sample="test", perf_vars=["pt", "eta"])
         taggers = [Tagger("MockTagger")]
-        results.add_taggers_from_file(taggers, fname)
+        results.load_taggers_from_file(taggers, fname)
         self.assertEqual(list(results.taggers.values()), taggers)
 
     def test_add_taggers_with_cuts_override_perf_vars(self):
-        """Test for Results.add_taggers_from_file function."""
+        """Test for Results.load_taggers_from_file function."""
         rng = np.random.default_rng(seed=16)
         cuts = [("eta", ">", 0)]
         tagger_cuts = [("pt", ">", 20)]
         fname = get_mock_file(num_jets=1000)[0]
         results = Results(signal="bjets", sample="test", perf_vars=["pt", "eta"])
         taggers = [Tagger("MockTagger", cuts=tagger_cuts)]
-        results.add_taggers_from_file(
-            taggers,
+        
+        results.load_taggers_from_file(
+            taggers, 
             fname,
             cuts=cuts,
             perf_vars={
                 "pt": rng.exponential(100, size=1000),
                 "eta": rng.normal(0, 1, size=1000),
-            },
-        )
+            },)
         self.assertEqual(list(results.taggers.values()), taggers)
 
     def test_add_taggers_with_cuts(self):
@@ -93,7 +93,7 @@ class ResultsTestCase(unittest.TestCase):
         tagger_cuts = [("pt", ">", 20)]
         results = Results(signal="bjets", sample="test")
         taggers = [Tagger("MockTagger", cuts=tagger_cuts)]
-        results.add_taggers_from_file(taggers, fname, cuts=cuts)
+        results.load_taggers_from_file(taggers, fname, cuts=cuts)
         self.assertEqual(list(results.taggers.values()), taggers)
 
     def test_add_taggers_taujets(self):
@@ -101,7 +101,7 @@ class ResultsTestCase(unittest.TestCase):
         fname = get_mock_file()[0]
         results = Results(signal="bjets", sample="test")
         taggers = [Tagger("MockTagger", fxs={"fc": 0.1, "fb": 0.1, "ftau": 0.1})]
-        results.add_taggers_from_file(taggers, fname)
+        results.load_taggers_from_file(taggers, fname)
         assert "MockTagger_ptau" in taggers[0].scores.dtype.names
         taggers[0].discriminant("bjets")
 
@@ -122,7 +122,7 @@ class ResultsTestCase(unittest.TestCase):
                 f.create_dataset("jets", data=array)
 
             results = Results(signal="hbb", sample="test")
-            results.add_taggers_from_file([Tagger("MockTagger")], fname, label_var="R10TruthLabel")
+            results.load_taggers_from_file([Tagger("MockTagger")], fname, label_var="R10TruthLabel")
 
     def test_add_taggers_keep_nan(self):
         # get mock file and add nans
@@ -143,7 +143,7 @@ class ResultsTestCase(unittest.TestCase):
 
             results = Results(signal="bjets", sample="test", remove_nan=False)
             with self.assertRaises(ValueError):
-                results.add_taggers_from_file([Tagger("MockTagger")], fname)
+                results.load_taggers_from_file([Tagger("MockTagger")], fname)
 
     def test_add_taggers_remove_nan(self):
         # get mock file and add nans
@@ -164,7 +164,7 @@ class ResultsTestCase(unittest.TestCase):
 
             results = Results(signal="bjets", sample="test", remove_nan=True)
             with self.assertLogs("puma", "WARNING") as cm:
-                results.add_taggers_from_file([Tagger("MockTagger")], fname)
+                results.load_taggers_from_file([Tagger("MockTagger")], fname)
             self.assertEqual(
                 cm.output,
                 [f"WARNING:puma:{len(n_nans)} NaN values found in loaded data." " Removing them."],

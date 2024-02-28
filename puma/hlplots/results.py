@@ -123,36 +123,6 @@ class Results:
                 num_jets=self.num_jets,
             )
 
-    def add_taggers_from_file(
-        self,
-        taggers: list[Tagger],
-        file_path: Path | str,
-        key="jets",
-        label_var="HadronConeExclTruthLabelID",
-        cuts: Cuts | list | None = None,
-        num_jets: int | None = None,
-        perf_vars: dict | None = None,
-    ):
-        """Load one or more taggers from a common file, and adds them to this
-        results class.
-
-        Parameters
-        ----------
-            @self.load_taggers_from_file
-        """
-        self.load_taggers_from_file(
-            taggers,
-            file_path,
-            key=key,
-            label_var=label_var,
-            cuts=cuts,
-            num_jets=num_jets,
-            perf_vars=perf_vars,
-        )
-
-        for tagger in taggers:
-            self.add(tagger)
-
     def load_taggers_from_file(  # pylint: disable=R0913
         self,
         taggers: list[Tagger],
@@ -163,8 +133,8 @@ class Results:
         num_jets: int | None = None,
         perf_vars: dict | None = None,
     ):
-        """Load one or more taggers from a common file. But assumes all taggers
-        already been added.
+        """Load one or more taggers from a common file. Adds the tagger to this results class
+        if it is not already present.
 
         Parameters
         ----------
@@ -207,6 +177,8 @@ class Results:
 
         # set tagger output nodes
         for tagger in taggers:
+            if tagger not in self.taggers.values():
+                self.add(tagger)
             tagger.output_flavours = self.flavours
             if "ftau" in tagger.fxs:
                 tagger.output_flavours += [Flavours.taujets]
