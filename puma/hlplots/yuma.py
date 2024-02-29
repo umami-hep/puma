@@ -64,6 +64,9 @@ class YumaConfig:
 
         for k, kwargs in self.taggers_config.items():
             kwargs["yaml_name"] = k
+        if not self.taggers:
+            logger.info("No taggers specified in config, using all")
+            self.taggers = list(self.taggers_config.keys())
 
     @classmethod
     def load_config(cls, path: Path, **kwargs) -> YumaConfig:
