@@ -67,8 +67,6 @@ class YumaConfig:
         if not self.taggers:
             logger.info("No taggers specified in config, using all")
             self.taggers = list(self.taggers_config.keys())
-            
-
 
     @classmethod
     def load_config(cls, path: Path, **kwargs) -> YumaConfig:
