@@ -2,21 +2,18 @@ from __future__ import annotations
 
 import argparse
 import os
+from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
 
 import yaml
-from ftag import Flavours
 from yamlinclude import YamlIncludeConstructor
 
-from puma.hlplots import (
-    PlotConfig,
-    get_included_taggers,
-    get_plot_kwargs,
-    select_configs,
-)
+from puma.hlplots import Results, Tagger, combine_suffixes, get_included_taggers
+from puma.hlplots.yutils import get_tagger_name
 from puma.utils import logger
 
-ALL_PLOTS = ["roc", "scan", "disc", "prob", "peff"]
+ALL_PLOTS = ["roc", "scan", "disc", "probs", "peff"]
 
 
 def get_args(args):
@@ -42,136 +39,109 @@ def get_args(args):
     return parser.parse_args(args)
 
 
-def make_eff_vs_var_plots(plt_cfg):
-    if not plt_cfg.eff_vs_var_plots:
-        logger.warning("No eff vs var plots in config")
-        return
+@dataclass
+class YumaConfig:
+    config_path: Path
+    plot_dir: Path
 
-    eff_vs_var_plots = select_configs(plt_cfg.eff_vs_var_plots, plt_cfg)
+    results_config: dict[str, dict[str, str]]
+    taggers_config: dict
+    taggers: list[str] | list[Tagger] | None = None
 
-    for eff_vs_var in eff_vs_var_plots:
-        perf_var = eff_vs_var["args"].get("perf_var", "pt")
-        plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(
-            plt_cfg.results, eff_vs_var
-        )
-        plot_kwargs = get_plot_kwargs(eff_vs_var, suffix=[inc_str, perf_var])
-        # move this logic into the results class
-        if not (bins := eff_vs_var["args"].get("bins", None)):
-            if plt_cfg.results.sample == "ttbar":
-                bins = [20, 30, 40, 60, 85, 110, 140, 175, 250]
-            elif plt_cfg.results.sample == "zprime":
-                bins = [250, 500, 750, 1000, 1500, 2000, 3000, 4000, 5500]
-            else:
-                raise ValueError(
-                    "No bins provided, and no default pt bins for sample" f" {plt_cfg.sample}"
+    timestamp: bool = False
+    base_path: Path = None
+
+    # dict like {roc : [list of roc plots], scan: [list of scan plots], ...}
+    plots: dict[list[dict[str, dict[str, str]]]] = field(default_factory=list)
+
+    def __post_init__(self):
+        # Define a plot directory based on the plot config file name, and a date time
+        plot_dir_name = self.config_path.stem
+        if self.timestamp:
+            date_time_file = datetime.now().strftime("%Y%m%d_%H%M%S")
+            plot_dir_name += "_" + date_time_file
+        self.plot_dir_final = Path(self.plot_dir) / plot_dir_name
+
+        for k, kwargs in self.taggers_config.items():
+            kwargs["yaml_name"] = k
+
+    @classmethod
+    def load_config(cls, path: Path, **kwargs) -> YumaConfig:
+        if not path.exists():
+            raise FileNotFoundError(f"Config at {path} does not exist")
+        with open(path) as f:
+            config = yaml.safe_load(f)
+        return cls(config_path=path, **config, **kwargs)
+
+    def get_results(self):
+        """
+        Create the high-level 'Results' object from the config file, using the
+        previously set signal and sample. Iterates and loads all models in the config
+        file, and adds them.
+        """
+        kwargs = self.results_config
+        kwargs["signal"] = self.signal
+        kwargs["perf_vars"] = self.peff_vars
+
+        sample_path = kwargs.pop("sample_path", None)
+        if self.base_path and sample_path:
+            sample_path = self.base_path / sample_path
+
+        # Instantiate the results object
+        results = Results(**kwargs)
+
+        # Add taggers to results, then bulk load
+        for key, t in self.taggers_config.items():
+            if key not in self.taggers:
+                continue
+            # if the a sample is not defined for the tagger, use the default sample
+            if not sample_path and not t.get("sample_path", None):
+                raise ValueError(f"No sample path defined for tagger {key}")
+            if sample_path and not t.get("sample_path", None):
+                t["sample_path"] = sample_path
+            if self.base_path and t.get("sample_path", None):
+                t["sample_path"] = self.base_path / t["sample_path"]
+            # Allows automatic selection of tagger name in eval files
+            t["name"] = get_tagger_name(
+                t.get("name", None), t["sample_path"], key, results.flavours
+            )
+
+            results.add(Tagger(**t))
+
+        results.load()
+        self.results = results
+
+    @property
+    def signals(self):
+        """Iterates all plots in the config and returns a list of all signals."""
+        return list({p["signal"] for pt in self.plots.values() for p in pt})
+
+    @property
+    def peff_vars(self):
+        """Iterates plots and returns a list of all performance variables."""
+        return list({p["plot_kwargs"].get("perf_var", "pt") for p in self.plots.get("peff", [])})
+
+    def make_plots(self, plot_types):
+        """Makes all desired plots.
+
+        Parameters
+        ----------
+        plot_types : list[str]
+            List of plot types to make.
+        """
+        for plot_type, plots in self.plots.items():
+            if plot_type not in plot_types:
+                continue
+            for plot in plots:
+                if plot["signal"] != self.signal:
+                    continue
+                self.results.taggers, all_taggers, inc_str = get_included_taggers(
+                    self.results, plot
                 )
-        if plot_kwargs.get("fixed_rejections", False):
-            plt_cfg.results.plot_flat_rej_var_perf(bins=bins, perf_var=perf_var, **plot_kwargs)
-        else:
-            plt_cfg.results.plot_var_perf(bins=bins, perf_var=perf_var, **plot_kwargs)
-        plt_cfg.results.taggers = all_taggers
-
-
-def make_prob_plots(plt_cfg):
-    if not plt_cfg.prob_plots:
-        logger.warning("No prob plots in config")
-        return
-    prob_plots = select_configs(plt_cfg.prob_plots, plt_cfg)
-
-    for prob in prob_plots:
-        plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(plt_cfg.results, prob)
-        plot_kwargs = get_plot_kwargs(prob, suffix=[inc_str])
-        plt_cfg.results.plot_probs(**plot_kwargs)
-        plt_cfg.results.taggers = all_taggers
-
-
-def make_disc_plots(plt_cfg):
-    if not plt_cfg.disc_plots:
-        logger.warning("No disc plots in config")
-        return
-    disc_plots = select_configs(plt_cfg.disc_plots, plt_cfg)
-
-    for disc in disc_plots:
-        plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(plt_cfg.results, disc)
-        plot_kwargs = get_plot_kwargs(disc, suffix=[inc_str])
-        plt_cfg.results.plot_discs(**plot_kwargs)
-        plt_cfg.results.taggers = all_taggers
-
-
-def make_fracscan_plots(plt_cfg):
-    if not plt_cfg.fracscan_plots:
-        logger.warning("No fracscan plots in config")
-        return
-    fracscan_plots = select_configs(plt_cfg.fracscan_plots, plt_cfg)
-
-    for fracscan in fracscan_plots:
-        # Ideally, long term we'd introduce the ability to also plot tau rejection, in
-        # which case we'd be selecting these backgrounds. However, for now they'll
-        # always be [cjets, ujets] or [bjets, ujets]
-        backgrounds = [Flavours[k] for k in fracscan["args"].get("backgrounds", [])]
-        if len(backgrounds) != 2:
-            raise ValueError(f"Background must be a list of two flavours, got {backgrounds}")
-
-        tmp_backgrounds = plt_cfg.results.backgrounds
-        plt_cfg.results.backgrounds = backgrounds
-
-        efficiency = fracscan["args"]["efficiency"]
-        frac_flav = fracscan["args"]["frac_flav"]
-        if frac_flav not in {"b", "c"}:
-            raise ValueError(f"Unknown flavour {frac_flav}")
-        info_str = f"$f_{frac_flav}$ scan" if frac_flav != "tau" else "$f_{\\tau}$ scan"
-        # info_str += f" {round(efficiency*100)}% {plt_cfg.results.signal.label} WP"
-        plt_cfg.results.atlas_second_tag = (
-            plt_cfg.results.default_atlas_second_tag + "\n" + info_str
-        )
-
-        eff_str = str(round(efficiency * 100, 3)).replace(".", "p")
-        back_str = "_".join([f.name for f in backgrounds])
-        suffix = f"_back_{back_str}_eff_{eff_str}_change_f_{frac_flav}"
-
-        # we have a 'frac flav' which can be used in cases where there are more
-        # than 2 backgrounds, such as if we want to extend to tau-jets. It might also be
-        # useful for making frac scan plots for X->bb
-        plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(
-            plt_cfg.results, fracscan
-        )
-        plot_kwargs = get_plot_kwargs(fracscan, suffix=[suffix, inc_str])
-        plt_cfg.results.plot_fraction_scans(efficiency=efficiency, **plot_kwargs)
-        plt_cfg.results.taggers = all_taggers
-        plt_cfg.results.backgrounds = tmp_backgrounds
-        plt_cfg.results.atlas_second_tag = plt_cfg.results.default_atlas_second_tag
-
-
-def make_roc_plots(plt_cfg):
-    if not plt_cfg.roc_plots:
-        logger.warning("No ROC plots in config")
-        return
-
-    roc_config = select_configs(plt_cfg.roc_plots, plt_cfg)
-
-    for roc in roc_config:
-        plt_cfg.results.taggers, all_taggers, inc_str = get_included_taggers(plt_cfg.results, roc)
-        plot_kwargs = get_plot_kwargs(roc, suffix=[inc_str])
-
-        plt_cfg.results.plot_rocs(**plot_kwargs)
-        plt_cfg.results.taggers = all_taggers
-
-
-def make_plots(plots, plt_cfg):
-    if "roc" in plots:
-        make_roc_plots(plt_cfg)
-
-    if "scan" in plots:
-        make_fracscan_plots(plt_cfg)
-
-    if "disc" in plots:
-        make_disc_plots(plt_cfg)
-
-    if "prob" in plots:
-        make_prob_plots(plt_cfg)
-
-    if "peff" in plots:
-        make_eff_vs_var_plots(plt_cfg)
+                plot_kwargs = plot.get("plot_kwargs", {})
+                plot_kwargs["suffix"] = combine_suffixes([plot_kwargs.get("suffix", ""), inc_str])
+                self.results.make_plot(plot_type, plot_kwargs)
+                self.results.taggers = all_taggers
 
 
 def main(args=None):
@@ -181,7 +151,7 @@ def main(args=None):
     YamlIncludeConstructor.add_to_loader_class(
         loader_class=yaml.SafeLoader, base_dir=config_path.parent
     )
-    plt_cfg = PlotConfig.load_config(config_path, base_path=args.dir)
+    yuma = YumaConfig.load_config(config_path, base_path=args.dir)
 
     # select and check plots
     plots = args.plots if args.plots else ALL_PLOTS
@@ -189,22 +159,22 @@ def main(args=None):
         raise ValueError(f"Unknown plot types {missing}, choose from {ALL_PLOTS}")
 
     # select and check signals
-    signals = args.signals if args.signals else plt_cfg.signals
-    if missing := [s for s in signals if s not in plt_cfg.signals]:
-        raise ValueError(f"Unknown signals {missing}, choose from {plt_cfg.signals}")
+    signals = args.signals if args.signals else yuma.signals
+    if missing := [s for s in signals if s not in yuma.signals]:
+        raise ValueError(f"Unknown signals {missing}, choose from {yuma.signals}")
 
-    logger.info(f"Plotting in {plt_cfg.plot_dir_final}")
+    logger.info(f"Plotting in {yuma.plot_dir_final}")
 
     logger.info("Instantiating Results")
-    plt_cfg.signal = signals[0]
-    plt_cfg.get_results()  # only run once
+    yuma.signal = signals[0]
+    yuma.get_results()  # only run once
     for signal in signals:
         logger.info(f"Plotting signal {signal}")
-        plt_cfg.signal = signal
-        plt_cfg.results.set_signal(signal)
-        plt_cfg.results.output_dir = plt_cfg.plot_dir_final / f"{signal[0]}tagging"
-        os.makedirs(plt_cfg.results.output_dir, exist_ok=True)
-        make_plots(plots, plt_cfg)
+        yuma.signal = signal
+        yuma.results.set_signal(signal)
+        yuma.results.output_dir = yuma.plot_dir_final / f"{signal[0]}tagging"
+        os.makedirs(yuma.results.output_dir, exist_ok=True)
+        yuma.make_plots(plots)
 
 
 if __name__ == "__main__":

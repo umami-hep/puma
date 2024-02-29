@@ -33,7 +33,7 @@ results = Results(signal="bjets", sample="dummy")
 
 # load taggers from the file object
 logger.info("Loading taggers.")
-results.add_taggers_from_file(
+results.load_taggers_from_file(
     [dips, rnnip],
     file.filename,
     cuts=cuts,

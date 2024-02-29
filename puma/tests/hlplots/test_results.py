@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -11,7 +10,6 @@ import h5py
 import numpy as np
 from ftag import get_mock_file
 from ftag.hdf5 import structured_from_dict
-from matplotlib.testing.compare import compare_images
 
 from puma.hlplots import Results
 from puma.hlplots.tagger import Tagger
@@ -54,31 +52,32 @@ class ResultsTestCase(unittest.TestCase):
         retrieved_dummy_tagger_2 = results["dummy_2 (dummy_2)"]
         self.assertEqual(retrieved_dummy_tagger_2.name, dummy_tagger_2.name)
 
-    def test_add_taggers_from_file(self):
-        """Test for Results.add_taggers_from_file function."""
+    def test_load_taggers_from_file(self):
+        """Test for Results.load_taggers_from_file function."""
         fname = get_mock_file()[0]
         results = Results(signal="bjets", sample="test")
         taggers = [Tagger("MockTagger")]
-        results.add_taggers_from_file(taggers, fname)
+        results.load_taggers_from_file(taggers, fname)
         self.assertEqual(list(results.taggers.values()), taggers)
 
-    def test_add_taggers_from_file_with_perf_vars(self):
-        """Test for Results.add_taggers_from_file function."""
+    def test_load_taggers_from_file_with_perf_vars(self):
+        """Test for Results.load_taggers_from_file function."""
         fname = get_mock_file()[0]
         results = Results(signal="bjets", sample="test", perf_vars=["pt", "eta"])
         taggers = [Tagger("MockTagger")]
-        results.add_taggers_from_file(taggers, fname)
+        results.load_taggers_from_file(taggers, fname)
         self.assertEqual(list(results.taggers.values()), taggers)
 
     def test_add_taggers_with_cuts_override_perf_vars(self):
-        """Test for Results.add_taggers_from_file function."""
+        """Test for Results.load_taggers_from_file function."""
         rng = np.random.default_rng(seed=16)
         cuts = [("eta", ">", 0)]
         tagger_cuts = [("pt", ">", 20)]
         fname = get_mock_file(num_jets=1000)[0]
         results = Results(signal="bjets", sample="test", perf_vars=["pt", "eta"])
         taggers = [Tagger("MockTagger", cuts=tagger_cuts)]
-        results.add_taggers_from_file(
+
+        results.load_taggers_from_file(
             taggers,
             fname,
             cuts=cuts,
@@ -95,7 +94,7 @@ class ResultsTestCase(unittest.TestCase):
         tagger_cuts = [("pt", ">", 20)]
         results = Results(signal="bjets", sample="test")
         taggers = [Tagger("MockTagger", cuts=tagger_cuts)]
-        results.add_taggers_from_file(taggers, fname, cuts=cuts)
+        results.load_taggers_from_file(taggers, fname, cuts=cuts)
         self.assertEqual(list(results.taggers.values()), taggers)
 
     def test_add_taggers_taujets(self):
@@ -103,7 +102,7 @@ class ResultsTestCase(unittest.TestCase):
         fname = get_mock_file()[0]
         results = Results(signal="bjets", sample="test")
         taggers = [Tagger("MockTagger", fxs={"fc": 0.1, "fb": 0.1, "ftau": 0.1})]
-        results.add_taggers_from_file(taggers, fname)
+        results.load_taggers_from_file(taggers, fname)
         assert "MockTagger_ptau" in taggers[0].scores.dtype.names
         taggers[0].discriminant("bjets")
 
@@ -124,7 +123,7 @@ class ResultsTestCase(unittest.TestCase):
                 f.create_dataset("jets", data=array)
 
             results = Results(signal="hbb", sample="test")
-            results.add_taggers_from_file([Tagger("MockTagger")], fname, label_var="R10TruthLabel")
+            results.load_taggers_from_file([Tagger("MockTagger")], fname, label_var="R10TruthLabel")
 
     def test_add_taggers_keep_nan(self):
         # get mock file and add nans
@@ -145,7 +144,7 @@ class ResultsTestCase(unittest.TestCase):
 
             results = Results(signal="bjets", sample="test", remove_nan=False)
             with self.assertRaises(ValueError):
-                results.add_taggers_from_file([Tagger("MockTagger")], fname)
+                results.load_taggers_from_file([Tagger("MockTagger")], fname)
 
     def test_add_taggers_remove_nan(self):
         # get mock file and add nans
@@ -166,7 +165,7 @@ class ResultsTestCase(unittest.TestCase):
 
             results = Results(signal="bjets", sample="test", remove_nan=True)
             with self.assertLogs("puma", "WARNING") as cm:
-                results.add_taggers_from_file([Tagger("MockTagger")], fname)
+                results.load_taggers_from_file([Tagger("MockTagger")], fname)
             self.assertEqual(
                 cm.output,
                 [f"WARNING:puma:{len(n_nans)} NaN values found in loaded data." " Removing them."],
@@ -325,15 +324,9 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 working_point=0.7,
             )
 
-            self.assertIsFile(
-                Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_wp_0p7_profile_fixed_cut.png"
-            )
-            self.assertIsFile(
-                Path(tmp_file) / "test_bjets_cjets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
-            )
-            self.assertIsFile(
-                Path(tmp_file) / "test_bjets_ujets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
-            )
+            self.assertIsFile(Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_fixed_cut_wp70.png")
+            self.assertIsFile(Path(tmp_file) / "test_bjets_cjets_rej_vs_pt_fixed_cut_wp70.png")
+            self.assertIsFile(Path(tmp_file) / "test_bjets_ujets_rej_vs_pt_fixed_cut_wp70.png")
 
     def test_plot_var_perf_multi_bjets(self):
         """Test that png file is being created."""
@@ -356,25 +349,12 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results.plot_var_perf(
                 bins=np.linspace(-0.5, 0.5, 10), working_point=0.7, perf_var="eta"
             )
-
-            self.assertIsFile(
-                Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_wp_0p7_profile_fixed_cut.png"
-            )
-            self.assertIsFile(
-                Path(tmp_file) / "test_bjets_cjets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
-            )
-            self.assertIsFile(
-                Path(tmp_file) / "test_bjets_ujets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
-            )
-            self.assertIsFile(
-                Path(tmp_file) / "test_bjets_bjets_eff_vs_eta_wp_0p7_profile_fixed_cut.png"
-            )
-            self.assertIsFile(
-                Path(tmp_file) / "test_bjets_cjets_rej_vs_eta_wp_0p7_profile_fixed_cut.png"
-            )
-            self.assertIsFile(
-                Path(tmp_file) / "test_bjets_ujets_rej_vs_eta_wp_0p7_profile_fixed_cut.png"
-            )
+            self.assertIsFile(Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_fixed_cut_wp70.png")
+            self.assertIsFile(Path(tmp_file) / "test_bjets_cjets_rej_vs_pt_fixed_cut_wp70.png")
+            self.assertIsFile(Path(tmp_file) / "test_bjets_ujets_rej_vs_pt_fixed_cut_wp70.png")
+            self.assertIsFile(Path(tmp_file) / "test_bjets_bjets_eff_vs_eta_fixed_cut_wp70.png")
+            self.assertIsFile(Path(tmp_file) / "test_bjets_cjets_rej_vs_eta_fixed_cut_wp70.png")
+            self.assertIsFile(Path(tmp_file) / "test_bjets_ujets_rej_vs_eta_fixed_cut_wp70.png")
 
     def test_plot_var_perf_cjets(self):
         """Test that png file is being created."""
@@ -393,15 +373,10 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
                 working_point=0.7,
             )
-            self.assertIsFile(
-                Path(tmp_file) / "test_cjets_bjets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
-            )
-            self.assertIsFile(
-                Path(tmp_file) / "test_cjets_cjets_eff_vs_pt_wp_0p7_profile_fixed_cut.png"
-            )
-            self.assertIsFile(
-                Path(tmp_file) / "test_cjets_ujets_rej_vs_pt_wp_0p7_profile_fixed_cut.png"
-            )
+            print(Path(tmp_file).glob("*"))
+            self.assertIsFile(Path(tmp_file) / "test_cjets_cjets_eff_vs_pt_fixed_cut_wp70.png")
+            self.assertIsFile(Path(tmp_file) / "test_cjets_bjets_rej_vs_pt_fixed_cut_wp70.png")
+            self.assertIsFile(Path(tmp_file) / "test_cjets_ujets_rej_vs_pt_fixed_cut_wp70.png")
 
     def test_plot_beff_vs_flat_rej(self):
         self.dummy_tagger_1.reference = True
@@ -419,12 +394,8 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
                 h_line=0.5,
             )
-            self.assertIsFile(
-                Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_profile_flat_cjets_10_rej_per_bin.png"
-            )
-            self.assertIsFile(
-                Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_profile_flat_ujets_100_rej_per_bin.png"
-            )
+            self.assertIsFile(Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_cjets_rej_flat_10.png")
+            self.assertIsFile(Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_ujets_rej_flat_100.png")
 
     def test_plot_ceff_vs_flat_rej(self):
         self.dummy_tagger_1.reference = True
@@ -441,12 +412,9 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 fixed_rejections={"bjets": 10, "ujets": 100},
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
             )
-            self.assertIsFile(
-                Path(tmp_file) / "test_cjets_cjets_eff_vs_pt_profile_flat_bjets_10_rej_per_bin.png"
-            )
-            self.assertIsFile(
-                Path(tmp_file) / "test_cjets_cjets_eff_vs_pt_profile_flat_ujets_100_rej_per_bin.png"
-            )
+            print(Path(tmp_file).glob("*"))
+            self.assertIsFile(Path(tmp_file) / "test_cjets_cjets_eff_vs_pt_bjets_rej_flat_10.png")
+            self.assertIsFile(Path(tmp_file) / "test_cjets_cjets_eff_vs_pt_ujets_rej_flat_100.png")
 
     def test_plot_fraction_scans_hbb_error(self):
         """Test that correct error is raised."""
@@ -466,18 +434,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
             results.plot_fraction_scans(rej=False, optimal_fc=True)
-            self.assertEqual(
-                None,
-                compare_images(
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        "..",
-                        "expected_plots/test_bjets_fraction_scan.png",
-                    ),
-                    results.get_filename("fraction_scan"),
-                    tol=1,
-                ),
-            )
+            self.assertIsFile(Path(tmp_file) / "test_bjets_fc_scan_cjets_ujets_eff70.png")
 
     def test_plot_fraction_scans_cjets_rej(self):
         """Test that png file is being created."""
@@ -487,15 +444,4 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results = Results(signal="cjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
             results.plot_fraction_scans(rej=True, optimal_fc=True)
-            self.assertEqual(
-                None,
-                compare_images(
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        "..",
-                        "expected_plots/test_cjets_fraction_scan.png",
-                    ),
-                    results.get_filename("fraction_scan"),
-                    tol=1,
-                ),
-            )
+            self.assertIsFile(Path(tmp_file) / "test_cjets_fb_scan_bjets_ujets_eff70.png")

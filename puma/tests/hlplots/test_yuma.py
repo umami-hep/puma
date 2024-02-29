@@ -12,8 +12,7 @@ from ftag import Flavours, get_mock_file
 from ftag.hdf5 import structured_from_dict
 from yamlinclude import YamlIncludeConstructor
 
-from puma.hlplots import PlotConfig
-from puma.hlplots.yuma import main
+from puma.hlplots.yuma import YumaConfig, main
 from puma.hlplots.yutils import get_tagger_name
 
 EXAMPLES = Path(__file__).parents[3] / "examples"
@@ -54,8 +53,8 @@ class TestYutils(unittest.TestCase):
             taggers["dummy3"]["sample_path"] = fpath1
             updated_plt_cfg = Path(tmp_file) / "plt_cfg.yaml"
 
-            plt_cfg["roc_plots"][0]["reference"] = "dummyNot"
-            plt_cfg["roc_plots"][0]["include_taggers"] = ["dummy1"]
+            plt_cfg["plots"]["roc"][0]["reference"] = "dummyNot"
+            plt_cfg["plots"]["roc"][0]["include_taggers"] = ["dummy1"]
 
             plt_cfg["plot_dir"] = tmp_file + "/plots"
             plt_cfg["taggers_config"] = taggers
@@ -87,7 +86,7 @@ class TestYutils(unittest.TestCase):
 
     def testGetSignals(self):
         plt_cfg = EXAMPLES / "plt_cfg.yaml"
-        plt_cfg = PlotConfig.load_config(plt_cfg)
+        plt_cfg = YumaConfig.load_config(plt_cfg)
         assert sorted(plt_cfg.signals) == ["bjets", "cjets"]
 
 
@@ -142,7 +141,7 @@ class TestYumaPlots(unittest.TestCase):
             assert ctagging.exists(), "No c-tagging plots produced"
             assert (
                 len(ctag_plots) == 1
-            ), f"Only expected one c-tagging plot, found {len(ctag_plots)}"
+            ), f"Only expected one c-tagging plot, found {len(ctag_plots)}: , {ctag_plots}"
 
             args = ["--config", updated_plt_cfg.as_posix()]
             main(args)
@@ -165,14 +164,7 @@ class TestYumaPlots(unittest.TestCase):
             plt_cfg["taggers_config"] = taggers
             plt_cfg["plot_dir"] = tmp_file + "/plots"
 
-            for plot_type in [
-                "fracscan_plots",
-                "disc_plots",
-                "prob_plots",
-                "eff_vs_var_plots",
-            ]:
-                plt_cfg[plot_type] = []
-
+            plt_cfg["plots"] = {"roc": plt_cfg["plots"]["roc"]}
             with open(updated_plt_cfg, "w") as f:
                 yaml.dump(plt_cfg, f)
 
