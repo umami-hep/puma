@@ -41,6 +41,11 @@ with h5py.File(ttbar_file, "r") as f:
     n_test = len(df)
 ```
 
+To run the next steps you need to modify the format of the dataframe:
+```
+df = df.to_records()
+```
+
 In the example below you can find an example on how you can calculate the tagger
 discriminant using the raw output (i.e. `p_u`, `p_c` and `p_b`) of the tagger,
 and a function from [atlas-ftag-tools](https://github.com/umami-hep/atlas-ftag-tools/).
