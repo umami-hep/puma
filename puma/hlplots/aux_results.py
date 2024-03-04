@@ -23,17 +23,26 @@ class AuxResults:
     sample: str
     atlas_first_tag: str = "Simulation Internal"
     atlas_second_tag: str = None
+    atlas_third_tag: str = None
     taggers: dict = field(default_factory=dict)
     perf_vars: str | tuple | list = "pt"
     output_dir: str | Path = "."
     extension: str = "png"
+    global_cuts: Cuts | list | None = None
+    num_jets: int | None = None
+    remove_nan: bool = False
 
     def __post_init__(self):
         if isinstance(self.output_dir, str):
             self.output_dir = Path(self.output_dir)
-
         if isinstance(self.perf_vars, str):
             self.perf_vars = [self.perf_vars]
+        if self.atlas_second_tag is not None and self.atlas_third_tag is not None:
+            self.atlas_second_tag = f"{self.atlas_second_tag}\n{self.atlas_third_tag}"
+
+        self.plot_funcs = {
+            "vertexing": self.plot_var_vtx_perf,
+        }
 
     def add(self, tagger):
         """Add tagger to class.
@@ -52,7 +61,51 @@ class AuxResults:
             raise KeyError(f"{tagger} was already added.")
         self.taggers[str(tagger)] = tagger
 
+    def load(self):
+        """Iterates all taggers, and loads data if it hasn't already been loaded"""
+        req_load = [tagger for tagger in self.taggers.values() if tagger.aux_scores is None]
+        tagger_paths = list(set([tagger.sample_path for tagger in req_load]))
+        for tp in tagger_paths:
+            tp_taggers = [tagger for tagger in req_load if tagger.sample_path == tp]
+            self.load_taggers_from_file(
+                tp_taggers,
+                tp,
+                cuts=self.global_cuts,
+                num_jets=self.num_jets,
+            )
+
     def add_taggers_from_file(  # pylint: disable=R0913
+        self,
+        taggers: list[Tagger],
+        file_path: Path | str,
+        key="jets",
+        label_var="HadronConeExclTruthLabelID",
+        aux_key="tracks",
+        cuts: Cuts | list | None = None,
+        num_jets: int | None = None,
+        perf_vars: dict | None = None,
+    ):
+        """Load one or more taggers from a common file, and adds them to this
+        results class
+
+        Parameters
+        ----------
+            @self.load_taggers_from_file
+        """
+        self.load_taggers_from_file(
+            taggers,
+            file_path,
+            key=key,
+            label_var=label_var,
+            cuts=cuts,
+            num_jets=num_jets,
+            perf_vars=perf_vars,
+        )
+
+        for tagger in taggers:
+            self.add(tagger)
+
+    def load_taggers_from_file(  # pylint: disable=R0913
         self,
         taggers: list[Tagger],
         file_path: Path | str,
@@ -84,6 +137,28 @@ class AuxResults:
         perf_vars : dict, optional
             Override the performance variable to use, by default None
         """
+
+        def check_nan(data: np.ndarray) -> np.ndarray:
+            """
+            Filter out NaN values from loaded data.
+
+            Parameters
+            ----------
+            data : ndarray
+                Data to filter
+            """
+            mask = np.ones(len(data), dtype=bool)
+            for key in data.dtype.names:
+                mask = np.logical_and(mask, ~np.isnan(data[key]))
+            if np.sum(~mask) > 0:
+                if self.remove_nan:
+                    logger.warning(
+                        f"{np.sum(~mask)} NaN values found in loaded data. Removing" " them."
+                    )
+                    return data[mask]
+                raise ValueError(f"{np.sum(~mask)} NaN values found in loaded data.")
+            return data
+
         # get a list of all variables to be loaded from the file
         if not isinstance(cuts, Cuts):
             cuts = Cuts.empty() if cuts is None else Cuts.from_list(cuts)
@@ -104,6 +179,8 @@ class AuxResults:
         aux_reader = H5Reader(file_path, precision="full", jets_name="tracks")
         aux_data = aux_reader.load({aux_key: aux_var_list}, num_jets)[aux_key]
 
+        # check for nan values
+        data = check_nan(data)
         # apply common cuts
         if cuts:
             idx, data = cuts(data)
