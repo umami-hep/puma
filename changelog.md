@@ -1,6 +1,7 @@
 # Changelog
 
 ### [Latest]
+- Moving plotting tutorials from main FTAG page here [!249](https://github.com/umami-hep/puma/pull/249)
 - Cleanup of plot names for high-level plotting interface, and yuma refactor [!244](https://github.com/umami-hep/puma/pull/244)
 - Update tables version from 3.7.0 to 3.8.0 [!245](https://github.com/umami-hep/puma/pull/245)
 - Fix taggers selection configuration for yuma [!247](https://github.com/umami-hep/puma/pull/247)

@@ -18,6 +18,7 @@ can be used as a starting point for your plotting scripts.
    high_level_api.md
    high_level_aux_api.md
    yuma.md
+   tutorial-plotting.md
 
 
 .. include:: index.md
