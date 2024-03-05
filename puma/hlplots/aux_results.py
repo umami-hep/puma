@@ -74,37 +74,6 @@ class AuxResults:
                 num_jets=self.num_jets,
             )
 
-    def add_taggers_from_file(  # pylint: disable=R0913
-        self,
-        taggers: list[Tagger],
-        file_path: Path | str,
-        key="jets",
-        label_var="HadronConeExclTruthLabelID",
-        aux_key="tracks",
-        cuts: Cuts | list | None = None,
-        num_jets: int | None = None,
-        perf_vars: dict | None = None,
-    ):
-        """Load one or more taggers from a common file, and adds them to this
-        results class
-
-        Parameters
-        ----------
-            @self.load_taggers_from_file
-        """
-        self.load_taggers_from_file(
-            taggers,
-            file_path,
-            key=key,
-            label_var=label_var,
-            cuts=cuts,
-            num_jets=num_jets,
-            perf_vars=perf_vars,
-        )
-
-        for tagger in taggers:
-            self.add(tagger)
-
     def load_taggers_from_file(  # pylint: disable=R0913
         self,
         taggers: list[Tagger],
@@ -158,6 +127,11 @@ class AuxResults:
                     return data[mask]
                 raise ValueError(f"{np.sum(~mask)} NaN values found in loaded data.")
             return data
+
+        # set tagger output nodes
+        for tagger in taggers:
+            if tagger not in self.taggers.values():
+                self.add(tagger)
 
         # get a list of all variables to be loaded from the file
         if not isinstance(cuts, Cuts):
@@ -218,9 +192,6 @@ class AuxResults:
                         tagger.perf_vars[perf_var] = sel_data[perf_var]
             else:
                 tagger.perf_vars = sel_perf_vars
-
-            # add tagger to results
-            self.add(tagger)
 
     def __getitem__(self, tagger_name: str):
         """Retrieve Tagger object.

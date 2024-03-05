@@ -18,40 +18,40 @@ set_log_level(logger, "DEBUG")
 class AuxResultsTestCase(unittest.TestCase):
     """Test class for the AuxResults class."""
 
-    def test_add_taggers_from_file(self):
-        """Test for AuxResults.add_taggers_from_file function."""
+    def test_load_taggers_from_file(self):
+        """Test for AuxResults.load_taggers_from_file function."""
         np.random.default_rng(seed=16)
         fname = get_dummy_tagger_aux()[0]
         results = AuxResults(sample="test")
         taggers = [Tagger("GN2")]
-        results.add_taggers_from_file(
+        results.load_taggers_from_file(
             taggers,
             fname,
         )
         self.assertEqual(list(results.taggers.values()), taggers)
 
-    def test_add_taggers_with_cuts(self):
+    def test_load_taggers_with_cuts(self):
         np.random.default_rng(seed=16)
         fname = get_dummy_tagger_aux()[0]
         cuts = [("eta", ">", 0)]
         tagger_cuts = [("pt", ">", 20)]
         results = AuxResults(sample="test")
         taggers = [Tagger("GN2", cuts=tagger_cuts)]
-        results.add_taggers_from_file(
+        results.load_taggers_from_file(
             taggers,
             fname,
             cuts=cuts,
         )
         self.assertEqual(list(results.taggers.values()), taggers)
 
-    def test_add_taggers_with_cuts_override_perf_vars(self):
+    def test_load_taggers_with_cuts_override_perf_vars(self):
         rng = np.random.default_rng(seed=16)
         fname = get_dummy_tagger_aux()[0]
         cuts = [("eta", ">", 0)]
         tagger_cuts = [("pt", ">", 20)]
         results = AuxResults(sample="test")
         taggers = [Tagger("GN2", cuts=tagger_cuts)]
-        results.add_taggers_from_file(
+        results.load_taggers_from_file(
             taggers,
             fname,
             cuts=cuts,
