@@ -24,7 +24,7 @@ aux_results = AuxResults(sample="dummy")
 
 # load tagger from the file object
 logger.info("Loading taggers.")
-aux_results.add_taggers_from_file(
+aux_results.load_taggers_from_file(
     [GN2],
     fname,
     cuts=cuts,
