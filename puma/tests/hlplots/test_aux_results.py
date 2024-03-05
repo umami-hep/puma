@@ -100,42 +100,38 @@ class AuxResultsTestCase(unittest.TestCase):
         f = get_dummy_tagger_aux(size=100)[1]
         d = {}
         d["HadronConeExclTruthLabelID"] = f["jets"]["HadronConeExclTruthLabelID"]
-        d["GN2_pb"] = f["jets"]["GN2_pb"]
-        d["GN2_pc"] = f["jets"]["GN2_pc"]
-        d["GN2_pu"] = f["jets"]["GN2_pu"]
         d["pt"] = f["jets"]["pt"]
         n_nans = np.random.choice(range(100), 10)
-        d["GN2_pb"][n_nans] = np.nan
-        array = structured_from_dict(d)
+        d["pt"][n_nans] = np.nan
+        jet_array = structured_from_dict(d)
+        track_array = f["tracks"]
         with tempfile.TemporaryDirectory() as tmp_file:
             fname = Path(tmp_file) / "test.h5"
             with h5py.File(fname, "w") as f:
-                f.create_dataset("jets", data=array)
-
+                f.create_dataset("jets", data=jet_array)
+                f.create_dataset("tracks", data=track_array)
             results = AuxResults(sample="test", remove_nan=False)
             with self.assertRaises(ValueError):
-                results.load_taggers_from_file([Tagger("MockTagger")], fname)
+                results.load_taggers_from_file([Tagger("GN2")], fname)
 
     def test_add_taggers_remove_nan(self):
         # get mock file and add nans
         f = get_dummy_tagger_aux(size=100)[1]
         d = {}
         d["HadronConeExclTruthLabelID"] = f["jets"]["HadronConeExclTruthLabelID"]
-        d["GN2_pb"] = f["jets"]["GN2_pb"]
-        d["GN2_pc"] = f["jets"]["GN2_pc"]
-        d["GN2_pu"] = f["jets"]["GN2_pu"]
         d["pt"] = f["jets"]["pt"]
         n_nans = np.random.choice(range(100), 10, replace=False)
-        d["GN2_pb"][n_nans] = np.nan
-        array = structured_from_dict(d)
+        d["pt"][n_nans] = np.nan
+        jet_array = structured_from_dict(d)
+        track_array = f["tracks"]
         with tempfile.TemporaryDirectory() as tmp_file:
             fname = Path(tmp_file) / "test.h5"
             with h5py.File(fname, "w") as f:
-                f.create_dataset("jets", data=array)
-
+                f.create_dataset("jets", data=jet_array)
+                f.create_dataset("tracks", data=track_array)
             results = AuxResults(sample="test", remove_nan=True)
             with self.assertLogs("puma", "WARNING") as cm:
-                results.load_taggers_from_file([Tagger("MockTagger")], fname)
+                results.load_taggers_from_file([Tagger("GN2")], fname)
             self.assertEqual(
                 cm.output,
                 [f"WARNING:puma:{len(n_nans)} NaN values found in loaded data." " Removing them."],
