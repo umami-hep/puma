@@ -6,7 +6,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import h5py
 import numpy as np
+from ftag.hdf5 import structured_from_dict
 
 from puma.hlplots import AuxResults
 from puma.hlplots.tagger import Tagger
@@ -17,6 +19,37 @@ set_log_level(logger, "DEBUG")
 
 class AuxResultsTestCase(unittest.TestCase):
     """Test class for the AuxResults class."""
+
+    def test_add_duplicated(self):
+        """Test empty string as model name."""
+        dummy_tagger_1 = Tagger("dummy")
+        dummy_tagger_2 = Tagger("dummy")
+        results = AuxResults(sample="test")
+        results.add(dummy_tagger_1)
+        with self.assertRaises(KeyError):
+            results.add(dummy_tagger_2)
+
+    def test_add_2_taggers(self):
+        """Test empty string as model name."""
+        dummy_tagger_1 = Tagger("dummy")
+        dummy_tagger_2 = Tagger("dummy_2")
+        results = AuxResults(sample="test")
+        results.add(dummy_tagger_1)
+        results.add(dummy_tagger_2)
+        self.assertEqual(
+            list(results.taggers.keys()),
+            ["dummy (dummy)", "dummy_2 (dummy_2)"],  # pylint: disable=W0212
+        )
+
+    def test_get_taggers(self):
+        """Test empty string as model name."""
+        dummy_tagger_1 = Tagger("dummy")
+        dummy_tagger_2 = Tagger("dummy_2")
+        results = AuxResults(sample="test")
+        results.add(dummy_tagger_1)
+        results.add(dummy_tagger_2)
+        retrieved_dummy_tagger_2 = results["dummy_2 (dummy_2)"]
+        self.assertEqual(retrieved_dummy_tagger_2.name, dummy_tagger_2.name)
 
     def test_load_taggers_from_file(self):
         """Test for AuxResults.load_taggers_from_file function."""
@@ -61,6 +94,52 @@ class AuxResultsTestCase(unittest.TestCase):
             },
         )
         self.assertEqual(list(results.taggers.values()), taggers)
+
+    def test_add_taggers_keep_nan(self):
+        # get mock file and add nans
+        f = get_dummy_tagger_aux(size=100)[1]
+        d = {}
+        d["HadronConeExclTruthLabelID"] = f["jets"]["HadronConeExclTruthLabelID"]
+        d["GN2_pb"] = f["jets"]["GN2_pb"]
+        d["GN2_pc"] = f["jets"]["GN2_pc"]
+        d["GN2_pu"] = f["jets"]["GN2_pu"]
+        d["pt"] = f["jets"]["pt"]
+        n_nans = np.random.choice(range(100), 10)
+        d["GN2_pb"][n_nans] = np.nan
+        array = structured_from_dict(d)
+        with tempfile.TemporaryDirectory() as tmp_file:
+            fname = Path(tmp_file) / "test.h5"
+            with h5py.File(fname, "w") as f:
+                f.create_dataset("jets", data=array)
+
+            results = AuxResults(sample="test", remove_nan=False)
+            with self.assertRaises(ValueError):
+                results.load_taggers_from_file([Tagger("MockTagger")], fname)
+
+    def test_add_taggers_remove_nan(self):
+        # get mock file and add nans
+        f = get_dummy_tagger_aux(size=100)[1]
+        d = {}
+        d["HadronConeExclTruthLabelID"] = f["jets"]["HadronConeExclTruthLabelID"]
+        d["GN2_pb"] = f["jets"]["GN2_pb"]
+        d["GN2_pc"] = f["jets"]["GN2_pc"]
+        d["GN2_pu"] = f["jets"]["GN2_pu"]
+        d["pt"] = f["jets"]["pt"]
+        n_nans = np.random.choice(range(100), 10, replace=False)
+        d["GN2_pb"][n_nans] = np.nan
+        array = structured_from_dict(d)
+        with tempfile.TemporaryDirectory() as tmp_file:
+            fname = Path(tmp_file) / "test.h5"
+            with h5py.File(fname, "w") as f:
+                f.create_dataset("jets", data=array)
+
+            results = AuxResults(sample="test", remove_nan=True)
+            with self.assertLogs("puma", "WARNING") as cm:
+                results.load_taggers_from_file([Tagger("MockTagger")], fname)
+            self.assertEqual(
+                cm.output,
+                [f"WARNING:puma:{len(n_nans)} NaN values found in loaded data." " Removing them."],
+            )
 
 
 class AuxResultsPlotsTestCase(unittest.TestCase):

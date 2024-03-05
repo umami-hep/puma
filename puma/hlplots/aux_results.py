@@ -61,19 +61,6 @@ class AuxResults:
             raise KeyError(f"{tagger} was already added.")
         self.taggers[str(tagger)] = tagger
 
-    def load(self):
-        """Iterates all taggers, and loads data if it hasn't already been loaded"""
-        req_load = [tagger for tagger in self.taggers.values() if tagger.aux_scores is None]
-        tagger_paths = list(set([tagger.sample_path for tagger in req_load]))
-        for tp in tagger_paths:
-            tp_taggers = [tagger for tagger in req_load if tagger.sample_path == tp]
-            self.load_taggers_from_file(
-                tp_taggers,
-                tp,
-                cuts=self.global_cuts,
-                num_jets=self.num_jets,
-            )
-
     def load_taggers_from_file(  # pylint: disable=R0913
         self,
         taggers: list[Tagger],
@@ -117,8 +104,8 @@ class AuxResults:
                 Data to filter
             """
             mask = np.ones(len(data), dtype=bool)
-            for key in data.dtype.names:
-                mask = np.logical_and(mask, ~np.isnan(data[key]))
+            for name in data.dtype.names:
+                mask = np.logical_and(mask, ~np.isnan(data[name]))
             if np.sum(~mask) > 0:
                 if self.remove_nan:
                     logger.warning(
