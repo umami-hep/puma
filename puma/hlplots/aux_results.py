@@ -61,7 +61,7 @@ class AuxResults:
             raise KeyError(f"{tagger} was already added.")
         self.taggers[str(tagger)] = tagger
 
-    def add_taggers_from_file(  # pylint: disable=R0913
+    def load_taggers_from_file(  # pylint: disable=R0913
         self,
         taggers: list[Tagger],
         file_path: Path | str,
@@ -147,6 +147,11 @@ class AuxResults:
                 raise ValueError(f"{np.sum(~mask)} NaN values found in loaded data.")
             return data
 
+        # set tagger output nodes
+        for tagger in taggers:
+            if tagger not in self.taggers.values():
+                self.add(tagger)
+
         # get a list of all variables to be loaded from the file
         if not isinstance(cuts, Cuts):
             cuts = Cuts.empty() if cuts is None else Cuts.from_list(cuts)
@@ -206,9 +211,6 @@ class AuxResults:
                         tagger.perf_vars[perf_var] = sel_data[perf_var]
             else:
                 tagger.perf_vars = sel_perf_vars
-
-            # add tagger to results
-            self.add(tagger)
 
     def __getitem__(self, tagger_name: str):
         """Retrieve Tagger object.
