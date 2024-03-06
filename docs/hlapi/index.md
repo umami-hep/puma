@@ -1,8 +1,8 @@
 # High level API
 
-To set up the inputs for the plots, have a look [here](examples/index.md).
+To set up the inputs for the plots, have a look [here](../examples/index.md).
 
-The following examples use the dummy data which is described [here](examples/dummy_data.md)
+The following examples use the dummy data which is described [here](../examples/dummy_data.md)
 
 All the previous examples show how to use the plotting of individual plots often requiring
 a fair amount of code to produce ROC curves etc.

@@ -7,5 +7,5 @@ get the ATLAS tag and all the functionality `puma.PlotObject` supports.
 <img src=https://github.com/umami-hep/puma/raw/examples-material/line_plot_example.png width=500>
 
 ```py
---8<-- examples/plot_basic_line_plot.py
+--8<-- "examples/plot_basic_line_plot.py"
 ```

@@ -39,6 +39,7 @@ nav:
       - Variable vs efficiency Plots: examples/var_vs_eff.md
       - Fraction Scan Plots: examples/fraction_scan.md
       - Pie charts: examples/pie_charts.md
+      - Line plots: examples/line_plots.md
   - High level API:
       - High level API: hlapi/index.md
       - High level API for aux task plots: hlapi/high_level_aux_api.md
