@@ -72,38 +72,6 @@ class AuxResults:
         num_jets: int | None = None,
         perf_vars: dict | None = None,
     ):
-        """Load one or more taggers from a common file, and adds them to this
-        results class.
-
-        Parameters
-        ----------
-            @self.load_taggers_from_file
-        """
-        self.load_taggers_from_file(
-            taggers,
-            file_path,
-            key=key,
-            label_var=label_var,
-            aux_key=aux_key,
-            cuts=cuts,
-            num_jets=num_jets,
-            perf_vars=perf_vars,
-        )
-
-        for tagger in taggers:
-            self.add(tagger)
-
-    def load_taggers_from_file(  # pylint: disable=R0913
-        self,
-        taggers: list[Tagger],
-        file_path: Path | str,
-        key="jets",
-        label_var="HadronConeExclTruthLabelID",
-        aux_key="tracks",
-        cuts: Cuts | list | None = None,
-        num_jets: int | None = None,
-        perf_vars: dict | None = None,
-    ):
         """Load one or more taggers from a common file.
 
         Parameters
