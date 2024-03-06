@@ -9,5 +9,5 @@ Then we can start the actual plotting part:
 <img src=https://github.com/umami-hep/puma/raw/examples-material/integrated_efficiency.png width=500>
 
 ```py
-§§§examples/plot_int_eff.py§§§
+--8<-- "examples/plot_int_eff.py"
 ```

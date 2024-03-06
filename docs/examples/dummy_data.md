@@ -38,6 +38,7 @@ track collections (needed for aux task plots). These include the following colum
 (aux task information is generated for both vertexing and track origin classification):
 
 jets:
+
 - `HadronConeExclTruthLabelID`
 - `GN2_pu`
 - `GN2_pc`
@@ -47,6 +48,7 @@ jets:
 - `n_truth_promptLepton`
 
 tracks:
+
 - `ftagTruthVertexIndex`
 - `GN2_VertexIndex`
 - `ftagTruthOriginLabel`
@@ -61,4 +63,4 @@ df = get_dummy_tagger_aux()
 
 ```
 
-TODO: here we need to write more when we have the API more evolved.
+<!-- TODO: here we need to write more when we have the API more evolved. -->

@@ -12,5 +12,5 @@ Then we can start the actual plotting part
 <img src=https://github.com/umami-hep/puma/raw/examples-material/pt_b_eff.png width=500>
 
 ```py
-§§§examples/plot_pt_vs_eff.py§§§
+--8<-- "examples/plot_pt_vs_eff.py"
 ```

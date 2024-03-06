@@ -9,5 +9,5 @@ Then we can start the actual plotting part:
 <img src=https://github.com/umami-hep/puma/raw/examples-material/roc.png width=500>
 
 ```py
-§§§examples/plot_rocs.py§§§
+--8<-- "examples/plot_rocs.py"
 ```

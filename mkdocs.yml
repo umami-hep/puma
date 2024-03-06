@@ -1,0 +1,101 @@
+site_name: "PUMA: Plotting UMami Api"
+site_description: Documentation for the PUMA plotting framework
+site_author: Umami Team
+site_url: https://umami-hep.github.io/puma-hep/
+
+repo_name: Github
+repo_url: https://github.com/umami-hep/puma
+edit_uri: "tree/main/docs"
+
+theme:
+  name: material
+  features:
+    - content.code.copy
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - toc.follow
+
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+nav:
+  - Introduction: index.md
+  - Examples:
+      - Examples: examples/index.md
+      - Dummy Data: examples/dummy_data.md
+      - Histograms: examples/histograms.md
+      - ROC curves: examples/rocs.md
+      - Integrated efficiency plot: examples/int_eff.md
+      - Variable vs efficiency Plots: examples/var_vs_eff.md
+      - Fraction Scan Plots: examples/fraction_scan.md
+      - Pie charts: examples/pie_charts.md
+  - High level API:
+      - High level API: hlapi/index.md
+      - High level API for aux task plots: hlapi/high_level_aux_api.md
+      - YUMA (Yaml Plotting): hlapi/yuma.md
+  - Tutorial: examples/tutorial-plotting.md
+  - Contributing:
+      - dev/development_guidelines.md
+  - API Reference:
+      - Plot Base: api/plot_base.md
+      - Histogram: api/histogram.md
+      - ROC: api/roc.md
+      - Integrated Efficiency: api/int_eff.md
+      - Variable vs Variable: api/var_vs_var.md
+      - Fraction Scan: api/fraction_scan.md
+      - Pie Chart: api/pie_chart.md
+
+plugins:
+  - search
+  - markdownextradata
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: date
+  - autorefs
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            paths: [puma]
+            line_length: 100
+            show_root_heading: true
+            show_root_toc_entry: true
+            show_root_full_path: true
+            docstring_style: numpy
+            merge_init_into_class: true
+            annotations_path: full
+            show_signature: false
+            # members: false
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - pymdownx.arithmatex
+  - pymdownx.details
+  - pymdownx.inlinehilite
+  - pymdownx.smartsymbols
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: "!!python/name:mermaid2.fence_mermaid"
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: "#"
+
+extra_javascript:
+  - "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"
+
+copyright: Copyright &copy; 2022 - 2023 CERN for the benefit of the ATLAS collaboration
