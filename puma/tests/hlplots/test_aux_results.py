@@ -220,6 +220,15 @@ class AuxResultsPlotsTestCase(unittest.TestCase):
             self.assertIsFile(auxresults.get_filename("cjets_vtx_trk_purity_vs_pt"))
             self.assertIsFile(auxresults.get_filename("ujets_vtx_fakes_vs_pt"))
 
+    def test_plot_var_vtx_noaux(self):
+        """Test that error is raised if no tagger with vertexing is added."""
+        self.dummy_tagger.reference = True
+        with tempfile.TemporaryDirectory() as tmp_file:
+            auxresults = AuxResults(sample="test", output_dir=tmp_file)
+            auxresults.add(self.dummy_tagger_no_aux)
+            with self.assertRaises(ValueError):
+                auxresults.plot_var_vtx_perf(vtx_flavours=["bjets"])
+
     def test_plot_var_vtx_perf_no_flavours(self):
         """Test vertexing performance when no jet flavours are specified."""
         self.dummy_tagger.reference = True
