@@ -37,7 +37,8 @@ def clean_indices(vertex_ids, condition, mode="remove"):
     if mode == "remove":
         vertex_ids[condition] = -99
     elif mode == "merge":
-        vertex_ids[condition] = np.max(vertex_ids) + 1
+        if len(set(vertex_ids[condition])) > 1:
+            vertex_ids[condition] = np.max(vertex_ids) + 1
     else:
         raise ValueError(f"Mode {mode} not recognized.")
 
@@ -232,3 +233,113 @@ def calculate_vertex_metrics(
         ].sum(axis=1)
 
     return metrics
+
+
+def clean_truth_vertices(truth_vertices, truth_track_origin, incl_vertexing=False):
+    """
+    Clean truth vertices for each track in a single jet. This function removes
+    all truth PV, PU and fake tracks from truth vertices. If inclusive vertexing
+    is enabled, it also merges HF tracks into a single vertex.
+
+    Parameters
+    ----------
+    truth_vertices: np.ndarray
+        Array containing truth vertex indices for each track in a jet.
+    truth_track_origin: np.ndarray
+        Array containing truth track origin labels for each track in a jet.
+    incl_vertexing: bool, optional
+        Whether to merge all vertex indices, by default False.
+
+    Returns
+    -------
+    truth_vertices: np.ndarray
+        Array containing cleaned truth vertex indices for each track in a jet.
+    """
+    # clean truth vertex indices - remove indices from true PV, PU, fake
+    truth_removal_cond = np.logical_or(
+        truth_vertices == 0,
+        np.isin(truth_track_origin, [0, 1, 2]),
+    )
+    truth_vertices = clean_indices(
+        truth_vertices,
+        truth_removal_cond,
+        mode="remove",
+    )
+
+    # merge truth vertices from HF for inclusive performance
+    if incl_vertexing:
+        truth_merge_cond = np.logical_and(
+            truth_vertices > 0,
+            np.isin(truth_track_origin, [3, 4, 5]),
+        )
+        truth_vertices = clean_indices(
+            truth_vertices,
+            truth_merge_cond,
+            mode="merge",
+        )
+
+    return truth_vertices
+
+
+def clean_reco_vertices(reco_vertices, reco_track_origin=None, incl_vertexing=False):
+    """
+    Clean reconstructed vertices for each track in a single jet. This function
+    removes the vertex with the most reco PV tracks if track origin classification
+    information is available. If inclusive vertexing is enabled, it also merges all
+    vertices with > 0 tracks from HF and removes all others for taggers with track
+    origin classification while merging all vertices for taggers without it.
+
+    Parameters
+    ----------
+    reco_vertices: np.ndarray
+        Array containing reco vertex indices for each track in a jet.
+    reco_track_origin: np.ndarray, optional
+        Array containing reco track origin labels for each track in a jet.
+    incl_vertexing: bool, optional
+        Whether to merge all vertex indices, by default False.
+
+    Returns
+    -------
+    reco_vertices: np.ndarray
+        Array containing cleaned reco vertex indices for each track in a jet.
+    """
+    # elaborate cleaning if track origin predictions are available
+    if reco_track_origin is not None:
+        # remove vertex with most reco PV tracks
+        pv_candidate_indices, pv_candidate_counts = np.unique(
+            reco_vertices[reco_track_origin == 2], return_counts=True
+        )
+        if pv_candidate_indices.size > 0:
+            pv_index = pv_candidate_indices[np.argmax(pv_candidate_counts)]
+            reco_vertices = clean_indices(
+                reco_vertices,
+                reco_vertices == pv_index,
+                mode="remove",
+            )
+
+        # merge vertices with > 0 tracks from HF and remove others
+        if incl_vertexing:
+            hf_vertex_indices, hf_vertex_counts = np.unique(
+                reco_vertices[np.isin(reco_track_origin, [3, 4, 5, 6])], return_counts=True
+            )
+            hf_vertex_indices = hf_vertex_indices[hf_vertex_counts > 1]
+            reco_vertices = clean_indices(
+                reco_vertices,
+                np.isin(reco_vertices, hf_vertex_indices, invert=True),
+                mode="remove",
+            )
+            reco_vertices = clean_indices(
+                reco_vertices,
+                np.isin(reco_vertices, hf_vertex_indices),
+                mode="merge",
+            )
+
+    # merge all reco vertices if track origin predictions are not available
+    elif incl_vertexing:
+        reco_vertices = clean_indices(
+            reco_vertices,
+            reco_vertices >= 0,
+            mode="merge",
+        )
+
+    return reco_vertices

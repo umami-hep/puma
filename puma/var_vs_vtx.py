@@ -12,8 +12,8 @@ from puma.utils.histogram import save_divide
 from puma.var_vs_var import VarVsVar, VarVsVarPlot
 
 
-class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
-    """var_vs_aux class storing info about aux task classification performance."""
+class VarVsVtx(VarVsVar):  # pylint: disable=too-many-instance-attributes
+    """var_vs_vtx class storing info about vertexing performance."""
 
     def __init__(
         self,
@@ -141,7 +141,7 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         ]
 
     def get_performance_ratio(self, num: np.ndarray, denom: np.ndarray):
-        """Calculate performance ratio for aux task. Either n_matched/n_true
+        """Calculate performance ratio for vertexing task. Either n_matched/n_true
         (efficiency) or n_matched/n_reco (purity).
 
         Parameters
@@ -160,26 +160,27 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         """
         pm = save_divide(np.sum(num), np.sum(denom), default=np.inf)
         if pm == np.inf:
-            logger.warning("Your performance ratio is infinity -> setting it to np.nan.")
+            logger.warning("Your vertexing performance ratio is infinity -> setting it to np.nan.")
             return np.nan, np.nan
         if pm == 0:
-            logger.warning("Your performance ratio is zero -> setting error to zero.")
+            logger.warning("Your vertexing performance ratio is zero -> setting error to zero.")
             return 0.0, 0.0
         pm_error = eff_err(pm, len(num))
         return pm, pm_error
 
     @property
     def efficiency(self):
-        """Calculate signal efficiency per bin. Defined as n_match/n_true.
+        """Calculate vertexing efficiency per bin. Defined as number of reconstructed
+        vertices matched to truth divided by number of total true vertices.
 
         Returns
         -------
         np.ndarray
             Efficiency
         np.ndarray
-            Efficiency_error
+            Efficiency error
         """
-        logger.debug("Calculating efficiency.")
+        logger.debug("Calculating vertexing efficiency.")
         eff = list(
             map(
                 self.get_performance_ratio,
@@ -187,21 +188,22 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
                 self.true_binned,
             )
         )
-        logger.debug("Retrieved efficiencies: %s", eff)
+        logger.debug("Retrieved vertexing efficiencies: %s", eff)
         return np.array(eff)[:, 0], np.array(eff)[:, 1]
 
     @property
     def purity(self):
-        """Calculate signal purity per bin. Defined as n_match/n_reco.
+        """Calculate vertexing purity per bin. Defined as number of reconstructed
+        vertices matched to truth divided by number of total reconstructed vertices.
 
         Returns
         -------
         np.ndarray
             Purity
         np.ndarray
-            Purity_error
+            Purity error
         """
-        logger.debug("Calculating purity.")
+        logger.debug("Calculating vertexing purity.")
         purity = list(
             map(
                 self.get_performance_ratio,
@@ -209,28 +211,30 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
                 self.reco_binned,
             )
         )
-        logger.debug("Retrieved purity: %s", purity)
+        logger.debug("Retrieved vertexing purity: %s", purity)
         return np.array(purity)[:, 0], np.array(purity)[:, 1]
 
     @property
-    def total_reco(self):
-        """Calculate total number of reconstructed objects per bin.
+    def fakes(self):
+        """Calculate vertexing fake rate per bin. Defined as total number
+        of events with reconstructed vertices where vertices are not expected.
 
         Returns
         -------
         np.ndarray
-            Total number of reconstructed objects
+            Fake rate
         np.ndarray
-            Total number of reconstructed objects error
+            Fake rate error
         """
-        logger.debug("Calculating total number of reconstructed objects.")
+        logger.debug("Calculating vertexing fake rate.")
         total_reco = list(
-            zip(
-                list(map(np.mean, self.reco_binned)),
-                list(map(np.std, self.reco_binned)),
+            map(
+                self.get_performance_ratio,
+                [np.where(reco_bin > 0, 1, 0) for reco_bin in self.reco_binned],
+                list(map(np.ones_like, self.reco_binned)),
             )
         )
-        logger.debug("Retrieved total number of reconstructed objects: %s", total_reco)
+        logger.debug("Retrieved vertexing fake rate: %s", total_reco)
         return np.array(total_reco)[:, 0], np.array(total_reco)[:, 1]
 
     def __eq__(self, other):
@@ -251,14 +255,14 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
         Parameters
         ----------
         mode : str
-            Can be "efficiency" or "purity"
+            Can be "efficiency", "purity" or "fakes"
 
         Returns
         -------
         np.ndarray
-            Efficiency or purity depending on `mode` value
+            Efficiency, purity or fake rate depending on `mode` value
         np.ndarray
-            Efficiency or purity error depending on `mode` value
+            Efficiency, purity or fake rate error depending on `mode` value
 
         Raises
         ------
@@ -269,33 +273,33 @@ class VarVsAux(VarVsVar):  # pylint: disable=too-many-instance-attributes
             return self.efficiency
         if mode == "purity":
             return self.purity
-        if mode == "total_reco":
-            return self.total_reco
+        if mode == "fakes":
+            return self.fakes
         raise ValueError(
             f"The selected mode {mode} is not supported. Use one of the following:"
-            f" {VarVsAuxPlot.mode_options}."
+            f" {VarVsVtxPlot.mode_options}."
         )
 
 
-class VarVsAuxPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attributes
+class VarVsVtxPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attributes
     mode_options: ClassVar[list[str]] = [
         "efficiency",
         "purity",
-        "total_reco",
+        "fakes",
     ]
 
     def __init__(self, mode, grid: bool = False, **kwargs) -> None:
-        """var_vs_aux plot properties.
+        """var_vs_vtx plot properties.
 
         Parameters
         ----------
         mode : str
             Defines which quantity is plotted, the following options ar available:
-                efficiency - Plots efficiency vs. variable, with statistical
-                    error on N per bin
-                purity - Plots purity vs. variable, with statistical
-                    error on N per bin
-                total_reco - Plots number of reconstructed objects per bin
+                efficiency - Plots efficiency vs. variable for jets where vertices are
+                expected
+                purity - Plots purity vs. variable for jets where vertices are expected
+                fakes - Plots fake rate vs. variable for jets where vertices are not
+                expected
         grid : bool, optional
             Set the grid for the plots.
         **kwargs : kwargs

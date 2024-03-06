@@ -12,7 +12,7 @@ from puma.plot_base import PlotBase, PlotLineObject, PlotObject
 from puma.roc import Roc, RocPlot
 from puma.var_vs_eff import VarVsEff, VarVsEffPlot
 from puma.var_vs_var import VarVsVar, VarVsVarPlot
-from puma.var_vs_aux import VarVsAux, VarVsAuxPlot
+from puma.var_vs_vtx import VarVsVtx, VarVsVtxPlot
 
 __all__ = [
     "Histogram",
@@ -29,8 +29,8 @@ __all__ = [
     "VarVsEffPlot",
     "VarVsVar",
     "VarVsVarPlot",
-    "VarVsAux",
-    "VarVsAuxPlot",
+    "VarVsVtx",
+    "VarVsVtxPlot",
     "IntegratedEfficiency",
     "IntegratedEfficiencyPlot",
 ]
