@@ -345,9 +345,7 @@ class AuxResults:
             plot_vtx_purity.savefig(self.get_filename(f"{flav}_vtx_purity_vs_{perf_var}", suffix))
 
             plot_vtx_trk_eff.draw()
-            plot_vtx_trk_eff.savefig(
-                self.get_filename(f"{flav}_vtx_trk_eff_vs_{perf_var}", suffix)
-            )
+            plot_vtx_trk_eff.savefig(self.get_filename(f"{flav}_vtx_trk_eff_vs_{perf_var}", suffix))
 
             plot_vtx_trk_purity.draw()
             plot_vtx_trk_purity.savefig(
