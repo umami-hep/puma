@@ -9,5 +9,5 @@ value from numpy arange are used.
 <img src=https://github.com/umami-hep/puma/raw/examples-material/FractionScanPlot_test.png width=500>
 
 ```py
-§§§examples/plot_fraction_scan.py§§§
+--8<-- "examples/plot_fraction_scan.py"
 ```
