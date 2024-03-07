@@ -124,7 +124,7 @@ class TestYumaPlots(unittest.TestCase):
             ctagging = out_dir / "ctagging"
             assert btagging.exists(), "No b-tagging plots produced"
             assert not ctagging.exists(), "No c-tagging plots should have been produced"
-            btag_plots = [p.name for p in btagging.glob("*")]
+            btag_plots = [p.name for p in btagging.rglob("*.png")]
             assert len(btag_plots) == 22, f"Expected 22 b-tagging plot, found {len(btag_plots)}"
 
             args = [
@@ -137,7 +137,7 @@ class TestYumaPlots(unittest.TestCase):
             ]
             main(args)
 
-            ctag_plots = [p.name for p in ctagging.glob("*")]
+            ctag_plots = [p.name for p in ctagging.rglob("*.png")]
             assert ctagging.exists(), "No c-tagging plots produced"
             assert (
                 len(ctag_plots) == 1
@@ -177,5 +177,6 @@ class TestYumaPlots(unittest.TestCase):
             ctagging = out_dir / "ctagging"
             assert btagging.exists(), "No b-tagging plots produced"
             assert not ctagging.exists(), "No c-tagging plots should have been produced"
-            btag_plots = [p.name for p in btagging.glob("*")]
+            btag_plots = [p.name for p in btagging.rglob("*.png")]
+            print(btag_plots)
             assert len(btag_plots) == 3, f"Expected 3 b-tagging plot, found {len(btag_plots)}"
