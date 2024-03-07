@@ -1,4 +1,4 @@
-name: docs
+name: Docs
 on:
   pull_request:
     branches:
@@ -25,3 +25,6 @@ jobs:
             mkdocs-material-
       - run: pip install -r docs/requirements.txt
       - run: mkdocs build
+      - name : Deploy
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: mkdocs gh-deploy
