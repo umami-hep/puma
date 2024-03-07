@@ -120,8 +120,8 @@ class TestYumaPlots(unittest.TestCase):
 
             # Simple check on number of output plots
             out_dir = Path(tmp_file) / "plots" / "plt_cfg"
-            btagging = out_dir / "btagging"
-            ctagging = out_dir / "ctagging"
+            btagging = out_dir / "btag"
+            ctagging = out_dir / "ctag"
             assert btagging.exists(), "No b-tagging plots produced"
             assert not ctagging.exists(), "No c-tagging plots should have been produced"
             btag_plots = [p.name for p in btagging.rglob("*.png")]
@@ -173,8 +173,8 @@ class TestYumaPlots(unittest.TestCase):
 
             # Simple check on number of output plots
             out_dir = Path(tmp_file) / "plots" / "plt_cfg"
-            btagging = out_dir / "btagging"
-            ctagging = out_dir / "ctagging"
+            btagging = out_dir / "btag"
+            ctagging = out_dir / "ctag"
             assert btagging.exists(), "No b-tagging plots produced"
             assert not ctagging.exists(), "No c-tagging plots should have been produced"
             btag_plots = [p.name for p in btagging.rglob("*.png")]
