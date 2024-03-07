@@ -1,7 +1,7 @@
 site_name: "PUMA: Plotting UMami Api"
 site_description: Documentation for the PUMA plotting framework
 site_author: Umami Team
-site_url: https://umami-hep.github.io/puma-hep/
+site_url: https://umami-hep.github.io/puma/
 
 repo_name: Github
 repo_url: https://github.com/umami-hep/puma
