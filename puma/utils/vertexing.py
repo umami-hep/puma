@@ -39,6 +39,8 @@ def clean_indices(vertex_ids, condition, mode="remove"):
     elif mode == "merge":
         if len(set(vertex_ids[condition])) > 1:
             vertex_ids[condition] = np.max(vertex_ids) + 1
+        if len(set(vertex_ids[condition])) > 1:
+            vertex_ids[condition] = np.max(vertex_ids) + 1
     else:
         raise ValueError(f"Mode {mode} not recognized.")
 
