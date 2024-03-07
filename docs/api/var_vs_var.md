@@ -6,6 +6,6 @@
 
 ::: puma.var_vs_eff.VarVsEffPlot
 
-::: puma.var_vs_aux.VarVsAux
+::: puma.var_vs_vtx.VarVsVtx
 
-::: puma.var_vs_aux.VarVsAuxPlot
+::: puma.var_vs_vtx.VarVsVtxPlot
