@@ -9,14 +9,14 @@ import unittest
 import numpy as np
 
 # from matplotlib.testing.compare import compare_images
-from puma import VarVsAux, VarVsAuxPlot
+from puma import VarVsVtx, VarVsVtxPlot
 from puma.utils.logging import logger, set_log_level
 
 set_log_level(logger, "DEBUG")
 
 
-class VarVsAuxTestCase(unittest.TestCase):
-    """Test class for the puma.var_vs_aux functions."""
+class VarVsVtxTestCase(unittest.TestCase):
+    """Test class for the puma.var_vs_vtx functions."""
 
     def setUp(self):
         np.random.seed(42)
@@ -26,39 +26,39 @@ class VarVsAuxTestCase(unittest.TestCase):
         self.n_reco = np.random.randint(1, 10, size=20)
         self.n_match = np.random.randint(0, np.minimum(self.n_true, self.n_reco))
 
-    def test_var_vs_aux_init_wrong_true_shape(self):
-        """Test var_vs_aux init."""
+    def test_var_vs_vtx_init_wrong_true_shape(self):
+        """Test var_vs_vtx init."""
         with self.assertRaises(ValueError):
-            VarVsAux(
+            VarVsVtx(
                 x_var=np.ones(4),
                 n_match=np.ones(4),
                 n_true=np.ones(5),
                 n_reco=np.ones(4),
             )
 
-    def test_var_vs_aux_init_wrong_reco_shape(self):
-        """Test var_vs_aux init."""
+    def test_var_vs_vtx_init_wrong_reco_shape(self):
+        """Test var_vs_vtx init."""
         with self.assertRaises(ValueError):
-            VarVsAux(
+            VarVsVtx(
                 x_var=np.ones(4),
                 n_match=np.ones(4),
                 n_true=np.ones(4),
                 n_reco=np.ones(5),
             )
 
-    def test_var_vs_aux_init_wrong_match_shape(self):
-        """Test var_vs_aux init."""
+    def test_var_vs_vtx_init_wrong_match_shape(self):
+        """Test var_vs_vtx init."""
         with self.assertRaises(ValueError):
-            VarVsAux(
+            VarVsVtx(
                 x_var=np.ones(4),
                 n_match=np.ones(5),
                 n_true=np.ones(4),
                 n_reco=np.ones(4),
             )
 
-    def test_var_vs_aux_init(self):
-        """Test var_vs_aux init."""
-        VarVsAux(
+    def test_var_vs_vtx_init(self):
+        """Test var_vs_vtx init."""
+        VarVsVtx(
             x_var=np.ones(6),
             n_match=np.ones(6),
             n_true=np.ones(6),
@@ -67,9 +67,9 @@ class VarVsAuxTestCase(unittest.TestCase):
             key="test",
         )
 
-    def test_var_vs_aux_set_bin_edges_list(self):
-        """Test var_vs_aux _set_bin_edges."""
-        var_plot = VarVsAux(
+    def test_var_vs_vtx_set_bin_edges_list(self):
+        """Test var_vs_vtx set_bin_edges."""
+        var_plot = VarVsVtx(
             x_var=[0, 1, 2],
             n_match=[3, 4, 5],
             n_true=[3, 4, 5],
@@ -78,9 +78,9 @@ class VarVsAuxTestCase(unittest.TestCase):
         )
         np.testing.assert_array_almost_equal(var_plot.bin_edges, [0, 1, 2])
 
-    def test_var_vs_aux_set_bin_edges(self):
-        """Test var_vs_aux set_bin_edges."""
-        var_plot = VarVsAux(
+    def test_var_vs_vtx_set_bin_edges(self):
+        """Test var_vs_vtx set_bin_edges."""
+        var_plot = VarVsVtx(
             x_var=[0, 1, 2],
             n_match=[3, 4, 5],
             n_true=[3, 4, 5],
@@ -89,9 +89,9 @@ class VarVsAuxTestCase(unittest.TestCase):
         )
         np.testing.assert_array_almost_equal(var_plot.bin_edges, [0, 1, 2], decimal=4)
 
-    def test_var_vs_aux_get_perf_ratio_zero(self):
-        """Test var_vs_aux get_performance_ratio with zero efficiency case."""
-        var_plot = VarVsAux(
+    def test_var_vs_vtx_get_perf_ratio_zero(self):
+        """Test var_vs_vtx get_performance_ratio with zero efficiency case."""
+        var_plot = VarVsVtx(
             x_var=[0, 1, 2],
             n_match=[0, 0, 0],
             n_true=[3, 4, 5],
@@ -102,9 +102,9 @@ class VarVsAuxTestCase(unittest.TestCase):
         self.assertEqual(pm, 0)
         self.assertEqual(pm_error, 0)
 
-    def test_var_vs_aux_get_perf_ratio_infinity(self):
-        """Test var_vs_aux get_performance_ratio with undefined efficiency case."""
-        var_plot = VarVsAux(
+    def test_var_vs_vtx_get_perf_ratio_infinity(self):
+        """Test var_vs_vtx get_performance_ratio with undefined efficiency case."""
+        var_plot = VarVsVtx(
             x_var=[0, 1, 2],
             n_match=[0, 0, 0],
             n_true=[0, 0, 0],
@@ -115,9 +115,9 @@ class VarVsAuxTestCase(unittest.TestCase):
         np.testing.assert_equal(pm, np.nan)
         np.testing.assert_equal(pm_error, np.nan)
 
-    def test_var_vs_aux_eq_different_classes(self):
-        """Test var_vs_aux eq."""
-        var_plot = VarVsAux(
+    def test_var_vs_vtx_eq_different_classes(self):
+        """Test var_vs_vtx eq."""
+        var_plot = VarVsVtx(
             x_var=[0, 1, 2],
             n_match=[3, 4, 5],
             n_true=[3, 4, 5],
@@ -126,21 +126,21 @@ class VarVsAuxTestCase(unittest.TestCase):
         )
         self.assertNotEqual(var_plot, np.ones(6))
 
-    def test_var_vs_aux_get(self):
-        var_plot = VarVsAux(
+    def test_var_vs_vtx_get(self):
+        var_plot = VarVsVtx(
             x_var=self.x_var,
             n_match=self.n_match,
             n_true=self.n_true,
             n_reco=self.n_reco,
             bins=1,
         )
-        mode_options = ["efficiency", "purity", "total_reco"]
+        mode_options = ["efficiency", "purity", "fakes"]
         for mode in mode_options:
             var_plot.get(mode)
 
 
-class VarVsAuxPlotTestCase(unittest.TestCase):
-    """Test class for the puma.var_vs_aux_plot."""
+class VarVsVtxPlotTestCase(unittest.TestCase):
+    """Test class for the puma.var_vs_vtx_plot."""
 
     def setUp(self):
         # Set up temp directory for comparison plots
@@ -165,11 +165,11 @@ class VarVsAuxPlotTestCase(unittest.TestCase):
         # Define pT bins
         self.bins = [20, 30, 40, 60, 85, 110, 140, 175, 250]
 
-    def test_var_vs_aux_plot_mode_wrong_option(self):
+    def test_var_vs_vtx_plot_mode_wrong_option(self):
         with self.assertRaises(ValueError):
-            VarVsAuxPlot(
+            VarVsVtxPlot(
                 mode="test",
-                ylabel="Aux purity",
+                ylabel="Vtx purity",
                 xlabel=r"$p_{T}$ [GeV]",
                 logy=True,
                 atlas_second_tag="test",
@@ -178,10 +178,10 @@ class VarVsAuxPlotTestCase(unittest.TestCase):
                 figsize=(9, 6),
             )
 
-    def test_var_vs_aux_plot_mode_efficiency(self):
-        """Test aux output plot - efficiency."""
+    def test_var_vs_vtx_plot_mode_efficiency(self):
+        """Test vtx output plot - efficiency."""
         # define the curves
-        tagger1 = VarVsAux(
+        tagger1 = VarVsVtx(
             x_var=self.x_var,
             n_true=self.n_true,
             n_reco=self.n_reco_1,
@@ -189,7 +189,7 @@ class VarVsAuxPlotTestCase(unittest.TestCase):
             bins=self.bins,
             label="tagger 1",
         )
-        tagger2 = VarVsAux(
+        tagger2 = VarVsVtx(
             x_var=self.x_var,
             n_true=self.n_true,
             n_reco=self.n_reco_2,
@@ -198,9 +198,9 @@ class VarVsAuxPlotTestCase(unittest.TestCase):
             label="tagger 2",
         )
 
-        plot_eff = VarVsAuxPlot(
+        plot_eff = VarVsVtxPlot(
             mode="efficiency",
-            ylabel="Aux efficiency",
+            ylabel="Vtx efficiency",
             xlabel=r"$p_{T}$ [GeV]",
             logy=True,
             y_scale=1.5,
@@ -212,7 +212,7 @@ class VarVsAuxPlotTestCase(unittest.TestCase):
 
         plot_eff.draw()
 
-        plotname = "test_aux_efficiency.png"
+        plotname = "test_vtx_efficiency.png"
         plot_eff.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
         # plot_eff.savefig(f"{self.expected_plots_dir}/{plotname}")
@@ -226,10 +226,10 @@ class VarVsAuxPlotTestCase(unittest.TestCase):
         #     ),
         # )
 
-    def test_var_vs_aux_plot_mode_purity(self):
-        """Test aux output plot - purity."""
+    def test_var_vs_vtx_plot_mode_purity(self):
+        """Test vtx output plot - purity."""
         # define the curves
-        tagger1 = VarVsAux(
+        tagger1 = VarVsVtx(
             x_var=self.x_var,
             n_true=self.n_true,
             n_reco=self.n_reco_1,
@@ -237,7 +237,7 @@ class VarVsAuxPlotTestCase(unittest.TestCase):
             bins=self.bins,
             label="tagger 1",
         )
-        tagger2 = VarVsAux(
+        tagger2 = VarVsVtx(
             x_var=self.x_var,
             n_true=self.n_true,
             n_reco=self.n_reco_2,
@@ -246,9 +246,9 @@ class VarVsAuxPlotTestCase(unittest.TestCase):
             label="tagger 2",
         )
 
-        plot_pur = VarVsAuxPlot(
+        plot_pur = VarVsVtxPlot(
             mode="purity",
-            ylabel="Aux purity",
+            ylabel="Vtx purity",
             xlabel=r"$p_{T}$ [GeV]",
             logy=True,
             y_scale=1.5,
@@ -260,7 +260,7 @@ class VarVsAuxPlotTestCase(unittest.TestCase):
 
         plot_pur.draw()
 
-        plotname = "test_aux_purity.png"
+        plotname = "test_vtx_purity.png"
         plot_pur.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
         # plot_pur.savefig(f"{self.expected_plots_dir}/{plotname}")
@@ -274,10 +274,10 @@ class VarVsAuxPlotTestCase(unittest.TestCase):
         #     ),
         # )
 
-    def test_var_vs_aux_plot_mode_total_reco(self):
-        """Test aux output plot - total_reco."""
+    def test_var_vs_vtx_plot_mode_fake_rate(self):
+        """Test aux output plot - fake_rate."""
         # define the curves
-        tagger1 = VarVsAux(
+        tagger1 = VarVsVtx(
             x_var=self.x_var,
             n_true=self.n_true,
             n_reco=self.n_reco_1,
@@ -285,7 +285,7 @@ class VarVsAuxPlotTestCase(unittest.TestCase):
             bins=self.bins,
             label="tagger 1",
         )
-        tagger2 = VarVsAux(
+        tagger2 = VarVsVtx(
             x_var=self.x_var,
             n_true=self.n_true,
             n_reco=self.n_reco_2,
@@ -294,24 +294,24 @@ class VarVsAuxPlotTestCase(unittest.TestCase):
             label="tagger 2",
         )
 
-        plot_tot_reco = VarVsAuxPlot(
-            mode="total_reco",
-            ylabel="Aux total reconstructed",
+        plot_fakes = VarVsVtxPlot(
+            mode="fakes",
+            ylabel="Vtx fake rate",
             xlabel=r"$p_{T}$ [GeV]",
             logy=True,
             y_scale=1.5,
             n_ratio_panels=1,
             figsize=(9, 6),
         )
-        plot_tot_reco.add(tagger1, reference=True)
-        plot_tot_reco.add(tagger2)
+        plot_fakes.add(tagger1, reference=True)
+        plot_fakes.add(tagger2)
 
-        plot_tot_reco.draw()
+        plot_fakes.draw()
 
-        plotname = "test_aux_total_reco.png"
-        plot_tot_reco.savefig(f"{self.actual_plots_dir}/{plotname}")
+        plotname = "test_vtx_fake_rate.png"
+        plot_fakes.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
-        # plot_tot_reco.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # plot_fakes.savefig(f"{self.expected_plots_dir}/{plotname}")
         # Investigate small shifts in labels/scale causing this test to fail
         # self.assertEqual(
         #     None,

@@ -26,27 +26,32 @@ properly supported within puma.
 
 ## Vertexing performance
 
-Vertexing performance plots can be produced for a specified jet flavour (all jets by default) as shown in
+Vertexing performance plots can be produced for a specified jet flavour as shown in
 ```py
 §§§examples/high_level_aux_plots.py:39:42§§§
 ```
-This function handles all considerations for vertexing performance, including removing PV, pileup and fake
-tracks from truth vertices and from reco vertices if a tagger has available track origin classification
-information. See [here](https://ftag.docs.cern.ch/algorithms/labelling/track_labels/) for more information
-about truth track origin and vertex definitions. It also performs a 1:1 greedy matching procedure between
-truth and reconstructed vertices, with which it calculates all relevant performance metrics for plots. There
-is also a flag to turn on inclusive vertexing, which merges all tracks from HF into a single truth vertex
-per jet. For reconstructed vertices, this merges all tracks from HF if track origin classification
-information is available and all tracks marked as being contained in a secondary vertex if not. In total, 5
-plots are produced (plotted against a specified performance variable):
+Here ```vtx_flavours``` defines a list of flavours for which secondary vertices are expected (e.g. b-jets)
+and ```no_vertex_flavours``` defines a list where secondary vertices are not expected (e.g. l-jets). Different
+plots are produced in each case (see below). In general, this plotting function handles all considerations
+for vertexing performance. This includes processing truth vertex indices by removing PV, pileup and fake
+tracks and reco vertices by removing the vertex most consistent with the reconstructed PV (if a tagger has
+the capability to identify tracks from a PV via track origin classification). See
+[here](https://ftag.docs.cern.ch/algorithms/labelling/track_labels/) for more information about truth track
+origin and vertex definitions. If inclusive vertexing is enabled, all tracks from HF are merged into a single
+truth vertex. For reconstructed vertices in a tagger with track origin classification, all vertices with at
+least one HF track are merged and all others are removed. If track origin classification is not available, but
+inclusive vertexing is enabled, then all vertices are merged. After this cleaning procedure, a 1:1 greedy matching
+procedure between truth and reconstructed vertices is performed, with which all the relevant performance metrics
+for plots are calculated. In total, 4 plots are produced for each jet flavour with expected SVs and 1 is produced
+for each flavour with no expected SVs (all plotted against specific performance variable):
 
-* Vertexing efficiency: defined as number of vertices matched divided by number of true vertices
-* Vertexing purity: defined as number of vertices matched divided by number of reconstructed vertices
-* Number of reconstructed vertices: self-explanatory, useful to examine e.g. vertexing performance in l-jets
+* Vertexing efficiency: defined as number of vertices matched divided by number of true vertices (expected SVs)
+* Vertexing purity: defined as number of vertices matched divided by number of reconstructed vertices (expected SVs)
 * Track-vertex association efficiency: defined as number of tracks in matched vertex common between truth and
-reco vertices divided by number of tracks in true vertex
+reco vertices divided by number of tracks in true vertex (expected SVs)
 * Track-vertex association purity: defined as number of tracks in matched vertex common between truth and reco
-vertices divided by number of tracks in reco vertex
+vertices divided by number of tracks in reco vertex (expected SVs)
+* Vertexing fake rate: fraction of jets where at least one SV is found (no expected SVs)
 
 Note that by default the vertex matching algorithm enforces purity criteria requiring track association
 efficiency > 0.65 and purity > 0.5

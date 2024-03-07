@@ -1,6 +1,7 @@
 # Changelog
 
 ### [Latest]
+- Fixed removal of reconstructed PVs and modified which vertexing plots are produced given a jet flavour [!253](https://github.com/umami-hep/puma/pull/253)
 - Updated AuxResults class to more closely match Yuma implementation of Results class [!252](https://github.com/umami-hep/puma/pull/252)
 - Moving plotting tutorials from main FTAG page here [!249](https://github.com/umami-hep/puma/pull/249)
 - Cleanup of plot names for high-level plotting interface, and yuma refactor [!244](https://github.com/umami-hep/puma/pull/244)
