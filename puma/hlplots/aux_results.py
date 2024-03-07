@@ -258,8 +258,6 @@ class AuxResults:
         for flavour in vtx_flavours:
             if isinstance(flavour, str):
                 flav = Flavours[flavour]
-            prefix = f"{flav}_"
-            atlas_second_tag += f", {flav.label}"
 
             plot_vtx_eff = VarVsVtxPlot(
                 mode="efficiency",
@@ -267,7 +265,7 @@ class AuxResults:
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
-                atlas_second_tag=atlas_second_tag,
+                atlas_second_tag=atlas_second_tag + f", {flav.label}",
                 y_scale=1.4,
             )
             plot_vtx_purity = VarVsVtxPlot(
@@ -276,7 +274,7 @@ class AuxResults:
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
-                atlas_second_tag=atlas_second_tag,
+                atlas_second_tag=atlas_second_tag + f", {flav.label}",
                 y_scale=1.4,
             )
             plot_vtx_trk_eff = VarVsVtxPlot(
@@ -285,7 +283,7 @@ class AuxResults:
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
-                atlas_second_tag=atlas_second_tag,
+                atlas_second_tag=atlas_second_tag + f", {flav.label}",
                 y_scale=1.4,
             )
             plot_vtx_trk_purity = VarVsVtxPlot(
@@ -294,7 +292,7 @@ class AuxResults:
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
-                atlas_second_tag=self.atlas_second_tag,
+                atlas_second_tag=atlas_second_tag + f", {flav.label}",
                 y_scale=1.4,
             )
 
@@ -341,27 +339,23 @@ class AuxResults:
                 plot_vtx_trk_purity.add(vtx_trk_perf, reference=tagger.reference)
 
             plot_vtx_eff.draw()
-            plot_vtx_eff.savefig(self.get_filename(prefix + f"vtx_eff_vs_{perf_var}", suffix))
+            plot_vtx_eff.savefig(self.get_filename(f"{flav}_vtx_eff_vs_{perf_var}", suffix))
 
             plot_vtx_purity.draw()
-            plot_vtx_purity.savefig(self.get_filename(prefix + f"vtx_purity_vs_{perf_var}", suffix))
+            plot_vtx_purity.savefig(self.get_filename(f"{flav}_vtx_purity_vs_{perf_var}", suffix))
 
             plot_vtx_trk_eff.draw()
-            plot_vtx_trk_eff.savefig(
-                self.get_filename(prefix + f"vtx_trk_eff_vs_{perf_var}", suffix)
-            )
+            plot_vtx_trk_eff.savefig(self.get_filename(f"{flav}_vtx_trk_eff_vs_{perf_var}", suffix))
 
             plot_vtx_trk_purity.draw()
             plot_vtx_trk_purity.savefig(
-                self.get_filename(prefix + f"vtx_trk_purity_vs_{perf_var}", suffix)
+                self.get_filename(f"{flav}_vtx_trk_purity_vs_{perf_var}", suffix)
             )
 
         # make plots for flavours where vertices are not expected
         for flavour in no_vtx_flavours:
             if isinstance(flavour, str):
                 flav = Flavours[flavour]
-            prefix = f"{flav}_"
-            atlas_second_tag += f", {flav.label}"
 
             plot_vtx_fakes = VarVsVtxPlot(
                 mode="fakes",
@@ -369,7 +363,7 @@ class AuxResults:
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
-                atlas_second_tag=atlas_second_tag,
+                atlas_second_tag=atlas_second_tag + f", {flav.label}",
                 y_scale=1.4,
             )
 
@@ -391,4 +385,4 @@ class AuxResults:
                 plot_vtx_fakes.add(vtx_perf, reference=tagger.reference)
 
             plot_vtx_fakes.draw()
-            plot_vtx_fakes.savefig(self.get_filename(prefix + f"vtx_fakes_vs_{perf_var}", suffix))
+            plot_vtx_fakes.savefig(self.get_filename(f"{flav}_vtx_fakes_vs_{perf_var}", suffix))

@@ -319,10 +319,7 @@ def clean_reco_vertices(reco_vertices, reco_track_origin=None, incl_vertexing=Fa
 
         # merge vertices with > 0 tracks from HF and remove others
         if incl_vertexing:
-            hf_vertex_indices, hf_vertex_counts = np.unique(
-                reco_vertices[np.isin(reco_track_origin, [3, 4, 5, 6])], return_counts=True
-            )
-            hf_vertex_indices = hf_vertex_indices[hf_vertex_counts > 1]
+            hf_vertex_indices = np.unique(reco_vertices[np.isin(reco_track_origin, [3, 4, 5, 6])])
             reco_vertices = clean_indices(
                 reco_vertices,
                 np.isin(reco_vertices, hf_vertex_indices, invert=True),
