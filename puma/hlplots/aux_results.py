@@ -419,7 +419,7 @@ class AuxResults:
             to allow better readability on darker cmap colors. If 1, all text is black;
             if 0, all text is white. by default 0.6
         colormap : plt.cm, optional
-            Colormap of the plot, by default plt.cm.Oranges
+            Colormap of the plot, by default `plt.cm.Oranges`
         atlas_offset : float, optional
             Space at the top of the plot reserved to the Atlasify text. by default 1.5
         """
@@ -455,4 +455,4 @@ class AuxResults:
                 atlas_second_tag=self.atlas_second_tag,
             )
 
-            plot_cm.savefig(tagger.name + "_trackorigin_cm.png")
+            plot_cm.savefig(self.get_filename(tagger.name + "_trackorigin_cm.png"))

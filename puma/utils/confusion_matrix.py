@@ -31,7 +31,7 @@ def confusion_matrix(
     -------
     np.ndarray : the confusion matrix.
 
-    Example:
+    Example
     --------
     >>> targets = np.array([2, 0, 2, 2, 0, 1])
     >>> predictions = np.array([0, 0, 2, 2, 0, 2])

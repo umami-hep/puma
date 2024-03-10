@@ -39,14 +39,14 @@ class MatshowPlot(PlotBase):
         show_entries : bool, optional
             If True, show matrix entries as numbers in the plot. by default True
         show_percentage : bool, optional
-            If True, if matrix entries are percentages (numbers in [0,1]), show them as such.
-            by default False
+            If True, if matrix entries are percentages (numbers in [0,1]), format them as
+            percentages. by default False
         text_color_threshold : float, optional
             percentage of the range of matrix's values after which the text color switches to white,
             to allow better readability on darker cmap colors. If 1, all text is black;
             if 0, all text is white. by default 0.6
         colormap : plt.cm, optional
-            Colormap for the plot, by default plt.cm.Oranges
+            Colormap for the plot, by default `plt.cm.Oranges`
         cbar_label : str | None, optional
             Label of the colorbar, by default None
         atlas_offset : float, optional
