@@ -8,10 +8,13 @@ from pathlib import Path
 import numpy as np
 from ftag import Cuts, Flavour, Flavours
 from ftag.hdf5 import H5Reader
+from matplotlib import pyplot as plt
 
 from puma.hlplots.tagger import Tagger
+from puma.matshow import MatshowPlot
 from puma.utils import logger
 from puma.utils.aux import get_aux_labels
+from puma.utils.confusion_matrix import confusion_matrix
 from puma.utils.vertexing import calculate_vertex_metrics
 from puma.var_vs_vtx import VarVsVtx, VarVsVtxPlot
 
@@ -42,6 +45,7 @@ class AuxResults:
 
         self.plot_funcs = {
             "vertexing": self.plot_var_vtx_perf,
+            "track_origin": self.plot_track_origin_confmat,
         }
 
     def add(self, tagger):
@@ -386,3 +390,69 @@ class AuxResults:
 
             plot_vtx_fakes.draw()
             plot_vtx_fakes.savefig(self.get_filename(f"{flav}_vtx_fakes_vs_{perf_var}", suffix))
+
+    def plot_track_origin_confmat(
+        self,
+        normalize: str = "all",
+        show_percentage: bool = False,
+        class_names: list | None = None,
+        title_str: str = "Track Origin Auxiliary Task\nConfusion Matrix",
+        text_color_threshold: float = 0.6,
+        colormap: plt.cm = plt.cm.Oranges,
+        atlas_offset: float = 1.5,
+    ):
+        """Plot Track Origin Aux Task confusion matrix.
+
+        Parameters
+        ----------
+        normalize : str, optional
+            Normalization of the confusion matrix. See `puma.utils.confusion_matrix`,
+            for more details. by default "all"
+        show_percentage : bool, optional
+            Show entries as percentages, by default False
+        class_names : list | None, optional
+            Names of the classification classes; if None, uses track origin names. by default None.
+        title_str : str, optional
+            Title of the plot, by default "Track Origin Auxiliary Task Confusion Matrix"
+        text_color_threshold : float, optional
+            percentage of the range of matrix's values after which the text color switches to white,
+            to allow better readability on darker cmap colors. If 1, all text is black;
+            if 0, all text is white. by default 0.6
+        colormap : plt.cm, optional
+            Colormap of the plot, by default plt.cm.Oranges
+        atlas_offset : float, optional
+            Space at the top of the plot reserved to the Atlasify text. by default 1.5
+        """
+        for tagger in self.taggers.values():
+            target = tagger.aux_labels["track_origin"].reshape(-1)
+            predictions = tagger.aux_scores["track_origin"].reshape(-1)
+
+            cm = confusion_matrix(target, predictions, normalize=normalize)
+
+            if class_names is None:
+                class_names = [
+                    "Pileup",
+                    "Fake",
+                    "Primary",
+                    "FromB",
+                    "FromBC",
+                    "FromC",
+                    "FromTau",
+                    "OtherSecondary",
+                ]
+
+            plot_cm = MatshowPlot(
+                matrix=cm,
+                x_ticklabels=class_names,
+                y_ticklabels=class_names,
+                show_percentage=show_percentage,
+                text_color_threshold=text_color_threshold,
+                colormap=colormap,
+                atlas_offset=atlas_offset,
+                title=title_str,
+                xlabel="Predicted Classes",
+                ylabel="Target Classes",
+                atlas_second_tag=self.atlas_second_tag,
+            )
+
+            plot_cm.savefig(tagger.name + "_trackorigin_cm.png")
