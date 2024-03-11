@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import matplotlib as mpl
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -203,5 +202,5 @@ class MatshowPlot(PlotBase):
 
 if __name__ == "__main__":
     mat = np.random.rand(4, 3)
-    plot_mat = MatshowPlot(mat, colormap=plt.cm.PiYG)
+    plot_mat = MatshowPlot(mat, colormap=plt.cm.PiYG, x_ticks_rotation=0, atlas_offset=0.65)
     plot_mat.savefig("mat.png")
