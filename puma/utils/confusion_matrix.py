@@ -54,12 +54,7 @@ def confusion_matrix(
     # Finding number of target classes
     # (i.e. max value of the categorical indexing plus one,
     # since categorical index starts from zero)
-    # and check that predicted and target labels have the same class number
-    n_classes = int(np.max(targets))
-    assert n_classes == int(
-        np.max(predictions)
-    ), "confusion_matrix: predictions and targets must have the same number of classes"
-    n_classes += 1
+    n_classes = int(np.max(targets)) + 1
 
     # If no samples' weights are given, give to each sample weight = 1
     if sample_weights is None:

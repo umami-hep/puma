@@ -39,5 +39,5 @@ aux_results.atlas_second_tag = (
 logger.info("Plotting vertexing performance.")
 aux_results.plot_var_vtx_perf(vtx_flavours=["bjets"], no_vtx_flavours=["ujets"])
 
-# Track origin performance for b-jets
+# Track origin confusion matrix
 aux_results.plot_track_origin_confmat(normalize="all", show_percentage=True, atlas_offset=1.5)

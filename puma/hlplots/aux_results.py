@@ -406,8 +406,12 @@ class AuxResults:
         Parameters
         ----------
         normalize : str, optional
-            Normalization of the confusion matrix. See `puma.utils.confusion_matrix`,
-            for more details. by default "all"
+            Normalization of the confusion matrix. Can be:
+            "None": Give raw counts;
+            "pred": Normalize across the prediction class, i.e. such that the rows add to one;
+            "true": Normalize across the target class, i.e. such that the columns add to one;
+            "all" : Normalize across all examples, i.e. such that all matrix entries add to one.
+            Defaults to "all".
         show_percentage : bool, optional
             Show entries as percentages, by default False
         class_names : list | None, optional
@@ -415,8 +419,8 @@ class AuxResults:
         title_str : str, optional
             Title of the plot, by default "Track Origin Auxiliary Task Confusion Matrix"
         text_color_threshold : float, optional
-            threshold on the relative luminance of the colormap color after which the text color
-            switches to black, to allow better readability on lighter cmap colors.
+            threshold on the relative luminance of the colormap bkg color after which the text color
+            switches to black, to allow better readability on lighter cmap bkg colors.
             If 1, all text is white; if 0, all text is black. by default 0.408
         colormap : plt.cm, optional
             Colormap of the plot, by default `plt.cm.Oranges`
@@ -424,9 +428,11 @@ class AuxResults:
             Space at the top of the plot reserved to the Atlasify text. by default 1.5
         """
         for tagger in self.taggers.values():
+            # Reading tagger's target and predicted labels
             target = tagger.aux_labels["track_origin"].reshape(-1)
             predictions = tagger.aux_scores["track_origin"].reshape(-1)
 
+            # Computing the confusion matrix
             cm = confusion_matrix(target, predictions, normalize=normalize)
 
             if class_names is None:
@@ -441,6 +447,7 @@ class AuxResults:
                     "OtherSecondary",
                 ]
 
+            # Plotting the confusion matrix
             plot_cm = MatshowPlot(
                 matrix=cm,
                 x_ticklabels=class_names,

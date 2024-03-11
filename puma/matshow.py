@@ -37,13 +37,13 @@ class MatshowPlot(PlotBase):
         y_ticklabels : list | None, optional
             Names of the matrix's rows; if None, indices are shown. by default None
         show_entries : bool, optional
-            If True, show matrix entries as numbers in the plot. by default True
+            If True, show matrix entries as numbers in the matrix pixels. by default True
         show_percentage : bool, optional
-            If True, if matrix entries are percentages (numbers in [0,1]), format them as
+            If True, if matrix entries are percentages (i.e. numbers in [0,1]), format them as
             percentages. by default False
         text_color_threshold : float, optional
-            threshold on the relative luminance of the colormap color after which the text color
-            switches to black, to allow better readability on lighter cmap colors.
+            threshold on the relative luminance of the colormap bkg color after which the text color
+            switches to black, to allow better readability on lighter cmap bkg colors.
             If 1, all text is white; if 0, all text is black. by default 0.408
         colormap : plt.cm, optional
             Colormap for the plot, by default `plt.cm.Oranges`
@@ -91,7 +91,7 @@ class MatshowPlot(PlotBase):
 
     def __get_luminance(self, rgbaColor):
         """Calculate the relative luminance of a color according to W3C standards.
-        For the details of the conversions see: https://www.w3.org/WAI/GL/wiki/Relative_luminance .
+        For the details of the conversion see: https://www.w3.org/WAI/GL/wiki/Relative_luminance .
 
         Parameters
         ----------
@@ -128,10 +128,8 @@ class MatshowPlot(PlotBase):
                     # Choosing the text color: black if color is light, white if color is dark
                     # Getting the bkg color from the cmap
                     color = self.colormap(normMat[i, j])
-
                     # Calculating the bkg relative luminance
                     luminance = self.__get_luminance(color)
-
                     # Choosing the appropriate color
                     color = "white" if luminance <= self.text_color_threshold else "black"
 
@@ -201,6 +199,7 @@ class MatshowPlot(PlotBase):
 
 
 if __name__ == "__main__":
+    # A small test
     mat = np.random.rand(4, 3)
     plot_mat = MatshowPlot(mat, colormap=plt.cm.PiYG, x_ticks_rotation=0, atlas_offset=0.65)
     plot_mat.savefig("mat.png")
