@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import matplotlib as mpl
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -18,7 +19,7 @@ class MatshowPlot(PlotBase):
         y_ticklabels: list | None = None,
         show_entries: bool = True,
         show_percentage: bool = False,
-        text_color_threshold: float = 0.6,
+        text_color_threshold: float = 0.408,
         colormap: plt.cm = plt.cm.Oranges,
         cbar_label: str | None = None,
         atlas_offset: float = 1,
@@ -42,9 +43,9 @@ class MatshowPlot(PlotBase):
             If True, if matrix entries are percentages (numbers in [0,1]), format them as
             percentages. by default False
         text_color_threshold : float, optional
-            percentage of the range of matrix's values after which the text color switches to white,
-            to allow better readability on darker cmap colors. If 1, all text is black;
-            if 0, all text is white. by default 0.6
+            threshold on the relative luminance of the colormap color after which the text color
+            switches to black, to allow better readability on lighter cmap colors.
+            If 1, all text is white; if 0, all text is black. by default 0.408
         colormap : plt.cm, optional
             Colormap for the plot, by default `plt.cm.Oranges`
         cbar_label : str | None, optional
@@ -89,27 +90,51 @@ class MatshowPlot(PlotBase):
         self.initialise_figure()
         self.__plot()
 
+    def __get_luminance(self, rgbaColor):
+        """Calculate the relative luminance of a color according to W3C standards.
+        For the details of the conversions see: https://www.w3.org/WAI/GL/wiki/Relative_luminance .
+
+        Parameters
+        ----------
+        rgbColor : tuple
+            (r,g,b,a) color (returned from `plt.cm` colormap)
+
+        Returns
+        -------
+        float
+            Relative luminance of the color.
+        """
+        # Converting to np.ndarray, ignoring alpha channel
+        rgbaColor = np.array(rgbaColor[:-1])
+        rgbaColor = np.where(
+            rgbaColor <= 0.03928, rgbaColor / 12.92, ((rgbaColor + 0.055) / 1.055) ** 2.4
+        )
+        weights = np.array([0.2126, 0.7152, 0.0722])
+        return np.dot(rgbaColor, weights)
+
     def __plot(self):
         """Plot the Matrix."""
         im = self.axis_top.matshow(self.mat, cmap=self.colormap)
 
         # If mat entries have to be plotted
         if self.show_entries:
-            # Find value range for the text color switch
-            minMat = float(np.min(self.mat))
-            maxMat = float(np.max(self.mat))
-            deltaMat = maxMat - minMat
-            switch_after = minMat + (self.text_color_threshold * deltaMat)
+            # Mapping mat values in [0,1], as it's done by matplotlib
+            # to associate them to the colors of the colormap
+            normMat = self.mat - np.min(self.mat)
+            normMat = normMat / (np.max(self.mat) - np.min(self.mat))
+
             # Adding text values in the matrix pixels
             for i in range(self.mat.shape[0]):
                 for j in range(self.mat.shape[1]):
                     # Choosing the text color: black if color is light, white if color is dark
-                    # Color darkness is proportional to matrix values, so the cut is on them
-                    color = (
-                        "black"
-                        if self.mat[i, j] <= switch_after
-                        else "white"
-                    )
+                    # Getting the bkg color from the cmap
+                    color = self.colormap(normMat[i, j])
+
+                    # Calculating the bkg relative luminance
+                    luminance = self.__get_luminance(color)
+
+                    # Choosing the appropriate color
+                    color = "white" if luminance <= self.text_color_threshold else "black"
 
                     # Value of the matrix, eventually converted to percentage
                     text = (
@@ -126,6 +151,8 @@ class MatshowPlot(PlotBase):
         cbar = self.fig.colorbar(im)
         # If using percentages, converting cbar labels to percentages
         if self.show_entries and self.show_percentage:
+            minMat = np.min(self.mat)
+            maxMat = np.max(self.mat)
             cbar.set_ticks(
                 ticks=np.linspace(minMat, maxMat, 5),
                 labels=[str(i) + "%" for i in np.round(np.linspace(minMat, maxMat, 5) * 100, 2)],
@@ -176,5 +203,5 @@ class MatshowPlot(PlotBase):
 
 if __name__ == "__main__":
     mat = np.random.rand(4, 3)
-    plot_mat = MatshowPlot(mat)
+    plot_mat = MatshowPlot(mat, colormap=plt.cm.PiYG)
     plot_mat.savefig("mat.png")

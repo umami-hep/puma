@@ -397,7 +397,7 @@ class AuxResults:
         show_percentage: bool = False,
         class_names: list | None = None,
         title_str: str = "Track Origin Auxiliary Task\nConfusion Matrix",
-        text_color_threshold: float = 0.6,
+        text_color_threshold: float = 0.408,
         colormap: plt.cm = plt.cm.Oranges,
         atlas_offset: float = 1.5,
     ):
@@ -415,9 +415,9 @@ class AuxResults:
         title_str : str, optional
             Title of the plot, by default "Track Origin Auxiliary Task Confusion Matrix"
         text_color_threshold : float, optional
-            percentage of the range of matrix's values after which the text color switches to white,
-            to allow better readability on darker cmap colors. If 1, all text is black;
-            if 0, all text is white. by default 0.6
+            threshold on the relative luminance of the colormap color after which the text color
+            switches to black, to allow better readability on lighter cmap colors.
+            If 1, all text is white; if 0, all text is black. by default 0.408
         colormap : plt.cm, optional
             Colormap of the plot, by default `plt.cm.Oranges`
         atlas_offset : float, optional
