@@ -187,23 +187,6 @@ class ResultsPlotsTestCase(unittest.TestCase):
         dummy_tagger_1.label = "dummy tagger"
         self.dummy_tagger_1 = dummy_tagger_1
 
-    def assertIsFile(self, path: str):
-        """Check for file to exist.
-        Taken from https://stackoverflow.com/a/59198749/10896585.
-
-        Parameters
-        ----------
-        path : str
-            Path to file.
-
-        Raises
-        ------
-        AssertionError
-            if file does not exist
-        """
-        if not Path(path).resolve().is_file():
-            raise AssertionError(f"File does not exist: {path}")
-
     def test_plot_probs_bjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
@@ -212,12 +195,9 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
             results.plot_probs()
-            self.assertIsFile(results.get_filename("probs_bjets"))
-            self.assertIsFile(results.get_filename("probs_cjets"))
-            self.assertIsFile(results.get_filename("probs_ujets"))
-            self.assertIsFile(results.get_filename("probs_pb"))
-            self.assertIsFile(results.get_filename("probs_pc"))
-            self.assertIsFile(results.get_filename("probs_pu"))
+            for fpath in results.saved_plots:
+                assert fpath.is_file()
+            results.saved_plots = []
 
     def test_plot_discs_bjets(self):
         """Test that png file is being created."""
@@ -227,7 +207,9 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
             results.plot_discs()
-            self.assertIsFile(results.get_filename("disc"))
+            for fpath in results.saved_plots:
+                assert fpath.is_file()
+            results.saved_plots = []
 
     def test_plot_discs_cjets(self):
         """Test that png file is being created."""
@@ -237,7 +219,9 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results = Results(signal="cjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
             results.plot_discs(wp_vlines=[60])
-            self.assertIsFile(results.get_filename("disc"))
+            for fpath in results.saved_plots:
+                assert fpath.is_file()
+            results.saved_plots = []
 
     def test_plot_roc_bjets(self):
         """Test that png file is being created."""
@@ -247,7 +231,9 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
             results.plot_rocs()
-            self.assertIsFile(results.get_filename("roc"))
+            for fpath in results.saved_plots:
+                assert fpath.is_file()
+            results.saved_plots = []
 
     def test_plot_roc_cjets(self):
         """Test that png file is being created."""
@@ -257,7 +243,9 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results = Results(signal="cjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
             results.plot_rocs(fontsize=5)
-            self.assertIsFile(results.get_filename("roc"))
+            for fpath in results.saved_plots:
+                assert fpath.is_file()
+            results.saved_plots = []
 
     def test_plot_var_perf_err(self):
         """Tests the performance plots throws errors with invalid inputs."""
@@ -323,10 +311,9 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
                 working_point=0.7,
             )
-
-            self.assertIsFile(Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_fixed_cut_wp70.png")
-            self.assertIsFile(Path(tmp_file) / "test_bjets_cjets_rej_vs_pt_fixed_cut_wp70.png")
-            self.assertIsFile(Path(tmp_file) / "test_bjets_ujets_rej_vs_pt_fixed_cut_wp70.png")
+            for fpath in results.saved_plots:
+                assert fpath.is_file()
+            results.saved_plots = []
 
     def test_plot_var_perf_multi_bjets(self):
         """Test that png file is being created."""
@@ -349,12 +336,9 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results.plot_var_perf(
                 bins=np.linspace(-0.5, 0.5, 10), working_point=0.7, perf_var="eta"
             )
-            self.assertIsFile(Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_fixed_cut_wp70.png")
-            self.assertIsFile(Path(tmp_file) / "test_bjets_cjets_rej_vs_pt_fixed_cut_wp70.png")
-            self.assertIsFile(Path(tmp_file) / "test_bjets_ujets_rej_vs_pt_fixed_cut_wp70.png")
-            self.assertIsFile(Path(tmp_file) / "test_bjets_bjets_eff_vs_eta_fixed_cut_wp70.png")
-            self.assertIsFile(Path(tmp_file) / "test_bjets_cjets_rej_vs_eta_fixed_cut_wp70.png")
-            self.assertIsFile(Path(tmp_file) / "test_bjets_ujets_rej_vs_eta_fixed_cut_wp70.png")
+            for fpath in results.saved_plots:
+                assert fpath.is_file()
+            results.saved_plots = []
 
     def test_plot_var_perf_cjets(self):
         """Test that png file is being created."""
@@ -373,10 +357,9 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
                 working_point=0.7,
             )
-            print(Path(tmp_file).glob("*"))
-            self.assertIsFile(Path(tmp_file) / "test_cjets_cjets_eff_vs_pt_fixed_cut_wp70.png")
-            self.assertIsFile(Path(tmp_file) / "test_cjets_bjets_rej_vs_pt_fixed_cut_wp70.png")
-            self.assertIsFile(Path(tmp_file) / "test_cjets_ujets_rej_vs_pt_fixed_cut_wp70.png")
+            for fpath in results.saved_plots:
+                assert fpath.is_file()
+            results.saved_plots = []
 
     def test_plot_beff_vs_flat_rej(self):
         self.dummy_tagger_1.reference = True
@@ -394,8 +377,9 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
                 h_line=0.5,
             )
-            self.assertIsFile(Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_cjets_rej_flat_10.png")
-            self.assertIsFile(Path(tmp_file) / "test_bjets_bjets_eff_vs_pt_ujets_rej_flat_100.png")
+            for fpath in results.saved_plots:
+                assert fpath.is_file()
+            results.saved_plots = []
 
     def test_plot_ceff_vs_flat_rej(self):
         self.dummy_tagger_1.reference = True
@@ -412,9 +396,9 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 fixed_rejections={"bjets": 10, "ujets": 100},
                 bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
             )
-            print(Path(tmp_file).glob("*"))
-            self.assertIsFile(Path(tmp_file) / "test_cjets_cjets_eff_vs_pt_bjets_rej_flat_10.png")
-            self.assertIsFile(Path(tmp_file) / "test_cjets_cjets_eff_vs_pt_ujets_rej_flat_100.png")
+            for fpath in results.saved_plots:
+                assert fpath.is_file()
+            results.saved_plots = []
 
     def test_plot_fraction_scans_hbb_error(self):
         """Test that correct error is raised."""
@@ -434,7 +418,9 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
             results.plot_fraction_scans(rej=False, optimal_fc=True)
-            self.assertIsFile(Path(tmp_file) / "test_bjets_fc_scan_cjets_ujets_eff70.png")
+            for fpath in results.saved_plots:
+                assert fpath.is_file()
+            results.saved_plots = []
 
     def test_plot_fraction_scans_cjets_rej(self):
         """Test that png file is being created."""
@@ -444,4 +430,6 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results = Results(signal="cjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
             results.plot_fraction_scans(rej=True, optimal_fc=True)
-            self.assertIsFile(Path(tmp_file) / "test_cjets_fb_scan_bjets_ujets_eff70.png")
+            for fpath in results.saved_plots:
+                assert fpath.is_file()
+            results.saved_plots = []

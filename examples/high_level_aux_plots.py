@@ -24,7 +24,7 @@ aux_results = AuxResults(sample="dummy")
 
 # load tagger from the file object
 logger.info("Loading taggers.")
-aux_results.add_taggers_from_file(
+aux_results.load_taggers_from_file(
     [GN2],
     fname,
     cuts=cuts,
@@ -37,4 +37,4 @@ aux_results.atlas_second_tag = (
 
 # vertexing performance for b-jets
 logger.info("Plotting vertexing performance.")
-aux_results.plot_var_vtx_perf(flavour="bjets")
+aux_results.plot_var_vtx_perf(vtx_flavours=["bjets"], no_vtx_flavours=["ujets"])

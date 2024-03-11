@@ -203,51 +203,6 @@ class TaggerAuxTaskTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             tagger.aux_variables["dummy"]
 
-    def test_vertex_indices_trk_removal(self):
-        """Test PV, pileup and fake removal during vertex index cleaning."""
-        tagger = Tagger("dummy", aux_tasks=["vertexing", "track_origin"])
-        tagger.aux_scores = {
-            "vertexing": np.array([[0, 1, 1, 2, 2]]),
-            "track_origin": np.array([[0, 1, 1, 4, 4]]),
-        }
-        tagger.aux_labels = {
-            "vertexing": np.array([[1, 1, 1, 1, 1]]),
-            "track_origin": np.array([[0, 0, 0, 3, 3]]),
-        }
-        true_indices, reco_indices = tagger.vertex_indices(incl_vertexing=False)
-        np.testing.assert_array_equal(true_indices, np.array([[-99, -99, -99, 1, 1]]))
-        np.testing.assert_array_equal(reco_indices, np.array([[-99, -99, -99, 2, 2]]))
-
-    def test_vertex_indices_trk_merging_no_secondary(self):
-        """Test HF merging during vertex index cleaning w/o vtx from secondaries."""
-        tagger = Tagger("dummy", aux_tasks=["vertexing", "track_origin"])
-        tagger.aux_scores = {
-            "vertexing": np.array([[0, 1, 1, 2, 2]]),
-            "track_origin": np.array([[0, 3, 3, 4, 4]]),
-        }
-        tagger.aux_labels = {
-            "vertexing": np.array([[1, 1, 1, 1, 1]]),
-            "track_origin": np.array([[0, 0, 4, 3, 3]]),
-        }
-        true_indices, reco_indices = tagger.vertex_indices(incl_vertexing=True)
-        np.testing.assert_array_equal(true_indices, np.array([[-99, -99, 2, 2, 2]]))
-        np.testing.assert_array_equal(reco_indices, np.array([[-99, 3, 3, 3, 3]]))
-
-    def test_vertex_indices_trk_merging_secondary(self):
-        """Test HF merging during vertex index cleaning w/ vtx from secondaries."""
-        tagger = Tagger("dummy", aux_tasks=["vertexing", "track_origin"])
-        tagger.aux_scores = {
-            "vertexing": np.array([[0, 1, 1, 2, 2]]),
-            "track_origin": np.array([[0, 7, 7, 4, 4]]),
-        }
-        tagger.aux_labels = {
-            "vertexing": np.array([[1, 1, 1, 1, 1]]),
-            "track_origin": np.array([[0, 0, 4, 3, 3]]),
-        }
-        true_indices, reco_indices = tagger.vertex_indices(incl_vertexing=True)
-        np.testing.assert_array_equal(true_indices, np.array([[-99, -99, 2, 2, 2]]))
-        np.testing.assert_array_equal(reco_indices, np.array([[-99, -99, -99, 3, 3]]))
-
 
 class TaggerProbsTestCase(unittest.TestCase):
     """Test class for the probs method in Tagger class."""

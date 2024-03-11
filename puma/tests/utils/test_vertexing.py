@@ -12,6 +12,8 @@ from puma.utils.vertexing import (
     build_vertices,
     calculate_vertex_metrics,
     clean_indices,
+    clean_reco_vertices,
+    clean_truth_vertices,
 )
 
 set_log_level(logger, "DEBUG")
@@ -342,3 +344,50 @@ class CalculateVertexMetricsTestCase(unittest.TestCase):
         np.testing.assert_array_equal(metrics["track_overlap"], [[2, -1]])
         np.testing.assert_array_equal(metrics["test_vertex_size"], [[2, -1]])
         np.testing.assert_array_equal(metrics["ref_vertex_size"], [[2, -1]])
+
+
+class CleanTruthVerticesTestCase(unittest.TestCase):
+    """Test case for clean_truth_vertices function."""
+
+    def test_track_removal(self):
+        """Check case where PV, PU and fake tracks are removed."""
+        vtx_indices = np.array([1, 0, 1, 0, 0, 1, 2, 0, 2, 2])
+        trk_origin = np.array([2, 0, 2, 1, 1, 2, 2, 0, 4, 4])
+        cleaned_indices = clean_truth_vertices(vtx_indices, trk_origin)
+        expected_result = np.array([-99, -99, -99, -99, -99, -99, -99, -99, 2, 2])
+        np.testing.assert_array_equal(cleaned_indices, expected_result)
+
+    def test_incl_track_merging(self):
+        """Check case in inclusive vertexing where HF tracks are merged."""
+        vtx_indices = np.array([0, 0, 1, 2, 1, 2, 2, 2])
+        trk_origin = np.array([2, 2, 3, 4, 3, 4, 4, 4])
+        cleaned_indices = clean_truth_vertices(vtx_indices, trk_origin, incl_vertexing=True)
+        expected_result = np.array([-99, -99, 3, 3, 3, 3, 3, 3])
+        np.testing.assert_array_equal(cleaned_indices, expected_result)
+
+
+class CleanRecoVerticesTestCase(unittest.TestCase):
+    """Test case for clean_reco_vertices function."""
+
+    def test_pv_removal(self):
+        """Check case where PV in model with track origin prediction is removed."""
+        vtx_indices = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1])
+        trk_origin = np.array([2, 4, 2, 2, 2, 2, 3, 3, 4])
+        cleaned_indices = clean_reco_vertices(vtx_indices, trk_origin)
+        expected_result = np.array([-99, -99, -99, -99, -99, 1, 1, 1, 1])
+        np.testing.assert_array_equal(cleaned_indices, expected_result)
+
+    def test_incl_track_merging_hf(self):
+        """Check case in incl vertexing w track origin prediction where HF vertices are merged."""
+        vtx_indices = np.array([0, 0, 1, 2, 1, 2, 2, 1, 3, 3])
+        trk_origin = np.array([2, 2, 3, 3, 3, 5, 7, 5, 7, 7])
+        cleaned_indices = clean_reco_vertices(vtx_indices, trk_origin, incl_vertexing=True)
+        expected_result = np.array([-99, -99, 3, 3, 3, 3, 3, 3, -99, -99])
+        np.testing.assert_array_equal(cleaned_indices, expected_result)
+
+    def test_incl_track_merging_all(self):
+        """Check case in incl vertexing w/o trk_origin prediction where all vertices are merged."""
+        vtx_indices = np.array([-2, -2, 0, 1, -2, 1, 1, 0])
+        cleaned_indices = clean_reco_vertices(vtx_indices, incl_vertexing=True)
+        expected_result = np.array([-2, -2, 2, 2, -2, 2, 2, 2])
+        np.testing.assert_array_equal(cleaned_indices, expected_result)

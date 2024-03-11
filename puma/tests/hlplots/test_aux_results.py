@@ -6,7 +6,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import h5py
 import numpy as np
+from ftag.hdf5 import structured_from_dict
 
 from puma.hlplots import AuxResults
 from puma.hlplots.tagger import Tagger
@@ -18,40 +20,71 @@ set_log_level(logger, "DEBUG")
 class AuxResultsTestCase(unittest.TestCase):
     """Test class for the AuxResults class."""
 
-    def test_add_taggers_from_file(self):
-        """Test for AuxResults.add_taggers_from_file function."""
+    def test_add_duplicated(self):
+        """Test empty string as model name."""
+        dummy_tagger_1 = Tagger("dummy")
+        dummy_tagger_2 = Tagger("dummy")
+        results = AuxResults(sample="test")
+        results.add(dummy_tagger_1)
+        with self.assertRaises(KeyError):
+            results.add(dummy_tagger_2)
+
+    def test_add_2_taggers(self):
+        """Test empty string as model name."""
+        dummy_tagger_1 = Tagger("dummy")
+        dummy_tagger_2 = Tagger("dummy_2")
+        results = AuxResults(sample="test")
+        results.add(dummy_tagger_1)
+        results.add(dummy_tagger_2)
+        self.assertEqual(
+            list(results.taggers.keys()),
+            ["dummy (dummy)", "dummy_2 (dummy_2)"],  # pylint: disable=W0212
+        )
+
+    def test_get_taggers(self):
+        """Test empty string as model name."""
+        dummy_tagger_1 = Tagger("dummy")
+        dummy_tagger_2 = Tagger("dummy_2")
+        results = AuxResults(sample="test")
+        results.add(dummy_tagger_1)
+        results.add(dummy_tagger_2)
+        retrieved_dummy_tagger_2 = results["dummy_2 (dummy_2)"]
+        self.assertEqual(retrieved_dummy_tagger_2.name, dummy_tagger_2.name)
+
+    def test_load_taggers_from_file(self):
+        """Test for AuxResults.load_taggers_from_file function."""
         np.random.default_rng(seed=16)
         fname = get_dummy_tagger_aux()[0]
         results = AuxResults(sample="test")
         taggers = [Tagger("GN2")]
-        results.add_taggers_from_file(
+        results.load_taggers_from_file(
             taggers,
             fname,
         )
         self.assertEqual(list(results.taggers.values()), taggers)
 
-    def test_add_taggers_with_cuts(self):
+    def test_load_taggers_with_cuts(self):
         np.random.default_rng(seed=16)
         fname = get_dummy_tagger_aux()[0]
         cuts = [("eta", ">", 0)]
         tagger_cuts = [("pt", ">", 20)]
         results = AuxResults(sample="test")
         taggers = [Tagger("GN2", cuts=tagger_cuts)]
-        results.add_taggers_from_file(
+        results.load_taggers_from_file(
             taggers,
             fname,
             cuts=cuts,
         )
         self.assertEqual(list(results.taggers.values()), taggers)
 
-    def test_add_taggers_with_cuts_override_perf_vars(self):
+    def test_load_taggers_with_cuts_override_perf_vars(self):
         rng = np.random.default_rng(seed=16)
         fname = get_dummy_tagger_aux()[0]
         cuts = [("eta", ">", 0)]
         tagger_cuts = [("pt", ">", 20)]
         results = AuxResults(sample="test")
         taggers = [Tagger("GN2", cuts=tagger_cuts)]
-        results.add_taggers_from_file(
+        results.load_taggers_from_file(
             taggers,
             fname,
             cuts=cuts,
@@ -61,6 +94,48 @@ class AuxResultsTestCase(unittest.TestCase):
             },
         )
         self.assertEqual(list(results.taggers.values()), taggers)
+
+    def test_add_taggers_keep_nan(self):
+        # get mock file and add nans
+        f = get_dummy_tagger_aux(size=500)[1]
+        d = {}
+        d["HadronConeExclTruthLabelID"] = f["jets"]["HadronConeExclTruthLabelID"]
+        d["pt"] = f["jets"]["pt"]
+        n_nans = np.random.choice(range(len(d["pt"])), 10, replace=False)
+        d["pt"][n_nans] = np.nan
+        jet_array = structured_from_dict(d)
+        track_array = f["tracks"]
+        with tempfile.TemporaryDirectory() as tmp_file:
+            fname = Path(tmp_file) / "test.h5"
+            with h5py.File(fname, "w") as f:
+                f.create_dataset("jets", data=jet_array)
+                f.create_dataset("tracks", data=track_array)
+            results = AuxResults(sample="test", remove_nan=False)
+            with self.assertRaises(ValueError):
+                results.load_taggers_from_file([Tagger("GN2")], fname)
+
+    def test_add_taggers_remove_nan(self):
+        # get mock file and add nans
+        f = get_dummy_tagger_aux(size=500)[1]
+        d = {}
+        d["HadronConeExclTruthLabelID"] = f["jets"]["HadronConeExclTruthLabelID"]
+        d["pt"] = f["jets"]["pt"]
+        n_nans = np.random.choice(range(len(d["pt"])), 10, replace=False)
+        d["pt"][n_nans] = np.nan
+        jet_array = structured_from_dict(d)
+        track_array = f["tracks"]
+        with tempfile.TemporaryDirectory() as tmp_file:
+            fname = Path(tmp_file) / "test.h5"
+            with h5py.File(fname, "w") as f:
+                f.create_dataset("jets", data=jet_array)
+                f.create_dataset("tracks", data=track_array)
+            results = AuxResults(sample="test", remove_nan=True)
+            with self.assertLogs("puma", "WARNING") as cm:
+                results.load_taggers_from_file([Tagger("GN2")], fname)
+            self.assertEqual(
+                cm.output,
+                [f"WARNING:puma:{len(n_nans)} NaN values found in loaded data." " Removing them."],
+            )
 
 
 class AuxResultsPlotsTestCase(unittest.TestCase):
@@ -107,31 +182,61 @@ class AuxResultsPlotsTestCase(unittest.TestCase):
         if not Path(path).resolve().is_file():
             raise AssertionError(f"File does not exist: {path}")
 
-    def test_plot_var_vtx_perf_alljets(self):
-        """Test that png files are being created for tagger with aux tasks."""
-        self.dummy_tagger.reference = True
-        with tempfile.TemporaryDirectory() as tmp_file:
-            auxresults = AuxResults(sample="test", output_dir=tmp_file)
-            auxresults.add(self.dummy_tagger)
-            auxresults.plot_var_vtx_perf()
-            self.assertIsFile(auxresults.get_filename("alljets_vtx_eff_vs_pt"))
-            self.assertIsFile(auxresults.get_filename("alljets_vtx_purity_vs_pt"))
-            self.assertIsFile(auxresults.get_filename("alljets_vtx_nreco_vs_pt"))
-            self.assertIsFile(auxresults.get_filename("alljets_vtx_trk_eff_vs_pt"))
-            self.assertIsFile(auxresults.get_filename("alljets_vtx_trk_purity_vs_pt"))
-
     def test_plot_var_vtx_perf_bjets(self):
         """Test that png files are being created for tagger with aux tasks."""
         self.dummy_tagger.reference = True
         with tempfile.TemporaryDirectory() as tmp_file:
             auxresults = AuxResults(sample="test", output_dir=tmp_file)
             auxresults.add(self.dummy_tagger)
-            auxresults.plot_var_vtx_perf(flavour="bjets")
+            auxresults.plot_var_vtx_perf(vtx_flavours=["bjets"])
             self.assertIsFile(auxresults.get_filename("bjets_vtx_eff_vs_pt"))
             self.assertIsFile(auxresults.get_filename("bjets_vtx_purity_vs_pt"))
-            self.assertIsFile(auxresults.get_filename("bjets_vtx_nreco_vs_pt"))
             self.assertIsFile(auxresults.get_filename("bjets_vtx_trk_eff_vs_pt"))
             self.assertIsFile(auxresults.get_filename("bjets_vtx_trk_purity_vs_pt"))
+
+    def test_plot_var_vtx_perf_ujets(self):
+        """Test that png files are being created for tagger with aux tasks."""
+        self.dummy_tagger.reference = True
+        with tempfile.TemporaryDirectory() as tmp_file:
+            auxresults = AuxResults(sample="test", output_dir=tmp_file)
+            auxresults.add(self.dummy_tagger)
+            auxresults.plot_var_vtx_perf(no_vtx_flavours=["ujets"])
+            self.assertIsFile(auxresults.get_filename("ujets_vtx_fakes_vs_pt"))
+
+    def test_plot_var_vtx_perf_alljets(self):
+        """Test that png files are being created for tagger with aux tasks."""
+        self.dummy_tagger.reference = True
+        with tempfile.TemporaryDirectory() as tmp_file:
+            auxresults = AuxResults(sample="test", output_dir=tmp_file)
+            auxresults.add(self.dummy_tagger)
+            auxresults.plot_var_vtx_perf(vtx_flavours=["bjets", "cjets"], no_vtx_flavours=["ujets"])
+            self.assertIsFile(auxresults.get_filename("bjets_vtx_eff_vs_pt"))
+            self.assertIsFile(auxresults.get_filename("bjets_vtx_purity_vs_pt"))
+            self.assertIsFile(auxresults.get_filename("bjets_vtx_trk_eff_vs_pt"))
+            self.assertIsFile(auxresults.get_filename("bjets_vtx_trk_purity_vs_pt"))
+            self.assertIsFile(auxresults.get_filename("cjets_vtx_eff_vs_pt"))
+            self.assertIsFile(auxresults.get_filename("cjets_vtx_purity_vs_pt"))
+            self.assertIsFile(auxresults.get_filename("cjets_vtx_trk_eff_vs_pt"))
+            self.assertIsFile(auxresults.get_filename("cjets_vtx_trk_purity_vs_pt"))
+            self.assertIsFile(auxresults.get_filename("ujets_vtx_fakes_vs_pt"))
+
+    def test_plot_var_vtx_noaux(self):
+        """Test that error is raised if no tagger with vertexing is added."""
+        self.dummy_tagger.reference = True
+        with tempfile.TemporaryDirectory() as tmp_file:
+            auxresults = AuxResults(sample="test", output_dir=tmp_file)
+            auxresults.add(self.dummy_tagger_no_aux)
+            with self.assertRaises(ValueError):
+                auxresults.plot_var_vtx_perf(vtx_flavours=["bjets"])
+
+    def test_plot_var_vtx_perf_no_flavours(self):
+        """Test vertexing performance when no jet flavours are specified."""
+        self.dummy_tagger.reference = True
+        with tempfile.TemporaryDirectory() as tmp_file:
+            auxresults = AuxResults(sample="test", output_dir=tmp_file)
+            auxresults.add(self.dummy_tagger)
+            with self.assertRaises(ValueError):
+                auxresults.plot_var_vtx_perf()
 
     def test_plot_var_vtx_perf_empty(self):
         """Test vertexing performance function with empty data."""
@@ -140,19 +245,25 @@ class AuxResultsPlotsTestCase(unittest.TestCase):
             auxresults = AuxResults(sample="test", output_dir=tmp_file)
             auxresults.add(self.dummy_tagger_no_aux)
             with self.assertRaises(ValueError):
-                auxresults.plot_var_vtx_perf()
+                auxresults.plot_var_vtx_perf(vtx_flavours=["bjets"])
 
-    def test_plot_var_vtx_perf_inclusive_vertexing(self):
+    def test_plot_var_vtx_perf_bjets_inclusive_vertexing(self):
         """Test that png files are being created for tagger with inclusive vertexing enabled."""
         self.dummy_tagger.reference = True
         with tempfile.TemporaryDirectory() as tmp_file:
             auxresults = AuxResults(sample="test", output_dir=tmp_file)
             auxresults.add(self.dummy_tagger)
-            auxresults.plot_var_vtx_perf(incl_vertexing=True)
-            self.assertIsFile(auxresults.get_filename("alljets_vtx_eff_vs_pt", suffix="incl"))
-            self.assertIsFile(auxresults.get_filename("alljets_vtx_purity_vs_pt", suffix="incl"))
-            self.assertIsFile(auxresults.get_filename("alljets_vtx_nreco_vs_pt", suffix="incl"))
-            self.assertIsFile(auxresults.get_filename("alljets_vtx_trk_eff_vs_pt", suffix="incl"))
-            self.assertIsFile(
-                auxresults.get_filename("alljets_vtx_trk_purity_vs_pt", suffix="incl")
-            )
+            auxresults.plot_var_vtx_perf(vtx_flavours=["bjets"], incl_vertexing=True)
+            self.assertIsFile(auxresults.get_filename("bjets_vtx_eff_vs_pt", suffix="incl"))
+            self.assertIsFile(auxresults.get_filename("bjets_vtx_purity_vs_pt", suffix="incl"))
+            self.assertIsFile(auxresults.get_filename("bjets_vtx_trk_eff_vs_pt", suffix="incl"))
+            self.assertIsFile(auxresults.get_filename("bjets_vtx_trk_purity_vs_pt", suffix="incl"))
+
+    def test_plot_var_vtx_perf_ujets_inclusive_vertexing(self):
+        """Test that png files are being created for tagger with inclusive vertexing enabled."""
+        self.dummy_tagger.reference = True
+        with tempfile.TemporaryDirectory() as tmp_file:
+            auxresults = AuxResults(sample="test", output_dir=tmp_file)
+            auxresults.add(self.dummy_tagger)
+            auxresults.plot_var_vtx_perf(no_vtx_flavours=["ujets"], incl_vertexing=True)
+            self.assertIsFile(auxresults.get_filename("ujets_vtx_fakes_vs_pt", suffix="incl"))

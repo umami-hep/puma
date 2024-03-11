@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import os
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -91,7 +90,7 @@ class YumaConfig:
             sample_path = self.base_path / sample_path
 
         # Instantiate the results object
-        results = Results(**kwargs)
+        results = Results(**kwargs, output_dir=self.plot_dir_final)
 
         # Add taggers to results, then bulk load
         for key, t in self.taggers_config.items():
@@ -175,8 +174,6 @@ def main(args=None):
         logger.info(f"Plotting signal {signal}")
         yuma.signal = signal
         yuma.results.set_signal(signal)
-        yuma.results.output_dir = yuma.plot_dir_final / f"{signal[0]}tagging"
-        os.makedirs(yuma.results.output_dir, exist_ok=True)
         yuma.make_plots(plots)
 
 

@@ -13,7 +13,7 @@ from puma.hlplots.tagger import Tagger
 from puma.utils import logger
 from puma.utils.aux import get_aux_labels
 from puma.utils.vertexing import calculate_vertex_metrics
-from puma.var_vs_aux import VarVsAux, VarVsAuxPlot
+from puma.var_vs_vtx import VarVsVtx, VarVsVtxPlot
 
 
 @dataclass
@@ -23,17 +23,26 @@ class AuxResults:
     sample: str
     atlas_first_tag: str = "Simulation Internal"
     atlas_second_tag: str = None
+    atlas_third_tag: str = None
     taggers: dict = field(default_factory=dict)
     perf_vars: str | tuple | list = "pt"
     output_dir: str | Path = "."
     extension: str = "png"
+    global_cuts: Cuts | list | None = None
+    num_jets: int | None = None
+    remove_nan: bool = False
 
     def __post_init__(self):
         if isinstance(self.output_dir, str):
             self.output_dir = Path(self.output_dir)
-
         if isinstance(self.perf_vars, str):
             self.perf_vars = [self.perf_vars]
+        if self.atlas_second_tag is not None and self.atlas_third_tag is not None:
+            self.atlas_second_tag = f"{self.atlas_second_tag}\n{self.atlas_third_tag}"
+
+        self.plot_funcs = {
+            "vertexing": self.plot_var_vtx_perf,
+        }
 
     def add(self, tagger):
         """Add tagger to class.
@@ -52,7 +61,7 @@ class AuxResults:
             raise KeyError(f"{tagger} was already added.")
         self.taggers[str(tagger)] = tagger
 
-    def add_taggers_from_file(  # pylint: disable=R0913
+    def load_taggers_from_file(  # pylint: disable=R0913
         self,
         taggers: list[Tagger],
         file_path: Path | str,
@@ -84,6 +93,33 @@ class AuxResults:
         perf_vars : dict, optional
             Override the performance variable to use, by default None
         """
+
+        def check_nan(data: np.ndarray) -> np.ndarray:
+            """
+            Filter out NaN values from loaded data.
+
+            Parameters
+            ----------
+            data : ndarray
+                Data to filter
+            """
+            mask = np.ones(len(data), dtype=bool)
+            for name in data.dtype.names:
+                mask = np.logical_and(mask, ~np.isnan(data[name]))
+            if np.sum(~mask) > 0:
+                if self.remove_nan:
+                    logger.warning(
+                        f"{np.sum(~mask)} NaN values found in loaded data. Removing" " them."
+                    )
+                    return data[mask]
+                raise ValueError(f"{np.sum(~mask)} NaN values found in loaded data.")
+            return data
+
+        # set tagger output nodes
+        for tagger in taggers:
+            if tagger not in self.taggers.values():
+                self.add(tagger)
+
         # get a list of all variables to be loaded from the file
         if not isinstance(cuts, Cuts):
             cuts = Cuts.empty() if cuts is None else Cuts.from_list(cuts)
@@ -101,9 +137,11 @@ class AuxResults:
         # load data
         reader = H5Reader(file_path, precision="full")
         data = reader.load({key: var_list}, num_jets)[key]
-        aux_reader = H5Reader(file_path, precision="full", jets_name="tracks")
+        aux_reader = H5Reader(file_path, precision="full", jets_name=aux_key)
         aux_data = aux_reader.load({aux_key: aux_var_list}, num_jets)[aux_key]
 
+        # check for nan values
+        data = check_nan(data)
         # apply common cuts
         if cuts:
             idx, data = cuts(data)
@@ -142,9 +180,6 @@ class AuxResults:
             else:
                 tagger.perf_vars = sel_perf_vars
 
-            # add tagger to results
-            self.add(tagger)
-
     def __getitem__(self, tagger_name: str):
         """Retrieve Tagger object.
 
@@ -182,142 +217,172 @@ class AuxResults:
 
     def plot_var_vtx_perf(
         self,
-        flavour: Flavour | str = None,
+        vtx_flavours: list[Flavour] | list[str] | None = None,
+        no_vtx_flavours: list[Flavour] | list[str] | None = None,
         suffix: str | None = None,
         xlabel: str = r"$p_{T}$ [GeV]",
         perf_var: str = "pt",
         incl_vertexing: bool = False,
         **kwargs,
     ):
-        if isinstance(flavour, str):
-            flavour = Flavours[flavour]
+        if vtx_flavours is None and no_vtx_flavours is None:
+            raise ValueError(
+                "Need to specify either vtx_flavours or no_vtx_flavours (or both) to make plots."
+            )
+        if vtx_flavours is None:
+            vtx_flavours = []
+        elif no_vtx_flavours is None:
+            no_vtx_flavours = []
+
         if incl_vertexing:
             suffix = "incl" if not suffix else f"{suffix}_incl"
-        vtx_string = "Inclusive vertexing" if incl_vertexing else "Exclusive vertexing"
+        vtx_string = "\nInclusive vertexing" if incl_vertexing else "\nExclusive vertexing"
         atlas_second_tag = self.atlas_second_tag if self.atlas_second_tag else ""
         atlas_second_tag += vtx_string
 
-        # define the curves
-        plot_vtx_eff = VarVsAuxPlot(
-            mode="efficiency",
-            ylabel=r"$n_{vtx}^{match}/n_{vtx}^{true}$",
-            xlabel=xlabel,
-            logy=False,
-            atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=atlas_second_tag,
-            y_scale=1.4,
-        )
-        plot_vtx_purity = VarVsAuxPlot(
-            mode="purity",
-            ylabel=r"$n_{vtx}^{match}/n_{vtx}^{reco}$",
-            xlabel=xlabel,
-            logy=False,
-            atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=atlas_second_tag,
-            y_scale=1.4,
-        )
-        plot_vtx_nreco = VarVsAuxPlot(
-            mode="total_reco",
-            ylabel=r"$n_{vtx}^{reco}$",
-            xlabel=xlabel,
-            logy=False,
-            atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=atlas_second_tag,
-            y_scale=1.4,
-        )
-        plot_vtx_trk_eff = VarVsAuxPlot(
-            mode="efficiency",
-            ylabel=r"$n_{trk}^{match}/n_{trk}^{true}$",
-            xlabel=xlabel,
-            logy=False,
-            atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=atlas_second_tag,
-            y_scale=1.4,
-        )
-        plot_vtx_trk_purity = VarVsAuxPlot(
-            mode="purity",
-            ylabel=r"$n_{trk}^{match}/n_{trk}^{reco}$",
-            xlabel=xlabel,
-            logy=False,
-            atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=self.atlas_second_tag,
-            y_scale=1.4,
-        )
-
+        # calculate vertexing information for each tagger
+        vtx_metrics = {}
         for tagger in self.taggers.values():
             if "vertexing" not in tagger.aux_tasks:
                 logger.warning(f"{tagger.name} does not have vertexing aux task defined. Skipping.")
             assert perf_var in tagger.perf_vars, f"{perf_var} not in tagger {tagger.name} data!"
 
-            # get cleaned vertex indices
+            # get cleaned vertex indices and calculate vertexing metrics
             truth_indices, reco_indices = tagger.vertex_indices(incl_vertexing=incl_vertexing)
+            vtx_metrics[tagger.name] = calculate_vertex_metrics(reco_indices, truth_indices)
 
-            # calculate vertexing metrics
-            vtx_metrics = calculate_vertex_metrics(reco_indices, truth_indices)
-
-            # filter out jets of chosen flavour - if flavour is not set, use all
-            if flavour:
-                is_flavour = tagger.is_flav(flavour)
-                prefix = f"{flavour}_"
-            else:
-                is_flavour = np.ones_like(tagger.labels, dtype=bool)
-                prefix = "alljets_"
-
-            include_sum = vtx_metrics["track_overlap"][is_flavour] >= 0
-
-            vtx_perf = VarVsAux(
-                x_var=tagger.perf_vars[perf_var][is_flavour],
-                n_match=vtx_metrics["n_match"][is_flavour],
-                n_true=vtx_metrics["n_ref"][is_flavour],
-                n_reco=vtx_metrics["n_test"][is_flavour],
-                label=tagger.label,
-                colour=tagger.colour,
-                **kwargs,
-            )
-            vtx_trk_perf = VarVsAux(
-                x_var=tagger.perf_vars[perf_var][is_flavour],
-                n_match=np.sum(
-                    vtx_metrics["track_overlap"][is_flavour],
-                    axis=1,
-                    where=include_sum,
-                ),
-                n_true=np.sum(
-                    vtx_metrics["ref_vertex_size"][is_flavour],
-                    axis=1,
-                    where=include_sum,
-                ),
-                n_reco=np.sum(
-                    vtx_metrics["test_vertex_size"][is_flavour],
-                    axis=1,
-                    where=include_sum,
-                ),
-                label=tagger.label,
-                colour=tagger.colour,
-                **kwargs,
-            )
-
-            plot_vtx_eff.add(vtx_perf, reference=tagger.reference)
-            plot_vtx_purity.add(vtx_perf, reference=tagger.reference)
-            plot_vtx_nreco.add(vtx_perf, reference=tagger.reference)
-            plot_vtx_trk_eff.add(vtx_trk_perf, reference=tagger.reference)
-            plot_vtx_trk_purity.add(vtx_trk_perf, reference=tagger.reference)
-
-        if not plot_vtx_eff:
+        if not vtx_metrics:
             raise ValueError("No taggers with vertexing aux task added.")
 
-        plot_vtx_eff.draw()
-        plot_vtx_eff.savefig(self.get_filename(prefix + f"vtx_eff_vs_{perf_var}", suffix))
+        # make plots for flavours where vertices are expected
+        for flavour in vtx_flavours:
+            if isinstance(flavour, str):
+                flav = Flavours[flavour]
 
-        plot_vtx_purity.draw()
-        plot_vtx_purity.savefig(self.get_filename(prefix + f"vtx_purity_vs_{perf_var}", suffix))
+            plot_vtx_eff = VarVsVtxPlot(
+                mode="efficiency",
+                ylabel=r"$n_{vtx}^{match}/n_{vtx}^{true}$",
+                xlabel=xlabel,
+                logy=False,
+                atlas_first_tag=self.atlas_first_tag,
+                atlas_second_tag=atlas_second_tag + f", {flav.label}",
+                y_scale=1.4,
+            )
+            plot_vtx_purity = VarVsVtxPlot(
+                mode="purity",
+                ylabel=r"$n_{vtx}^{match}/n_{vtx}^{reco}$",
+                xlabel=xlabel,
+                logy=False,
+                atlas_first_tag=self.atlas_first_tag,
+                atlas_second_tag=atlas_second_tag + f", {flav.label}",
+                y_scale=1.4,
+            )
+            plot_vtx_trk_eff = VarVsVtxPlot(
+                mode="efficiency",
+                ylabel=r"$n_{trk}^{match}/n_{trk}^{true}$",
+                xlabel=xlabel,
+                logy=False,
+                atlas_first_tag=self.atlas_first_tag,
+                atlas_second_tag=atlas_second_tag + f", {flav.label}",
+                y_scale=1.4,
+            )
+            plot_vtx_trk_purity = VarVsVtxPlot(
+                mode="purity",
+                ylabel=r"$n_{trk}^{match}/n_{trk}^{reco}$",
+                xlabel=xlabel,
+                logy=False,
+                atlas_first_tag=self.atlas_first_tag,
+                atlas_second_tag=atlas_second_tag + f", {flav.label}",
+                y_scale=1.4,
+            )
 
-        plot_vtx_nreco.draw()
-        plot_vtx_nreco.savefig(self.get_filename(prefix + f"vtx_nreco_vs_{perf_var}", suffix))
+            for tagger in self.taggers.values():
+                if tagger.name not in vtx_metrics:
+                    continue
+                is_flavour = tagger.is_flav(flav)
+                include_sum = vtx_metrics[tagger.name]["track_overlap"][is_flavour] >= 0
 
-        plot_vtx_trk_eff.draw()
-        plot_vtx_trk_eff.savefig(self.get_filename(prefix + f"vtx_trk_eff_vs_{perf_var}", suffix))
+                vtx_perf = VarVsVtx(
+                    x_var=tagger.perf_vars[perf_var][is_flavour],
+                    n_match=vtx_metrics[tagger.name]["n_match"][is_flavour],
+                    n_true=vtx_metrics[tagger.name]["n_ref"][is_flavour],
+                    n_reco=vtx_metrics[tagger.name]["n_test"][is_flavour],
+                    label=tagger.label,
+                    colour=tagger.colour,
+                    **kwargs,
+                )
+                vtx_trk_perf = VarVsVtx(
+                    x_var=tagger.perf_vars[perf_var][is_flavour],
+                    n_match=np.sum(
+                        vtx_metrics[tagger.name]["track_overlap"][is_flavour],
+                        axis=1,
+                        where=include_sum,
+                    ),
+                    n_true=np.sum(
+                        vtx_metrics[tagger.name]["ref_vertex_size"][is_flavour],
+                        axis=1,
+                        where=include_sum,
+                    ),
+                    n_reco=np.sum(
+                        vtx_metrics[tagger.name]["test_vertex_size"][is_flavour],
+                        axis=1,
+                        where=include_sum,
+                    ),
+                    label=tagger.label,
+                    colour=tagger.colour,
+                    **kwargs,
+                )
 
-        plot_vtx_trk_purity.draw()
-        plot_vtx_trk_purity.savefig(
-            self.get_filename(prefix + f"vtx_trk_purity_vs_{perf_var}", suffix)
-        )
+                plot_vtx_eff.add(vtx_perf, reference=tagger.reference)
+                plot_vtx_purity.add(vtx_perf, reference=tagger.reference)
+                plot_vtx_trk_eff.add(vtx_trk_perf, reference=tagger.reference)
+                plot_vtx_trk_purity.add(vtx_trk_perf, reference=tagger.reference)
+
+            plot_vtx_eff.draw()
+            plot_vtx_eff.savefig(self.get_filename(f"{flav}_vtx_eff_vs_{perf_var}", suffix))
+
+            plot_vtx_purity.draw()
+            plot_vtx_purity.savefig(self.get_filename(f"{flav}_vtx_purity_vs_{perf_var}", suffix))
+
+            plot_vtx_trk_eff.draw()
+            plot_vtx_trk_eff.savefig(self.get_filename(f"{flav}_vtx_trk_eff_vs_{perf_var}", suffix))
+
+            plot_vtx_trk_purity.draw()
+            plot_vtx_trk_purity.savefig(
+                self.get_filename(f"{flav}_vtx_trk_purity_vs_{perf_var}", suffix)
+            )
+
+        # make plots for flavours where vertices are not expected
+        for flavour in no_vtx_flavours:
+            if isinstance(flavour, str):
+                flav = Flavours[flavour]
+
+            plot_vtx_fakes = VarVsVtxPlot(
+                mode="fakes",
+                ylabel=r"$n_{vtx}^{reco}$",
+                xlabel=xlabel,
+                logy=False,
+                atlas_first_tag=self.atlas_first_tag,
+                atlas_second_tag=atlas_second_tag + f", {flav.label}",
+                y_scale=1.4,
+            )
+
+            for tagger in self.taggers.values():
+                if tagger.name not in vtx_metrics:
+                    continue
+                is_flavour = tagger.is_flav(flav)
+
+                vtx_perf = VarVsVtx(
+                    x_var=tagger.perf_vars[perf_var][is_flavour],
+                    n_match=vtx_metrics[tagger.name]["n_match"][is_flavour],
+                    n_true=vtx_metrics[tagger.name]["n_ref"][is_flavour],
+                    n_reco=vtx_metrics[tagger.name]["n_test"][is_flavour],
+                    label=tagger.label,
+                    colour=tagger.colour,
+                    **kwargs,
+                )
+
+                plot_vtx_fakes.add(vtx_perf, reference=tagger.reference)
+
+            plot_vtx_fakes.draw()
+            plot_vtx_fakes.savefig(self.get_filename(f"{flav}_vtx_fakes_vs_{perf_var}", suffix))

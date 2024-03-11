@@ -1,6 +1,13 @@
 # Changelog
 
 ### [Latest]
+
+### [v0.3.4] (2024/02/26)
+- Better filenames when using HLAPI [!256](https://github.com/umami-hep/puma/pull/256)
+- Switch to MkDocs for documentation [!254](https://github.com/umami-hep/puma/pull/254)
+- Fixed minor bug in HF vertex merging [!255](https://github.com/umami-hep/puma/pull/255)
+- Fixed removal of reconstructed PVs and modified which vertexing plots are produced given a jet flavour [!253](https://github.com/umami-hep/puma/pull/253)
+- Updated AuxResults class to more closely match Yuma implementation of Results class [!252](https://github.com/umami-hep/puma/pull/252)
 - Moving plotting tutorials from main FTAG page here [!249](https://github.com/umami-hep/puma/pull/249)
 - Cleanup of plot names for high-level plotting interface, and yuma refactor [!244](https://github.com/umami-hep/puma/pull/244)
 - Update tables version from 3.7.0 to 3.8.0 [!245](https://github.com/umami-hep/puma/pull/245)
