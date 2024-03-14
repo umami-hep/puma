@@ -9,7 +9,7 @@ The following examples use the dummy data which is described [here](./dummy_data
 <img src=https://github.com/umami-hep/puma/raw/examples-material/histogram_discriminant.png width=500>
 
 ```py
-§§§examples/plot_discriminant_scores.py§§§
+--8<-- "examples/plot_discriminant_scores.py"
 ```
 
 ## Flavour probabilities plot
@@ -17,7 +17,7 @@ The following examples use the dummy data which is described [here](./dummy_data
 <img src=https://github.com/umami-hep/puma/raw/examples-material/histogram_bjets_probability.png width=500>
 
 ```py
-§§§examples/plot_flavour_probabilities.py§§§
+--8<-- "examples/plot_flavour_probabilities.py"
 ```
 
 ## More general example
@@ -30,7 +30,7 @@ could also produce a `MC` vs `data` plot with the following example code:
 <img src=https://github.com/umami-hep/puma/raw/examples-material/histogram_basic_example.png width=500>
 
 ```py
-§§§examples/plot_basic_histogram.py§§§
+--8<-- "examples/plot_basic_histogram.py"
 ```
 
 ## Weighted histograms
@@ -41,7 +41,7 @@ An example is given below:
 <img src=https://github.com/umami-hep/puma/raw/examples-material/histogram_weighted.png width=500>
 
 ```py
-§§§examples/plot_weighted_histograms.py§§§
+--8<-- "examples/plot_weighted_histograms.py"
 ```
 
 ## Underflow/overflow bins
@@ -55,7 +55,7 @@ underflow/overflow bins.
 <img src=https://github.com/umami-hep/puma/raw/examples-material/hist_with_underoverflow.png width=500>
 
 ```py
-§§§examples/plot_histogram_underoverflow.py§§§
+--8<-- "examples/plot_histogram_underoverflow.py"
 ```
 
 ## Data/MC histograms
@@ -71,5 +71,5 @@ Similar to the rest of the `Puma.HistogramPlot` examples shown here, a lot of mo
 argument can be passed.
 
 ```py
-§§§examples/plot_data_mc.py§§§
+--8<-- "examples/plot_data_mc.py"
 ```

@@ -818,18 +818,18 @@ To run the plotting of the jet variables, you need to run the following command 
 
 ```bash
 plot_input_vars.py -c <path/to/config> --jets
-````
+```
 
-##### Task 4.3.1: Plot the $p_T$ and |η| distribution
+##### Task 4.3.1: Plot the $p_T$ and $|\eta|$ distribution
 
 Try to plot the `pt_btagJes` and the `absEta_btagJes` distributions for the ttbar and the Z' sample in the same and in two different plots. Plot this for
 the _b_-, _c_- and light jets (all in one plot).
 
-??? info "Hint: Plot the $p_T$ and |η| distribution"
+??? info "Hint: Plot the $p_T$ and $|\eta|$ distribution"
 
     The explanation of the different options are given [here](https://umami-docs.web.cern.ch/plotting/plotting_inputs/#input-variables-jets). The label values of the different flavours can be found [here](https://umami-docs.web.cern.ch/preprocessing/truth_labels/).
 
-??? warning "Solution: Plot the $p_T$ and |η| distribution"
+??? warning "Solution: Plot the $p_T$ and $|\eta|$ distribution"
 
     ```yaml
     ttbar_only:

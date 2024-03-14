@@ -101,7 +101,7 @@ class AuxResultsTestCase(unittest.TestCase):
         d = {}
         d["HadronConeExclTruthLabelID"] = f["jets"]["HadronConeExclTruthLabelID"]
         d["pt"] = f["jets"]["pt"]
-        n_nans = np.random.choice(range(100), 10, replace=False)
+        n_nans = np.random.choice(range(len(d["pt"])), 10, replace=False)
         d["pt"][n_nans] = np.nan
         jet_array = structured_from_dict(d)
         track_array = f["tracks"]
@@ -120,7 +120,7 @@ class AuxResultsTestCase(unittest.TestCase):
         d = {}
         d["HadronConeExclTruthLabelID"] = f["jets"]["HadronConeExclTruthLabelID"]
         d["pt"] = f["jets"]["pt"]
-        n_nans = np.random.choice(range(100), 10, replace=False)
+        n_nans = np.random.choice(range(len(d["pt"])), 10, replace=False)
         d["pt"][n_nans] = np.nan
         jet_array = structured_from_dict(d)
         track_array = f["tracks"]
