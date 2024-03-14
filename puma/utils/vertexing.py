@@ -256,9 +256,7 @@ def clean_truth_vertices(truth_vertices, truth_track_origin, incl_vertexing=Fals
         Array containing cleaned truth vertex indices for each track in a jet.
     """
     # remove vertices that aren't purely HF
-    removal_indices = np.unique(
-        truth_vertices[np.isin(truth_track_origin, [3, 4, 5], invert=True)]
-    )
+    removal_indices = np.unique(truth_vertices[np.isin(truth_track_origin, [3, 4, 5], invert=True)])
     truth_vertices = clean_indices(
         truth_vertices,
         np.isin(truth_vertices, removal_indices),
@@ -300,15 +298,6 @@ def clean_reco_vertices(reco_vertices, reco_track_origin=None, incl_vertexing=Fa
     """
     # elaborate cleaning if track origin predictions are available
     if reco_track_origin is not None:
-
-        # remove single track vertices
-        unique_indices, unique_counts = np.unique(reco_vertices, return_counts=True)
-        reco_vertices = clean_indices(
-            reco_vertices,
-            np.isin(reco_vertices, unique_indices[unique_counts == 1]),
-            mode="remove",
-        )
-
         # remove vertex with most reco PV tracks
         pv_candidate_indices, pv_candidate_counts = np.unique(
             reco_vertices[reco_track_origin == 2], return_counts=True
