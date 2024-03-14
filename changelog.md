@@ -2,6 +2,8 @@
 
 ### [Latest]
 - Fixed shuffling bug in aux_results and modified treatment of single-track vertices [!259](https://github.com/umami-hep/puma/pull/259)
+
+### [v0.3.4] (2024/02/26)
 - Better filenames when using HLAPI [!256](https://github.com/umami-hep/puma/pull/256)
 - Switch to MkDocs for documentation [!254](https://github.com/umami-hep/puma/pull/254)
 - Fixed minor bug in HF vertex merging [!255](https://github.com/umami-hep/puma/pull/255)
