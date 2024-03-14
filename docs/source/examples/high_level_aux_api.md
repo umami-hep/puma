@@ -33,11 +33,11 @@ Vertexing performance plots can be produced for a specified jet flavour as shown
 Here ```vtx_flavours``` defines a list of flavours for which secondary vertices are expected (e.g. b-jets)
 and ```no_vertex_flavours``` defines a list where secondary vertices are not expected (e.g. l-jets). Different
 plots are produced in each case (see below). In general, this plotting function handles all considerations
-for vertexing performance. This includes processing truth vertex indices by removing PV, pileup and fake
-tracks and reco vertices by removing the vertex most consistent with the reconstructed PV (if a tagger has
+for vertexing performance. This includes processing truth vertex indices by removing vertices containing tracks
+not from HF and reco vertices by removing the vertex most consistent with the reconstructed PV (if a tagger has
 the capability to identify tracks from a PV via track origin classification). See
 [here](https://ftag.docs.cern.ch/algorithms/labelling/track_labels/) for more information about truth track
-origin and vertex definitions. If inclusive vertexing is enabled, all tracks from HF are merged into a single
+origin and vertex definitions. If inclusive vertexing is enabled, all HF vertices are merged into a single
 truth vertex. For reconstructed vertices in a tagger with track origin classification, all vertices with at
 least one HF track are merged and all others are removed. If track origin classification is not available, but
 inclusive vertexing is enabled, then all vertices are merged. After this cleaning procedure, a 1:1 greedy matching

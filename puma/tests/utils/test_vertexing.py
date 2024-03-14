@@ -349,16 +349,16 @@ class CalculateVertexMetricsTestCase(unittest.TestCase):
 class CleanTruthVerticesTestCase(unittest.TestCase):
     """Test case for clean_truth_vertices function."""
 
-    def test_track_removal(self):
-        """Check case where PV, PU and fake tracks are removed."""
-        vtx_indices = np.array([1, 0, 1, 0, 0, 1, 2, 0, 2, 2])
-        trk_origin = np.array([2, 0, 2, 1, 1, 2, 2, 0, 4, 4])
+    def test_non_hf_vtx_removal(self):
+        """Check case where non-pure HF vertices are removed."""
+        vtx_indices = np.array([1, 0, 1, 0, 0, 1, 2, 0, 2, 2, 3, 3])
+        trk_origin = np.array([2, 0, 2, 1, 1, 2, 2, 0, 4, 4, 3, 3])
         cleaned_indices = clean_truth_vertices(vtx_indices, trk_origin)
-        expected_result = np.array([-99, -99, -99, -99, -99, -99, -99, -99, 2, 2])
+        expected_result = np.array([-99, -99, -99, -99, -99, -99, -99, -99, -99, -99, 3, 3])
         np.testing.assert_array_equal(cleaned_indices, expected_result)
 
-    def test_incl_track_merging(self):
-        """Check case in inclusive vertexing where HF tracks are merged."""
+    def test_incl_hf_vtx_merging(self):
+        """Check case in inclusive vertexing where HF vertices are merged."""
         vtx_indices = np.array([0, 0, 1, 2, 1, 2, 2, 2])
         trk_origin = np.array([2, 2, 3, 4, 3, 4, 4, 4])
         cleaned_indices = clean_truth_vertices(vtx_indices, trk_origin, incl_vertexing=True)
@@ -375,6 +375,14 @@ class CleanRecoVerticesTestCase(unittest.TestCase):
         trk_origin = np.array([2, 4, 2, 2, 2, 2, 3, 3, 4])
         cleaned_indices = clean_reco_vertices(vtx_indices, trk_origin)
         expected_result = np.array([-99, -99, -99, -99, -99, 1, 1, 1, 1])
+        np.testing.assert_array_equal(cleaned_indices, expected_result)
+
+    def test_non_hf_vtx_removal(self):
+        """Check case where vertices without HF track are removed."""
+        vtx_indices = np.array([1, 0, 1, 0, 0, 1, 2, 0, 2, 2, 3, 3])
+        trk_origin = np.array([2, 0, 2, 1, 1, 2, 2, 0, 4, 4, 3, 3])
+        cleaned_indices = clean_reco_vertices(vtx_indices, trk_origin)
+        expected_result = np.array([-99, -99, -99, -99, -99, -99, 2, -99, 2, 2, 3, 3])
         np.testing.assert_array_equal(cleaned_indices, expected_result)
 
     def test_incl_track_merging_hf(self):

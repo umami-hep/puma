@@ -238,8 +238,8 @@ def calculate_vertex_metrics(
 def clean_truth_vertices(truth_vertices, truth_track_origin, incl_vertexing=False):
     """
     Clean truth vertices for each track in a single jet. This function removes
-    all truth PV, PU and fake tracks from truth vertices. If inclusive vertexing
-    is enabled, it also merges HF vertices into a single vertex.
+    all truth vertices that are not entirely from HF. If inclusive vertexing
+    is enabled, it also merges remaining vertices into a single vertex.
 
     Parameters
     ----------
