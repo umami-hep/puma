@@ -20,7 +20,7 @@ will then be read in from the provided file, assuming the information is availab
 properly supported within puma.
 
 ```py
-§§§examples/high_level_aux_plots.py:1:35§§§
+--8<-- "examples/high_level_aux_plots.py:1:35"
 ```
 
 
@@ -28,7 +28,7 @@ properly supported within puma.
 
 Vertexing performance plots can be produced for a specified jet flavour as shown in
 ```py
-§§§examples/high_level_aux_plots.py:39:42§§§
+--8<-- "examples/high_level_aux_plots.py:39:42"
 ```
 Here ```vtx_flavours``` defines a list of flavours for which secondary vertices are expected (e.g. b-jets)
 and ```no_vertex_flavours``` defines a list where secondary vertices are not expected (e.g. l-jets). Different

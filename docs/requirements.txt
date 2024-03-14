@@ -1,6 +1,5 @@
-librep
-myst-parser==2.0.0
-pydata-sphinx-theme==0.14.1
-sphinx-autoapi==3.0.0
-sphinx-copybutton
-Sphinx==7.1.2
+mkdocs==1.5.3
+mkdocs-material==9.5.13
+mkdocstrings-python
+mkdocs-markdownextradata-plugin>=0.2.5
+mkdocs-git-revision-date-localized-plugin
