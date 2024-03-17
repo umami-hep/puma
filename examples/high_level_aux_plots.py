@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from puma.hlplots import AuxResults, Tagger
 from puma.utils import get_dummy_tagger_aux, logger
-from matplotlib import pyplot as plt
 
 # The line below generates dummy data which is similar to a NN output
 fname, file = get_dummy_tagger_aux()
