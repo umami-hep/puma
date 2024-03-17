@@ -139,9 +139,9 @@ class AuxResults:
         aux_var_list = list(set(aux_var_list))
 
         # load data
-        reader = H5Reader(file_path, precision="full")
+        reader = H5Reader(file_path, precision="full", shuffle=False)
         data = reader.load({key: var_list}, num_jets)[key]
-        aux_reader = H5Reader(file_path, precision="full", jets_name=aux_key)
+        aux_reader = H5Reader(file_path, precision="full", jets_name=aux_key, shuffle=False)
         aux_data = aux_reader.load({aux_key: aux_var_list}, num_jets)[aux_key]
 
         # check for nan values
