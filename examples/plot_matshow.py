@@ -11,7 +11,7 @@ mat = np.random.rand(4, 3)
 # Declaring the plot class
 matrix_plot = MatshowPlot(mat)
 # Saving the plot
-matrix_plot.savefig("path/to/save_dir/vanilla_mat.png")
+matrix_plot.savefig("vanilla_mat.png")
 
 # Some possible customizations
 # Matrix's column names
@@ -34,4 +34,4 @@ matrix_plot_custom = MatshowPlot(
 )
 
 # Saving the plot
-matrix_plot_custom.savefig("path/to/save_dir/mat_custumized.png")
+matrix_plot_custom.savefig("mat_custumized.png")
