@@ -8,7 +8,7 @@ def confusion_matrix(
     targets: np.ndarray,
     predictions: np.ndarray,
     sample_weights: np.ndarray | None = None,
-    normalize: str = "all",
+    normalize: str | None = "all",
 ) -> np.ndarray:
     """
     Parameters
@@ -19,9 +19,9 @@ def confusion_matrix(
         predicted labels (output of the classifier)
     sample_weights : np.ndarray, optional
         Weight of each sample; if None, each sample weights the same. Defaults to None.
-    normalize : str, optional
+    normalize : str | None, optional
         Normalization of the confusion matrix. Can be:
-        "None": Give raw counts;
+        None : Give raw counts;
         "pred": Normalize across the prediction class, i.e. such that the rows add to one;
         "true": Normalize across the target class, i.e. such that the columns add to one;
         "all" : Normalize across all examples, i.e. such that all matrix entries add to one.

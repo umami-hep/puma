@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from puma.hlplots import AuxResults, Tagger
 from puma.utils import get_dummy_tagger_aux, logger
+from matplotlib import pyplot as plt
 
 # The line below generates dummy data which is similar to a NN output
 fname, file = get_dummy_tagger_aux()
@@ -40,4 +41,4 @@ logger.info("Plotting vertexing performance.")
 aux_results.plot_var_vtx_perf(vtx_flavours=["bjets"], no_vtx_flavours=["ujets"])
 
 # Track origin confusion matrix
-aux_results.plot_track_origin_confmat(normalize="all", show_percentage=True, atlas_offset=1.5)
+aux_results.plot_track_origin_confmat(normalize="all", atlas_offset=1.5)

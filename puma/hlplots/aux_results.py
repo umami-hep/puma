@@ -8,7 +8,6 @@ from pathlib import Path
 import numpy as np
 from ftag import Cuts, Flavour, Flavours
 from ftag.hdf5 import H5Reader
-from matplotlib import pyplot as plt
 
 from puma.hlplots.tagger import Tagger
 from puma.matshow import MatshowPlot
@@ -393,10 +392,7 @@ class AuxResults:
 
     def plot_track_origin_confmat(
         self,
-        normalize: str = "all",
-        show_percentage: bool = False,
-        text_color_threshold: float = 0.408,
-        colormap: plt.cm = plt.cm.Oranges,
+        normalize: str | None = "all",
         atlas_offset: float = 1.5,
         **kwargs,
     ):
@@ -404,25 +400,17 @@ class AuxResults:
 
         Parameters
         ----------
-        normalize : str, optional
+        normalize : str | None, optional
             Normalization of the confusion matrix. Can be:
-            "None": Give raw counts;
+            None: Give raw counts;
             "pred": Normalize across the prediction class, i.e. such that the rows add to one;
             "true": Normalize across the target class, i.e. such that the columns add to one;
             "all" : Normalize across all examples, i.e. such that all matrix entries add to one.
             Defaults to "all".
-        show_percentage : bool, optional
-            Show entries as percentages, by default False
-        text_color_threshold : float, optional
-            threshold on the relative luminance of the colormap bkg color after which the text color
-            switches to black, to allow better readability on lighter cmap bkg colors.
-            If 1, all text is white; if 0, all text is black. by default 0.408
-        colormap : plt.cm, optional
-            Colormap of the plot, by default `plt.cm.Oranges`
         atlas_offset : float, optional
             Space at the top of the plot reserved to the Atlasify text. by default 1.5
         **kwargs : kwargs
-            Keyword arguments for `puma.PlotObject`
+            Keyword arguments for `puma.MatshowPlot` and `puma.PlotObject`
         """
         for tagger in self.taggers.values():
             # Reading tagger's target and predicted labels
@@ -447,13 +435,10 @@ class AuxResults:
                 matrix=cm,
                 x_ticklabels=class_names,
                 y_ticklabels=class_names,
-                show_percentage=show_percentage,
-                text_color_threshold=text_color_threshold,
-                colormap=colormap,
-                atlas_offset=atlas_offset,
                 title="Track Origin Auxiliary Task\nConfusion Matrix",
                 xlabel="Predicted Classes",
                 ylabel="Target Classes",
+                atlas_offset=atlas_offset,
                 atlas_second_tag=self.atlas_second_tag,
                 **kwargs,
             )
