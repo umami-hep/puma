@@ -196,10 +196,3 @@ class MatshowPlot(PlotBase):
         self.set_xlabel()
         self.set_ylabel(self.axis_top)
         self.set_title()
-
-
-if __name__ == "__main__":
-    # A small test
-    mat = np.random.rand(4, 3)
-    plot_mat = MatshowPlot(mat, colormap=plt.cm.PiYG, x_ticks_rotation=0, atlas_offset=0.65)
-    plot_mat.savefig("mat.png")

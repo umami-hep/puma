@@ -13,7 +13,7 @@ from matplotlib import pyplot as plt
 from puma.hlplots.tagger import Tagger
 from puma.matshow import MatshowPlot
 from puma.utils import logger
-from puma.utils.aux import get_aux_labels
+from puma.utils.aux import get_aux_labels, get_trackOrigin_labels
 from puma.utils.confusion_matrix import confusion_matrix
 from puma.utils.vertexing import calculate_vertex_metrics
 from puma.var_vs_vtx import VarVsVtx, VarVsVtxPlot
@@ -395,11 +395,10 @@ class AuxResults:
         self,
         normalize: str = "all",
         show_percentage: bool = False,
-        class_names: list | None = None,
-        title_str: str = "Track Origin Auxiliary Task\nConfusion Matrix",
         text_color_threshold: float = 0.408,
         colormap: plt.cm = plt.cm.Oranges,
         atlas_offset: float = 1.5,
+        **kwargs,
     ):
         """Plot Track Origin Aux Task confusion matrix.
 
@@ -414,10 +413,6 @@ class AuxResults:
             Defaults to "all".
         show_percentage : bool, optional
             Show entries as percentages, by default False
-        class_names : list | None, optional
-            Names of the classification classes; if None, uses track origin names. by default None.
-        title_str : str, optional
-            Title of the plot, by default "Track Origin Auxiliary Task Confusion Matrix"
         text_color_threshold : float, optional
             threshold on the relative luminance of the colormap bkg color after which the text color
             switches to black, to allow better readability on lighter cmap bkg colors.
@@ -426,26 +421,26 @@ class AuxResults:
             Colormap of the plot, by default `plt.cm.Oranges`
         atlas_offset : float, optional
             Space at the top of the plot reserved to the Atlasify text. by default 1.5
+        **kwargs : kwargs
+            Keyword arguments for `puma.PlotObject`
         """
         for tagger in self.taggers.values():
             # Reading tagger's target and predicted labels
-            target = tagger.aux_labels["track_origin"].reshape(-1)
-            predictions = tagger.aux_scores["track_origin"].reshape(-1)
+            target, predictions = get_trackOrigin_labels(tagger)
 
             # Computing the confusion matrix
             cm = confusion_matrix(target, predictions, normalize=normalize)
 
-            if class_names is None:
-                class_names = [
-                    "Pileup",
-                    "Fake",
-                    "Primary",
-                    "FromB",
-                    "FromBC",
-                    "FromC",
-                    "FromTau",
-                    "OtherSecondary",
-                ]
+            class_names = [
+                "Pileup",
+                "Fake",
+                "Primary",
+                "FromB",
+                "FromBC",
+                "FromC",
+                "FromTau",
+                "OtherSecondary",
+            ]
 
             # Plotting the confusion matrix
             plot_cm = MatshowPlot(
@@ -456,10 +451,11 @@ class AuxResults:
                 text_color_threshold=text_color_threshold,
                 colormap=colormap,
                 atlas_offset=atlas_offset,
-                title=title_str,
+                title="Track Origin Auxiliary Task\nConfusion Matrix",
                 xlabel="Predicted Classes",
                 ylabel="Target Classes",
                 atlas_second_tag=self.atlas_second_tag,
+                **kwargs,
             )
-
-            plot_cm.savefig(self.get_filename(tagger.name + "_trackorigin_cm.png"))
+            base = tagger.name + "_trackOrigin_cm"
+            plot_cm.savefig(self.get_filename(base))

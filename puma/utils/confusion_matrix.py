@@ -76,11 +76,3 @@ def confusion_matrix(
         cm = cm / cm.sum(axis=0, keepdims=True)
 
     return cm
-
-
-if __name__ == "__main__":
-    # A small test
-    targets = np.array([2, 0, 2, 2, 0, 1])
-    predictions = np.array([0, 0, 2, 2, 0, 2])
-    weights = np.array([1, 0.5, 0.5, 1, 0.2, 1])
-    print(confusion_matrix(targets, predictions, sample_weights=weights))
