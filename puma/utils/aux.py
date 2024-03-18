@@ -11,21 +11,21 @@ def get_aux_labels():
     }
 
 
-def get_trackOrigin_labels(tagger):
-    """Get the Track Origin task target and predicted labels (i.e. an array of the true and
-    predicted belonging class index for each track, input/output of the classifier).
-    The arrays are flattened, i.e. tracks are not grouped by jets.
-    If the sample has `Ntracks` in total, the shape of the returned arrays is `(Ntracks,)`.
-
-    Parameters
-    ----------
-    tagger : the tagger object.
+def get_trackOrigin_classNames():
+    """Get the Track Origin class names.
 
     Returns
     -------
-    np.ndarray, np.ndarray
-        `target, predictions`: the target and prediction labels' arrays.
+    `list` of `str`
+        the class names
     """
-    target = tagger.aux_labels["track_origin"].reshape(-1)
-    predictions = tagger.aux_scores["track_origin"].reshape(-1)
-    return target, predictions
+    return [
+        "Pileup",
+        "Fake",
+        "Primary",
+        "FromB",
+        "FromBC",
+        "FromC",
+        "FromTau",
+        "OtherSecondary",
+    ]

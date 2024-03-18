@@ -12,7 +12,7 @@ from ftag.hdf5 import H5Reader
 from puma.hlplots.tagger import Tagger
 from puma.matshow import MatshowPlot
 from puma.utils import logger
-from puma.utils.aux import get_aux_labels, get_trackOrigin_labels
+from puma.utils.aux import get_aux_labels, get_trackOrigin_classNames
 from puma.utils.confusion_matrix import confusion_matrix
 from puma.utils.vertexing import calculate_vertex_metrics
 from puma.var_vs_vtx import VarVsVtx, VarVsVtxPlot
@@ -414,21 +414,14 @@ class AuxResults:
         """
         for tagger in self.taggers.values():
             # Reading tagger's target and predicted labels
-            target, predictions = get_trackOrigin_labels(tagger)
+            # and flattening them so that they have shape (Ntracks,)
+            target = tagger.aux_labels["track_origin"].reshape(-1)
+            predictions = tagger.aux_scores["track_origin"].reshape(-1)
 
             # Computing the confusion matrix
             cm = confusion_matrix(target, predictions, normalize=normalize)
 
-            class_names = [
-                "Pileup",
-                "Fake",
-                "Primary",
-                "FromB",
-                "FromBC",
-                "FromC",
-                "FromTau",
-                "OtherSecondary",
-            ]
+            class_names = get_trackOrigin_classNames()
 
             # Plotting the confusion matrix
             plot_cm = MatshowPlot(
