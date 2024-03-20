@@ -34,7 +34,7 @@ matrix_plot_custom = MatshowPlot(
     colormap=plt.cm.PiYG,
     cbar_label="Scalar values as percentages",
     atlas_offset=0.7,
-    fontsize=15
+    fontsize=15,
 )
 
 # Saving the plot
