@@ -10,9 +10,9 @@ To set up the inputs for the plots, have a look [here](./index.md).
 The class can plot a matrix stored in a `np.ndarray`:
 
 ```python
->>> mat = np.random.rand(4, 3)
->>> matrix_plot = MatshowPlot(mat)
->>> matrix_plot.savefig("path/to/save_dir/vanilla_mat.png")
+mat = np.random.rand(4, 3)
+matrix_plot = MatshowPlot(mat)
+matrix_plot.savefig("path/to/save_dir/vanilla_mat.png")
 ```
 
 ## Plot customization
@@ -30,11 +30,15 @@ Various aspects of the plot appearance can be customized using the class' argume
 
 ## Example
 
-A simple plot example:
+Example without any customization:
 
-<img src=https://github.com/umami-hep/puma/blob/main/puma/tests/expected_plots/test_matrix.png width=500>
+<img src=https://github.com/umami-hep/puma/raw/examples-material/vanilla_mat.png width=500>
 
-Code to obtain various examples:
+Example with some customization:
+
+<img src=https://github.com/umami-hep/puma/raw/examples-material/mat_custumized.png width=500>
+
+Code to obtain previous examples:
 ```py
 --8<-- "examples/plot_matshow.py"
 ```

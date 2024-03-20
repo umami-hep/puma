@@ -5,8 +5,11 @@ from matplotlib import pyplot as plt
 
 from puma.matshow import MatshowPlot
 
+# seeded PRNG for reproducibility
+prng = np.random.default_rng(seed=0)
+
 # A random matrix
-mat = np.random.rand(4, 3)
+mat = prng.random(size=(4, 3))
 
 # Declaring the plot class
 matrix_plot = MatshowPlot(mat)
@@ -30,7 +33,8 @@ matrix_plot_custom = MatshowPlot(
     text_color_threshold=0.6,
     colormap=plt.cm.PiYG,
     cbar_label="Scalar values as percentages",
-    atlas_offset=0.65,
+    atlas_offset=0.7,
+    fontsize=15
 )
 
 # Saving the plot

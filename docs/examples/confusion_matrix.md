@@ -12,17 +12,17 @@ The matrix can then be normalized in different ways, obtaining rates of misclass
 
 The function `confusion_matrix` in `puma.utils.confusion_matrix` computes the CM from two arrays of target and predicted labels. The basic usage is:
 ```python
->>> targets = np.array([2, 0, 2, 2, 0, 1])
->>> predictions = np.array([0, 0, 2, 2, 0, 2])
->>> confusion_matrix(targets, predictions)
+targets = np.array([2, 0, 2, 2, 0, 1])
+predictions = np.array([0, 0, 2, 2, 0, 2])
+confusion_matrix(targets, predictions)
 ```
 
 Eventually, samples can be weighted by their relative importance by providing an array of samples $s_i \in [0,1]$:
 ```python
->>> targets = np.array([2, 0, 2, 2, 0, 1])
->>> predictions = np.array([0, 0, 2, 2, 0, 2])
->>> weights = np.array([1, 0.5, 0.5, 1, 0.2, 1])
->>> confusion_matrix(targets, predictions, sample_weights=weights)
+targets = np.array([2, 0, 2, 2, 0, 1])
+predictions = np.array([0, 0, 2, 2, 0, 2])
+weights = np.array([1, 0.5, 0.5, 1, 0.2, 1])
+confusion_matrix(targets, predictions, sample_weights=weights)
 ```
 
 

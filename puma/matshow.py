@@ -135,13 +135,19 @@ class MatshowPlot(PlotBase):
 
                     # Value of the matrix, eventually converted to percentage
                     text = (
-                        str(round(self.mat[i, j], 3))
+                        f"{self.mat[i, j]:.3f}"
                         if not self.show_percentage
-                        else str(round(self.mat[i, j] * 100, 2)) + "%"
+                        else f"{self.mat[i, j] * 100:.2f}%"
                     )
                     # Plotting text
                     self.axis_top.text(
-                        x=j, y=i, s=text, va="center", ha="center", size="x-large", c=color
+                        x=j,
+                        y=i,
+                        s=text,
+                        va="center",
+                        ha="center",
+                        c=color,
+                        fontsize=self.fontsize,
                     )
 
         # Plotting colorbar
@@ -152,10 +158,11 @@ class MatshowPlot(PlotBase):
             maxMat = np.max(self.mat)
             cbar.set_ticks(
                 ticks=np.linspace(minMat, maxMat, 5),
-                labels=[str(i) + "%" for i in np.round(np.linspace(minMat, maxMat, 5) * 100, 2)],
+                labels=[f"{i}%" for i in np.round(np.linspace(minMat, maxMat, 5) * 100, 2)],
+                fontsize=self.fontsize,
             )
         if self.cbar_label is not None:
-            cbar.ax.set_ylabel(self.cbar_label)
+            cbar.ax.set_ylabel(self.cbar_label, fontsize=self.fontsize)
 
         # Setting tick labels
         if self.x_ticklabels is None:
@@ -168,10 +175,13 @@ class MatshowPlot(PlotBase):
         # Writing class names on the axes
         positions = list(range(self.mat.shape[1]))
         self.axis_top.set_xticks(
-            positions, labels=self.x_ticklabels, rotation=self.x_ticks_rotation
+            positions,
+            labels=self.x_ticklabels,
+            rotation=self.x_ticks_rotation,
+            fontsize=self.fontsize,
         )
         positions = list(range(self.mat.shape[0]))
-        self.axis_top.set_yticks(positions, labels=self.y_ticklabels)
+        self.axis_top.set_yticks(positions, labels=self.y_ticklabels, fontsize=self.fontsize)
         # Put xticks to the bottom
         self.axis_top.xaxis.tick_bottom()
 
