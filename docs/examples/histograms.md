@@ -46,7 +46,7 @@ An example is given below:
 
 ## Underflow/overflow bins
 
-Underflow and overflow bins are disabled by default, but can be activated using the
+Underflow and overflow bins are enabled by default, but can be deactivated using the
 `underoverflow` attribute of `puma.HistogramPlot`.
 Below an example of the same Gaussian distribution plotted with and without
 underflow/overflow bins.
