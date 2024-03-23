@@ -9,3 +9,23 @@ def get_aux_labels():
         "vertexing": "ftagTruthVertexIndex",
         "track_origin": "ftagTruthOriginLabel",
     }
+
+
+def get_trackOrigin_classNames():
+    """Get the Track Origin class names.
+
+    Returns
+    -------
+    `list` of `str`
+        the class names
+    """
+    return [
+        "Pileup",
+        "Fake",
+        "Primary",
+        "FromB",
+        "FromBC",
+        "FromC",
+        "FromTau",
+        "OtherSecondary",
+    ]
