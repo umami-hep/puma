@@ -429,10 +429,10 @@ class PlotBase(PlotObject):
         )
 
         for i, ratio_axis in enumerate(self.ratio_axes):
-            if self.ymin_ratio[i] or self.ymax_ratio[i]:
+            if self.ymin_ratio[i] is not None or self.ymax_ratio[i] is not None:
                 ymin, ymax = ratio_axis.get_ylim()
-                ymin = self.ymin_ratio[i] if self.ymin_ratio[i] else ymin
-                ymax = self.ymax_ratio[i] if self.ymax_ratio[i] else ymax
+                ymin = self.ymin_ratio[i] if self.ymin_ratio[i] is not None else ymin
+                ymax = self.ymax_ratio[i] if self.ymax_ratio[i] is not None else ymax
                 ratio_axis.set_ylim(bottom=ymin, top=ymax)
 
     def set_ylabel(self, ax_mpl, label: str | None = None, align_right: bool = True, **kwargs):
