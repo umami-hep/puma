@@ -12,9 +12,10 @@ prng = np.random.default_rng(seed=0)
 mat = prng.random(size=(4, 3))
 
 # Declaring the plot class
-matrix_plot = MatshowPlot(mat)
+matrix_plotter = MatshowPlot()
+matrix_plotter.draw(mat)
 # Saving the plot
-matrix_plot.savefig("vanilla_mat.png")
+matrix_plotter.savefig("vanilla_mat.png")
 
 # Some possible customizations
 # Matrix's column names
@@ -23,8 +24,7 @@ x_ticks = ["a", "b", "c"]
 y_ticks = ["d", "e", "f", "g"]
 
 # Declaring the plot class with custom style
-matrix_plot_custom = MatshowPlot(
-    mat,
+matrix_plotter_custom = MatshowPlot(
     x_ticklabels=x_ticks,
     x_ticks_rotation=45,
     y_ticklabels=y_ticks,
@@ -36,6 +36,6 @@ matrix_plot_custom = MatshowPlot(
     atlas_offset=0.7,
     fontsize=15,
 )
-
+matrix_plotter_custom.draw(mat)
 # Saving the plot
-matrix_plot_custom.savefig("mat_custumized.png")
+matrix_plotter_custom.savefig("mat_custumized.png")

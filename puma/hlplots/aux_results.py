@@ -425,7 +425,6 @@ class AuxResults:
 
             # Plotting the confusion matrix
             plot_cm = MatshowPlot(
-                matrix=cm,
                 x_ticklabels=class_names,
                 y_ticklabels=class_names,
                 title="Track Origin Auxiliary Task\nConfusion Matrix",
@@ -435,5 +434,6 @@ class AuxResults:
                 atlas_second_tag=self.atlas_second_tag,
                 **kwargs,
             )
+            plot_cm.draw(cm)
             base = tagger.name + "_trackOrigin_cm"
             plot_cm.savefig(self.get_filename(base))

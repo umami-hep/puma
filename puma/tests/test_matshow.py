@@ -29,10 +29,11 @@ class TestMatshowPlot(unittest.TestCase):
             [0.08393056, 0.3477517, 0.81477693],
             [0.39839215, 0.54854937, 0.48571167],
         ])
-        plot_mat = MatshowPlot(mat, colormap=plt.cm.PiYG, x_ticks_rotation=0, atlas_offset=0.65)
+        plot_mat = MatshowPlot(colormap=plt.cm.PiYG, x_ticks_rotation=0, atlas_offset=0.65)
         plotname = "test_matrix.png"
         # Uncomment line below to update expected image
         # plot_mat.savefig(f"{self.expected_plots_dir}/{plotname}")
+        plot_mat.draw(mat)
         plot_mat.savefig(f"{self.actual_plots_dir}/{plotname}")
 
         self.assertIsNone(
@@ -55,7 +56,6 @@ class TestMatshowPlot(unittest.TestCase):
         y_ticks = ["d", "e", "f", "g"]
 
         plot_mat = MatshowPlot(
-            mat,
             x_ticklabels=x_ticks,
             x_ticks_rotation=45,
             y_ticklabels=y_ticks,
@@ -65,6 +65,7 @@ class TestMatshowPlot(unittest.TestCase):
             cbar_label="Scalar values",
             atlas_offset=1.2,
         )
+        plot_mat.draw(mat)
         plotname = "test_matrix_fully_customized.png"
         # Uncomment line below to update expected image
         # plot_mat.savefig(f"{self.expected_plots_dir}/{plotname}")
@@ -90,7 +91,6 @@ class TestMatshowPlot(unittest.TestCase):
         y_ticks = ["d", "e", "f", "g"]
 
         plot_mat = MatshowPlot(
-            mat,
             x_ticklabels=x_ticks,
             x_ticks_rotation=45,
             y_ticklabels=y_ticks,
@@ -103,7 +103,7 @@ class TestMatshowPlot(unittest.TestCase):
         plotname = "test_matrix_fully_customized_no_entries.png"
         # Uncomment line below to update expected image
         # plot_mat.savefig(f"{self.expected_plots_dir}/{plotname}")
-
+        plot_mat.draw(mat)
         plot_mat.savefig(f"{self.actual_plots_dir}/{plotname}")
 
         self.assertIsNone(

@@ -12,7 +12,6 @@ class MatshowPlot(PlotBase):
 
     def __init__(
         self,
-        matrix: np.ndarray,
         x_ticklabels: list | None = None,
         x_ticks_rotation: int = 90,
         y_ticklabels: list | None = None,
@@ -28,8 +27,6 @@ class MatshowPlot(PlotBase):
 
         Parameters
         ----------
-        matrix : np.ndarray
-            The matrix to be plotted.
         x_ticklabels : list | None, optional
             Names of the matrix's columns; if None, indices are shown. by default None
         x_ticks_rotation : int, optional
@@ -56,23 +53,12 @@ class MatshowPlot(PlotBase):
 
         Example
         -------
+        >>> matrix_plotter = MatshowPlot()
         >>> mat = np.random.rand(4, 3)
-        >>> plot_mat = MatshowPlot(mat)
+        >>> matrix_plotter.draw(mat)
         """
         super().__init__(**kwargs)
 
-        # Checking size consistency of ticklabels
-        if x_ticklabels is not None:
-            assert (
-                len(x_ticklabels) == matrix.shape[1]
-            ), "MatshowPlot: mismatch between x_tickslabels and number of columns in the matrix."
-
-        if y_ticklabels is not None:
-            assert (
-                len(y_ticklabels) == matrix.shape[0]
-            ), "MatshowPlot: mismatch between y_tickslabels and number of rows in the matrix."
-
-        self.mat = matrix
         self.x_ticklabels = x_ticklabels
         self.x_ticks_rotation = x_ticks_rotation
         self.y_ticklabels = y_ticklabels
@@ -87,7 +73,6 @@ class MatshowPlot(PlotBase):
         if self.figsize is None:
             self.figsize = (10, 10.5)
         self.initialise_figure()
-        self.__plot()
 
     def __get_luminance(self, rgbaColor):
         """Calculate the relative luminance of a color according to W3C standards.
@@ -111,20 +96,23 @@ class MatshowPlot(PlotBase):
         weights = np.array([0.2126, 0.7152, 0.0722])
         return np.dot(rgbaColor, weights)
 
-    def __plot(self):
+    def __plot(self, matrix):
         """Plot the Matrix."""
-        im = self.axis_top.matshow(self.mat, cmap=self.colormap)
+        n_cols = matrix.shape[1]
+        n_rows = matrix.shape[0]
+
+        im = self.axis_top.matshow(matrix, cmap=self.colormap)
 
         # If mat entries have to be plotted
         if self.show_entries:
             # Mapping mat values in [0,1], as it's done by matplotlib
             # to associate them to the colors of the colormap
-            normMat = self.mat - np.min(self.mat)
-            normMat = normMat / (np.max(self.mat) - np.min(self.mat))
+            normMat = matrix - np.min(matrix)
+            normMat = normMat / (np.max(matrix) - np.min(matrix))
 
             # Adding text values in the matrix pixels
-            for i in range(self.mat.shape[0]):
-                for j in range(self.mat.shape[1]):
+            for i in range(n_rows):
+                for j in range(n_cols):
                     # Choosing the text color: black if color is light, white if color is dark
                     # Getting the bkg color from the cmap
                     color = self.colormap(normMat[i, j])
@@ -135,9 +123,9 @@ class MatshowPlot(PlotBase):
 
                     # Value of the matrix, eventually converted to percentage
                     text = (
-                        f"{self.mat[i, j]:.3f}"
+                        f"{matrix[i, j]:.3f}"
                         if not self.show_percentage
-                        else f"{self.mat[i, j] * 100:.2f}%"
+                        else f"{matrix[i, j] * 100:.2f}%"
                     )
                     # Plotting text
                     self.axis_top.text(
@@ -154,8 +142,8 @@ class MatshowPlot(PlotBase):
         cbar = self.fig.colorbar(im)
         # If using percentages, converting cbar labels to percentages
         if self.show_entries and self.show_percentage:
-            minMat = np.min(self.mat)
-            maxMat = np.max(self.mat)
+            minMat = np.min(matrix)
+            maxMat = np.max(matrix)
             cbar.set_ticks(
                 ticks=np.linspace(minMat, maxMat, 5),
                 labels=[f"{i}%" for i in np.round(np.linspace(minMat, maxMat, 5) * 100, 2)],
@@ -166,21 +154,21 @@ class MatshowPlot(PlotBase):
 
         # Setting tick labels
         if self.x_ticklabels is None:
-            self.x_ticklabels = [str(i) for i in range(self.mat.shape[1])]
+            self.x_ticklabels = [str(i) for i in range(n_cols)]
             logger.info("MatshowPlot: no x_ticklabels given, using indices instead.")
         if self.y_ticklabels is None:
-            self.y_ticklabels = [str(i) for i in range(self.mat.shape[0])]
+            self.y_ticklabels = [str(i) for i in range(n_rows)]
             logger.info("MatshowPlot: no y_ticklabels given, using indices instead.")
 
         # Writing class names on the axes
-        positions = list(range(self.mat.shape[1]))
+        positions = list(range(n_cols))
         self.axis_top.set_xticks(
             positions,
             labels=self.x_ticklabels,
             rotation=self.x_ticks_rotation,
             fontsize=self.fontsize,
         )
-        positions = list(range(self.mat.shape[0]))
+        positions = list(range(n_rows))
         self.axis_top.set_yticks(positions, labels=self.y_ticklabels, fontsize=self.fontsize)
         # Put xticks to the bottom
         self.axis_top.xaxis.tick_bottom()
@@ -190,7 +178,7 @@ class MatshowPlot(PlotBase):
         # Applying atlas style
         if self.apply_atlas_style:
             # Allow some space for the ATLAS legend
-            self.axis_top.set_ylim(-self.atlas_offset, self.mat.shape[0] - 0.5)
+            self.axis_top.set_ylim(-self.atlas_offset, n_rows - 0.5)
             # Apply ATLAS style
             self.atlasify()
             # Mirror y axis to have the diagonal in the common orientation
@@ -206,3 +194,24 @@ class MatshowPlot(PlotBase):
         self.set_xlabel()
         self.set_ylabel(self.axis_top)
         self.set_title()
+
+    def draw(self, matrix):
+        """Draw a matrix with the class customized appearance.
+
+        Parameters
+        ----------
+        matrix : np.ndarray
+            The matrix to be plotted.
+        """
+        # Checking size consistency of ticklabels
+        if self.x_ticklabels is not None:
+            assert (
+                len(self.x_ticklabels) == matrix.shape[1]
+            ), "MatshowPlot: mismatch between x_tickslabels and number of columns in the matrix."
+
+        if self.y_ticklabels is not None:
+            assert (
+                len(self.y_ticklabels) == matrix.shape[0]
+            ), "MatshowPlot: mismatch between y_tickslabels and number of rows in the matrix."
+
+        self.__plot(matrix)

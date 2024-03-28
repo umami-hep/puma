@@ -10,9 +10,10 @@ To set up the inputs for the plots, have a look [here](./index.md).
 The class can plot a matrix stored in a `np.ndarray`:
 
 ```python
+matrix_plotter = MatshowPlot()
 mat = np.random.rand(4, 3)
-matrix_plot = MatshowPlot(mat)
-matrix_plot.savefig("path/to/save_dir/vanilla_mat.png")
+matrix_plotter.draw(mat)
+matrix_plotter.savefig("path/to/save_dir/vanilla_mat.png")
 ```
 
 ## Plot customization
