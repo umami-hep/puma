@@ -55,3 +55,21 @@ vertices divided by number of tracks in reco vertex (expected SVs)
 
 Note that by default the vertex matching algorithm enforces purity criteria requiring track association
 efficiency > 0.65 and purity > 0.5
+
+## Track Origin Performances
+
+The Track Origin auxiliary task is a multiclass classification task, in which each track is associated with its most probable belonging origin, chosen between:
+- Pileup;
+- Fake;
+- Primary;
+- FromB;
+- FromBC;
+- FromC;
+- FromTau;
+- OtherSecondary;
+
+A good metric to evaluate the performances of the classifier is the [Confusion Matrix](../examples/confusion_matrix.md), which can be plotted using the method `plot_track_origin_confmat`.
+
+The normalization of the tagger's confusion matrix can be chosen among the ones allowed by the `confusion_matrix` [possible normalizations](../examples/confusion_matrix.md#normalization), by specifying the argument `normalize` in the `plot_track_origin_confmat` function.
+
+If the ATLAS subtext is too long and overflows over the matrix, more space can be allocated for it by increasing the value of the function's argument `atlas_offset`, which is `1.5` by default.

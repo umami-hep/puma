@@ -1,6 +1,7 @@
 # Changelog
 
 ### [Latest]
+- Added matrix plot API, confusion matrix function, and Track Origin confusion matrix plot [!258](https://github.com/umami-hep/puma/pull/258)
 - Fix setting ymin_ratio (and ymax_ratio) in PlotBase if it is zero [!261](https://github.com/umami-hep/puma/pull/261)
 - Fixed shuffling bug in aux_results and modified treatment of single-track vertices [!259](https://github.com/umami-hep/puma/pull/259)
 

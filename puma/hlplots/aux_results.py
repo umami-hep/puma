@@ -10,8 +10,10 @@ from ftag import Cuts, Flavour, Flavours
 from ftag.hdf5 import H5Reader
 
 from puma.hlplots.tagger import Tagger
+from puma.matshow import MatshowPlot
 from puma.utils import logger
-from puma.utils.aux import get_aux_labels
+from puma.utils.aux import get_aux_labels, get_trackOrigin_classNames
+from puma.utils.confusion_matrix import confusion_matrix
 from puma.utils.vertexing import calculate_vertex_metrics
 from puma.var_vs_vtx import VarVsVtx, VarVsVtxPlot
 
@@ -42,6 +44,7 @@ class AuxResults:
 
         self.plot_funcs = {
             "vertexing": self.plot_var_vtx_perf,
+            "track_origin": self.plot_track_origin_confmat,
         }
 
     def add(self, tagger):
@@ -386,3 +389,51 @@ class AuxResults:
 
             plot_vtx_fakes.draw()
             plot_vtx_fakes.savefig(self.get_filename(f"{flav}_vtx_fakes_vs_{perf_var}", suffix))
+
+    def plot_track_origin_confmat(
+        self,
+        normalize: str | None = "all",
+        atlas_offset: float = 1.5,
+        **kwargs,
+    ):
+        """Plot Track Origin Aux Task confusion matrix.
+
+        Parameters
+        ----------
+        normalize : str | None, optional
+            Normalization of the confusion matrix. Can be:
+            None: Give raw counts;
+            "pred": Normalize across the prediction class, i.e. such that the rows add to one;
+            "true": Normalize across the target class, i.e. such that the columns add to one;
+            "all" : Normalize across all examples, i.e. such that all matrix entries add to one.
+            Defaults to "all".
+        atlas_offset : float, optional
+            Space at the top of the plot reserved to the Atlasify text. by default 1.5
+        **kwargs : kwargs
+            Keyword arguments for `puma.MatshowPlot` and `puma.PlotObject`
+        """
+        for tagger in self.taggers.values():
+            # Reading tagger's target and predicted labels
+            # and flattening them so that they have shape (Ntracks,)
+            target = tagger.aux_labels["track_origin"].reshape(-1)
+            predictions = tagger.aux_scores["track_origin"].reshape(-1)
+
+            # Computing the confusion matrix
+            cm = confusion_matrix(target, predictions, normalize=normalize)
+
+            class_names = get_trackOrigin_classNames()
+
+            # Plotting the confusion matrix
+            plot_cm = MatshowPlot(
+                x_ticklabels=class_names,
+                y_ticklabels=class_names,
+                title="Track Origin Auxiliary Task\nConfusion Matrix",
+                xlabel="Predicted Classes",
+                ylabel="Target Classes",
+                atlas_offset=atlas_offset,
+                atlas_second_tag=self.atlas_second_tag,
+                **kwargs,
+            )
+            plot_cm.draw(cm)
+            base = tagger.name + "_trackOrigin_cm"
+            plot_cm.savefig(self.get_filename(base))
