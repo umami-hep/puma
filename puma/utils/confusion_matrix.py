@@ -8,7 +8,7 @@ def confusion_matrix(
     targets: np.ndarray,
     predictions: np.ndarray,
     sample_weights: np.ndarray | None = None,
-    normalize: str | None = "all",
+    normalize: str | None = "rownorm",
 ) -> np.ndarray:
     """
     Parameters
@@ -22,10 +22,10 @@ def confusion_matrix(
     normalize : str | None, optional
         Normalization of the confusion matrix. Can be:
         None : Give raw counts;
-        "pred": Normalize across the prediction class, i.e. such that the rows add to one;
-        "true": Normalize across the target class, i.e. such that the columns add to one;
+        "rownorm": Normalize across the prediction class, i.e. such that the rows add to one;
+        "colnorm": Normalize across the target class, i.e. such that the columns add to one;
         "all" : Normalize across all examples, i.e. such that all matrix entries add to one.
-        Defaults to "all".
+        Defaults to "rownorm".
 
     Returns
     -------
@@ -51,6 +51,13 @@ def confusion_matrix(
             sample_weights.shape[0] == targets.shape[0]
         ), "confusion_matrix: Mismatch between targets' and sample weights' size"
 
+    if normalize is not None:
+        assert normalize in {
+            "rownorm",
+            "colnorm",
+            "all",
+        }, "confusion_matrix: invalid normalization keyword"
+
     # Finding number of target classes
     # (i.e. max value of the categorical indexing plus one,
     # since categorical index starts from zero)
@@ -68,11 +75,13 @@ def confusion_matrix(
     ).toarray()
 
     # Eventually normalize the Confusion Matrix
-    if normalize == "all":
-        cm = cm / cm.sum()
-    elif normalize == "true":
-        cm = cm / cm.sum(axis=1, keepdims=True)
-    elif normalize == "pred":
-        cm = cm / cm.sum(axis=0, keepdims=True)
+    with np.errstate(all="warn"):
+        if normalize == "all":
+            cm = cm / cm.sum()
+        elif normalize == "rownorm":
+            cm = cm / cm.sum(axis=1, keepdims=True)
+        elif normalize == "colnorm":
+            cm = cm / cm.sum(axis=0, keepdims=True)
 
-    return cm
+    # Returning the CM with nan converted to zero
+    return np.nan_to_num(cm)

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math as m
+
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -121,12 +123,16 @@ class MatshowPlot(PlotBase):
                     # Choosing the appropriate color
                     color = "white" if luminance <= self.text_color_threshold else "black"
 
-                    # Value of the matrix, eventually converted to percentage
-                    text = (
-                        f"{matrix[i, j]:.3f}"
-                        if not self.show_percentage
-                        else f"{matrix[i, j] * 100:.2f}%"
-                    )
+                    # If matrix entry is an int, do not show decimals
+                    if m.modf(matrix[i, j])[0] == 0:
+                        text = f"{matrix[i, j]:.0f}"
+                    # Else, round it or show it as percentage
+                    else:
+                        text = (
+                            f"{matrix[i, j]:.3f}"
+                            if not self.show_percentage
+                            else f"{matrix[i, j] * 100:.2f}%"
+                        )
                     # Plotting text
                     self.axis_top.text(
                         x=j,
