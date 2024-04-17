@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import math as m
-
 import numpy as np
 from matplotlib import pyplot as plt
 
