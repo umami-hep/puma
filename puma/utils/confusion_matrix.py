@@ -37,9 +37,9 @@ def confusion_matrix(
     >>> predictions = np.array([0, 0, 2, 2, 0, 2])
     >>> weights = np.array([1, 0.5, 0.5, 1, 0.2, 1])
     >>> confusion_matrix(targets, predictions, sample_weights=weights)
-    np.array([[0.16666667 0.         0.        ]
-            [0.         0.         0.23809524]
-            [0.23809524 0.         0.35714286]])
+    np.array([[1.  0.  0. ]
+        [0.  0.  1. ]
+        [0.4 0.  0.6]])
     """
     # Checking that targets and predictions have the same sample size
     assert (
