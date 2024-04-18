@@ -70,6 +70,6 @@ The Track Origin auxiliary task is a multiclass classification task, in which ea
 
 A good metric to evaluate the performances of the classifier is the [Confusion Matrix](../examples/confusion_matrix.md), which can be plotted using the method `plot_track_origin_confmat`.
 
-The normalization of the tagger's confusion matrix can be chosen among the ones allowed by the `confusion_matrix` [possible normalizations](../examples/confusion_matrix.md#normalization), by specifying the argument `normalize` in the `plot_track_origin_confmat` function.
+The normalization of the tagger's confusion matrix can be chosen among the ones allowed by the `confusion_matrix` [possible normalizations](../examples/confusion_matrix.md#normalization), by specifying the argument `normalize` in the `plot_track_origin_confmat` function. By default, the matrix's rows are normalized.
 
 If the ATLAS subtext is too long and overflows over the matrix, more space can be allocated for it by increasing the value of the function's argument `atlas_offset`, which is `1.5` by default.

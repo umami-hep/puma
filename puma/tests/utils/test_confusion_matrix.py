@@ -14,7 +14,7 @@ class ConfusionMatrixTestCase(unittest.TestCase):
     def test_confusion_matrix_unweighted(self):
         targets = np.array([2, 0, 2, 2, 0, 1])
         predictions = np.array([0, 0, 2, 2, 0, 2])
-        cm = confusion_matrix(targets, predictions)
+        cm = confusion_matrix(targets, predictions, normalize="all")
         expected_cm = np.array([
             [0.33333333, 0.0, 0.0],
             [0.0, 0.0, 0.16666667],
@@ -22,17 +22,17 @@ class ConfusionMatrixTestCase(unittest.TestCase):
         ])
         np.testing.assert_array_almost_equal(expected_cm, cm)
 
-    def test_confusion_matrix_unweighted_normPred(self):
+    def test_confusion_matrix_unweighted_colnorm(self):
         targets = np.array([2, 0, 2, 2, 0, 1])
         predictions = np.array([0, 0, 2, 2, 0, 1])
-        cm = confusion_matrix(targets, predictions, normalize="pred")
+        cm = confusion_matrix(targets, predictions, normalize="colnorm")
         expected_cm = np.array([[0.66666667, 0.0, 0.0], [0.0, 1.0, 0.0], [0.33333333, 0.0, 1.0]])
         np.testing.assert_array_almost_equal(expected_cm, cm)
 
-    def test_confusion_matrix_unweighted_normTrue(self):
+    def test_confusion_matrix_unweighted_rownorm(self):
         targets = np.array([2, 0, 2, 2, 0, 1])
         predictions = np.array([0, 0, 2, 2, 0, 1])
-        cm = confusion_matrix(targets, predictions, normalize="true")
+        cm = confusion_matrix(targets, predictions, normalize="rownorm")
         expected_cm = np.array([
             [1.0, 0.0, 0.0],
             [0.0, 1.0, 0.0],
@@ -51,7 +51,7 @@ class ConfusionMatrixTestCase(unittest.TestCase):
         targets = np.array([2, 0, 2, 2, 0, 1])
         predictions = np.array([0, 0, 2, 2, 0, 2])
         weights = np.array([1, 0.5, 0.5, 1, 0.2, 1])
-        cm = confusion_matrix(targets, predictions, sample_weights=weights)
+        cm = confusion_matrix(targets, predictions, sample_weights=weights, normalize="all")
         expected_cm = np.array([
             [0.16666667, 0.0, 0.0],
             [0.0, 0.0, 0.23809524],

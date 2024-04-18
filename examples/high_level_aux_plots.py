@@ -40,4 +40,4 @@ logger.info("Plotting vertexing performance.")
 aux_results.plot_var_vtx_perf(vtx_flavours=["bjets"], no_vtx_flavours=["ujets"])
 
 # Track origin confusion matrix
-aux_results.plot_track_origin_confmat(normalize="all", atlas_offset=1.5)
+aux_results.plot_track_origin_confmat(normalize="rownorm", atlas_offset=1.5)
