@@ -81,7 +81,7 @@ class YumaConfig:
     def _check_config(self):
         """Checks the config for any issues, raises an error if any are found."""
         allowed_keys = ["signal", "plot_kwargs", "include_taggers", "exclude_taggers", "reference"]
-        for plot_type, plots in self.plots.items():
+        for plots in self.plots.values():
             for p in plots:
                 for k in p:
                     if k not in allowed_keys:
