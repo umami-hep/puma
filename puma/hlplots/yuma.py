@@ -84,7 +84,8 @@ class YumaConfig:
         
         allowed_keys = [
             'signal', 'plot_kwargs', 
-            'include_taggers', 'exclude_taggers'
+            'include_taggers', 'exclude_taggers',
+            'reference'
         ]
         for plot_type, plots in self.plots.items():
             for p in plots:
