@@ -43,8 +43,9 @@ plots:
 
   scan:
     - signal: bjets
-      efficiency: 0.70
       plot_kwargs:
+        backgrounds: ['cjets', 'ujets']
+        efficiency: 0.70
         figsize: [8.5, 7.5]
 
   disc:
