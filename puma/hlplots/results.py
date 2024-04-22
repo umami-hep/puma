@@ -764,7 +764,9 @@ class Results:
         if self.signal not in {Flavours.bjets, Flavours.cjets}:
             raise ValueError("Signal flavour must be bjets or cjets")
 
-        backgrounds = [Flavours[b] for b in backgrounds] if backgrounds is not None else self.backgrounds
+        backgrounds = (
+            [Flavours[b] for b in backgrounds] if backgrounds is not None else self.backgrounds
+        )
         if len(backgrounds) != 2:
             raise ValueError("Only two background flavours are supported")
 
