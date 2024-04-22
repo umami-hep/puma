@@ -73,27 +73,22 @@ class YumaConfig:
             raise FileNotFoundError(f"Config at {path} does not exist")
         with open(path) as f:
             config = yaml.safe_load(f)
-        
+
         config = cls(config_path=path, **config, **kwargs)
         config._check_config()
         return config
-        
 
     def _check_config(self):
-        '''Checks the config for any issues, raises an error if any are found.'''
-        
-        allowed_keys = [
-            'signal', 'plot_kwargs', 
-            'include_taggers', 'exclude_taggers',
-            'reference'
-        ]
+        """Checks the config for any issues, raises an error if any are found."""
+        allowed_keys = ["signal", "plot_kwargs", "include_taggers", "exclude_taggers", "reference"]
         for plot_type, plots in self.plots.items():
             for p in plots:
-                for k in p.keys():
+                for k in p:
                     if k not in allowed_keys:
                         raise ValueError(
                             f"Unknown key {k} in plot config. Maybe '{k}' belongs"
-                            "under 'plot_kwargs'?")
+                            "under 'plot_kwargs'?"
+                        )
 
         return True
 
