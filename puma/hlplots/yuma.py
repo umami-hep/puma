@@ -75,10 +75,10 @@ class YumaConfig:
             config = yaml.safe_load(f)
 
         config = cls(config_path=path, **config, **kwargs)
-        config._check_config()
+        config.check_config()
         return config
 
-    def _check_config(self):
+    def check_config(self):
         """Checks the config for any issues, raises an error if any are found."""
         allowed_keys = ["signal", "plot_kwargs", "include_taggers", "exclude_taggers", "reference"]
         for plots in self.plots.values():
