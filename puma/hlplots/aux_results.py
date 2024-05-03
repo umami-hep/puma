@@ -392,7 +392,7 @@ class AuxResults:
 
     def plot_track_origin_confmat(
         self,
-        normalize: str | None = "all",
+        normalize: str | None = "rownorm",
         atlas_offset: float = 1.5,
         **kwargs,
     ):
@@ -403,10 +403,10 @@ class AuxResults:
         normalize : str | None, optional
             Normalization of the confusion matrix. Can be:
             None: Give raw counts;
-            "pred": Normalize across the prediction class, i.e. such that the rows add to one;
-            "true": Normalize across the target class, i.e. such that the columns add to one;
+            "rownorm": Normalize across the prediction class, i.e. such that the rows add to one;
+            "colnorm": Normalize across the target class, i.e. such that the columns add to one;
             "all" : Normalize across all examples, i.e. such that all matrix entries add to one.
-            Defaults to "all".
+            Defaults to "rownorm".
         atlas_offset : float, optional
             Space at the top of the plot reserved to the Atlasify text. by default 1.5
         **kwargs : kwargs

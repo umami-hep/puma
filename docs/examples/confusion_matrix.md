@@ -17,7 +17,7 @@ predictions = np.array([0, 0, 2, 2, 0, 2])
 confusion_matrix(targets, predictions)
 ```
 
-Eventually, samples can be weighted by their relative importance by providing an array of samples $s_i \in [0,1]$:
+Eventually, samples can be weighted by their relative importance by providing an array of weights $w_i \in [0,1]$:
 ```python
 targets = np.array([2, 0, 2, 2, 0, 1])
 predictions = np.array([0, 0, 2, 2, 0, 2])
@@ -30,8 +30,8 @@ confusion_matrix(targets, predictions, sample_weights=weights)
 
 There are four possible normalization choices, which can be selected through the `normalize` argument of the function:
 - `None`: Give raw counts;
-- `"pred"`: Normalize across the prediction class, i.e. such that the rows add to one;
-- `"true"`: Normalize across the target class, i.e. such that the columns add to one;
+- `"rownorm"`: Normalize across the prediction class, i.e. such that the rows add to one (default);
+- `"colnorm"`: Normalize across the target class, i.e. such that the columns add to one;
 - `"all" `: Normalize across all examples, i.e. such that all matrix entries add to one. Defaults to "all".
 
 ## Example

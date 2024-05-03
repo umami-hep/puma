@@ -97,6 +97,29 @@ class TestYumaPlots(unittest.TestCase):
         with self.assertRaises(SystemExit):
             main(args)
 
+    def testCheckConfig(self):
+        with tempfile.TemporaryDirectory() as tmp_file:
+            cpath = Path(tmp_file) / "dummyconfig.yaml"
+            tmp_config = {
+                "plot_dir": "test/dir",
+                "taggers_config": {"tagger1": {"sample_path": "dummy1"}},
+                "results_config": {"sample": "ttbar"},
+                "plots": {
+                    "roc": [
+                        {
+                            "signal": "bjets",
+                            "include_taggers": ["tagger1"],
+                            "efficiency": 0.8,  # Shouldn't be here
+                        }
+                    ]
+                },
+            }
+            with open(cpath, "w") as f:
+                yaml.dump(tmp_config, f)
+            args = ["--config", cpath.as_posix(), "--signals", "bjets"]
+            with self.assertRaises(ValueError):
+                main(args)
+
     def testAllPlots(self):
         plt_cfg = EXAMPLES / "plt_cfg.yaml"
         taggers = EXAMPLES / "taggers.yaml"
