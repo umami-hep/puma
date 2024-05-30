@@ -424,7 +424,7 @@ class AuxResults:
             mass_plot = HistogramPlot(
                 bins_range=(0, 5),
                 xlabel="$m_{SV}$ [GeV]",
-                ylabel="Number of vertices",
+                ylabel="Normalized number of vertices",
                 atlas_first_tag=self.atlas_first_tag,
                 atlas_second_tag=self.atlas_second_tag + f"\nInclusive vertexing, {flav.label}",
                 y_scale=1.4,
@@ -442,9 +442,11 @@ class AuxResults:
                     tagger.aux_perf_vars["eta"][is_flavour],
                     tagger.aux_perf_vars["dphi"][is_flavour],
                     reco_indices[is_flavour],
+                    particle_mass=0.13957, # pion mass in GeV
                 ), axis=1)
 
-                mass_plot.add(Histogram(sv_masses, label=tagger.label, colour=tagger.colour, **kwargs))
+                sv_masses = sv_masses[sv_masses > 0.13957] # remove single and zero track vertices
+                mass_plot.add(Histogram(sv_masses[sv_masses>0], label=tagger.label, colour=tagger.colour, **kwargs))
 
             mass_plot.draw()
             mass_plot.savefig(self.get_filename(f"{flav}_sv_mass"))

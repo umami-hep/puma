@@ -3,7 +3,7 @@
 import numpy as np
 
 
-def calculate_vertex_mass(pt, eta, phi, vtx_idx):
+def calculate_vertex_mass(pt, eta, phi, vtx_idx, particle_mass=0.13957):
     """
     Calculate the invariant mass of secondary vertices from the track 4-momenta,
     assuming a pion mass hypothesis.
@@ -18,6 +18,8 @@ def calculate_vertex_mass(pt, eta, phi, vtx_idx):
         Array of shape (n_jets, n_tracks) containing the track azimuthal angles.
     vtx_idx: np.ndarray
         Array of shape (n_jets, n_tracks) containing the vertex indices for each track.
+    particle_mass: float, optional
+        Mass hypothesis for each particle in GeV. Default is the pion mass.
 
     Returns
     -------
@@ -39,10 +41,10 @@ def calculate_vertex_mass(pt, eta, phi, vtx_idx):
         comparison_ids = np.tile(unique_idx, (vtx_idx_i.size, 1)).T
         vertices = (vertices == comparison_ids).astype(int)
 
-        pt_i = pt_i * vertices
-        eta_i = eta_i * vertices
-        phi_i = phi_i * vertices
-        m_i = 0.13957 * vertices  # pion mass in GeV
+        pt_i = pt_i*vertices
+        eta_i = eta_i*vertices
+        phi_i = phi_i*vertices
+        m_i = particle_mass*vertices
 
         px_i = pt_i * np.cos(phi_i)
         py_i = pt_i * np.sin(phi_i)
