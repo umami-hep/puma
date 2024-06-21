@@ -29,14 +29,17 @@ def confusion_matrix(
 
     Returns
     -------
-    np.ndarray : the confusion matrix.
+    np.ndarray : the confusion matrix,
+    np.dnarray : the per-class efficiencies,
+    np.ndarray : the per-class fake rates.
 
     Example
     --------
     >>> targets = np.array([2, 0, 2, 2, 0, 1])
     >>> predictions = np.array([0, 0, 2, 2, 0, 2])
     >>> weights = np.array([1, 0.5, 0.5, 1, 0.2, 1])
-    >>> confusion_matrix(targets, predictions, sample_weights=weights)
+    >>> cm, eff, fake = confusion_matrix(targets, predictions, sample_weights=weights)
+    >>> print(cm)
     np.array([[1.  0.  0. ]
         [0.  0.  1. ]
         [0.4 0.  0.6]])
@@ -74,14 +77,27 @@ def confusion_matrix(
         dtype="float",
     ).toarray()
 
+    # Calculate efficiency and fake rate
+    efficiency = []
+    fake_rate = []
+    for i, row in enumerate(cm):
+        N_this_class = np.sum(row)
+        Npred_this_class = row[i]
+        Npred_other_class = N_this_class - Npred_this_class
+        efficiency.append(Npred_this_class / N_this_class)
+        fake_rate.append(Npred_other_class / N_this_class)
+
+    efficiency = np.array(efficiency)
+    fake_rate = np.array(fake_rate)
+
     # Eventually normalize the Confusion Matrix
     with np.errstate(all="warn"):
         if normalize == "all":
-            cm = cm / cm.sum()
+            cm /= cm.sum()
         elif normalize == "rownorm":
-            cm = cm / cm.sum(axis=1, keepdims=True)
+            cm /= cm.sum(axis=1, keepdims=True)
         elif normalize == "colnorm":
-            cm = cm / cm.sum(axis=0, keepdims=True)
+            cm /= cm.sum(axis=0, keepdims=True)
 
     # Returning the CM with nan converted to zero
-    return np.nan_to_num(cm)
+    return np.nan_to_num(cm), efficiency, fake_rate

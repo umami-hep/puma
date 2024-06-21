@@ -1,6 +1,6 @@
 # Confusion Matrix
 
-This function evaluates the (multiclass[^1]) Confusion Matrix (CM) associated to a classifier output predictions. The CM is a metric that measures the misclassification rates between all the classes in the classification task.
+This function evaluates the (multiclass[^1]) Confusion Matrix (CM) associated to a classifier output predictions. The CM is a metric that measures the misclassification rates between all the classes in the classification task. It also evaluates the per-class efficiencies and fake rates. It returns three `np.ndarray`s: the CM, the efficiencies, and the fake rates.
 
 ## Mathematical definition
 
@@ -14,7 +14,7 @@ The function `confusion_matrix` in `puma.utils.confusion_matrix` computes the CM
 ```python
 targets = np.array([2, 0, 2, 2, 0, 1])
 predictions = np.array([0, 0, 2, 2, 0, 2])
-confusion_matrix(targets, predictions)
+cm, eff, fake = confusion_matrix(targets, predictions)
 ```
 
 Eventually, samples can be weighted by their relative importance by providing an array of weights $w_i \in [0,1]$:
@@ -22,7 +22,7 @@ Eventually, samples can be weighted by their relative importance by providing an
 targets = np.array([2, 0, 2, 2, 0, 1])
 predictions = np.array([0, 0, 2, 2, 0, 2])
 weights = np.array([1, 0.5, 0.5, 1, 0.2, 1])
-confusion_matrix(targets, predictions, sample_weights=weights)
+cm, eff, fake = confusion_matrix(targets, predictions, sample_weights=weights)
 ```
 
 
