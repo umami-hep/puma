@@ -52,9 +52,7 @@ class TestMatshowPlot(unittest.TestCase):
             [0.08393056, 0.3477517, 0.81477693],
             [0.39839215, 0.54854937, 0.48571167],
         ])
-        plot_mat = MatshowPlot(
-            colormap=plt.cm.PiYG, x_ticks_rotation=0, show_cbar=False
-        )
+        plot_mat = MatshowPlot(colormap=plt.cm.PiYG, x_ticks_rotation=0, show_cbar=False)
         plotname = "test_matrix_nocbar.png"
         plot_mat.draw(mat)
         # Uncomment line below to update expected image
