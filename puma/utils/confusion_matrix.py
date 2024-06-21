@@ -78,17 +78,17 @@ def confusion_matrix(
     ).toarray()
 
     # Calculate efficiency and fake rate
-    efficiency = []
-    fake_rate = []
+    efficiencies = []
+    fake_rates = []
     for i, row in enumerate(cm):
         N_this_class = np.sum(row)
         Npred_this_class = row[i]
         Npred_other_class = N_this_class - Npred_this_class
-        efficiency.append(Npred_this_class / N_this_class)
-        fake_rate.append(Npred_other_class / N_this_class)
+        efficiencies.append(Npred_this_class / N_this_class)
+        fake_rates.append(Npred_other_class / N_this_class)
 
-    efficiency = np.array(efficiency)
-    fake_rate = np.array(fake_rate)
+    efficiencies = np.array(efficiencies)
+    fake_rates = np.array(fake_rates)
 
     # Eventually normalize the Confusion Matrix
     with np.errstate(all="warn"):
@@ -100,4 +100,4 @@ def confusion_matrix(
             cm /= cm.sum(axis=0, keepdims=True)
 
     # Returning the CM with nan converted to zero
-    return np.nan_to_num(cm), efficiency, fake_rate
+    return np.nan_to_num(cm), efficiencies, fake_rates
