@@ -29,11 +29,34 @@ class TestMatshowPlot(unittest.TestCase):
             [0.08393056, 0.3477517, 0.81477693],
             [0.39839215, 0.54854937, 0.48571167],
         ])
-        plot_mat = MatshowPlot(colormap=plt.cm.PiYG, x_ticks_rotation=0, atlas_offset=0.65)
+        plot_mat = MatshowPlot(colormap=plt.cm.PiYG, x_ticks_rotation=0)
         plotname = "test_matrix.png"
+        plot_mat.draw(mat)
         # Uncomment line below to update expected image
         # plot_mat.savefig(f"{self.expected_plots_dir}/{plotname}")
+        plot_mat.savefig(f"{self.actual_plots_dir}/{plotname}")
+
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname}",
+                f"{self.expected_plots_dir}/{plotname}",
+                tol=1,
+            )
+        )
+
+    def test_matrix_nocbar(self):
+        # test matrix
+        mat = np.array([
+            [0.55136792, 0.58809975, 0.43140183],
+            [0.83374029, 0.24685411, 0.87419068],
+            [0.08393056, 0.3477517, 0.81477693],
+            [0.39839215, 0.54854937, 0.48571167],
+        ])
+        plot_mat = MatshowPlot(colormap=plt.cm.PiYG, x_ticks_rotation=0, show_cbar=False)
+        plotname = "test_matrix_nocbar.png"
         plot_mat.draw(mat)
+        # Uncomment line below to update expected image
+        # plot_mat.savefig(f"{self.expected_plots_dir}/{plotname}")
         plot_mat.savefig(f"{self.actual_plots_dir}/{plotname}")
 
         self.assertIsNone(
@@ -63,7 +86,6 @@ class TestMatshowPlot(unittest.TestCase):
             show_percentage=True,
             text_color_threshold=0.6,
             cbar_label="Scalar values",
-            atlas_offset=1.2,
         )
         plot_mat.draw(mat)
         plotname = "test_matrix_fully_customized.png"
@@ -98,12 +120,11 @@ class TestMatshowPlot(unittest.TestCase):
             show_percentage=True,
             text_color_threshold=0.6,
             cbar_label="Scalar values",
-            atlas_offset=1.2,
         )
         plotname = "test_matrix_fully_customized_no_entries.png"
+        plot_mat.draw(mat)
         # Uncomment line below to update expected image
         # plot_mat.savefig(f"{self.expected_plots_dir}/{plotname}")
-        plot_mat.draw(mat)
         plot_mat.savefig(f"{self.actual_plots_dir}/{plotname}")
 
         self.assertIsNone(

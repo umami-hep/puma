@@ -3,6 +3,7 @@
 ### [Latest]
 
 ### [v0.3.5] (2024/04/23)
+- Confusion Matrix: added per-class fake rates plus minor appearance changes [!266](https://github.com/umami-hep/puma/pull/266)
 - Fixed a problem in the Confusion Matrix normalization, and adopted a more clear naming convention; removed decimals from the matrix plot if the entry is an integer (useful for raw counts confusion matrix) [!262](https://github.com/umami-hep/puma/pull/262)
 - Added matrix plot API, confusion matrix function, and Track Origin confusion matrix plot [!258](https://github.com/umami-hep/puma/pull/258)
 - Fix setting ymin_ratio (and ymax_ratio) in PlotBase if it is zero [!261](https://github.com/umami-hep/puma/pull/261)

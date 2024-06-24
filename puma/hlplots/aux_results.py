@@ -393,7 +393,7 @@ class AuxResults:
     def plot_track_origin_confmat(
         self,
         normalize: str | None = "rownorm",
-        atlas_offset: float = 1.5,
+        minimal_plot: bool = True,
         **kwargs,
     ):
         """Plot Track Origin Aux Task confusion matrix.
@@ -407,8 +407,8 @@ class AuxResults:
             "colnorm": Normalize across the target class, i.e. such that the columns add to one;
             "all" : Normalize across all examples, i.e. such that all matrix entries add to one.
             Defaults to "rownorm".
-        atlas_offset : float, optional
-            Space at the top of the plot reserved to the Atlasify text. by default 1.5
+        minimal_plot : bool, optional
+            Whether to plot the CM with minimal or full info (title, cbar), by default True
         **kwargs : kwargs
             Keyword arguments for `puma.MatshowPlot` and `puma.PlotObject`
         """
@@ -419,21 +419,41 @@ class AuxResults:
             predictions = tagger.aux_scores["track_origin"].reshape(-1)
 
             # Computing the confusion matrix
-            cm = confusion_matrix(target, predictions, normalize=normalize)
+            cm, eff, fake = confusion_matrix(target, predictions, normalize=normalize)
 
             class_names = get_trackOrigin_classNames()
+            class_names_with_perf = []
 
-            # Plotting the confusion matrix
-            plot_cm = MatshowPlot(
-                x_ticklabels=class_names,
-                y_ticklabels=class_names,
-                title="Track Origin Auxiliary Task\nConfusion Matrix",
-                xlabel="Predicted Classes",
-                ylabel="Target Classes",
-                atlas_offset=atlas_offset,
-                atlas_second_tag=self.atlas_second_tag,
-                **kwargs,
-            )
+            if minimal_plot:
+                for i, c in enumerate(class_names):
+                    class_names_with_perf.append(f"{c}\nFake Rate = {fake[i]:.2f}")
+                # Plotting the confusion matrix
+                plot_cm = MatshowPlot(
+                    x_ticklabels=class_names,
+                    y_ticklabels=class_names_with_perf,
+                    xlabel="Predicted Classes",
+                    ylabel="Target Classes",
+                    atlas_second_tag=self.atlas_second_tag,
+                    show_cbar=False,
+                    atlas_tag_outside=True,
+                    **kwargs,
+                )
+            else:
+                for i, c in enumerate(class_names):
+                    class_names_with_perf.append(
+                        f"{c}\nEfficiency = {eff[i]:.2f}\nFake Rate = {fake[i]:.2f}"
+                    )
+                # Plotting the confusion matrix
+                plot_cm = MatshowPlot(
+                    x_ticklabels=class_names,
+                    y_ticklabels=class_names_with_perf,
+                    title="Track Origin Auxiliary Task\nConfusion Matrix",
+                    xlabel="Predicted Classes",
+                    ylabel="Target Classes",
+                    atlas_second_tag=self.atlas_second_tag,
+                    atlas_tag_outside=True,
+                    **kwargs,
+                )
             plot_cm.draw(cm)
             base = tagger.name + "_trackOrigin_cm"
             plot_cm.savefig(self.get_filename(base))

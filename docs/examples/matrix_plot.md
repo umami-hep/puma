@@ -27,7 +27,6 @@ Various aspects of the plot appearance can be customized using the class' argume
 - `text_color_threshold`: threshold on the relative luminance of the background color (i.e. the color of the matrix pixel) after which the overlapped text color switches to black, to allow better readability on lighter background colors. By default is set to 0.408, as per [W3C standards](https://www.w3.org/WAI/GL/wiki/Relative_luminance);
 - `colormap`: `pyplot.cm` colormap for the plot;
 - `cbar_label`: Label of the colorbar;
-- `atlas_offset`: Space at the top of the plot reserved to the Atlasify text; can be enlarged if the subtext is too long and overlaps with the matrix.
 
 ## Example
 

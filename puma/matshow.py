@@ -21,8 +21,8 @@ class MatshowPlot(PlotBase):
         show_percentage: bool = False,
         text_color_threshold: float = 0.408,
         colormap: plt.cm = plt.cm.Oranges,
+        show_cbar: bool = True,
         cbar_label: str | None = None,
-        atlas_offset: float = 1,
         **kwargs,
     ) -> None:
         """Plot a matrix with matplotlib matshow.
@@ -46,10 +46,10 @@ class MatshowPlot(PlotBase):
             If 1, all text is white; if 0, all text is black. by default 0.408
         colormap : plt.cm, optional
             Colormap for the plot, by default `plt.cm.Oranges`
+        show_cbar : bool, optional
+            Whether to plot the colorbar or not, by default True
         cbar_label : str | None, optional
             Label of the colorbar, by default None
-        atlas_offset : float, optional
-            Space at the top of the plot reserved to the Atlasify text. by default 1
         **kwargs : kwargs
             Keyword arguments for `puma.PlotObject`
 
@@ -68,8 +68,8 @@ class MatshowPlot(PlotBase):
         self.show_percentage = show_percentage
         self.text_color_threshold = text_color_threshold
         self.colormap = colormap
+        self.show_cbar = show_cbar
         self.cbar_label = cbar_label
-        self.atlas_offset = atlas_offset
 
         # Specifying figsize if not specified by user
         if self.figsize is None:
@@ -110,7 +110,7 @@ class MatshowPlot(PlotBase):
             # Mapping mat values in [0,1], as it's done by matplotlib
             # to associate them to the colors of the colormap
             normMat = matrix - np.min(matrix)
-            normMat = normMat / (np.max(matrix) - np.min(matrix))
+            normMat /= np.max(matrix) - np.min(matrix)
 
             # Adding text values in the matrix pixels
             for i in range(n_rows):
@@ -143,20 +143,20 @@ class MatshowPlot(PlotBase):
                         c=color,
                         fontsize=self.fontsize,
                     )
-
-        # Plotting colorbar
-        cbar = self.fig.colorbar(im)
-        # If using percentages, converting cbar labels to percentages
-        if self.show_entries and self.show_percentage:
-            minMat = np.min(matrix)
-            maxMat = np.max(matrix)
-            cbar.set_ticks(
-                ticks=np.linspace(minMat, maxMat, 5),
-                labels=[f"{i}%" for i in np.round(np.linspace(minMat, maxMat, 5) * 100, 2)],
-                fontsize=self.fontsize,
-            )
-        if self.cbar_label is not None:
-            cbar.ax.set_ylabel(self.cbar_label, fontsize=self.fontsize)
+        if self.show_cbar:
+            # Plotting colorbar
+            cbar = self.fig.colorbar(im)
+            # If using percentages, converting cbar labels to percentages
+            if self.show_entries and self.show_percentage:
+                minMat = np.min(matrix)
+                maxMat = np.max(matrix)
+                cbar.set_ticks(
+                    ticks=np.linspace(minMat, maxMat, 5),
+                    labels=[f"{i}%" for i in np.round(np.linspace(minMat, maxMat, 5) * 100, 2)],
+                    fontsize=self.fontsize,
+                )
+            if self.cbar_label is not None:
+                cbar.ax.set_ylabel(self.cbar_label, fontsize=self.fontsize)
 
         # Setting tick labels
         if self.x_ticklabels is None:
@@ -183,8 +183,6 @@ class MatshowPlot(PlotBase):
         self.plotting_done = True
         # Applying atlas style
         if self.apply_atlas_style:
-            # Allow some space for the ATLAS legend
-            self.axis_top.set_ylim(-self.atlas_offset, n_rows - 0.5)
             # Apply ATLAS style
             self.atlasify()
             # Mirror y axis to have the diagonal in the common orientation
