@@ -445,8 +445,8 @@ class AuxResults:
                     particle_mass=0.13957, # pion mass in GeV
                 ), axis=1)
 
-                sv_masses = sv_masses[sv_masses > 0.13957] # remove single and zero track vertices
-                mass_plot.add(Histogram(sv_masses[sv_masses>0], label=tagger.label, colour=tagger.colour, **kwargs))
+                sv_masses = sv_masses[sv_masses > 0.14] # remove single and zero track vertices
+                mass_plot.add(Histogram(sv_masses, label=tagger.label, colour=tagger.colour, **kwargs))
 
             mass_plot.draw()
             mass_plot.savefig(self.get_filename(f"{flav}_sv_mass"))
