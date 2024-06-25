@@ -418,7 +418,7 @@ class AuxResults:
             target = tagger.aux_labels["track_origin"].reshape(-1)
             predictions = tagger.aux_scores["track_origin"].reshape(-1)
 
-            padding_removal = (target >= 0)
+            padding_removal = target >= 0
 
             target = target[padding_removal]
             predictions = predictions[padding_removal]
