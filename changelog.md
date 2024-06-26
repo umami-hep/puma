@@ -1,6 +1,7 @@
 # Changelog
 
 ### [Latest]
+- Removed padded tracks from consideration when generating track origin classification CM [!267](https://github.com/umami-hep/puma/pull/267)
 
 ### [v0.3.5] (2024/04/23)
 - Confusion Matrix: added per-class fake rates plus minor appearance changes [!266](https://github.com/umami-hep/puma/pull/266)
