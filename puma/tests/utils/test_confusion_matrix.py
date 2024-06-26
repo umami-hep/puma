@@ -46,7 +46,7 @@ class ConfusionMatrixTestCase(unittest.TestCase):
         cm, eff, fake = confusion_matrix(targets, predictions, normalize=None)
         expected_cm = np.array([[2.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 0.0, 2.0]])
         expected_eff = np.array([1.0, 1.0, 0.66666667])
-        expected_fake = np.array([0., 0., 0.5])
+        expected_fake = np.array([0.0, 0.0, 0.5])
         np.testing.assert_array_almost_equal(expected_cm, cm)
         np.testing.assert_array_almost_equal(expected_eff, eff)
         np.testing.assert_array_almost_equal(expected_fake, fake)
