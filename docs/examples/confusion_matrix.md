@@ -16,7 +16,7 @@ For each class, the efficiency and fake rate of the classification are computed.
 - $\hat{N}_{\bar{c}}$ be the number of samples from class $c$ predicted to be from another class;
 
 Then, the efficiency is defined as:
-$$e \triangleq \frac{\hat{N}_c}{N_{cc}}$$
+$$e \triangleq \frac{\hat{N}_{cc}}{N_{c}}$$
 while the fake rate is defined as:
 $$f \triangleq \frac{\hat{N}_{\bar{c}}}{\hat{N}_c}$$
 
