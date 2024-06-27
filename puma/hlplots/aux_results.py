@@ -431,7 +431,7 @@ class AuxResults:
 
             if minimal_plot:
                 for i, c in enumerate(class_names):
-                    class_names_with_perf.append(f"{c}\nFake Rate = {fake[i]:.2f}")
+                    class_names_with_perf.append(f"{c}\nFake Rate = {fake[i]:.3f}")
                 # Plotting the confusion matrix
                 plot_cm = MatshowPlot(
                     x_ticklabels=class_names,
@@ -446,7 +446,7 @@ class AuxResults:
             else:
                 for i, c in enumerate(class_names):
                     class_names_with_perf.append(
-                        f"{c}\nEfficiency = {eff[i]:.2f}\nFake Rate = {fake[i]:.2f}"
+                        f"{c}\nEfficiency = {eff[i]:.3f}\nFake Rate = {fake[i]:.3f}"
                     )
                 # Plotting the confusion matrix
                 plot_cm = MatshowPlot(

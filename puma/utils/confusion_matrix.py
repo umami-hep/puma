@@ -85,7 +85,7 @@ def confusion_matrix(
         Npred_this_class = row[i]
         Npred_other_class = N_this_class - Npred_this_class
         efficiencies.append(Npred_this_class / N_this_class)
-        fake_rates.append(Npred_other_class / N_this_class)
+        fake_rates.append(Npred_other_class / Npred_this_class)
 
     efficiencies = np.array(efficiencies)
     fake_rates = np.array(fake_rates)
