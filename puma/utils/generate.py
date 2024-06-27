@@ -173,9 +173,9 @@ def get_dummy_tagger_aux(
     trk_or_reco = np.random.choice(8, size=(len(df_gen), n_tracks)).astype(int)
     aux_dtype = np.dtype([
         ("ftagTruthVertexIndex", "i4"),
-        ("GN2_VertexIndex", "i4"),
+        ("auxtask_GN2_VertexIndex", "i4"),
         ("ftagTruthOriginLabel", "i4"),
-        ("GN2_TrackOrigin", "i4"),
+        ("auxtask_GN2_TrackOrigin", "i4"),
     ])
     aux_info = np.rec.fromarrays(
         [vtx_labels, vtx_reco, trk_or_labels, trk_or_reco], dtype=aux_dtype
