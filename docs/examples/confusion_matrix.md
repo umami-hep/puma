@@ -11,11 +11,12 @@ The matrix can then be normalized in different ways, obtaining rates of misclass
 
 For each class, the efficiency and fake rate of the classification are computed. Let:
 - $N_{c}$ be the number of samples belonging to class $c$;
-- $\hat{N}_c$ be the number of samples predicted to be from class $c$;
+- $\hat{N}_{cc}$ be the number of samples from class $c$ correctly predicted to be from class $c$;
+- $\hat{N}_{c}$ be the number of samples predicted to be from class $c$, independently of their true origin;
 - $\hat{N}_{\bar{c}}$ be the number of samples from class $c$ predicted to be from another class;
 
 Then, the efficiency is defined as:
-$$e \triangleq \frac{\hat{N}_c}{N_c}$$
+$$e \triangleq \frac{\hat{N}_c}{N_{cc}}$$
 while the fake rate is defined as:
 $$f \triangleq \frac{\hat{N}_{\bar{c}}}{\hat{N}_c}$$
 
