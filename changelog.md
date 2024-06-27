@@ -1,6 +1,7 @@
 # Changelog
 
 ### [Latest]
+- Fixed fake rate normalization [!269](https://github.com/umami-hep/puma/pull/269)
 - Redefined fake rate [!268](https://github.com/umami-hep/puma/pull/268)
 - Removed padded tracks from consideration when generating track origin classification CM [!267](https://github.com/umami-hep/puma/pull/267)
 - Confusion Matrix: added per-class fake rates plus minor appearance changes [!266](https://github.com/umami-hep/puma/pull/266)
