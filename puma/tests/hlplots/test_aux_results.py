@@ -150,8 +150,8 @@ class AuxResultsPlotsTestCase(unittest.TestCase):
             dtype=[("HadronConeExclTruthLabelID", "i4")],
         )
         dummy_tagger.aux_scores = {
-            "vertexing": f["tracks"]["GN2_VertexIndex"],
-            "track_origin": f["tracks"]["GN2_TrackOrigin"],
+            "vertexing": f["tracks"]["auxtask_GN2_VertexIndex"],
+            "track_origin": f["tracks"]["auxtask_GN2_TrackOrigin"],
         }
         dummy_tagger.aux_labels = {
             "vertexing": f["tracks"]["ftagTruthVertexIndex"],
