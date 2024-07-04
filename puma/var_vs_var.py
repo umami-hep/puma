@@ -137,6 +137,8 @@ class VarVsVarPlot(PlotBase):
         ----------
         grid : bool, optional
             Set the grid for the plots.
+        ratio_method:
+            Method for ratio calculations. Accepted values: "divide", "root_square_diff".
         **kwargs : kwargs
             Keyword arguments from `puma.PlotObject`
 

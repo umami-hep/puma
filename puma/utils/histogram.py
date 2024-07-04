@@ -207,6 +207,11 @@ def hist_ratio(
     step : bool
         if True duplicates first bin to match with step plotting function,
         by default True
+    method : str
+        Selects the method by which the ratio should be calculated.
+        "divide" calculates the ratio as the division of the numerator by the denominator.
+        "root_square_diff" calculates the square root of the difference of the squares of the numerator and denominator.
+        by default "divide"
 
 
     Returns
