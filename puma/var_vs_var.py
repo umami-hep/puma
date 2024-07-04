@@ -89,7 +89,7 @@ class VarVsVar(PlotLineObject):
             )
         return False
 
-    def divide(self, other, inverse: bool = False):
+    def divide(self, other, inverse: bool = False, method: str = "divide"):
         """Calculate ratio between two class objects.
 
         Parameters
@@ -122,6 +122,7 @@ class VarVsVar(PlotLineObject):
             denominator=nom if inverse else denom,
             numerator_unc=denom_err if inverse else nom_err,
             step=False,
+            method=method,
         )
         return (ratio, ratio_err)
 
@@ -129,7 +130,7 @@ class VarVsVar(PlotLineObject):
 class VarVsVarPlot(PlotBase):
     """var_vs_eff plot class."""
 
-    def __init__(self, grid: bool = False, **kwargs) -> None:
+    def __init__(self, grid: bool = False, ratio_method: str = "divide", **kwargs) -> None:
         """var_vs_eff plot properties.
 
         Parameters
@@ -155,6 +156,7 @@ class VarVsVarPlot(PlotBase):
         self.inverse_cut = False
         if self.n_ratio_panels > 1:
             raise ValueError("Not more than one ratio panel supported.")
+        self.ratio_method = ratio_method
         self.initialise_figure()
 
     def add(self, curve: VarVsVar, key: str | None = None, reference: bool = False):
@@ -323,7 +325,7 @@ class VarVsVarPlot(PlotBase):
             raise ValueError("Please specify a reference curve.")
         for key in self.add_order:
             elem = self.plot_objects[key]
-            (ratio, ratio_err) = elem.divide(self.plot_objects[self.reference_object])
+            (ratio, ratio_err) = elem.divide(self.plot_objects[self.reference_object], method=self.ratio_method)
             error_bar = self.ratio_axes[0].errorbar(
                 elem.x_var,
                 ratio,
