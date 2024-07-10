@@ -26,6 +26,7 @@ from puma.hlplots.yutils import combine_suffixes
 from puma.metrics import calc_eff, calc_rej
 from puma.utils import get_good_colours, get_good_linestyles, logger
 
+
 @dataclass
 class Results:
     """Store information about several taggers and plot results."""
@@ -33,7 +34,7 @@ class Results:
     signal: Flavour | str
     sample: str
     backgrounds: list = field(init=False)
-    all_flavours : list[Flavour] | None = None
+    all_flavours: list[Flavour] | None = None
     atlas_first_tag: str = "Simulation Internal"
     atlas_second_tag: str = None
     atlas_third_tag: str = None
@@ -56,7 +57,7 @@ class Results:
             self.perf_vars = [self.perf_vars]
         if self.atlas_second_tag is not None and self.atlas_third_tag is not None:
             self.atlas_second_tag = f"{self.atlas_second_tag}\n{self.atlas_third_tag}"
-            
+
         self.plot_funcs = {
             "probs": self.plot_probs,
             "disc": self.plot_discs,
