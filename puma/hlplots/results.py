@@ -44,6 +44,7 @@ class Results:
     global_cuts: Cuts | list | None = None
     num_jets: int | None = None
     remove_nan: bool = False
+    label_var: str = "HadronConeExclTruthLabelID"
 
     def __post_init__(self):
         if self.all_flavours:
@@ -137,6 +138,7 @@ class Results:
                 tp,
                 cuts=self.global_cuts,
                 num_jets=self.num_jets,
+                label_var=self.label_var,
             )
 
     def load_taggers_from_file(  # pylint: disable=R0913
