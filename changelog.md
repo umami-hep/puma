@@ -1,7 +1,7 @@
 # Changelog
 
 ### [Latest]
-
+- Minor updates for aux task plots [!273](https://github.com/umami-hep/puma/pull/273)
 - Added better support in yuma, allowing for tau rejection, tau tagging, and Xbb plots [!272](https://github.com/umami-hep/puma/pull/272)
 - Redefined fake rate [!268](https://github.com/umami-hep/puma/pull/268)
 - Removed padded tracks from consideration when generating track origin classification CM [!267](https://github.com/umami-hep/puma/pull/267)
