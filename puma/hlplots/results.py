@@ -199,7 +199,7 @@ class Results:
             if tagger not in self.taggers.values():
                 self.add(tagger)
             tagger.output_flavours = self.flavours
-            if "ftau" not in tagger.fxs:
+            if "ftau" not in tagger.fxs and Flavours.taujets in tagger.output_flavours:
                 tagger.output_flavours.remove(Flavours.taujets)
 
         # get a list of all variables to be loaded from the file
