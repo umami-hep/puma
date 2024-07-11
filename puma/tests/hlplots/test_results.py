@@ -100,7 +100,9 @@ class ResultsTestCase(unittest.TestCase):
     def test_add_taggers_taujets(self):
         # get mock file and rename variables match taujets
         fname = get_mock_file()[0]
-        results = Results(signal="bjets", sample="test")
+        results = Results(
+            signal="bjets", sample="test", all_flavours=["bjets", "cjets", "ujets", "taujets"]
+        )
         taggers = [Tagger("MockTagger", fxs={"fc": 0.1, "fb": 0.1, "ftau": 0.1})]
         results.load_taggers_from_file(taggers, fname)
         assert "MockTagger_ptau" in taggers[0].scores.dtype.names
