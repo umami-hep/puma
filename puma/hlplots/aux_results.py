@@ -262,36 +262,40 @@ class AuxResults:
             if isinstance(flavour, str):
                 flav = Flavours[flavour]
 
+            # $n_{vtx}^{match}/n_{vtx}^{true}$
             plot_vtx_eff = VarVsVtxPlot(
                 mode="efficiency",
-                ylabel=r"$n_{vtx}^{match}/n_{vtx}^{true}$",
+                ylabel="Efficiency",
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
                 atlas_second_tag=atlas_second_tag + f", {flav.label}",
                 y_scale=1.4,
             )
+            # $n_{vtx}^{match}/n_{vtx}^{reco}$
             plot_vtx_purity = VarVsVtxPlot(
                 mode="purity",
-                ylabel=r"$n_{vtx}^{match}/n_{vtx}^{reco}$",
+                ylabel="Purity",
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
                 atlas_second_tag=atlas_second_tag + f", {flav.label}",
                 y_scale=1.4,
             )
+            # $n_{trk}^{match}/n_{trk}^{true}$
             plot_vtx_trk_eff = VarVsVtxPlot(
                 mode="efficiency",
-                ylabel=r"$n_{trk}^{match}/n_{trk}^{true}$",
+                ylabel="Track Assignment Efficiency",
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
                 atlas_second_tag=atlas_second_tag + f", {flav.label}",
                 y_scale=1.4,
             )
+            # $n_{trk}^{match}/n_{trk}^{reco}$
             plot_vtx_trk_purity = VarVsVtxPlot(
                 mode="purity",
-                ylabel=r"$n_{trk}^{match}/n_{trk}^{reco}$",
+                ylabel="Track Assignment Purity",
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
@@ -362,7 +366,7 @@ class AuxResults:
 
             plot_vtx_fakes = VarVsVtxPlot(
                 mode="fakes",
-                ylabel=r"$n_{vtx}^{reco}$",
+                ylabel="Vertex Rate",
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
