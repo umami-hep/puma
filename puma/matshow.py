@@ -21,7 +21,7 @@ class MatshowPlot(PlotBase):
         show_percentage: bool = False,
         text_color_threshold: float = 0.408,
         colormap: plt.cm = plt.cm.Oranges,
-        show_cbar: bool = False,
+        show_cbar: bool = True,
         cbar_label: str | None = None,
         **kwargs,
     ) -> None:

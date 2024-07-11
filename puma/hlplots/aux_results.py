@@ -461,6 +461,7 @@ class AuxResults:
                     ylabel="Target Classes",
                     atlas_second_tag=self.atlas_second_tag,
                     atlas_tag_outside=True,
+                    show_cbar=False,
                     **kwargs,
                 )
             plot_cm.draw(cm)
