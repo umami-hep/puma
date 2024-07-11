@@ -199,6 +199,8 @@ class Results:
             if tagger not in self.taggers.values():
                 self.add(tagger)
             tagger.output_flavours = self.flavours
+            if "ftau" not in tagger.fxs:
+                tagger.output_flavours.remove(Flavours.taujets)
 
         # get a list of all variables to be loaded from the file
         if not isinstance(cuts, Cuts):
