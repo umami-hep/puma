@@ -220,8 +220,9 @@ class PlotObject:
             self.ylabel_ratio = ["Ratio"] * self.n_ratio_panels
         if len(self.ylabel_ratio) != self.n_ratio_panels:
             raise ValueError(
-                f"If you passed `ylabel_ratio` of length {len(self.ylabel_ratio)}, "
-                f"but n_ratio_panels of {self.n_ratio_panels}"
+                f"You passed `ylabel_ratio` of length {len(self.ylabel_ratio)}, "
+                f"but `n_ratio_panels` of {self.n_ratio_panels}. "
+                f"These should be equal."
             )
         if self.leg_fontsize is None:
             self.leg_fontsize = self.fontsize
