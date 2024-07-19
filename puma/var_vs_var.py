@@ -327,7 +327,9 @@ class VarVsVarPlot(PlotBase):
             raise ValueError("Please specify a reference curve.")
         for key in self.add_order:
             elem = self.plot_objects[key]
-            (ratio, ratio_err) = elem.divide(self.plot_objects[self.reference_object], method=self.ratio_method)
+            (ratio, ratio_err) = elem.divide(
+                self.plot_objects[self.reference_object], method=self.ratio_method
+            )
             error_bar = self.ratio_axes[0].errorbar(
                 elem.x_var,
                 ratio,
