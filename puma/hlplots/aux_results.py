@@ -262,36 +262,40 @@ class AuxResults:
             if isinstance(flavour, str):
                 flav = Flavours[flavour]
 
+            # $n_{vtx}^{match}/n_{vtx}^{true}$
             plot_vtx_eff = VarVsVtxPlot(
                 mode="efficiency",
-                ylabel=r"$n_{vtx}^{match}/n_{vtx}^{true}$",
+                ylabel="Efficiency",
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
                 atlas_second_tag=atlas_second_tag + f", {flav.label}",
                 y_scale=1.4,
             )
+            # $n_{vtx}^{match}/n_{vtx}^{reco}$
             plot_vtx_purity = VarVsVtxPlot(
                 mode="purity",
-                ylabel=r"$n_{vtx}^{match}/n_{vtx}^{reco}$",
+                ylabel="Purity",
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
                 atlas_second_tag=atlas_second_tag + f", {flav.label}",
                 y_scale=1.4,
             )
+            # $n_{trk}^{match}/n_{trk}^{true}$
             plot_vtx_trk_eff = VarVsVtxPlot(
                 mode="efficiency",
-                ylabel=r"$n_{trk}^{match}/n_{trk}^{true}$",
+                ylabel="Track Assignment Efficiency",
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
                 atlas_second_tag=atlas_second_tag + f", {flav.label}",
                 y_scale=1.4,
             )
+            # $n_{trk}^{match}/n_{trk}^{reco}$
             plot_vtx_trk_purity = VarVsVtxPlot(
                 mode="purity",
-                ylabel=r"$n_{trk}^{match}/n_{trk}^{reco}$",
+                ylabel="Track Assignment Purity",
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
@@ -362,7 +366,7 @@ class AuxResults:
 
             plot_vtx_fakes = VarVsVtxPlot(
                 mode="fakes",
-                ylabel=r"$n_{vtx}^{reco}$",
+                ylabel="Vertex Rate",
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
@@ -393,7 +397,7 @@ class AuxResults:
     def plot_track_origin_confmat(
         self,
         normalize: str | None = "rownorm",
-        atlas_offset: float = 1.5,
+        minimal_plot: bool = True,
         **kwargs,
     ):
         """Plot Track Origin Aux Task confusion matrix.
@@ -407,8 +411,8 @@ class AuxResults:
             "colnorm": Normalize across the target class, i.e. such that the columns add to one;
             "all" : Normalize across all examples, i.e. such that all matrix entries add to one.
             Defaults to "rownorm".
-        atlas_offset : float, optional
-            Space at the top of the plot reserved to the Atlasify text. by default 1.5
+        minimal_plot : bool, optional
+            Whether to plot the CM with minimal or full info (title, cbar), by default True
         **kwargs : kwargs
             Keyword arguments for `puma.MatshowPlot` and `puma.PlotObject`
         """
@@ -418,22 +422,48 @@ class AuxResults:
             target = tagger.aux_labels["track_origin"].reshape(-1)
             predictions = tagger.aux_scores["track_origin"].reshape(-1)
 
+            padding_removal = target >= 0
+
+            target = target[padding_removal]
+            predictions = predictions[padding_removal]
+
             # Computing the confusion matrix
-            cm = confusion_matrix(target, predictions, normalize=normalize)
+            cm, eff, fake = confusion_matrix(target, predictions, normalize=normalize)
 
             class_names = get_trackOrigin_classNames()
+            class_names_with_perf = []
 
-            # Plotting the confusion matrix
-            plot_cm = MatshowPlot(
-                x_ticklabels=class_names,
-                y_ticklabels=class_names,
-                title="Track Origin Auxiliary Task\nConfusion Matrix",
-                xlabel="Predicted Classes",
-                ylabel="Target Classes",
-                atlas_offset=atlas_offset,
-                atlas_second_tag=self.atlas_second_tag,
-                **kwargs,
-            )
+            if minimal_plot:
+                for i, c in enumerate(class_names):
+                    class_names_with_perf.append(f"{c}\nFake Rate = {fake[i]:.3f}")
+                # Plotting the confusion matrix
+                plot_cm = MatshowPlot(
+                    x_ticklabels=class_names,
+                    y_ticklabels=class_names_with_perf,
+                    xlabel="Predicted Classes",
+                    ylabel="Target Classes",
+                    atlas_second_tag=self.atlas_second_tag,
+                    show_cbar=False,
+                    atlas_tag_outside=True,
+                    **kwargs,
+                )
+            else:
+                for i, c in enumerate(class_names):
+                    class_names_with_perf.append(
+                        f"{c}\nEfficiency = {eff[i]:.3f}\nFake Rate = {fake[i]:.3f}"
+                    )
+                # Plotting the confusion matrix
+                plot_cm = MatshowPlot(
+                    x_ticklabels=class_names,
+                    y_ticklabels=class_names_with_perf,
+                    title="Track Origin Auxiliary Task\nConfusion Matrix",
+                    xlabel="Predicted Classes",
+                    ylabel="Target Classes",
+                    atlas_second_tag=self.atlas_second_tag,
+                    atlas_tag_outside=True,
+                    show_cbar=False,
+                    **kwargs,
+                )
             plot_cm.draw(cm)
             base = tagger.name + "_trackOrigin_cm"
             plot_cm.savefig(self.get_filename(base))
