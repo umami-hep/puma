@@ -246,7 +246,7 @@ class HistRatioTestCase(unittest.TestCase):
             0.625,
             0.625,
             0.5773503,
-            0,  # for RSD, if num=denom error, error is 0? or num_unc
+            0,
             0.2041241,
             0.375,
             0.0507093,
