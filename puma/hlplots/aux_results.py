@@ -428,14 +428,16 @@ class AuxResults:
             predictions = predictions[padding_removal]
 
             # Computing the confusion matrix
-            cm, eff, fake = confusion_matrix(target, predictions, normalize=normalize)
+            cm = confusion_matrix(target, predictions, normalize=normalize)
+            precision = ...
+            recall = ...
 
             class_names = get_trackOrigin_classNames()
             class_names_with_perf = []
 
             if minimal_plot:
                 for i, c in enumerate(class_names):
-                    class_names_with_perf.append(f"{c}\nFake Rate = {fake[i]:.3f}")
+                    class_names_with_perf.append(f"{c}\nRecall = {recall[i]:.3f}")
                 # Plotting the confusion matrix
                 plot_cm = MatshowPlot(
                     x_ticklabels=class_names,
@@ -450,7 +452,7 @@ class AuxResults:
             else:
                 for i, c in enumerate(class_names):
                     class_names_with_perf.append(
-                        f"{c}\nEfficiency = {eff[i]:.3f}\nFake Rate = {fake[i]:.3f}"
+                        f"{c}\nPrecision = {precision[i]:.3f}\nRecall = {recall[i]:.3f}"
                     )
                 # Plotting the confusion matrix
                 plot_cm = MatshowPlot(
