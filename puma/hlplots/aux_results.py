@@ -14,6 +14,8 @@ from puma.matshow import MatshowPlot
 from puma.utils import logger
 from puma.utils.aux import get_aux_labels, get_trackOrigin_classNames
 from puma.utils.confusion_matrix import confusion_matrix
+from puma.utils.precision_score import precision_score_per_class
+from puma.utils.recall_score import recall_score_per_class
 from puma.utils.vertexing import calculate_vertex_metrics
 from puma.var_vs_vtx import VarVsVtx, VarVsVtxPlot
 
@@ -429,15 +431,18 @@ class AuxResults:
 
             # Computing the confusion matrix
             cm = confusion_matrix(target, predictions, normalize=normalize)
-            precision = ...
-            recall = ...
+            precision = precision_score_per_class(target, predictions)
+            recall = recall_score_per_class(target, predictions)
 
             class_names = get_trackOrigin_classNames()
             class_names_with_perf = []
 
             if minimal_plot:
                 for i, c in enumerate(class_names):
-                    class_names_with_perf.append(f"{c}\nRecall = {recall[i]:.3f}")
+                    # class_names_with_perf.append(f"{c}\nRecall = {recall[i]:.3f}")
+                    class_names_with_perf.append(
+                        f"{c}\nPrecision = {precision[i]:.3f}\nRecall = {recall[i]:.3f}"
+                    )
                 # Plotting the confusion matrix
                 plot_cm = MatshowPlot(
                     x_ticklabels=class_names,
