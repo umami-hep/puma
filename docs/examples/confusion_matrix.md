@@ -27,11 +27,7 @@ confusion_matrix(targets, predictions, sample_weights=weights)
 
 ### Normalization
 
-There are four possible normalization choices, which can be selected through the `normalize` argument of the function:
-- `None`: Give raw counts;
-- `"rownorm"`: Normalize across the prediction class, i.e. such that the rows add to one (default);
-- `"colnorm"`: Normalize across the target class, i.e. such that the columns add to one;
-- `"all" `: Normalize across all examples, i.e. such that all matrix entries add to one. Defaults to "all".
+There are four possible normalization choices, which can be selected through the `normalize` argument of the function: `None` to use raw counts; `"rownorm"` to normalize across the prediction class, i.e. such that the rows add to one (default); `"colnorm"` to normalize across the target class, i.e. such that the columns add to one; `"all" ` to normalize across all examples, i.e. such that all matrix entries add to one. Defaults to `"rownorm"`.
 
 ## Example
 
