@@ -13,9 +13,9 @@ def confusion_matrix(
     """
     Parameters
     ----------
-    targets : np.ndarray
+    targets : 1d np.ndarray
         target labels
-    predictions : np.ndarray
+    predictions : 1d np.ndarray
         predicted labels (output of the classifier)
     sample_weights : np.ndarray, optional
         Weight of each sample; if None, each sample weights the same. Defaults to None.
@@ -29,17 +29,14 @@ def confusion_matrix(
 
     Returns
     -------
-    np.ndarray : the confusion matrix,
-    np.dnarray : the per-class efficiencies,
-    np.ndarray : the per-class fake rates.
+    np.ndarray : the confusion matrix.
 
     Example
     --------
     >>> targets = np.array([2, 0, 2, 2, 0, 1])
     >>> predictions = np.array([0, 0, 2, 2, 0, 2])
     >>> weights = np.array([1, 0.5, 0.5, 1, 0.2, 1])
-    >>> cm, eff, fake = confusion_matrix(targets, predictions, sample_weights=weights)
-    >>> print(cm)
+    >>> confusion_matrix(targets, predictions, sample_weights=weights)
     np.array([[1.  0.  0. ]
         [0.  0.  1. ]
         [0.4 0.  0.6]])
@@ -77,19 +74,6 @@ def confusion_matrix(
         dtype="float",
     ).toarray()
 
-    # Calculate efficiency and fake rate
-    efficiencies = []
-    fake_rates = []
-    for i, row in enumerate(cm):
-        N_this_class = np.sum(row)
-        Npred_this_class = row[i]
-        Npred_other_class = N_this_class - Npred_this_class
-        efficiencies.append(Npred_this_class / N_this_class)
-        fake_rates.append(Npred_other_class / Npred_this_class)
-
-    efficiencies = np.array(efficiencies)
-    fake_rates = np.array(fake_rates)
-
     # Eventually normalize the Confusion Matrix
     with np.errstate(all="warn"):
         if normalize == "all":
@@ -100,4 +84,4 @@ def confusion_matrix(
             cm /= cm.sum(axis=0, keepdims=True)
 
     # Returning the CM with nan converted to zero
-    return np.nan_to_num(cm), efficiencies, fake_rates
+    return np.nan_to_num(cm)

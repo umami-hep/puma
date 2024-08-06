@@ -59,6 +59,7 @@ efficiency > 0.65 and purity > 0.5
 ## Track Origin Performances
 
 The Track Origin auxiliary task is a multiclass classification task, in which each track is associated with its most probable belonging origin, chosen between:
+
 - Pileup;
 - Fake;
 - Primary;

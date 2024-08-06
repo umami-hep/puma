@@ -1,6 +1,7 @@
 # Changelog
 
 ### [Latest]
+- Added functions for precision and recall scores [!275](https://github.com/umami-hep/puma/pull/275)
 - Minor updates for aux task plots [!273](https://github.com/umami-hep/puma/pull/273)
 - Added better support in yuma, allowing for tau rejection, tau tagging, and Xbb plots [!272](https://github.com/umami-hep/puma/pull/272)
 - Redefined fake rate [!268](https://github.com/umami-hep/puma/pull/268)
