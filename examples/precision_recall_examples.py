@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from puma.utils.precision_score import precision_score_per_class
-from puma.utils.recall_score import recall_score_per_class
+from puma.utils.precision_recall_scores import precision_recall_scores_per_class
 
 # Sample size
 N = 100
@@ -21,8 +20,7 @@ predictions = np.random.randint(0, Nclass, size=(N + Nclass))
 
 
 # Unweighted precision and recall
-uw_precision = precision_score_per_class(targets, predictions)
-uw_recall = recall_score_per_class(targets, predictions)
+uw_precision, uw_recall = precision_recall_scores_per_class(targets, predictions)
 print("Unweighted case:")
 print("Per-class precision:")
 print(uw_precision)
@@ -34,11 +32,10 @@ print(" ")
 # Dummy sample weights
 sample_weights = np.random.rand(N + Nclass)
 
-uw_precision = precision_score_per_class(targets, predictions, sample_weights)
-uw_recall = recall_score_per_class(targets, predictions, sample_weights)
+w_precision, w_recall = precision_recall_scores_per_class(targets, predictions, sample_weights)
 print("Weighted case:")
 print("Per-class precision:")
-print(uw_precision)
+print(w_precision)
 print("Per-class recall:")
-print(uw_recall)
+print(w_recall)
 print(" ")

@@ -1,10 +1,10 @@
 # Precision and Recall
 
-The functions in `puma.utils.precision_score` and in `puma.utils.recall_score` compute the per-class precision and recall classification metrics, for a multiclass classification task with $N_c$ classes. The metrics are computed by comparing the classifier's predicted labels array with the target labels array. The functions return an array where the entry $i$ is the score related to class $i$. The scores are defined as follows.
+The function `precision_recall_scores_per_class` in `puma.utils.precision_recall_scores` computes the per-class precision and recall classification metrics, for a multiclass classification task with $N_c$ classes. The metrics are computed by comparing the classifier's predicted labels array with the target labels array. The function returns two arrays where the entry $i$ is the precision or recall score respectively, related to class $i$. The scores are defined as follows.
 
 ## Precision
 
-Fixed a class $i$ between the $N_c$ possible classes, the precision score (also called purity) for that class measures the ability of the classifier to not label as class $i$ a sample belonging to another class. It is defined as:
+Fixed a class $i$ between the $N_c$ possible classes, the precision score (also called purity) for that class measures the ability of the classifier not to label as class $i$ a sample belonging to another class. It is defined as:
 
 $$p = \frac{tp}{tp+fp}$$
 
