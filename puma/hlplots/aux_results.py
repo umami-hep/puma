@@ -226,6 +226,7 @@ class AuxResults:
         xlabel: str = r"$p_{T}$ [GeV]",
         perf_var: str = "pt",
         incl_vertexing: bool = False,
+        vertex_match_requirement={'eff_req' : 0.65, 'purity_req' : 0.5},
         **kwargs,
     ):
         if vtx_flavours is None and no_vtx_flavours is None:
@@ -252,7 +253,7 @@ class AuxResults:
 
             # get cleaned vertex indices and calculate vertexing metrics
             truth_indices, reco_indices = tagger.vertex_indices(incl_vertexing=incl_vertexing)
-            vtx_metrics[tagger.name] = calculate_vertex_metrics(reco_indices, truth_indices)
+            vtx_metrics[tagger.name] = calculate_vertex_metrics(reco_indices, truth_indices, **vertex_match_requirement)
 
         if not vtx_metrics:
             raise ValueError("No taggers with vertexing aux task added.")
