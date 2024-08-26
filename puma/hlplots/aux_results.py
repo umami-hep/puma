@@ -14,6 +14,7 @@ from puma.matshow import MatshowPlot
 from puma.utils import logger
 from puma.utils.aux import get_aux_labels, get_trackOrigin_classNames
 from puma.utils.confusion_matrix import confusion_matrix
+from puma.utils.precision_recall_scores import precision_recall_scores_per_class
 from puma.utils.vertexing import calculate_vertex_metrics
 from puma.var_vs_vtx import VarVsVtx, VarVsVtxPlot
 
@@ -37,6 +38,7 @@ class AuxResults:
     def __post_init__(self):
         if isinstance(self.output_dir, str):
             self.output_dir = Path(self.output_dir)
+        self.output_dir.mkdir(parents=True, exist_ok=True)
         if isinstance(self.perf_vars, str):
             self.perf_vars = [self.perf_vars]
         if self.atlas_second_tag is not None and self.atlas_third_tag is not None:
@@ -226,6 +228,7 @@ class AuxResults:
         xlabel: str = r"$p_{T}$ [GeV]",
         perf_var: str = "pt",
         incl_vertexing: bool = False,
+        vertex_match_requirement: dict | None = None,
         **kwargs,
     ):
         if vtx_flavours is None and no_vtx_flavours is None:
@@ -239,6 +242,12 @@ class AuxResults:
 
         if incl_vertexing:
             suffix = "incl" if not suffix else f"{suffix}_incl"
+
+        if vertex_match_requirement is None:
+            vertex_match_requirement = {"eff_req": 0.65, "purity_req": 0.5}
+        eff_req = round(vertex_match_requirement["eff_req"] * 100, 1)
+        purity_req = round(vertex_match_requirement["purity_req"] * 100, 1)
+        vtx_match_str = rf"Recall $\geq {eff_req}%$, Purity $\geq {purity_req}%$"
         vtx_string = "\nInclusive vertexing" if incl_vertexing else "\nExclusive vertexing"
         atlas_second_tag = self.atlas_second_tag if self.atlas_second_tag else ""
         atlas_second_tag += vtx_string
@@ -252,7 +261,9 @@ class AuxResults:
 
             # get cleaned vertex indices and calculate vertexing metrics
             truth_indices, reco_indices = tagger.vertex_indices(incl_vertexing=incl_vertexing)
-            vtx_metrics[tagger.name] = calculate_vertex_metrics(reco_indices, truth_indices)
+            vtx_metrics[tagger.name] = calculate_vertex_metrics(
+                reco_indices, truth_indices, **vertex_match_requirement
+            )
 
         if not vtx_metrics:
             raise ValueError("No taggers with vertexing aux task added.")
@@ -262,40 +273,44 @@ class AuxResults:
             if isinstance(flavour, str):
                 flav = Flavours[flavour]
 
+            # $n_{vtx}^{match}/n_{vtx}^{true}$
             plot_vtx_eff = VarVsVtxPlot(
                 mode="efficiency",
-                ylabel=r"$n_{vtx}^{match}/n_{vtx}^{true}$",
+                ylabel="Efficiency",
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
-                atlas_second_tag=atlas_second_tag + f", {flav.label}",
+                atlas_second_tag=atlas_second_tag + f", {flav.label}\n{vtx_match_str}",
                 y_scale=1.4,
             )
+            # $n_{vtx}^{match}/n_{vtx}^{reco}$
             plot_vtx_purity = VarVsVtxPlot(
                 mode="purity",
-                ylabel=r"$n_{vtx}^{match}/n_{vtx}^{reco}$",
+                ylabel="Purity",
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
-                atlas_second_tag=atlas_second_tag + f", {flav.label}",
+                atlas_second_tag=atlas_second_tag + f", {flav.label}\n{vtx_match_str}",
                 y_scale=1.4,
             )
+            # $n_{trk}^{match}/n_{trk}^{true}$
             plot_vtx_trk_eff = VarVsVtxPlot(
                 mode="efficiency",
-                ylabel=r"$n_{trk}^{match}/n_{trk}^{true}$",
+                ylabel="Track Assignment Efficiency",
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
-                atlas_second_tag=atlas_second_tag + f", {flav.label}",
+                atlas_second_tag=atlas_second_tag + f", {flav.label}\n{vtx_match_str}",
                 y_scale=1.4,
             )
+            # $n_{trk}^{match}/n_{trk}^{reco}$
             plot_vtx_trk_purity = VarVsVtxPlot(
                 mode="purity",
-                ylabel=r"$n_{trk}^{match}/n_{trk}^{reco}$",
+                ylabel="Track Assignment Purity",
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
-                atlas_second_tag=atlas_second_tag + f", {flav.label}",
+                atlas_second_tag=atlas_second_tag + f", {flav.label}\n{vtx_match_str}",
                 y_scale=1.4,
             )
 
@@ -362,7 +377,7 @@ class AuxResults:
 
             plot_vtx_fakes = VarVsVtxPlot(
                 mode="fakes",
-                ylabel=r"$n_{vtx}^{reco}$",
+                ylabel="Vertex Rate",
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
@@ -424,14 +439,18 @@ class AuxResults:
             predictions = predictions[padding_removal]
 
             # Computing the confusion matrix
-            cm, eff, fake = confusion_matrix(target, predictions, normalize=normalize)
+            cm = confusion_matrix(target, predictions, normalize=normalize)
+            precision, recall = precision_recall_scores_per_class(target, predictions)
 
             class_names = get_trackOrigin_classNames()
             class_names_with_perf = []
 
             if minimal_plot:
                 for i, c in enumerate(class_names):
-                    class_names_with_perf.append(f"{c}\nFake Rate = {fake[i]:.3f}")
+                    # class_names_with_perf.append(f"{c}\nRecall = {recall[i]:.3f}")
+                    class_names_with_perf.append(
+                        f"{c}\nPrecision = {precision[i]:.3f}\nRecall = {recall[i]:.3f}"
+                    )
                 # Plotting the confusion matrix
                 plot_cm = MatshowPlot(
                     x_ticklabels=class_names,
@@ -446,7 +465,7 @@ class AuxResults:
             else:
                 for i, c in enumerate(class_names):
                     class_names_with_perf.append(
-                        f"{c}\nEfficiency = {eff[i]:.3f}\nFake Rate = {fake[i]:.3f}"
+                        f"{c}\nPrecision = {precision[i]:.3f}\nRecall = {recall[i]:.3f}"
                     )
                 # Plotting the confusion matrix
                 plot_cm = MatshowPlot(
@@ -457,6 +476,7 @@ class AuxResults:
                     ylabel="Target Classes",
                     atlas_second_tag=self.atlas_second_tag,
                     atlas_tag_outside=True,
+                    show_cbar=False,
                     **kwargs,
                 )
             plot_cm.draw(cm)

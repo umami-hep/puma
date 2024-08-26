@@ -1,0 +1,70 @@
+plot_dir: /home/output_dir
+timestamp: False
+
+results_config:
+  sample: ttbar
+  sample_path: dummy/path/1
+  atlas_first_tag: Simulation Internal
+  atlas_second_tag: $\sqrt{s} = 13.6$ TeV, MC23
+  atlas_third_tag: $t\overline{t}$ 20 < $p_T$ < 250 GeV, $|\eta| < 2.5$
+  num_jets: 10_000
+  remove_nan: True # for plotting eff profiles for variables with NaNs (e.g, Lxy)
+  global_cuts:
+    - "pt > 20_000"
+    - "pt < 250_000"
+    - "eta < 2.5"
+    - "eta > -2.5"
+    - "n_truth_promptLepton == 0"
+  all_flavours: ["hcc", "top", "qcd"]
+  label_var: R10TruthLabel_R22v1
+
+taggers_config: !include taggers.yaml
+taggers: [dummy1, dummy2, dummy3]
+
+plots:
+  roc:
+    - signal: hbb
+      plot_kwargs:
+        x_range: [0.5, 1.0]
+        figsize: [8.5, 7.5]
+
+    - signal: hbb
+      include_taggers: ["dummy1"]
+      plot_kwargs:
+        x_range: [0.5, 1.0]
+
+    - signal: hbb
+      exclude_taggers: ["dummy1"]
+      plot_kwargs:
+        x_range: [0.5, 1.0]
+
+  disc:
+    - signal: hbb
+      plot_kwargs:
+        wp_vlines: [70, 77, 80]
+
+  probs:
+    - signal: hbb
+
+  peff:
+    - signal: hbb
+      plot_kwargs:
+        flat_per_bin: True
+        working_point: 0.7
+
+    - signal: hbb
+      plot_kwargs:
+        fixed_rejections:
+          hcc: 10
+          htop: 100
+
+    - signal: hbb
+      plot_kwargs:
+        flat_per_bin: True
+        working_point: 0.7
+
+    - signal: hbb
+      plot_kwargs:
+        perf_var: eta
+        flat_per_bin: False
+        working_point: 0.7

@@ -2,17 +2,23 @@
 
 ### [Latest]
 - Updated variable names for aux task outputs to be consistent with Salt [!270](https://github.com/umami-hep/puma/pull/270)
+- Merged precision and recall in one single function [!276](https://github.com/umami-hep/puma/pull/276)
+- Added functions for precision and recall scores [!275](https://github.com/umami-hep/puma/pull/275)
+- Minor updates for aux task plots [!273](https://github.com/umami-hep/puma/pull/273)
+- Added better support in yuma, allowing for tau rejection, tau tagging, and Xbb plots [!272](https://github.com/umami-hep/puma/pull/272)
 - Redefined fake rate [!268](https://github.com/umami-hep/puma/pull/268)
 - Removed padded tracks from consideration when generating track origin classification CM [!267](https://github.com/umami-hep/puma/pull/267)
 - Confusion Matrix: added per-class fake rates plus minor appearance changes [!266](https://github.com/umami-hep/puma/pull/266)
 
 ### [v0.3.5] (2024/04/23)
+
 - Fixed a problem in the Confusion Matrix normalization, and adopted a more clear naming convention; removed decimals from the matrix plot if the entry is an integer (useful for raw counts confusion matrix) [!262](https://github.com/umami-hep/puma/pull/262)
 - Added matrix plot API, confusion matrix function, and Track Origin confusion matrix plot [!258](https://github.com/umami-hep/puma/pull/258)
 - Fix setting ymin_ratio (and ymax_ratio) in PlotBase if it is zero [!261](https://github.com/umami-hep/puma/pull/261)
 - Fixed shuffling bug in aux_results and modified treatment of single-track vertices [!259](https://github.com/umami-hep/puma/pull/259)
 
 ### [v0.3.4] (2024/02/26)
+
 - Better filenames when using HLAPI [!256](https://github.com/umami-hep/puma/pull/256)
 - Switch to MkDocs for documentation [!254](https://github.com/umami-hep/puma/pull/254)
 - Fixed minor bug in HF vertex merging [!255](https://github.com/umami-hep/puma/pull/255)
@@ -26,6 +32,7 @@
 - Fix marker resizing in VarVsVar [!243](https://github.com/umami-hep/puma/pull/243)
 
 ### [v0.3.3] (2024/02/26)
+
 - Load ptau in Results class [!242](https://github.com/umami-hep/puma/pull/242)
 - Update ruff, improve coverage [!241](https://github.com/umami-hep/puma/pull/241)
 - Extend ftau support and remove discriminant code [!240](https://github.com/umami-hep/puma/pull/240)
@@ -35,15 +42,15 @@
 - More improvements to Yuma configuration [!237](https://github.com/umami-hep/puma/pull/237)
 - Autoinstall deps and steamline yuma config [!236](https://github.com/umami-hep/puma/pull/236)
 
-
 ### [v0.3.2] (2024/02/13)
+
 - Minor fixes and improvements to yaml plotting interface [!235](https://github.com/umami-hep/puma/pull/235)
 - Added ability to plot from yaml configs [!204](https://github.com/umami-hep/puma/pull/204)
 - Add support for multiple perf_vars in HLAPI [!233](https://github.com/umami-hep/puma/pull/233)
 - Remove scipy dependency [!232](https://github.com/umami-hep/puma/pull/232)
 - Extended usable range for metrics.weighted_percentile with double precision [!231](https://github.com/umami-hep/puma/pull/231)
 - Consistent fc scan colours [!228](https://github.com/umami-hep/puma/pull/228)
-- Add tools for plotting vertexing performance. [!216](https://github.com/umami-hep/puma/pull/216) 
+- Add tools for plotting vertexing performance. [!216](https://github.com/umami-hep/puma/pull/216)
 
 ### [v0.3.1] (2023/11/27)
 
@@ -78,7 +85,7 @@
 ### [v0.2.7] (2023/07/17)
 
 - Updating ATLAS-FTAG-Tools package [!190](https://github.com/umami-hep/puma/pull/190)
-- Adding Data/MC Plots capabilities to the histogram classes [!187](https://github.com/umami-hep/puma/pull/187) 
+- Adding Data/MC Plots capabilities to the histogram classes [!187](https://github.com/umami-hep/puma/pull/187)
 
 ### [v0.2.6] (2023/06/01)
 
