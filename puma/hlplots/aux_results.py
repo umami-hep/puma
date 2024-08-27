@@ -15,9 +15,9 @@ from puma.matshow import MatshowPlot
 from puma.utils import logger
 from puma.utils.aux import get_aux_labels, get_trackOrigin_classNames
 from puma.utils.confusion_matrix import confusion_matrix
+from puma.utils.mass import calculate_vertex_mass
 from puma.utils.precision_recall_scores import precision_recall_scores_per_class
 from puma.utils.vertexing import calculate_vertex_metrics
-from puma.utils.mass import calculate_vertex_mass
 from puma.var_vs_vtx import VarVsVtx, VarVsVtxPlot
 
 
@@ -99,7 +99,7 @@ class AuxResults:
         num_jets : int, optional
             Number of jets to load from the file, by default all jets
         perf_vars : dict, optional
-            Override the performance variable to use, by default None            
+            Override the performance variable to use, by default None
         """
 
         def check_nan(data: np.ndarray) -> np.ndarray:
@@ -140,7 +140,8 @@ class AuxResults:
 
         aux_var_list = sum([list(t.aux_variables.values()) for t in taggers], [])
         aux_var_list += sum([list(aux_labels.values()) for t in taggers], [])
-        if self.aux_perf_vars is not None: aux_var_list += self.aux_perf_vars
+        if self.aux_perf_vars is not None:
+            aux_var_list += self.aux_perf_vars
         aux_var_list = list(set(aux_var_list))
 
         # load data
@@ -189,11 +190,12 @@ class AuxResults:
             else:
                 tagger.perf_vars = sel_perf_vars
             tagger.aux_perf_vars = {}
-            for aux_perf_var in self.aux_perf_vars:
-                if any(x in aux_perf_var for x in ["pt"]):
-                    tagger.aux_perf_vars[aux_perf_var] = sel_aux_data[aux_perf_var] * 0.001
-                else:
-                    tagger.aux_perf_vars[aux_perf_var] = sel_aux_data[aux_perf_var]
+            if self.aux_performance_vars is not None:
+                for aux_perf_var in self.aux_perf_vars:
+                    if any(x in aux_perf_var for x in ["pt"]):
+                        tagger.aux_perf_vars[aux_perf_var] = sel_aux_data[aux_perf_var] * 0.001
+                    else:
+                        tagger.aux_perf_vars[aux_perf_var] = sel_aux_data[aux_perf_var]
 
     def __getitem__(self, tagger_name: str):
         """Retrieve Tagger object.
@@ -421,7 +423,7 @@ class AuxResults:
         **kwargs,
     ):
         """Plot vertex mass for each tagger.
-        
+
         Parameters
         ----------
         vtx_flavours : list[Flavour] | list[str]
@@ -429,8 +431,13 @@ class AuxResults:
         kwargs : dict
             Keyword arguments for `puma.Histogram` and `puma.HistogramPlot`
         """
-
-        assert set(["pt", "eta", "dphi"]).issubset(set(self.aux_perf_vars)), f"Track pt, eta or dphi not in aux_results.aux_perf_vars! Information required to calculate vertex masses."
+        assert set([
+            "pt",
+            "eta",
+            "dphi",
+        ]).issubset(
+            set(self.aux_perf_vars)
+        ), "Track pt, eta or dphi not in aux_results.aux_perf_vars! Information required to calculate vertex masses."
 
         for flavour in vtx_flavours:
             if isinstance(flavour, str):
@@ -447,21 +454,28 @@ class AuxResults:
 
             for tagger in self.taggers.values():
                 if "vertexing" not in tagger.aux_tasks:
-                    logger.warning(f"{tagger.name} does not have vertexing aux task defined. Skipping.")
+                    logger.warning(
+                        f"{tagger.name} does not have vertexing aux task defined. Skipping."
+                    )
 
                 # get cleaned vertex indices and calculate vertexing metrics - always inclusive
                 _, reco_indices = tagger.vertex_indices(incl_vertexing=True)
                 is_flavour = tagger.is_flav(flav)
-                sv_masses = np.max(calculate_vertex_mass(
-                    tagger.aux_perf_vars["pt"][is_flavour],
-                    tagger.aux_perf_vars["eta"][is_flavour],
-                    tagger.aux_perf_vars["dphi"][is_flavour],
-                    reco_indices[is_flavour],
-                    particle_mass=0.13957, # pion mass in GeV
-                ), axis=1)
+                sv_masses = np.max(
+                    calculate_vertex_mass(
+                        tagger.aux_perf_vars["pt"][is_flavour],
+                        tagger.aux_perf_vars["eta"][is_flavour],
+                        tagger.aux_perf_vars["dphi"][is_flavour],
+                        reco_indices[is_flavour],
+                        particle_mass=0.13957,  # pion mass in GeV
+                    ),
+                    axis=1,
+                )
 
-                sv_masses = sv_masses[sv_masses > 0.14] # remove single and zero track vertices
-                mass_plot.add(Histogram(sv_masses, label=tagger.label, colour=tagger.colour, **kwargs))
+                sv_masses = sv_masses[sv_masses > 0.14]  # remove single and zero track vertices
+                mass_plot.add(
+                    Histogram(sv_masses, label=tagger.label, colour=tagger.colour, **kwargs)
+                )
 
             mass_plot.draw()
             mass_plot.savefig(self.get_filename(f"{flav}_sv_mass"))
