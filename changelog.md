@@ -1,6 +1,7 @@
 # Changelog
 
 ### [Latest]
+- Updated variable names for aux task outputs to be consistent with Salt [!270](https://github.com/umami-hep/puma/pull/270)
 - Merged precision and recall in one single function [!276](https://github.com/umami-hep/puma/pull/276)
 - Added functions for precision and recall scores [!275](https://github.com/umami-hep/puma/pull/275)
 - Minor updates for aux task plots [!273](https://github.com/umami-hep/puma/pull/273)
