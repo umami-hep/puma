@@ -190,7 +190,7 @@ class AuxResults:
             else:
                 tagger.perf_vars = sel_perf_vars
             tagger.aux_perf_vars = {}
-            if self.aux_performance_vars is not None:
+            if self.aux_perf_vars is not None:
                 for aux_perf_var in self.aux_perf_vars:
                     if any(x in aux_perf_var for x in ["pt"]):
                         tagger.aux_perf_vars[aux_perf_var] = sel_aux_data[aux_perf_var] * 0.001
@@ -431,13 +431,13 @@ class AuxResults:
         kwargs : dict
             Keyword arguments for `puma.Histogram` and `puma.HistogramPlot`
         """
-        assert set([
+        assert {
             "pt",
             "eta",
             "dphi",
-        ]).issubset(
+        }.issubset(
             set(self.aux_perf_vars)
-        ), "Track pt, eta or dphi not in aux_results.aux_perf_vars! Information required to calculate vertex masses."
+        ), "Track pt, eta or dphi not in aux_perf_vars (required to calculate vertex masses)."
 
         for flavour in vtx_flavours:
             if isinstance(flavour, str):
