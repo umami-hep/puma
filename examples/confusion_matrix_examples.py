@@ -11,10 +11,12 @@ N = 100
 Nclass = 3
 
 # Dummy target labels
-targets = np.random.randint(0, Nclass + 1, size=N)
+targets = np.random.randint(0, Nclass, size=N)
+# Making sure that there is at least one sample for each class
+targets = np.append(targets, np.array(list(range(Nclass))))
 
 # Dummy predicted labels
-predictions = np.random.randint(0, Nclass + 1, size=N)
+predictions = np.random.randint(0, Nclass, size=(N + Nclass))
 
 
 # Confusion matrix examples:
@@ -39,7 +41,7 @@ print(" ")
 
 # Weighted Confusion Matrix
 # Dummy sample weights
-sample_weights = np.random.rand(N)
+sample_weights = np.random.rand(N + Nclass)
 
 weighted_cm = confusion_matrix(targets, predictions, sample_weights=sample_weights)
 print("Weighted CM:")

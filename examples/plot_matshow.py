@@ -33,7 +33,7 @@ matrix_plotter_custom = MatshowPlot(
     text_color_threshold=0.6,
     colormap=plt.cm.PiYG,
     cbar_label="Scalar values as percentages",
-    atlas_offset=0.7,
+    atlas_tag_outside=True,
     fontsize=15,
 )
 matrix_plotter_custom.draw(mat)

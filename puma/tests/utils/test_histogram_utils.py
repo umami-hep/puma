@@ -241,6 +241,16 @@ class HistRatioTestCase(unittest.TestCase):
             0.05,
             0.025,
         ])
+        self.step_rsd = np.array([4, 4, -5.1961524, 0, -4.8989795, -8, -11.8321596])
+        self.step_rsd_unc = np.array([
+            0.625,
+            0.625,
+            0.5773503,
+            0,
+            0.2041241,
+            0.375,
+            0.0507093,
+        ])
 
     def test_hist_ratio(self):
         """Test if ratio is correctly calculated."""
@@ -252,6 +262,17 @@ class HistRatioTestCase(unittest.TestCase):
 
         np.testing.assert_almost_equal(step, self.step)
         np.testing.assert_almost_equal(step_unc, self.step_unc)
+
+    def test_hist_rsd(self):
+        step_rsd, step_rsd_unc = hist_ratio(
+            numerator=self.numerator,
+            denominator=self.denominator,
+            numerator_unc=self.numerator_unc,
+            method="root_square_diff",
+        )
+
+        np.testing.assert_almost_equal(step_rsd, self.step_rsd)
+        np.testing.assert_almost_equal(step_rsd_unc, self.step_rsd_unc)
 
     def test_hist_not_same_length_numerator_denominator(self):
         """Test case where denominator and numerator have not the same length."""

@@ -150,8 +150,8 @@ class AuxResultsPlotsTestCase(unittest.TestCase):
             dtype=[("HadronConeExclTruthLabelID", "i4")],
         )
         dummy_tagger.aux_scores = {
-            "vertexing": f["tracks"]["GN2_VertexIndex"],
-            "track_origin": f["tracks"]["GN2_TrackOrigin"],
+            "vertexing": f["tracks"]["GN2_aux_VertexIndex"],
+            "track_origin": f["tracks"]["GN2_aux_TrackOrigin"],
         }
         dummy_tagger.aux_labels = {
             "vertexing": f["tracks"]["ftagTruthVertexIndex"],
@@ -194,12 +194,20 @@ class AuxResultsPlotsTestCase(unittest.TestCase):
             self.assertIsFile(auxresults.get_filename("bjets_vtx_trk_eff_vs_pt"))
             self.assertIsFile(auxresults.get_filename("bjets_vtx_trk_purity_vs_pt"))
 
-    def test_plot_trackorigin_cm(self):
+    def test_plot_trackorigin_cm_minmal(self):
         self.dummy_tagger.reference = True
         with tempfile.TemporaryDirectory() as tmp_file:
             auxresults = AuxResults(sample="test", output_dir=tmp_file)
             auxresults.add(self.dummy_tagger)
             auxresults.plot_track_origin_confmat()
+            self.assertIsFile(auxresults.get_filename(self.dummy_tagger.name + "_trackOrigin_cm"))
+
+    def test_plot_trackorigin_cm_full(self):
+        self.dummy_tagger.reference = True
+        with tempfile.TemporaryDirectory() as tmp_file:
+            auxresults = AuxResults(sample="test", output_dir=tmp_file)
+            auxresults.add(self.dummy_tagger)
+            auxresults.plot_track_origin_confmat(minimal_plot=False)
             self.assertIsFile(auxresults.get_filename(self.dummy_tagger.name + "_trackOrigin_cm"))
 
     def test_plot_var_vtx_perf_ujets(self):

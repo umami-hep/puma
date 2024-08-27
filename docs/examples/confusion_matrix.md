@@ -7,7 +7,6 @@ This function evaluates the (multiclass[^1]) Confusion Matrix (CM) associated to
 Mathematically, if the classification task has $N_c$ target classes, the CM is an $N_c \times N_c$ matrix whose entry $C_{i,j}$ is the number of predictions known to be in group $i$ and predicted to be in group $j$. 
 The matrix can then be normalized in different ways, obtaining rates of misclassifications instead of raw counts (more on that in [normalization](#normalization)).
 
-
 ## Implementation
 
 The function `confusion_matrix` in `puma.utils.confusion_matrix` computes the CM from two arrays of target and predicted labels. The basic usage is:
@@ -28,11 +27,7 @@ confusion_matrix(targets, predictions, sample_weights=weights)
 
 ### Normalization
 
-There are four possible normalization choices, which can be selected through the `normalize` argument of the function:
-- `None`: Give raw counts;
-- `"rownorm"`: Normalize across the prediction class, i.e. such that the rows add to one (default);
-- `"colnorm"`: Normalize across the target class, i.e. such that the columns add to one;
-- `"all" `: Normalize across all examples, i.e. such that all matrix entries add to one. Defaults to "all".
+There are four possible normalization choices, which can be selected through the `normalize` argument of the function: `None` to use raw counts; `"rownorm"` to normalize across the prediction class, i.e. such that the rows add to one (default); `"colnorm"` to normalize across the target class, i.e. such that the columns add to one; `"all" ` to normalize across all examples, i.e. such that all matrix entries add to one. Defaults to `"rownorm"`.
 
 ## Example
 

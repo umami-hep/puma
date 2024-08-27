@@ -190,6 +190,7 @@ def hist_ratio(
     denominator,
     numerator_unc,
     step: bool = True,
+    method: str = "divide",
 ):
     """
     Calculate the ratio of the given bincounts and
@@ -206,6 +207,12 @@ def hist_ratio(
     step : bool
         if True duplicates first bin to match with step plotting function,
         by default True
+    method : str
+        Selects the method by which the ratio should be calculated.
+        "divide" calculates the ratio as the division of the numerator by the denominator.
+        "root_square_diff" calculates the Root Square Difference
+        between the numerator and the denominator.
+        by default "divide"
 
 
     Returns
@@ -230,10 +237,24 @@ def hist_ratio(
         raise AssertionError("Numerator and denominator don't have the same legth")
     if numerator.shape != numerator_unc.shape:
         raise AssertionError("Numerator and numerator_unc don't have the same legth")
-    step_ratio = save_divide(numerator, denominator, 1 if step else np.inf)
 
-    # Calculate ratio uncertainty
-    step_unc = save_divide(numerator_unc, denominator, default=0 if step else np.inf)
+    if method == "divide":
+        step_ratio = save_divide(numerator, denominator, 1 if step else np.inf)
+        # Calculate ratio uncertainty
+        step_unc = save_divide(numerator_unc, denominator, default=0 if step else np.inf)
+    elif method == "root_square_diff":
+        step_ratio = np.multiply(
+            np.sign(numerator - denominator), np.sqrt(np.abs(numerator**2 - denominator**2))
+        )
+        # Calculate ratio uncertainty
+        step_unc = np.zeros_like(step_ratio)
+        step_unc = np.divide(
+            np.multiply(numerator, numerator_unc),
+            np.sqrt(np.abs(numerator**2 - denominator**2)),
+            where=(numerator - denominator != 0),
+        )
+    else:
+        raise ValueError("'method' can only be 'divide' or 'root_square_diff'.")
 
     if step:
         # Add an extra bin in the beginning to have the same binning as the input

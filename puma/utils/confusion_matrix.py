@@ -13,9 +13,9 @@ def confusion_matrix(
     """
     Parameters
     ----------
-    targets : np.ndarray
+    targets : 1d np.ndarray
         target labels
-    predictions : np.ndarray
+    predictions : 1d np.ndarray
         predicted labels (output of the classifier)
     sample_weights : np.ndarray, optional
         Weight of each sample; if None, each sample weights the same. Defaults to None.
@@ -77,11 +77,11 @@ def confusion_matrix(
     # Eventually normalize the Confusion Matrix
     with np.errstate(all="warn"):
         if normalize == "all":
-            cm = cm / cm.sum()
+            cm /= cm.sum()
         elif normalize == "rownorm":
-            cm = cm / cm.sum(axis=1, keepdims=True)
+            cm /= cm.sum(axis=1, keepdims=True)
         elif normalize == "colnorm":
-            cm = cm / cm.sum(axis=0, keepdims=True)
+            cm /= cm.sum(axis=0, keepdims=True)
 
     # Returning the CM with nan converted to zero
     return np.nan_to_num(cm)
