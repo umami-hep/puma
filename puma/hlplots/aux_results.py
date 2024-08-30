@@ -450,17 +450,36 @@ class AuxResults:
                 atlas_first_tag=self.atlas_first_tag,
                 atlas_second_tag=self.atlas_second_tag + f"\nInclusive vertexing, {flav.label}",
                 y_scale=1.4,
+                n_ratio_panels=1,
             )
 
-            for tagger in self.taggers.values():
+            for i, tagger in enumerate(self.taggers.values()):
                 if "vertexing" not in tagger.aux_tasks:
                     logger.warning(
                         f"{tagger.name} does not have vertexing aux task defined. Skipping."
                     )
 
                 # get cleaned vertex indices and calculate vertexing metrics - always inclusive
-                _, reco_indices = tagger.vertex_indices(incl_vertexing=True)
+                truth_indices, reco_indices = tagger.vertex_indices(incl_vertexing=True)
                 is_flavour = tagger.is_flav(flav)
+
+                if i == 0:
+                    truth_masses = np.max(
+                        calculate_vertex_mass(
+                            tagger.aux_perf_vars["pt"][is_flavour],
+                            tagger.aux_perf_vars["eta"][is_flavour],
+                            tagger.aux_perf_vars["dphi"][is_flavour],
+                            truth_indices[is_flavour],
+                            particle_mass=0.13957,  # pion mass in GeV
+                        ),
+                        axis=1,
+                    )
+                    truth_masses = truth_masses[truth_masses > 0.14]  # remove single and zero track vertices
+
+                    mass_plot.add(
+                        Histogram(truth_masses, label="MC truth", colour="#000000", **kwargs), reference=True
+                    )
+
                 sv_masses = np.max(
                     calculate_vertex_mass(
                         tagger.aux_perf_vars["pt"][is_flavour],
@@ -471,8 +490,8 @@ class AuxResults:
                     ),
                     axis=1,
                 )
-
                 sv_masses = sv_masses[sv_masses > 0.14]  # remove single and zero track vertices
+
                 mass_plot.add(
                     Histogram(sv_masses, label=tagger.label, colour=tagger.colour, **kwargs)
                 )
