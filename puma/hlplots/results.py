@@ -64,6 +64,7 @@ class Results:
             "roc": self.plot_rocs,
             "peff": self.plot_var_perf,
             "scan": self.plot_fraction_scans,
+            'preposttag' : self.plot_preposttag
         }
         self.saved_plots = []
 
@@ -861,6 +862,82 @@ class Results:
         plot.draw()
         self.save(plot, "scan", plot_name, suffix)
 
+    def plot_preposttag(
+        self,
+        suffix: str | None = None,
+        x_var: str = "pt",
+        xlabel: str = r"$p_{T}$ [GeV]",
+        working_point: float | None = None,
+        exclude_tagger=None,
+        **kwargs,
+    ):
+        '''
+        Plot the distribution of a variable before and after the tagger cut
+        Parameters
+
+        '''
+
+        if x_var != 'pt' and xlabel == r"$p_{T}$ [GeV]":
+            logger.warning(
+                "If using a different x variable, you should probably"
+                " change the label!")
+
+        line_styles = get_good_linestyles()
+        hist_defaults = {
+            "n_ratio_panels": 1,
+            "xlabel": xlabel,
+            "ylabel": "Normalised number of jets",
+            "figsize": (7.0, 4.5),
+            "atlas_first_tag": self.atlas_first_tag,
+            "atlas_second_tag": self.atlas_second_tag,
+            "y_scale" : 1.5
+        }
+        if kwargs is not None:
+            hist_defaults.update(kwargs)
+        for flav in self.flavours:
+            this_hist = hist_defaults.copy()
+            
+            this_hist['atlas_second_tag'] += f"\n{flav.label} Pre/Post-Tag at {working_point}% WP"
+            hist = HistogramPlot(**this_hist)
+            for i, tagger in enumerate(self.taggers.values()):
+                if exclude_tagger is not None and tagger.name in exclude_tagger:
+                    continue
+                discs = tagger.discriminant(self.signal)
+                disc_cut = np.percentile(discs[tagger.is_flav(self.signal)], 100 - working_point)
+                
+                tagger_var = tagger.perf_vars[x_var]
+                sel_flav = tagger.is_flav(flav)
+                discs = discs[sel_flav]
+                tagger_var = tagger_var[sel_flav]
+                hist.add(
+                    Histogram(
+                        tagger_var,
+                        label=tagger.label,
+                        colour=tagger.colour,
+                        ratio_group=tagger.label,
+                        linestyle=line_styles[0],
+                    ),
+                    reference=True,
+                )
+                hist.add(
+                    Histogram(
+                        tagger_var[discs > disc_cut],
+                        label=None,
+                        colour=tagger.colour,
+                        linestyle=line_styles[1],
+                        ratio_group=tagger.label,
+                    ),
+                    reference=False,
+                )
+            hist.make_linestyle_legend(
+                linestyles=line_styles[:2],
+                labels=['Pre-tag', 'Post-tag'],
+                bbox_to_anchor=(0.55, 1),
+            )
+            hist.draw()
+            fname = f"preposttag-{x_var}-{flav.name}-{working_point}WP"
+            self.save(hist, "preposttag", fname, suffix)
+        
     def make_plot(self, plot_type, kwargs):
         """Make a plot.
 
@@ -873,4 +950,5 @@ class Results:
         """
         if plot_type not in self.plot_funcs:
             raise ValueError(f"Unknown plot type {plot_type}, choose from {self.plot_funcs.keys()}")
+
         self.plot_funcs[plot_type](**kwargs)
