@@ -26,7 +26,7 @@ def calculate_vertex_mass(pt, eta, phi, vtx_idx, particle_mass=0.13957):
     Returns
     -------
     mass: np.ndarray
-        Array of shape (n_jets) containing the invariant mass of the vertex.
+        Array of shape (n_jets, n_tracks) containing the invariant vertex mass for each track.
     """
     n_jets = pt.shape[0]
     sv_masses = np.full(pt.shape, -1.0, dtype=float)

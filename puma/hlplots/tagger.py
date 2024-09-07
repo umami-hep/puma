@@ -255,8 +255,8 @@ class Tagger:
         if "track_origin" not in self.aux_labels:
             raise ValueError("Track origin labels not found.")
 
-        truth_indices = self.aux_labels["vertexing"]
-        reco_indices = self.aux_scores["vertexing"]
+        truth_indices = np.copy(self.aux_labels["vertexing"])
+        reco_indices = np.copy(self.aux_scores["vertexing"])
 
         # clean truth and reco indices for each jet
         for i in range(truth_indices.shape[0]):

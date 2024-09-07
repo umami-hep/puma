@@ -420,6 +420,7 @@ class AuxResults:
     def plot_vertex_mass(
         self,
         vtx_flavours: list[Flavour] | list[str],
+        incl_vertexing: bool = True,
         **kwargs,
     ):
         """Plot vertex mass for each tagger.
@@ -428,6 +429,8 @@ class AuxResults:
         ----------
         vtx_flavours : list[Flavour] | list[str]
             List of jet flavours to make SV mass plots for
+        incl_vertexing : bool, optional
+            Whether to use inclusive or exclusive vertexing, by default inclusive
         kwargs : dict
             Keyword arguments for `puma.Histogram` and `puma.HistogramPlot`
         """
@@ -439,6 +442,13 @@ class AuxResults:
             set(self.aux_perf_vars)
         ), "Track pt, eta or dphi not in aux_perf_vars (required to calculate vertex masses)."
 
+        if incl_vertexing:
+            vertexing_text = "Inclusive"
+            suffix = "incl"
+        else:
+            vertexing_text = "Exclusive"
+            suffix = "excl"
+
         for flavour in vtx_flavours:
             if isinstance(flavour, str):
                 flav = Flavours[flavour]
@@ -448,10 +458,20 @@ class AuxResults:
                 xlabel="$m_{SV}$ [GeV]",
                 ylabel="Normalized number of vertices",
                 atlas_first_tag=self.atlas_first_tag,
-                atlas_second_tag=self.atlas_second_tag + f"\nInclusive vertexing, {flav.label}",
+                atlas_second_tag=self.atlas_second_tag + f"\n{vertexing_text} vertexing, {flav.label}",
                 y_scale=1.4,
                 n_ratio_panels=1,
             )
+
+            if incl_vertexing:
+                mass_diff_plot = HistogramPlot(
+                    bins=np.arange(-3.25, 3.25, 0.5),
+                    xlabel="$\Delta m_{SV}$ [GeV] (reco - truth)",
+                    ylabel="Normalized number of vertices",
+                    atlas_first_tag=self.atlas_first_tag,
+                    atlas_second_tag=self.atlas_second_tag + f"\n{vertexing_text} vertexing, {flav.label}",
+                    y_scale=1.4,
+                )
 
             for i, tagger in enumerate(self.taggers.values()):
                 if "vertexing" not in tagger.aux_tasks:
@@ -459,45 +479,56 @@ class AuxResults:
                         f"{tagger.name} does not have vertexing aux task defined. Skipping."
                     )
 
-                # get cleaned vertex indices and calculate vertexing metrics - always inclusive
-                truth_indices, reco_indices = tagger.vertex_indices(incl_vertexing=True)
+                # get cleaned vertex indices and calculate vertexing metrics
+                truth_indices, reco_indices = tagger.vertex_indices(incl_vertexing=incl_vertexing)
                 is_flavour = tagger.is_flav(flav)
 
                 if i == 0:
-                    truth_masses = np.max(
-                        calculate_vertex_mass(
-                            tagger.aux_perf_vars["pt"][is_flavour],
-                            tagger.aux_perf_vars["eta"][is_flavour],
-                            tagger.aux_perf_vars["dphi"][is_flavour],
-                            truth_indices[is_flavour],
-                            particle_mass=0.13957,  # pion mass in GeV
-                        ),
-                        axis=1,
-                    )
-                    truth_masses = truth_masses[truth_masses > 0.14]  # remove single and zero track vertices
-
-                    mass_plot.add(
-                        Histogram(truth_masses, label="MC truth", colour="#000000", **kwargs), reference=True
-                    )
-
-                sv_masses = np.max(
-                    calculate_vertex_mass(
+                    masses = calculate_vertex_mass(
                         tagger.aux_perf_vars["pt"][is_flavour],
                         tagger.aux_perf_vars["eta"][is_flavour],
                         tagger.aux_perf_vars["dphi"][is_flavour],
-                        reco_indices[is_flavour],
+                        truth_indices[is_flavour],
                         particle_mass=0.13957,  # pion mass in GeV
-                    ),
-                    axis=1,
-                )
-                sv_masses = sv_masses[sv_masses > 0.14]  # remove single and zero track vertices
+                    )
 
+                    if incl_vertexing: truth_masses = np.max(masses, axis=1)
+                    else: truth_masses = np.unique(masses, axis=1).flatten()
+
+                    mass_plot.add(
+                        Histogram(truth_masses[truth_masses > 0.14], label="MC truth", colour="#000000", **kwargs), reference=True
+                    )
+
+                masses = calculate_vertex_mass(
+                    tagger.aux_perf_vars["pt"][is_flavour],
+                    tagger.aux_perf_vars["eta"][is_flavour],
+                    tagger.aux_perf_vars["dphi"][is_flavour],
+                    reco_indices[is_flavour],
+                    particle_mass=0.13957,  # pion mass in GeV
+                )
+
+                if incl_vertexing:
+                    sv_masses = np.max(masses, axis=1)
+                    mass_diffs = sv_masses - truth_masses
+                    mass_diffs = mass_diffs[np.logical_and(truth_masses > 0.14, sv_masses > 0.14)]
+                    mass_diff_plot.add(
+                        Histogram(mass_diffs, label=tagger.label, colour=tagger.colour, **kwargs)
+                    )
+                else:
+                    sv_masses = np.concatenate([np.unique(imass) for imass in masses])
+
+                sv_masses = sv_masses[sv_masses > 0.14]  # remove single and zero track vertices
                 mass_plot.add(
                     Histogram(sv_masses, label=tagger.label, colour=tagger.colour, **kwargs)
                 )
 
             mass_plot.draw()
-            mass_plot.savefig(self.get_filename(f"{flav}_sv_mass"))
+            mass_plot.savefig(self.get_filename(f"{flav}_sv_mass_{suffix}"))
+
+            if incl_vertexing:
+                mass_diff_plot.draw()
+                mass_diff_plot.savefig(self.get_filename(f"{flav}_sv_mass_diff"))
+
 
     def plot_track_origin_confmat(
         self,
