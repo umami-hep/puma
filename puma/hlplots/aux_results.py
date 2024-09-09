@@ -195,8 +195,13 @@ class AuxResults:
                     if any(x in aux_perf_var for x in ["pt"]):
                         tagger.aux_perf_vars[aux_perf_var] = sel_aux_data[aux_perf_var] * 0.001
                     elif "deta" in aux_perf_var:
-                        assert {"eta"}.issubset(set(self.perf_vars)), "Jet eta not in perf_vars (required to calculate track eta if track deta is supplied)."
-                        tagger.aux_perf_vars["eta"] = sel_aux_data["deta"] + sel_data["eta"].reshape(-1, 1)
+                        assert {"eta"}.issubset(
+                            set(self.perf_vars)
+                        ), "Jet eta not in perf_vars (required to calculate track eta \
+                            if track deta is supplied)."
+                        tagger.aux_perf_vars["eta"] = sel_aux_data["deta"] + sel_data[
+                            "eta"
+                        ].reshape(-1, 1)
                     else:
                         tagger.aux_perf_vars[aux_perf_var] = sel_aux_data[aux_perf_var]
 
@@ -446,7 +451,9 @@ class AuxResults:
             "dphi",
         }.issubset(
             set(self.aux_perf_vars)
-        ), "Track pt, eta or dphi not in aux_perf_vars (required to calculate vertex masses). If track deta and jet eta are supplied, track eta is calculated automatically."
+        ), "Track pt, eta or dphi not in aux_perf_vars (required to calculate \
+            vertex masses). If track deta and jet eta are supplied, track eta \
+            is calculated automatically."
 
         if incl_vertexing:
             vertexing_text = "Inclusive"
@@ -464,18 +471,20 @@ class AuxResults:
                 xlabel="$m_{SV}$ [GeV]",
                 ylabel="Normalized number of vertices",
                 atlas_first_tag=self.atlas_first_tag,
-                atlas_second_tag=self.atlas_second_tag + f"\n{vertexing_text} vertexing, {flav.label}",
+                atlas_second_tag=self.atlas_second_tag
+                + f"\n{vertexing_text} vertexing, {flav.label}",
                 y_scale=1.7,
                 n_ratio_panels=1,
             )
 
             if incl_vertexing:
                 mass_diff_plot = HistogramPlot(
-                    bins=np.arange(-mass_range[1]/2, mass_range[1]/2, mass_range[1]/7),
-                    xlabel="$\Delta m_{SV}$ [GeV] (reco - truth)",
+                    bins=np.arange(-mass_range[1] / 2, mass_range[1] / 2, mass_range[1] / 7),
+                    xlabel=r"$\Delta m_{SV}$ [GeV] (reco - truth)",
                     ylabel="Normalized number of vertices",
                     atlas_first_tag=self.atlas_first_tag,
-                    atlas_second_tag=self.atlas_second_tag + f"\n{vertexing_text} vertexing, {flav.label}",
+                    atlas_second_tag=self.atlas_second_tag
+                    + f"\n{vertexing_text} vertexing, {flav.label}",
                     y_scale=1.4,
                 )
 
@@ -498,11 +507,19 @@ class AuxResults:
                         particle_mass=0.13957,  # pion mass in GeV
                     )
 
-                    if incl_vertexing: truth_masses = np.max(masses, axis=1)
-                    else: truth_masses = np.unique(masses, axis=1).flatten()
+                    if incl_vertexing:
+                        truth_masses = np.max(masses, axis=1)
+                    else:
+                        truth_masses = np.unique(masses, axis=1).flatten()
 
                     mass_plot.add(
-                        Histogram(truth_masses[truth_masses > 0.14], label="MC truth", colour="#000000", **kwargs), reference=True
+                        Histogram(
+                            truth_masses[truth_masses > 0.14],
+                            label="MC truth",
+                            colour="#000000",
+                            **kwargs,
+                        ),
+                        reference=True,
                     )
 
                 masses = calculate_vertex_mass(
@@ -534,7 +551,6 @@ class AuxResults:
             if incl_vertexing:
                 mass_diff_plot.draw()
                 mass_diff_plot.savefig(self.get_filename(f"{flav}_sv_mass_diff"))
-
 
     def plot_track_origin_confmat(
         self,
