@@ -445,15 +445,11 @@ class AuxResults:
         kwargs : dict
             Keyword arguments for `puma.Histogram` and `puma.HistogramPlot`
         """
-        assert {
-            "pt",
-            "eta",
-            "dphi",
-        }.issubset(
-            set(self.aux_perf_vars)
-        ), "Track pt, eta or dphi not in aux_perf_vars (required to calculate \
-            vertex masses). If track deta and jet eta are supplied, track eta \
-            is calculated automatically."
+        assert {"pt", "deta", "dphi"}.issubset(set(self.aux_perf_vars)) or (
+            {"pt", "deta", "dphi"}.issubset(set(self.aux_perf_vars))
+            and ({"eta"}.issubset(set(self.perf_vars)))
+        ), "Track pt, eta/deta or dphi not in aux_perf_vars (required to calculate \
+            vertex masses). If track deta is supplied jet eta also needs to be available."
 
         if incl_vertexing:
             vertexing_text = "Inclusive"
