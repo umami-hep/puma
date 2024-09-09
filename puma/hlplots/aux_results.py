@@ -194,6 +194,9 @@ class AuxResults:
                 for aux_perf_var in self.aux_perf_vars:
                     if any(x in aux_perf_var for x in ["pt"]):
                         tagger.aux_perf_vars[aux_perf_var] = sel_aux_data[aux_perf_var] * 0.001
+                    elif "deta" in aux_perf_var:
+                        assert {"eta"}.issubset(set(self.perf_vars)), "Jet eta not in perf_vars (required to calculate track eta if track deta is supplied)."
+                        tagger.aux_perf_vars["eta"] = sel_aux_data["deta"] + sel_data["eta"].reshape(-1, 1)
                     else:
                         tagger.aux_perf_vars[aux_perf_var] = sel_aux_data[aux_perf_var]
 
@@ -421,6 +424,7 @@ class AuxResults:
         self,
         vtx_flavours: list[Flavour] | list[str],
         incl_vertexing: bool = True,
+        mass_range: tuple = (0, 5),
         **kwargs,
     ):
         """Plot vertex mass for each tagger.
@@ -431,6 +435,8 @@ class AuxResults:
             List of jet flavours to make SV mass plots for
         incl_vertexing : bool, optional
             Whether to use inclusive or exclusive vertexing, by default inclusive
+        mass_range: tuple, optional
+            Range of the mass histogram, by default (0, 5)
         kwargs : dict
             Keyword arguments for `puma.Histogram` and `puma.HistogramPlot`
         """
@@ -440,7 +446,7 @@ class AuxResults:
             "dphi",
         }.issubset(
             set(self.aux_perf_vars)
-        ), "Track pt, eta or dphi not in aux_perf_vars (required to calculate vertex masses)."
+        ), "Track pt, eta or dphi not in aux_perf_vars (required to calculate vertex masses). If track deta and jet eta are supplied, track eta is calculated automatically."
 
         if incl_vertexing:
             vertexing_text = "Inclusive"
@@ -454,18 +460,18 @@ class AuxResults:
                 flav = Flavours[flavour]
 
             mass_plot = HistogramPlot(
-                bins_range=(0, 5),
+                bins_range=mass_range,
                 xlabel="$m_{SV}$ [GeV]",
                 ylabel="Normalized number of vertices",
                 atlas_first_tag=self.atlas_first_tag,
                 atlas_second_tag=self.atlas_second_tag + f"\n{vertexing_text} vertexing, {flav.label}",
-                y_scale=1.4,
+                y_scale=1.7,
                 n_ratio_panels=1,
             )
 
             if incl_vertexing:
                 mass_diff_plot = HistogramPlot(
-                    bins=np.arange(-3.25, 3.25, 0.5),
+                    bins=np.arange(-mass_range[1]/2, mass_range[1]/2, mass_range[1]/7),
                     xlabel="$\Delta m_{SV}$ [GeV] (reco - truth)",
                     ylabel="Normalized number of vertices",
                     atlas_first_tag=self.atlas_first_tag,
