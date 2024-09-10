@@ -305,6 +305,7 @@ class Results:
         """
         line_styles = get_good_linestyles()
         flavours = [*self.backgrounds, self.signal]
+        flavours.remove(Flavours.taujets)
 
         # group by output probability
         for flav_prob in flavours:
