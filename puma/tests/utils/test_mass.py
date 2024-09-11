@@ -41,7 +41,7 @@ class VertexMassTestCase(unittest.TestCase):
         """Check more complicated case with two vertices."""
         track_pt = np.random.rand(1, 5) * 1000
         track_eta = np.random.rand(1, 5) * 2
-        track_phi = np.random.rand(1, 5) * np.pi
+        track_phi = np.random.rand(1, 5) * 2*np.pi - np.pi
         vtx_idx = np.array([[0, 0, 1, 1, 1]])
 
         px = track_pt * np.cos(track_phi)

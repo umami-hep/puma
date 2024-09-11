@@ -194,11 +194,7 @@ class AuxResults:
                 for aux_perf_var in self.aux_perf_vars:
                     if any(x in aux_perf_var for x in ["pt"]):
                         tagger.aux_perf_vars[aux_perf_var] = sel_aux_data[aux_perf_var] * 0.001
-                    elif "deta" in aux_perf_var:
-                        assert {"eta"}.issubset(
-                            set(self.perf_vars)
-                        ), "Jet eta not in perf_vars (required to calculate track eta \
-                            if track deta is supplied)."
+                    elif "deta" in aux_perf_var and "eta" in self.perf_vars:
                         tagger.aux_perf_vars["eta"] = sel_aux_data["deta"] + sel_data[
                             "eta"
                         ].reshape(-1, 1)
@@ -445,11 +441,6 @@ class AuxResults:
         kwargs : dict
             Keyword arguments for `puma.Histogram` and `puma.HistogramPlot`
         """
-        assert {"pt", "deta", "dphi"}.issubset(set(self.aux_perf_vars)) or (
-            {"pt", "deta", "dphi"}.issubset(set(self.aux_perf_vars))
-            and ({"eta"}.issubset(set(self.perf_vars)))
-        ), "Track pt, eta/deta or dphi not in aux_perf_vars (required to calculate \
-            vertex masses). If track deta is supplied jet eta also needs to be available."
 
         if incl_vertexing:
             vertexing_text = "Inclusive"
@@ -462,12 +453,17 @@ class AuxResults:
             if isinstance(flavour, str):
                 flav = Flavours[flavour]
 
+            if self.atlas_second_tag is None:
+                atlas_second_tag = ""
+            else:
+                atlas_second_tag = self.atlas_second_tag
+
             mass_plot = HistogramPlot(
                 bins_range=mass_range,
                 xlabel="$m_{SV}$ [GeV]",
                 ylabel="Normalized number of vertices",
                 atlas_first_tag=self.atlas_first_tag,
-                atlas_second_tag=self.atlas_second_tag
+                atlas_second_tag=atlas_second_tag
                 + f"\n{vertexing_text} vertexing, {flav.label}",
                 y_scale=1.7,
                 n_ratio_panels=1,
@@ -479,7 +475,7 @@ class AuxResults:
                     xlabel=r"$\Delta m_{SV}$ [GeV] (reco - truth)",
                     ylabel="Normalized number of vertices",
                     atlas_first_tag=self.atlas_first_tag,
-                    atlas_second_tag=self.atlas_second_tag
+                    atlas_second_tag=atlas_second_tag
                     + f"\n{vertexing_text} vertexing, {flav.label}",
                     y_scale=1.4,
                 )
@@ -489,6 +485,11 @@ class AuxResults:
                     logger.warning(
                         f"{tagger.name} does not have vertexing aux task defined. Skipping."
                     )
+
+                assert {"pt", "eta", "dphi"}.issubset(set(tagger.aux_perf_vars.keys())
+                ), "Track pt, eta or dphi not in tagger.aux_perf_vars (required to calculate \
+                    vertex masses). Track eta is automatically calculated if deta and jet eta \
+                    are supplied."
 
                 # get cleaned vertex indices and calculate vertexing metrics
                 truth_indices, reco_indices = tagger.vertex_indices(incl_vertexing=incl_vertexing)
