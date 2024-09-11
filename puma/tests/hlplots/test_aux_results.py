@@ -331,3 +331,16 @@ class AuxResultsPlotsTestCase(unittest.TestCase):
             auxresults.plot_vertex_mass(vtx_flavours=["bjets"], incl_vertexing=True)
             self.assertIsFile(auxresults.get_filename("bjets_sv_mass", suffix="incl"))
             self.assertIsFile(auxresults.get_filename("bjets_sv_mass_diff"))
+
+    def test_plot_var_mass_exclusive_vertexing(self):
+        """Test that png files are being created for mass reconstruction."""
+        self.dummy_tagger.reference = True
+        with tempfile.TemporaryDirectory() as tmp_file:
+            auxresults = AuxResults(
+                sample="test",
+                aux_perf_vars=["pt", "eta", "dphi"],
+                output_dir=tmp_file,
+            )
+            auxresults.add(self.dummy_tagger)
+            auxresults.plot_vertex_mass(vtx_flavours=["bjets"], incl_vertexing=False)
+            self.assertIsFile(auxresults.get_filename("bjets_sv_mass", suffix="excl"))
