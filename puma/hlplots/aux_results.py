@@ -441,7 +441,6 @@ class AuxResults:
         kwargs : dict
             Keyword arguments for `puma.Histogram` and `puma.HistogramPlot`
         """
-
         if incl_vertexing:
             vertexing_text = "Inclusive"
             suffix = "incl"
@@ -449,22 +448,18 @@ class AuxResults:
             vertexing_text = "Exclusive"
             suffix = "excl"
 
+        atlas_second_tag = "" if self.atlas_second_tag is None else self.atlas_second_tag
+
         for flavour in vtx_flavours:
             if isinstance(flavour, str):
                 flav = Flavours[flavour]
-
-            if self.atlas_second_tag is None:
-                atlas_second_tag = ""
-            else:
-                atlas_second_tag = self.atlas_second_tag
 
             mass_plot = HistogramPlot(
                 bins_range=mass_range,
                 xlabel="$m_{SV}$ [GeV]",
                 ylabel="Normalized number of vertices",
                 atlas_first_tag=self.atlas_first_tag,
-                atlas_second_tag=atlas_second_tag
-                + f"\n{vertexing_text} vertexing, {flav.label}",
+                atlas_second_tag=atlas_second_tag + f"\n{vertexing_text} vertexing, {flav.label}",
                 y_scale=1.7,
                 n_ratio_panels=1,
             )
@@ -486,7 +481,8 @@ class AuxResults:
                         f"{tagger.name} does not have vertexing aux task defined. Skipping."
                     )
 
-                assert {"pt", "eta", "dphi"}.issubset(set(tagger.aux_perf_vars.keys())
+                assert {"pt", "eta", "dphi"}.issubset(
+                    set(tagger.aux_perf_vars.keys())
                 ), "Track pt, eta or dphi not in tagger.aux_perf_vars (required to calculate \
                     vertex masses). Track eta is automatically calculated if deta and jet eta \
                     are supplied."

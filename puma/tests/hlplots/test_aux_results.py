@@ -105,7 +105,9 @@ class AuxResultsTestCase(unittest.TestCase):
         taggers = [Tagger("GN2")]
         results.load_taggers_from_file(taggers, fname)
         tagger_key = list(results.taggers.keys())[0]
-        self.assertEqual(set(results.taggers[tagger_key].aux_perf_vars.keys()), set(["pt", "eta", "dphi"]))
+        self.assertEqual(
+            set(results.taggers[tagger_key].aux_perf_vars.keys()), {"pt", "eta", "dphi"}
+        )
 
     def test_load_taggers_with_aux_perf_vars_deta(self):
         np.random.default_rng(seed=16)
@@ -118,7 +120,9 @@ class AuxResultsTestCase(unittest.TestCase):
         taggers = [Tagger("GN2")]
         results.load_taggers_from_file(taggers, fname)
         tagger_key = list(results.taggers.keys())[0]
-        self.assertEqual(set(results.taggers[tagger_key].aux_perf_vars.keys()), set(["pt", "eta", "dphi"]))
+        self.assertEqual(
+            set(results.taggers[tagger_key].aux_perf_vars.keys()), {"pt", "eta", "dphi"}
+        )
 
     def test_add_taggers_keep_nan(self):
         # get mock file and add nans

@@ -186,7 +186,17 @@ def get_dummy_tagger_aux(
         ("GN2_aux_TrackOrigin", "i4"),
     ])
     aux_info = np.rec.fromarrays(
-        [track_pt, track_eta, track_deta, track_dphi, vtx_labels, vtx_reco, trk_or_labels, trk_or_reco], dtype=aux_dtype
+        [
+            track_pt,
+            track_eta,
+            track_deta,
+            track_dphi,
+            vtx_labels,
+            vtx_reco,
+            trk_or_labels,
+            trk_or_reco,
+        ],
+        dtype=aux_dtype,
     )
 
     fname = NamedTemporaryFile(  # pylint: disable=R1732
