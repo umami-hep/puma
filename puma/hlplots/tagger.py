@@ -36,6 +36,7 @@ class Tagger:
     aux_scores: dict = None
     aux_labels: dict = None
     perf_vars: dict = None
+    aux_perf_vars: dict = None
     output_flavours: list = field(
         default_factory=lambda: [Flavours.ujets, Flavours.cjets, Flavours.bjets]
     )
@@ -254,8 +255,8 @@ class Tagger:
         if "track_origin" not in self.aux_labels:
             raise ValueError("Track origin labels not found.")
 
-        truth_indices = self.aux_labels["vertexing"]
-        reco_indices = self.aux_scores["vertexing"]
+        truth_indices = np.copy(self.aux_labels["vertexing"])
+        reco_indices = np.copy(self.aux_scores["vertexing"])
 
         # clean truth and reco indices for each jet
         for i in range(truth_indices.shape[0]):

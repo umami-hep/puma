@@ -17,7 +17,10 @@ this is passed to the plotting functions directly). Otherwise initialization pro
 can be added to these objects in an analogous way to `Results`, except that each tagger should be initialized with
 a list of available aux tasks (by default "vertexing" and "track_origin"). Relevant information for these aux tasks
 will then be read in from the provided file, assuming the information is available and the specific aux task is
-properly supported within puma.
+properly supported within puma. The `AuxResults` object also allows for track variables (such as pT, eta, etc.) to
+be loaded in for each tagger. These are listed out via the `aux_perf_vars` attribute and allow for calculation of
+vertex masses. If (track) `deta` is specified in `aux_perf_vars` and (jet) `eta` in `perf_vars`, (track) `eta` is
+automatically calculated and added to `aux_perf_vars`.
 
 ```py
 --8<-- "examples/high_level_aux_plots.py:1:35"
@@ -28,7 +31,7 @@ properly supported within puma.
 
 Vertexing performance plots can be produced for a specified jet flavour as shown in
 ```py
---8<-- "examples/high_level_aux_plots.py:39:42"
+--8<-- "examples/high_level_aux_plots.py:41:43"
 ```
 Here ```vtx_flavours``` defines a list of flavours for which secondary vertices are expected (e.g. b-jets)
 and ```no_vertex_flavours``` defines a list where secondary vertices are not expected (e.g. l-jets). Different
@@ -55,6 +58,19 @@ vertices divided by number of tracks in reco vertex (expected SVs)
 
 Note that by default the vertex matching algorithm enforces purity criteria requiring track association
 efficiency > 0.65 and purity > 0.5
+
+
+## Vertex mass reconstruction
+
+Secondary vertex mass histograms can be produced for a specified jet flavour as shown in
+```py
+--8<-- "examples/high_level_aux_plots.py:45:47"
+```
+Vertex masses are calculated using a pion hypothesis for all tracks, both for truth and reconstructed vertices with
+the given values for pT, eta and phi. These plots can be produced for inclusive or exclusive vertexing as defined in the
+vertexing section. For inclusive vertexing, difference plots are also produced, which show differences in the reco vs.
+truth mass estimates on a vertex by vertex basis.
+
 
 ## Track Origin Performances
 

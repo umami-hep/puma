@@ -20,7 +20,10 @@ GN2 = Tagger(
 )
 
 # create the AuxResults object
-aux_results = AuxResults(sample="dummy")
+aux_results = AuxResults(
+    sample="dummy",
+    aux_perf_vars=["pt", "eta", "dphi"],
+)
 
 # load tagger from the file object
 logger.info("Loading taggers.")
@@ -38,6 +41,10 @@ aux_results.atlas_second_tag = (
 # vertexing performance for b-jets
 logger.info("Plotting vertexing performance.")
 aux_results.plot_var_vtx_perf(vtx_flavours=["bjets"], no_vtx_flavours=["ujets"])
+
+# vertex mass reconstruction performance for b-jets
+logger.info("Plotting secondary vertex masses.")
+aux_results.plot_vertex_mass(vtx_flavours=["bjets"])
 
 # Track origin confusion matrix
 logger.info("Plotting confusion matrix.")

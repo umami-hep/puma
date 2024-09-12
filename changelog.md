@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+- Added functionality to plot secondary vertex mass histograms using a pion mass hypothesis [!265](https://github.com/umami-hep/puma/pull/265)
+
 ### [v0.3.6] (2024/08/27)
 
 - Updated variable names for aux task outputs to be consistent with Salt [!270](https://github.com/umami-hep/puma/pull/270)
