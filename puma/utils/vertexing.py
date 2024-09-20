@@ -130,8 +130,8 @@ def associate_vertices(test_vertices, ref_vertices, eff_req, purity_req):
     associations[common_tracks == 0] = False  # remove leftover pairs with zero matches
 
     # enforce purity and efficiency requirements
-    eff_cut = common_tracks * inv_ref_size > eff_req
-    purity_cut = common_tracks * inv_test_size > purity_req
+    eff_cut = common_tracks * inv_ref_size >= eff_req
+    purity_cut = common_tracks * inv_test_size >= purity_req
     associations = np.logical_and.reduce((associations, eff_cut, purity_cut))
 
     return associations, common_tracks
@@ -223,14 +223,17 @@ def calculate_vertex_metrics(
         metrics["n_ref"][i] = ref_vertices.shape[0]
         metrics["n_test"][i] = test_vertices.shape[0]
 
+        # only save purity metrics for requested number of vertices
+        max_index = min(metrics["n_match"][i], max_vertices)
+
         # write out vertexing purity metrics
-        metrics["track_overlap"][i, : metrics["n_match"][i]] = common_tracks[associations]
-        metrics["test_vertex_size"][i, : metrics["n_match"][i]] = test_vertices[
+        metrics["track_overlap"][i, :max_index] = common_tracks[associations][:max_index]
+        metrics["test_vertex_size"][i, :max_index] = test_vertices[
             associations.sum(axis=1).astype(bool)
-        ].sum(axis=1)
-        metrics["ref_vertex_size"][i, : metrics["n_match"][i]] = ref_vertices[
+        ].sum(axis=1)[:max_index]
+        metrics["ref_vertex_size"][i, :max_index] = ref_vertices[
             associations.sum(axis=0).astype(bool)
-        ].sum(axis=1)
+        ].sum(axis=1)[:max_index]
 
     return metrics
 

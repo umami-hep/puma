@@ -95,6 +95,35 @@ class AuxResultsTestCase(unittest.TestCase):
         )
         self.assertEqual(list(results.taggers.values()), taggers)
 
+    def test_load_taggers_with_aux_perf_vars_eta(self):
+        np.random.default_rng(seed=16)
+        fname = get_dummy_tagger_aux()[0]
+        results = AuxResults(
+            sample="test",
+            aux_perf_vars=["pt", "eta", "dphi"],
+        )
+        taggers = [Tagger("GN2")]
+        results.load_taggers_from_file(taggers, fname)
+        tagger_key = list(results.taggers.keys())[0]
+        self.assertEqual(
+            set(results.taggers[tagger_key].aux_perf_vars.keys()), {"pt", "eta", "dphi"}
+        )
+
+    def test_load_taggers_with_aux_perf_vars_deta(self):
+        np.random.default_rng(seed=16)
+        fname = get_dummy_tagger_aux()[0]
+        results = AuxResults(
+            sample="test",
+            perf_vars=["eta"],
+            aux_perf_vars=["pt", "deta", "dphi"],
+        )
+        taggers = [Tagger("GN2")]
+        results.load_taggers_from_file(taggers, fname)
+        tagger_key = list(results.taggers.keys())[0]
+        self.assertEqual(
+            set(results.taggers[tagger_key].aux_perf_vars.keys()), {"pt", "eta", "dphi"}
+        )
+
     def test_add_taggers_keep_nan(self):
         # get mock file and add nans
         f = get_dummy_tagger_aux(size=500)[1]
@@ -150,14 +179,19 @@ class AuxResultsPlotsTestCase(unittest.TestCase):
             dtype=[("HadronConeExclTruthLabelID", "i4")],
         )
         dummy_tagger.aux_scores = {
-            "vertexing": f["tracks"]["GN2_VertexIndex"],
-            "track_origin": f["tracks"]["GN2_TrackOrigin"],
+            "vertexing": f["tracks"]["GN2_aux_VertexIndex"],
+            "track_origin": f["tracks"]["GN2_aux_TrackOrigin"],
         }
         dummy_tagger.aux_labels = {
             "vertexing": f["tracks"]["ftagTruthVertexIndex"],
             "track_origin": f["tracks"]["ftagTruthOriginLabel"],
         }
         dummy_tagger.perf_vars = {"pt": f["jets"]["pt"]}
+        dummy_tagger.aux_perf_vars = {
+            "pt": f["tracks"]["pt"],
+            "eta": f["tracks"]["eta"],
+            "dphi": f["tracks"]["dphi"],
+        }
         dummy_tagger.label = "dummy tagger"
         dummy_tagger_no_aux = Tagger("GN2_NoAux", aux_tasks=[])
         dummy_tagger_no_aux.perf_vars = {"pt": f["jets"]["pt"]}
@@ -182,18 +216,6 @@ class AuxResultsPlotsTestCase(unittest.TestCase):
         if not Path(path).resolve().is_file():
             raise AssertionError(f"File does not exist: {path}")
 
-    def test_plot_var_vtx_perf_bjets(self):
-        """Test that png files are being created for tagger with aux tasks."""
-        self.dummy_tagger.reference = True
-        with tempfile.TemporaryDirectory() as tmp_file:
-            auxresults = AuxResults(sample="test", output_dir=tmp_file)
-            auxresults.add(self.dummy_tagger)
-            auxresults.plot_var_vtx_perf(vtx_flavours=["bjets"])
-            self.assertIsFile(auxresults.get_filename("bjets_vtx_eff_vs_pt"))
-            self.assertIsFile(auxresults.get_filename("bjets_vtx_purity_vs_pt"))
-            self.assertIsFile(auxresults.get_filename("bjets_vtx_trk_eff_vs_pt"))
-            self.assertIsFile(auxresults.get_filename("bjets_vtx_trk_purity_vs_pt"))
-
     def test_plot_trackorigin_cm_minmal(self):
         self.dummy_tagger.reference = True
         with tempfile.TemporaryDirectory() as tmp_file:
@@ -209,6 +231,18 @@ class AuxResultsPlotsTestCase(unittest.TestCase):
             auxresults.add(self.dummy_tagger)
             auxresults.plot_track_origin_confmat(minimal_plot=False)
             self.assertIsFile(auxresults.get_filename(self.dummy_tagger.name + "_trackOrigin_cm"))
+
+    def test_plot_var_vtx_perf_bjets(self):
+        """Test that png files are being created for tagger with aux tasks."""
+        self.dummy_tagger.reference = True
+        with tempfile.TemporaryDirectory() as tmp_file:
+            auxresults = AuxResults(sample="test", output_dir=tmp_file)
+            auxresults.add(self.dummy_tagger)
+            auxresults.plot_var_vtx_perf(vtx_flavours=["bjets"])
+            self.assertIsFile(auxresults.get_filename("bjets_vtx_eff_vs_pt"))
+            self.assertIsFile(auxresults.get_filename("bjets_vtx_purity_vs_pt"))
+            self.assertIsFile(auxresults.get_filename("bjets_vtx_trk_eff_vs_pt"))
+            self.assertIsFile(auxresults.get_filename("bjets_vtx_trk_purity_vs_pt"))
 
     def test_plot_var_vtx_perf_ujets(self):
         """Test that png files are being created for tagger with aux tasks."""
@@ -283,3 +317,30 @@ class AuxResultsPlotsTestCase(unittest.TestCase):
             auxresults.add(self.dummy_tagger)
             auxresults.plot_var_vtx_perf(no_vtx_flavours=["ujets"], incl_vertexing=True)
             self.assertIsFile(auxresults.get_filename("ujets_vtx_fakes_vs_pt", suffix="incl"))
+
+    def test_plot_var_mass_inclusive_vertexing(self):
+        """Test that png files are being created for mass reconstruction."""
+        self.dummy_tagger.reference = True
+        with tempfile.TemporaryDirectory() as tmp_file:
+            auxresults = AuxResults(
+                sample="test",
+                aux_perf_vars=["pt", "eta", "dphi"],
+                output_dir=tmp_file,
+            )
+            auxresults.add(self.dummy_tagger)
+            auxresults.plot_vertex_mass(vtx_flavours=["bjets"], incl_vertexing=True)
+            self.assertIsFile(auxresults.get_filename("bjets_sv_mass", suffix="incl"))
+            self.assertIsFile(auxresults.get_filename("bjets_sv_mass_diff"))
+
+    def test_plot_var_mass_exclusive_vertexing(self):
+        """Test that png files are being created for mass reconstruction."""
+        self.dummy_tagger.reference = True
+        with tempfile.TemporaryDirectory() as tmp_file:
+            auxresults = AuxResults(
+                sample="test",
+                aux_perf_vars=["pt", "eta", "dphi"],
+                output_dir=tmp_file,
+            )
+            auxresults.add(self.dummy_tagger)
+            auxresults.plot_vertex_mass(vtx_flavours=["bjets"], incl_vertexing=False)
+            self.assertIsFile(auxresults.get_filename("bjets_sv_mass", suffix="excl"))

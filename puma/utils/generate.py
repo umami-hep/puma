@@ -163,22 +163,40 @@ def get_dummy_tagger_aux(
 
     df_gen["n_truth_promptLepton"] = 0
 
+    track_pt = rng.exponential(1000, size=(len(df_gen), n_tracks))
+    track_eta = rng.normal(0, 2, size=(len(df_gen), n_tracks))
+    track_deta = rng.normal(0, 0.5, size=(len(df_gen), n_tracks))
+    track_dphi = rng.uniform(-np.pi, np.pi, size=(len(df_gen), n_tracks))
     vtx_labels = np.fabs(
         np.rint(rng.normal(loc=0, scale=10, size=(len(df_gen), n_tracks))).astype(int)
     )
     vtx_reco = np.fabs(
         np.rint(rng.normal(loc=0, scale=10, size=(len(df_gen), n_tracks))).astype(int)
     )
-    trk_or_labels = np.random.choice(8, size=(len(df_gen), n_tracks)).astype(int)
-    trk_or_reco = np.random.choice(8, size=(len(df_gen), n_tracks)).astype(int)
+    trk_or_labels = rng.choice(8, size=(len(df_gen), n_tracks)).astype(int)
+    trk_or_reco = rng.choice(8, size=(len(df_gen), n_tracks)).astype(int)
     aux_dtype = np.dtype([
+        ("pt", "f4"),
+        ("eta", "f4"),
+        ("deta", "f4"),
+        ("dphi", "f4"),
         ("ftagTruthVertexIndex", "i4"),
-        ("GN2_VertexIndex", "i4"),
+        ("GN2_aux_VertexIndex", "i4"),
         ("ftagTruthOriginLabel", "i4"),
-        ("GN2_TrackOrigin", "i4"),
+        ("GN2_aux_TrackOrigin", "i4"),
     ])
     aux_info = np.rec.fromarrays(
-        [vtx_labels, vtx_reco, trk_or_labels, trk_or_reco], dtype=aux_dtype
+        [
+            track_pt,
+            track_eta,
+            track_deta,
+            track_dphi,
+            vtx_labels,
+            vtx_reco,
+            trk_or_labels,
+            trk_or_reco,
+        ],
+        dtype=aux_dtype,
     )
 
     fname = NamedTemporaryFile(  # pylint: disable=R1732

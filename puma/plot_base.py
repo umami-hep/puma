@@ -216,7 +216,14 @@ class PlotObject:
             [None] * self.n_ratio_panels if self.ymax_ratio is None else self.ymax_ratio
         )
 
-        self.ylabel_ratio = ["Ratio"] * self.n_ratio_panels
+        if self.ylabel_ratio is None:
+            self.ylabel_ratio = ["Ratio"] * self.n_ratio_panels
+        if len(self.ylabel_ratio) != self.n_ratio_panels:
+            raise ValueError(
+                f"You passed `ylabel_ratio` of length {len(self.ylabel_ratio)}, "
+                f"but `n_ratio_panels` of {self.n_ratio_panels}. "
+                f"These should be equal."
+            )
         if self.leg_fontsize is None:
             self.leg_fontsize = self.fontsize
         if self.atlas_fontsize is None:
@@ -258,7 +265,7 @@ class PlotObject:
         Raises
         ------
         ValueError
-            If `yratio` is not a list and it's lenght
+            If `yratio` is not a list and it's length
             is not equal to number of ratio panels
         """
         if yratio is None:
