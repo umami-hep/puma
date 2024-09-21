@@ -9,11 +9,13 @@ import numpy as np
 from ftag import Cuts, Flavour, Flavours
 from ftag.hdf5 import H5Reader
 
+from puma import Histogram, HistogramPlot
 from puma.hlplots.tagger import Tagger
 from puma.matshow import MatshowPlot
 from puma.utils import logger
 from puma.utils.aux import get_aux_labels, get_trackOrigin_classNames
 from puma.utils.confusion_matrix import confusion_matrix
+from puma.utils.mass import calculate_vertex_mass
 from puma.utils.precision_recall_scores import precision_recall_scores_per_class
 from puma.utils.vertexing import calculate_vertex_metrics
 from puma.var_vs_vtx import VarVsVtx, VarVsVtxPlot
@@ -29,6 +31,7 @@ class AuxResults:
     atlas_third_tag: str = None
     taggers: dict = field(default_factory=dict)
     perf_vars: str | tuple | list = "pt"
+    aux_perf_vars: str | tuple | list = None
     output_dir: str | Path = "."
     extension: str = "png"
     global_cuts: Cuts | list | None = None
@@ -137,6 +140,8 @@ class AuxResults:
 
         aux_var_list = sum([list(t.aux_variables.values()) for t in taggers], [])
         aux_var_list += sum([list(aux_labels.values()) for t in taggers], [])
+        if self.aux_perf_vars is not None:
+            aux_var_list += self.aux_perf_vars
         aux_var_list = list(set(aux_var_list))
 
         # load data
@@ -184,6 +189,17 @@ class AuxResults:
                         tagger.perf_vars[perf_var] = sel_data[perf_var]
             else:
                 tagger.perf_vars = sel_perf_vars
+            tagger.aux_perf_vars = {}
+            if self.aux_perf_vars is not None:
+                for aux_perf_var in self.aux_perf_vars:
+                    if any(x in aux_perf_var for x in ["pt"]):
+                        tagger.aux_perf_vars[aux_perf_var] = sel_aux_data[aux_perf_var] * 0.001
+                    elif "deta" in aux_perf_var and "eta" in self.perf_vars:
+                        tagger.aux_perf_vars["eta"] = sel_aux_data["deta"] + sel_data[
+                            "eta"
+                        ].reshape(-1, 1)
+                    else:
+                        tagger.aux_perf_vars[aux_perf_var] = sel_aux_data[aux_perf_var]
 
     def __getitem__(self, tagger_name: str):
         """Retrieve Tagger object.
@@ -404,6 +420,130 @@ class AuxResults:
 
             plot_vtx_fakes.draw()
             plot_vtx_fakes.savefig(self.get_filename(f"{flav}_vtx_fakes_vs_{perf_var}", suffix))
+
+    def plot_vertex_mass(
+        self,
+        vtx_flavours: list[Flavour] | list[str],
+        incl_vertexing: bool = True,
+        mass_range: tuple = (0, 5),
+        **kwargs,
+    ):
+        """Plot vertex mass for each tagger.
+
+        Parameters
+        ----------
+        vtx_flavours : list[Flavour] | list[str]
+            List of jet flavours to make SV mass plots for
+        incl_vertexing : bool, optional
+            Whether to use inclusive or exclusive vertexing, by default inclusive
+        mass_range: tuple, optional
+            Range of the mass histogram, by default (0, 5)
+        kwargs : dict
+            Keyword arguments for `puma.Histogram` and `puma.HistogramPlot`
+        """
+        if incl_vertexing:
+            vertexing_text = "Inclusive"
+            suffix = "incl"
+        else:
+            vertexing_text = "Exclusive"
+            suffix = "excl"
+
+        atlas_second_tag = "" if self.atlas_second_tag is None else self.atlas_second_tag
+
+        for flavour in vtx_flavours:
+            if isinstance(flavour, str):
+                flav = Flavours[flavour]
+
+            mass_plot = HistogramPlot(
+                bins_range=mass_range,
+                xlabel="$m_{SV}$ [GeV]",
+                ylabel="Normalized number of vertices",
+                atlas_first_tag=self.atlas_first_tag,
+                atlas_second_tag=atlas_second_tag + f"\n{vertexing_text} vertexing, {flav.label}",
+                y_scale=1.7,
+                n_ratio_panels=1,
+            )
+
+            if incl_vertexing:
+                mass_diff_plot = HistogramPlot(
+                    bins=np.arange(-mass_range[1] / 2, mass_range[1] / 2, mass_range[1] / 7),
+                    xlabel=r"$\Delta m_{SV}$ [GeV] (reco - truth)",
+                    ylabel="Normalized number of vertices",
+                    atlas_first_tag=self.atlas_first_tag,
+                    atlas_second_tag=atlas_second_tag
+                    + f"\n{vertexing_text} vertexing, {flav.label}",
+                    y_scale=1.4,
+                )
+
+            for i, tagger in enumerate(self.taggers.values()):
+                if "vertexing" not in tagger.aux_tasks:
+                    logger.warning(
+                        f"{tagger.name} does not have vertexing aux task defined. Skipping."
+                    )
+
+                assert {"pt", "eta", "dphi"}.issubset(
+                    set(tagger.aux_perf_vars.keys())
+                ), "Track pt, eta or dphi not in tagger.aux_perf_vars (required to calculate \
+                    vertex masses). Track eta is automatically calculated if deta and jet eta \
+                    are supplied."
+
+                # get cleaned vertex indices and calculate vertexing metrics
+                truth_indices, reco_indices = tagger.vertex_indices(incl_vertexing=incl_vertexing)
+                is_flavour = tagger.is_flav(flav)
+
+                if i == 0:
+                    masses = calculate_vertex_mass(
+                        tagger.aux_perf_vars["pt"][is_flavour],
+                        tagger.aux_perf_vars["eta"][is_flavour],
+                        tagger.aux_perf_vars["dphi"][is_flavour],
+                        truth_indices[is_flavour],
+                        particle_mass=0.13957,  # pion mass in GeV
+                    )
+
+                    if incl_vertexing:
+                        truth_masses = np.max(masses, axis=1)
+                    else:
+                        truth_masses = np.unique(masses, axis=1).flatten()
+
+                    mass_plot.add(
+                        Histogram(
+                            truth_masses[truth_masses > 0.14],
+                            label="MC truth",
+                            colour="#000000",
+                            **kwargs,
+                        ),
+                        reference=True,
+                    )
+
+                masses = calculate_vertex_mass(
+                    tagger.aux_perf_vars["pt"][is_flavour],
+                    tagger.aux_perf_vars["eta"][is_flavour],
+                    tagger.aux_perf_vars["dphi"][is_flavour],
+                    reco_indices[is_flavour],
+                    particle_mass=0.13957,  # pion mass in GeV
+                )
+
+                if incl_vertexing:
+                    sv_masses = np.max(masses, axis=1)
+                    mass_diffs = sv_masses - truth_masses
+                    mass_diffs = mass_diffs[np.logical_and(truth_masses > 0.14, sv_masses > 0.14)]
+                    mass_diff_plot.add(
+                        Histogram(mass_diffs, label=tagger.label, colour=tagger.colour, **kwargs)
+                    )
+                else:
+                    sv_masses = np.concatenate([np.unique(imass) for imass in masses])
+
+                sv_masses = sv_masses[sv_masses > 0.14]  # remove single and zero track vertices
+                mass_plot.add(
+                    Histogram(sv_masses, label=tagger.label, colour=tagger.colour, **kwargs)
+                )
+
+            mass_plot.draw()
+            mass_plot.savefig(self.get_filename(f"{flav}_sv_mass_{suffix}"))
+
+            if incl_vertexing:
+                mass_diff_plot.draw()
+                mass_diff_plot.savefig(self.get_filename(f"{flav}_sv_mass_diff"))
 
     def plot_track_origin_confmat(
         self,

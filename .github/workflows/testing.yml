@@ -13,7 +13,7 @@ jobs:
   unit_tests:
     name: Unit tests
     runs-on: ubuntu-latest
-    container: python:3.8.15-slim
+    container: python:3.8.20
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -27,7 +27,10 @@ jobs:
       - name: Install git
         run: apt update && apt install -y git
       - name: Report coverage with Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
+        with:
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
   example_tests:
     name: Example tests
     runs-on: ubuntu-latest
