@@ -894,11 +894,13 @@ class Results:
         }
         if kwargs is not None:
             hist_defaults.update(kwargs)
-        for flav in self.flavours:
+        for flav in self.flavours + ['inclusive']:
             this_hist = hist_defaults.copy()
-            
-            this_hist['atlas_second_tag'] += f"\n{flav.label} Pre/Post-Tag at {working_point}% WP"
+            flav_label = flav.label if flav != 'inclusive' else 'Inclusive'
+            flav_name = flav.name if flav != 'inclusive' else 'inclusive'
+            this_hist['atlas_second_tag'] += f"\n{flav_label} Pre/Post-Tag at {working_point}% WP"
             hist = HistogramPlot(**this_hist)
+
             for i, tagger in enumerate(self.taggers.values()):
                 if exclude_tagger is not None and tagger.name in exclude_tagger:
                     continue
@@ -906,9 +908,10 @@ class Results:
                 disc_cut = np.percentile(discs[tagger.is_flav(self.signal)], 100 - working_point)
                 
                 tagger_var = tagger.perf_vars[x_var]
-                sel_flav = tagger.is_flav(flav)
-                discs = discs[sel_flav]
-                tagger_var = tagger_var[sel_flav]
+                if flav != 'inclusive':
+                    sel_flav = tagger.is_flav(flav)
+                    discs = discs[sel_flav]
+                    tagger_var = tagger_var[sel_flav]
                 hist.add(
                     Histogram(
                         tagger_var,
@@ -935,7 +938,7 @@ class Results:
                 bbox_to_anchor=(0.55, 1),
             )
             hist.draw()
-            fname = f"preposttag-{x_var}-{flav.name}-{working_point}WP"
+            fname = f"preposttag-{x_var}-{flav_name}-{working_point}WP"
             self.save(hist, "preposttag", fname, suffix)
         
     def make_plot(self, plot_type, kwargs):
