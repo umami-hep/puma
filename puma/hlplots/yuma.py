@@ -138,8 +138,12 @@ class YumaConfig:
     @property
     def peff_vars(self):
         """Iterates plots and returns a list of all performance variables."""
-        peff_vars = list({p["plot_kwargs"].get("perf_var", "pt") for p in self.plots.get("peff", [])})
-        prepost_vars = list({p["plot_kwargs"].get("x_var", "pt") for p in self.plots.get("preposttag", [])})
+        peff_vars = list({
+            p["plot_kwargs"].get("perf_var", "pt") for p in self.plots.get("peff", [])
+        })
+        prepost_vars = list({
+            p["plot_kwargs"].get("x_var", "pt") for p in self.plots.get("preposttag", [])
+        })
         return list(set(peff_vars + prepost_vars))
 
     def make_plots(self, plot_types):

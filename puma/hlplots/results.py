@@ -64,7 +64,7 @@ class Results:
             "roc": self.plot_rocs,
             "peff": self.plot_var_perf,
             "scan": self.plot_fraction_scans,
-            'preposttag' : self.plot_preposttag
+            "preposttag": self.plot_preposttag,
         }
         self.saved_plots = []
 
@@ -864,23 +864,37 @@ class Results:
 
     def plot_preposttag(
         self,
+        working_point: float,
         suffix: str | None = None,
         x_var: str = "pt",
         xlabel: str = r"$p_{T}$ [GeV]",
-        working_point: float | None = None,
         exclude_tagger=None,
         **kwargs,
     ):
-        '''
-        Plot the distribution of a variable before and after the tagger cut
+        """
+        Plot the distribution of a variable before and after the tagger cut.
+
         Parameters
+        ----------
+        working_point: float, optional
+            The working point to use for the plot, by default None
+        suffix : str, optional
+            suffix to add to output file name, by default None
+        x_var : str, optional
+            The x axis variable, default is 'pt'
+        xlabel : str, optional
+            x-axis label, by default "$p_{T}$ [GeV]". If using a different x variable, you
+            should probably change the label!
+        exclude_tagger : list, optional
+            List of taggers to be excluded from this plot, by default None
+        **kwargs : kwargs
+            key word arguments for `puma.HistogramPlot`
 
-        '''
-
-        if x_var != 'pt' and xlabel == r"$p_{T}$ [GeV]":
+        """
+        if x_var != "pt" and xlabel == r"$p_{T}$ [GeV]":
             logger.warning(
-                "If using a different x variable, you should probably"
-                " change the label!")
+                "If using a different x variable, you should probably" " change the label!"
+            )
 
         line_styles = get_good_linestyles()
         hist_defaults = {
@@ -890,25 +904,25 @@ class Results:
             "figsize": (7.0, 4.5),
             "atlas_first_tag": self.atlas_first_tag,
             "atlas_second_tag": self.atlas_second_tag,
-            "y_scale" : 1.5
+            "y_scale": 1.5,
         }
         if kwargs is not None:
             hist_defaults.update(kwargs)
-        for flav in self.flavours + ['inclusive']:
+        for flav in [*self.flavours, "inclusive"]:
             this_hist = hist_defaults.copy()
-            flav_label = flav.label if flav != 'inclusive' else 'Inclusive'
-            flav_name = flav.name if flav != 'inclusive' else 'inclusive'
-            this_hist['atlas_second_tag'] += f"\n{flav_label} Pre/Post-Tag at {working_point}% WP"
+            flav_label = flav.label if flav != "inclusive" else "Inclusive"
+            flav_name = flav.name if flav != "inclusive" else "inclusive"
+            this_hist["atlas_second_tag"] += f"\n{flav_label} Pre/Post-Tag at {working_point}% WP"
             hist = HistogramPlot(**this_hist)
 
-            for i, tagger in enumerate(self.taggers.values()):
+            for tagger in self.taggers.values():
                 if exclude_tagger is not None and tagger.name in exclude_tagger:
                     continue
                 discs = tagger.discriminant(self.signal)
                 disc_cut = np.percentile(discs[tagger.is_flav(self.signal)], 100 - working_point)
-                
+
                 tagger_var = tagger.perf_vars[x_var]
-                if flav != 'inclusive':
+                if flav != "inclusive":
                     sel_flav = tagger.is_flav(flav)
                     discs = discs[sel_flav]
                     tagger_var = tagger_var[sel_flav]
@@ -934,13 +948,13 @@ class Results:
                 )
             hist.make_linestyle_legend(
                 linestyles=line_styles[:2],
-                labels=['Pre-tag', 'Post-tag'],
+                labels=["Pre-tag", "Post-tag"],
                 bbox_to_anchor=(0.55, 1),
             )
             hist.draw()
             fname = f"preposttag-{x_var}-{flav_name}-{working_point}WP"
             self.save(hist, "preposttag", fname, suffix)
-        
+
     def make_plot(self, plot_type, kwargs):
         """Make a plot.
 
