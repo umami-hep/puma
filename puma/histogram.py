@@ -578,6 +578,7 @@ class HistogramPlot(PlotBase):
                 **kwargs,
             )
 
+
         # Check if errors should be drawn
         # If stacked is true, plot the combined uncertainty
         if self.draw_errors and self.stacked:
@@ -589,11 +590,23 @@ class HistogramPlot(PlotBase):
                 x=elem.bin_edges,
                 y1=bottom_error,
                 y2=top_error,
-                color=elem.colour,
-                alpha=0.3,
+                alpha=0.5,
                 zorder=1,
                 step="pre",
-                edgecolor="none",
+                facecolor='white', 
+                edgecolor='black', 
+                linewidth=0,
+                hatch='/////',
+            )
+            plt_handles.append(
+                mpl.patches.Patch(
+                    facecolor='white',
+                    edgecolor='black',
+                    label='Stat. unc.',
+                    linewidth=0,
+                    alpha=0.5,
+                    hatch='/////',
+                )
             )
 
         if self.discrete_vals is not None:
