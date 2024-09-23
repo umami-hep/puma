@@ -9,6 +9,7 @@ Results in singular exported function: billoir_vertex_fit.
 code follows: https://www.sciencedirect.com/science/article/pii/0168900292908593
 This is a modified version where the backward propagation functions are commented out. The original script is stored at https://github.com/rachsmith1/NDIVE/blob/main/diffvert/utils/billoir_vertex_fit.py
 """
+
 import jax
 import jax.numpy as jnp
 from jax.config import config
@@ -23,7 +24,7 @@ def get_qmeas(track):
     Returns:
         'num_perigee_params' x 1 array containing track measurements
     """ 
-    d0     = track[0]
+    d0     = track[0] #epsilon in paper #Lxy when we calculate it. 
     z0     = track[1]
     phi    = track[2] 
     theta  = track[3]
