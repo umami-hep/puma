@@ -3,6 +3,7 @@
 ### [Latest]
 
 - Added functionality to plot secondary vertex mass histograms using a pion mass hypothesis [!265](https://github.com/umami-hep/puma/pull/265)
+- Added new high-level api plot for distributions Pre/Post-tag [!279](https://github.com/umami-hep/puma/pull/279)
 
 ### [v0.3.6] (2024/08/27)
 
