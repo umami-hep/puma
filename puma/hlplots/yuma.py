@@ -12,7 +12,7 @@ from puma.hlplots import Results, Tagger, combine_suffixes, get_included_taggers
 from puma.hlplots.yutils import get_tagger_name
 from puma.utils import logger
 
-ALL_PLOTS = ["roc", "scan", "disc", "probs", "peff"]
+ALL_PLOTS = ["roc", "scan", "disc", "probs", "peff", "preposttag"]
 
 
 def get_args(args):
@@ -138,7 +138,13 @@ class YumaConfig:
     @property
     def peff_vars(self):
         """Iterates plots and returns a list of all performance variables."""
-        return list({p["plot_kwargs"].get("perf_var", "pt") for p in self.plots.get("peff", [])})
+        peff_vars = list({
+            p["plot_kwargs"].get("perf_var", "pt") for p in self.plots.get("peff", [])
+        })
+        prepost_vars = list({
+            p["plot_kwargs"].get("x_var", "pt") for p in self.plots.get("preposttag", [])
+        })
+        return list(set(peff_vars + prepost_vars))
 
     def make_plots(self, plot_types):
         """Makes all desired plots.

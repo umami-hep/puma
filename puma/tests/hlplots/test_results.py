@@ -189,6 +189,26 @@ class ResultsPlotsTestCase(unittest.TestCase):
         dummy_tagger_1.label = "dummy tagger"
         self.dummy_tagger_1 = dummy_tagger_1
 
+    def test_preposttag_plots(self):
+        """Test that png file is being created."""
+        self.dummy_tagger_1.reference = True
+        rng = np.random.default_rng(seed=16)
+        self.dummy_tagger_1.perf_vars = {
+            "pt": rng.exponential(100, size=len(self.dummy_tagger_1.scores))
+        }
+        with tempfile.TemporaryDirectory() as tmp_file:
+            results = Results(signal="bjets", sample="test", output_dir=tmp_file)
+            results.add(self.dummy_tagger_1)
+            results.plot_preposttag(70)
+            for fpath in results.saved_plots:
+                assert fpath.is_file()
+
+            # Check the tag doesn't break if second tag is None
+            results.atlas_second_tag = None
+            results.plot_preposttag(70)
+
+            results.saved_plots = []
+
     def test_plot_probs_bjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
