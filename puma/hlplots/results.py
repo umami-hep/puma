@@ -912,7 +912,13 @@ class Results:
             this_hist = hist_defaults.copy()
             flav_label = flav.label if flav != "inclusive" else "Inclusive"
             flav_name = flav.name if flav != "inclusive" else "inclusive"
-            this_hist["atlas_second_tag"] += f"\n{flav_label} Pre/Post-Tag at {working_point}% WP"
+
+            info_str = f"{flav_label} Pre/Post-Tag at {working_point}% WP"
+
+            if this_hist["atlas_second_tag"]:
+                this_hist["atlas_second_tag"] += f"\n{info_str}"
+            else:
+                this_hist["atlas_second_tag"] = info_str
             hist = HistogramPlot(**this_hist)
 
             for tagger in self.taggers.values():

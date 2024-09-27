@@ -192,7 +192,10 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_preposttag_plots(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.fxs = {"fc": 0.05}
+        rng = np.random.default_rng(seed=16)
+        self.dummy_tagger_1.perf_vars = {
+            "pt": rng.exponential(100, size=len(self.dummy_tagger_1.scores))
+        }
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
