@@ -200,7 +200,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
             for fpath in results.saved_plots:
                 assert fpath.is_file()
             results.saved_plots = []
-    
+
     def test_plot_probs_bjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
