@@ -202,6 +202,11 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results.plot_preposttag(70)
             for fpath in results.saved_plots:
                 assert fpath.is_file()
+
+            # Check the tag doesn't break if second tag is None
+            results.atlas_second_tag = None
+            results.plot_preposttag(70)
+
             results.saved_plots = []
 
     def test_plot_probs_bjets(self):

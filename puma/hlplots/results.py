@@ -868,7 +868,6 @@ class Results:
         suffix: str | None = None,
         x_var: str = "pt",
         xlabel: str = r"$p_{T}$ [GeV]",
-        exclude_tagger=None,
         **kwargs,
     ):
         """
@@ -885,8 +884,6 @@ class Results:
         xlabel : str, optional
             x-axis label, by default "$p_{T}$ [GeV]". If using a different x variable, you
             should probably change the label!
-        exclude_tagger : list, optional
-            List of taggers to be excluded from this plot, by default None
         **kwargs : kwargs
             key word arguments for `puma.HistogramPlot`
 
@@ -922,8 +919,6 @@ class Results:
             hist = HistogramPlot(**this_hist)
 
             for tagger in self.taggers.values():
-                if exclude_tagger is not None and tagger.name in exclude_tagger:
-                    continue
                 discs = tagger.discriminant(self.signal)
                 disc_cut = np.percentile(discs[tagger.is_flav(self.signal)], 100 - working_point)
 
