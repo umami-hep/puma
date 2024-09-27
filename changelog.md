@@ -3,6 +3,7 @@
 ### [Latest]
 
 - Added functionality to plot secondary vertex mass histograms using a pion mass hypothesis [!265](https://github.com/umami-hep/puma/pull/265)
+- Fixed error bars on stacked histograms to be a distinct pattern, rather than just the last colour plotted [!279](https://github.com/umami-hep/puma/pull/279)
 
 ### [v0.3.6] (2024/08/27)
 
