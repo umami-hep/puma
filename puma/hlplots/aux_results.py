@@ -393,7 +393,7 @@ class AuxResults:
 
             plot_vtx_fakes = VarVsVtxPlot(
                 mode="fakes",
-                ylabel="Vertex Rate",
+                ylabel="Fake Rate",
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,

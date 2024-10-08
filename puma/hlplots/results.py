@@ -483,6 +483,7 @@ class Results:
             "atlas_first_tag": self.atlas_first_tag,
             "atlas_second_tag": self.atlas_second_tag,
             "y_scale": 1.3,
+            "ymin": 1,
         }
         if roc_kwargs is not None:
             roc_plot_args.update(roc_kwargs)
@@ -564,16 +565,15 @@ class Results:
             )
             return
         # define the curves
-        plot_sig_eff = VarVsEffPlot(
-            mode="sig_eff",
-            ylabel=self.signal.eff_str,
-            xlabel=xlabel,
-            logy=False,
-            atlas_first_tag=self.atlas_first_tag,
-            atlas_second_tag=self.atlas_second_tag,
-            n_ratio_panels=1,
-            y_scale=1.4,
-        )
+        plot_kwargs = {
+            "xlabel": xlabel,
+            "n_ratio_panels": 1,
+            "atlas_first_tag": self.atlas_first_tag,
+            "atlas_second_tag": self.atlas_second_tag,
+            "y_scale": 1.5,
+            "logy": False,
+        }
+        plot_sig_eff = VarVsEffPlot(mode="sig_eff", ylabel=self.signal.eff_str, **plot_kwargs)
         plot_sig_eff.apply_modified_atlas_second_tag(
             self.signal,
             working_point=working_point,
@@ -582,18 +582,7 @@ class Results:
         )
         plot_bkg = []
         for background in self.backgrounds:
-            plot_bkg.append(
-                VarVsEffPlot(
-                    mode="bkg_rej",
-                    ylabel=background.rej_str,
-                    xlabel=xlabel,
-                    logy=False,
-                    atlas_first_tag=self.atlas_first_tag,
-                    atlas_second_tag=self.atlas_second_tag,
-                    n_ratio_panels=1,
-                    y_scale=1.4,
-                )
-            )
+            plot_bkg.append(VarVsEffPlot(mode="bkg_rej", ylabel=background.rej_str, **plot_kwargs))
             plot_bkg[-1].apply_modified_atlas_second_tag(
                 self.signal,
                 working_point=working_point,
@@ -606,31 +595,22 @@ class Results:
             is_signal = tagger.is_flav(self.signal)
 
             assert perf_var in tagger.perf_vars, f"{perf_var} not in tagger {tagger.name} data!"
-
-            plot_sig_eff.add(
-                VarVsEff(
-                    x_var_sig=tagger.perf_vars[perf_var][is_signal],
-                    disc_sig=discs[is_signal],
-                    label=tagger.label,
-                    colour=tagger.colour,
-                    working_point=working_point,
-                    disc_cut=disc_cut,
-                    **kwargs,
-                ),
-                reference=tagger.reference,
-            )
+            this_kwargs = {
+                "x_var_sig": tagger.perf_vars[perf_var][is_signal],
+                "disc_sig": discs[is_signal],
+                "label": tagger.label,
+                "colour": tagger.colour,
+                "working_point": working_point,
+                "disc_cut": disc_cut,
+            }
+            plot_sig_eff.add(VarVsEff(**this_kwargs, **kwargs), reference=tagger.reference)
             for i, background in enumerate(self.backgrounds):
                 is_bkg = tagger.is_flav(background)
                 plot_bkg[i].add(
                     VarVsEff(
-                        x_var_sig=tagger.perf_vars[perf_var][is_signal],
-                        disc_sig=discs[is_signal],
                         x_var_bkg=tagger.perf_vars[perf_var][is_bkg],
                         disc_bkg=discs[is_bkg],
-                        label=tagger.label,
-                        colour=tagger.colour,
-                        working_point=working_point,
-                        disc_cut=disc_cut,
+                        **this_kwargs,
                         **kwargs,
                     ),
                     reference=tagger.reference,
@@ -704,7 +684,7 @@ class Results:
                     atlas_first_tag=self.atlas_first_tag,
                     atlas_second_tag=modified_second_tag,
                     n_ratio_panels=1,
-                    y_scale=1.4,
+                    y_scale=1.5,
                 )
             )
         for tagger in self.taggers.values():

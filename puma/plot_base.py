@@ -313,10 +313,10 @@ class PlotBase(PlotObject):
             self.axis_leg = self.fig.add_subplot(g_spec[0, 9:])
 
         else:
-            # you must use increments of 0.1 for the deminsions
+            # you must use increments of 0.1 for the dimensions
             width = 5.0
             top_height = 2.7 if self.n_ratio_panels else 3.5
-            ratio_height = 1.2
+            ratio_height = 1.1
             height = top_height + self.n_ratio_panels * ratio_height
             figsize = (width, height) if self.figsize is None else self.figsize
             self.fig = Figure(figsize=figsize, constrained_layout=True)
@@ -559,6 +559,8 @@ class PlotBase(PlotObject):
             plot_name,
             transparent=self.transparent if transparent is None else transparent,
             dpi=self.dpi if dpi is None else dpi,
+            bbox_inches="tight",
+            pad_inches=0.04,
             **kwargs,
         )
 
