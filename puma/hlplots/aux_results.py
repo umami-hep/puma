@@ -439,7 +439,7 @@ class AuxResults:
         mass_range: tuple, optional
             Range of the mass histogram, by default (0, 5)
         kwargs : dict
-            Keyword arguments for `puma.Histogram` and `puma.HistogramPlot`
+            Keyword arguments for `puma.HistogramPlot`
         """
         if incl_vertexing:
             vertexing_text = "Inclusive"
@@ -462,17 +462,19 @@ class AuxResults:
                 atlas_second_tag=atlas_second_tag + f"\n{vertexing_text} vertexing, {flav.label}",
                 y_scale=1.7,
                 n_ratio_panels=1,
+                **kwargs,
             )
 
             if incl_vertexing:
                 mass_diff_plot = HistogramPlot(
-                    bins=np.arange(-mass_range[1] / 2, mass_range[1] / 2, mass_range[1] / 7),
+                    bins=np.linspace(-mass_range[1] / 2, mass_range[1] / 2, 12),
                     xlabel=r"$\Delta m_{SV}$ [GeV] (reco - truth)",
                     ylabel="Normalized number of vertices",
                     atlas_first_tag=self.atlas_first_tag,
                     atlas_second_tag=atlas_second_tag
                     + f"\n{vertexing_text} vertexing, {flav.label}",
                     y_scale=1.4,
+                    **kwargs,
                 )
 
             for i, tagger in enumerate(self.taggers.values()):
@@ -510,7 +512,6 @@ class AuxResults:
                             truth_masses[truth_masses > 0.14],
                             label="MC truth",
                             colour="#000000",
-                            **kwargs,
                         ),
                         reference=True,
                     )
@@ -528,14 +529,14 @@ class AuxResults:
                     mass_diffs = sv_masses - truth_masses
                     mass_diffs = mass_diffs[np.logical_and(truth_masses > 0.14, sv_masses > 0.14)]
                     mass_diff_plot.add(
-                        Histogram(mass_diffs, label=tagger.label, colour=tagger.colour, **kwargs)
+                        Histogram(mass_diffs, label=tagger.label, colour=tagger.colour)
                     )
                 else:
                     sv_masses = np.concatenate([np.unique(imass) for imass in masses])
 
                 sv_masses = sv_masses[sv_masses > 0.14]  # remove single and zero track vertices
                 mass_plot.add(
-                    Histogram(sv_masses, label=tagger.label, colour=tagger.colour, **kwargs)
+                    Histogram(sv_masses, label=tagger.label, colour=tagger.colour)
                 )
 
             mass_plot.draw()
