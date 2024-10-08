@@ -535,9 +535,7 @@ class AuxResults:
                     sv_masses = np.concatenate([np.unique(imass) for imass in masses])
 
                 sv_masses = sv_masses[sv_masses > 0.14]  # remove single and zero track vertices
-                mass_plot.add(
-                    Histogram(sv_masses, label=tagger.label, colour=tagger.colour)
-                )
+                mass_plot.add(Histogram(sv_masses, label=tagger.label, colour=tagger.colour))
 
             mass_plot.draw()
             mass_plot.savefig(self.get_filename(f"{flav}_sv_mass_{suffix}"))
