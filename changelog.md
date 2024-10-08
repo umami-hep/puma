@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Bump python, numpy and matplotlib versions. Improve ROC cosmetics [!282](https://github.com/umami-hep/puma/pull/282)
 - Added functionality to plot secondary vertex mass histograms using a pion mass hypothesis [!265](https://github.com/umami-hep/puma/pull/265)
 - Fixed error bars on stacked histograms to be a distinct pattern, rather than just the last colour plotted [!281](https://github.com/umami-hep/puma/pull/281)
 

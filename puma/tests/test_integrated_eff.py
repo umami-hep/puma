@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import shutil  # noqa: F401
 import tempfile
 import unittest
 
@@ -114,14 +115,14 @@ class IntegratedEfficiencyPlotTestCase(unittest.TestCase):
         for flav in ["b", "c", "light"]:
             plot.add(self.dips_int_effs[flav])
         plot.draw()
-        plotname = "test_int_eff_one_tagger.png"
-        plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_int_eff_one_tagger.png"
+        plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )
@@ -133,14 +134,14 @@ class IntegratedEfficiencyPlotTestCase(unittest.TestCase):
             plot.add(self.dips_int_effs[flav])
             plot.add(self.rnnip_int_effs[flav])
         plot.draw()
-        plotname = "test_int_eff_two_taggers.png"
-        plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_int_eff_two_taggers.png"
+        plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )

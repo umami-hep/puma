@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import shutil  # noqa: F401
 import tempfile
 import unittest
 
@@ -29,15 +30,15 @@ class PiePlotTestCase(unittest.TestCase):
             wedge_sizes=[20, 40, 30, 10],
             labels=["light-flavour jets", "c-jets", "b-jets", "tau-jets"],
         )
-        plotname = "test_pie_chart_default_style.png"
-        pie_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_pie_chart_default_style.png"
+        pie_plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # pie_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )
@@ -65,15 +66,15 @@ class PiePlotTestCase(unittest.TestCase):
             figsize=(5.5, 3.5),
             y_scale=1.3,
         )
-        plotname = "test_pie_chart_custom_style.png"
-        pie_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_pie_chart_custom_style.png"
+        pie_plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        pie_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        pie_plot.savefig(f"{self.expected_plots_dir}/{name}")
 
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )

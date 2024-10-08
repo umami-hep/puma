@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import shutil  # noqa: F401
 import tempfile
 import unittest
 
@@ -108,20 +109,20 @@ class Line2DPlotTestCase(unittest.TestCase):
         frac_plot.ylabel = "Test_y_label"
 
         # Define a plot name
-        plotname = "test_line2d_all_params_given.png"
+        name = "test_line2d_all_params_given.png"
 
         # Draw and save the plot
         frac_plot.draw()
-        frac_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        frac_plot.savefig(f"{self.actual_plots_dir}/{name}")
 
         # Uncomment line below to update expected image
-        # frac_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
         # Check
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )
@@ -159,20 +160,20 @@ class Line2DPlotTestCase(unittest.TestCase):
         frac_plot.ylabel = "Test_y_label"
 
         # Define a plot name
-        plotname = "test_line2d_grid_off.png"
+        name = "test_line2d_grid_off.png"
 
         # Draw and save the plot
         frac_plot.draw()
-        frac_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        frac_plot.savefig(f"{self.actual_plots_dir}/{name}")
 
         # Uncomment line below to update expected image
-        # frac_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
         # Check
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )
@@ -212,20 +213,20 @@ class Line2DPlotTestCase(unittest.TestCase):
         frac_plot.logy = True
 
         # Define a plot name
-        plotname = "test_line2d_no_params_given.png"
+        name = "test_line2d_no_params_given.png"
 
         # Draw and save the plot
         frac_plot.draw()
-        frac_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        frac_plot.savefig(f"{self.actual_plots_dir}/{name}")
 
         # Uncomment line below to update expected image
-        # frac_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
         # Check
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )

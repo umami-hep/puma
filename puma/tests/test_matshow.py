@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import shutil  # noqa: F401
 import tempfile
 import unittest
 
@@ -30,16 +31,16 @@ class TestMatshowPlot(unittest.TestCase):
             [0.39839215, 0.54854937, 0.48571167],
         ])
         plot_mat = MatshowPlot(colormap=plt.cm.PiYG, x_ticks_rotation=0)
-        plotname = "test_matrix.png"
+        name = "test_matrix.png"
         plot_mat.draw(mat)
+        plot_mat.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # plot_mat.savefig(f"{self.expected_plots_dir}/{plotname}")
-        plot_mat.savefig(f"{self.actual_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )
@@ -53,16 +54,16 @@ class TestMatshowPlot(unittest.TestCase):
             [0.39839215, 0.54854937, 0.48571167],
         ])
         plot_mat = MatshowPlot(colormap=plt.cm.PiYG, x_ticks_rotation=0, show_cbar=False)
-        plotname = "test_matrix_nocbar.png"
+        name = "test_matrix_nocbar.png"
         plot_mat.draw(mat)
+        plot_mat.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # plot_mat.savefig(f"{self.expected_plots_dir}/{plotname}")
-        plot_mat.savefig(f"{self.actual_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )
@@ -88,15 +89,15 @@ class TestMatshowPlot(unittest.TestCase):
             cbar_label="Scalar values",
         )
         plot_mat.draw(mat)
-        plotname = "test_matrix_fully_customized.png"
+        name = "test_matrix_fully_customized.png"
+        plot_mat.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # plot_mat.savefig(f"{self.expected_plots_dir}/{plotname}")
-        plot_mat.savefig(f"{self.actual_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )
@@ -121,16 +122,16 @@ class TestMatshowPlot(unittest.TestCase):
             text_color_threshold=0.6,
             cbar_label="Scalar values",
         )
-        plotname = "test_matrix_fully_customized_no_entries.png"
+        name = "test_matrix_fully_customized_no_entries.png"
         plot_mat.draw(mat)
+        plot_mat.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # plot_mat.savefig(f"{self.expected_plots_dir}/{plotname}")
-        plot_mat.savefig(f"{self.actual_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )

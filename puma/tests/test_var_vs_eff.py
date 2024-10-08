@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import shutil  # noqa: F401
 import tempfile
 import unittest
 
@@ -330,15 +331,15 @@ class VarVsEffOutputTestCase(unittest.TestCase):
 
         plot_bkg_rej.draw()
 
-        plotname = "test_pt_dependence_rejection.png"
-        plot_bkg_rej.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_pt_dependence_rejection.png"
+        plot_bkg_rej.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # plot_bkg_rej.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertEqual(
             None,
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             ),
         )
@@ -391,15 +392,15 @@ class VarVsEffOutputTestCase(unittest.TestCase):
 
         plot_bkg_rej.draw()
 
-        plotname = "test_pt_dependence_bkg_efficiency.png"
-        plot_bkg_rej.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_pt_dependence_bkg_efficiency.png"
+        plot_bkg_rej.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # plot_bkg_rej.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertEqual(
             None,
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             ),
         )

@@ -89,7 +89,7 @@ plot_sig_eff = VarVsEffPlot(
 plot_sig_eff.add(rnnip_light, reference=True)
 plot_sig_eff.add(dips_light)
 
-plot_sig_eff.atlas_second_tag += "\nInclusive $\\epsilon_b=70%%$"
+plot_sig_eff.atlas_second_tag += "\nInclusive $\\epsilon_b=70\\%$"
 
 # If you want to inverse the discriminant cut you can enable it via
 # plot_sig_eff.set_inverse_cut()
