@@ -212,7 +212,7 @@ class RocPlot(PlotBase):
         self.leg_rej_labels = {}
         self.reference_roc = None
         self.initialise_figure()
-        self.fig.set_constrained_layout_pads(h_pad=0, hspace=0)
+        self.fig.get_layout_engine().set(h_pad=0, hspace=0)
         self.eff_min, self.eff_max = (1, 0)
         self.default_linestyles = get_good_linestyles()
         self.legend_flavs = None
