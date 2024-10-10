@@ -1,5 +1,17 @@
 import numpy as np
-from puma.utils.billoir_preprocessing import  MaskTracks
+
+def MaskTracks(my_data, n_jets, n_tracks):
+
+    n_real_tracks = np.repeat(my_data["jets"]["n_tracks"], n_tracks).reshape(n_jets, n_tracks) # This is needed because jets have a different format than tracks
+    track_indices = np.tile(
+         np.arange(0,n_tracks,dtype=np.int32),
+         n_jets,
+    ).reshape(n_jets, n_tracks)
+    
+    track_mask = np.where(track_indices < n_real_tracks, 1, 0)
+    
+    return track_mask, n_real_tracks
+
 
 def ProcessTruthHadrons(my_data, n_jets):
 
@@ -73,21 +85,6 @@ def ProcessTruthHadrons(my_data, n_jets):
 
     
     return good_jets, hadron_indices, parent, child, one_hadron, unrelated
-
-
-def GetTruthSVdisplacement(hadrons):
-
-    
-    hadron_displacement = np.full((hadrons.shape[0], hadrons.shape[1],3), np.nan)
-
-    for i in range(0, hadrons.shape[0]):
-        for j in range(0,  hadrons.shape[1]):
-            hadron_displacement[i,j, 0] = hadrons["displacementX"][i, j] 
-            hadron_displacement[i,j, 1] = hadrons["displacementY"][i, j]
-            hadron_displacement[i,j, 2] = hadrons["displacementZ"][i, j]
-
-    return hadron_displacement
-
 
 
 def AssociateTracksToHadron(my_data, good_jets, drop_bad_jets = True, debug=False):
@@ -164,16 +161,16 @@ def AssociateTracksToHadron(my_data, good_jets, drop_bad_jets = True, debug=Fals
     
     return inclusive_vertex, exclusive_vertex, hadron_index, n_tracks_inclusive_vertex, n_tracks_exclusive_vertex, track_mask, jet_track_mask, good_hadron_track_association
 
+def SelectHadronMostTracks(truth_hadrons, hadron_index):
+    invalid_jet_mask = np.where(hadron_index == -99, 1, 0).astype(int)
+    
+    # remove -99 so that you can get the index, but you will need to add the mask later
+    tmp_hadron_index = np.where(invalid_jet_mask == 1, 0, hadron_index)  
 
-def TruthDisplacement_HadronMostTracks(truth_hadron_displacement, index_hadron_most_tracks, good_hadron_track_association):
-    # change -99 to 0 so that you can do the association later  
-    tmp_index = np.where(index_hadron_most_tracks == -99, 0, index_hadron_most_tracks) 
-    # Get the displacement of the hadron with most tracks (including 0 for those with no tracks)
-    MostTrackHadron_Truth_displacement = truth_hadron_displacement[np.arange(truth_hadron_displacement.shape[0]), tmp_index] 
-    # Mask the jets with no associated tracks to include the 3 coordinates
-    truth_hadron_displacement_mask = np.repeat(good_hadron_track_association_mask, 3).reshape(len(good_hadron_track_association_mask),3)
+    # select hadron with most tracks
+    truth_hadron_most_tracks = truth_hadrons[np.arange(truth_hadrons.shape[0]),np.array(tmp_hadron_index).astype(int)]
 
-    # Remove jets with no tracks from your truth displacement variables!
-    MostTrackHadron_Truth_displacement = np.where(truth_hadron_displacement_mask == 0, np.nan, MostTrackHadron_Truth_displacement)
+    # mask invalid jets
+    truth_hadron_most_tracks = truth_hadron_most_tracks[~invalid_jet_mask]
 
-    return MostTrackHadron_Truth_displacement
+    return truth_hadron_most_tracks
