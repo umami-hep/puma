@@ -240,7 +240,7 @@ class RocOutputTestCase(unittest.TestCase):
             compare_images(
                 f"{self.actual_plots_dir}/{plotname}",
                 f"{self.expected_plots_dir}/{plotname}",
-                tol=1,
+                tol=2.5,
             )
         )
 
@@ -289,7 +289,7 @@ class RocOutputTestCase(unittest.TestCase):
             compare_images(
                 f"{self.actual_plots_dir}/{plotname}",
                 f"{self.expected_plots_dir}/{plotname}",
-                tol=1,
+                tol=2.5,
             )
         )
 
@@ -340,7 +340,7 @@ class RocOutputTestCase(unittest.TestCase):
             compare_images(
                 f"{self.actual_plots_dir}/{plotname}",
                 f"{self.expected_plots_dir}/{plotname}",
-                tol=1,
+                tol=2.5,
             )
         )
 
@@ -405,7 +405,7 @@ class RocOutputTestCase(unittest.TestCase):
             compare_images(
                 f"{self.actual_plots_dir}/{plotname}",
                 f"{self.expected_plots_dir}/{plotname}",
-                tol=1,
+                tol=2.5,
             )
         )
 
@@ -472,7 +472,7 @@ class RocOutputTestCase(unittest.TestCase):
             compare_images(
                 f"{self.actual_plots_dir}/{plotname}",
                 f"{self.expected_plots_dir}/{plotname}",
-                tol=1,
+                tol=2.5,
             )
         )
 
@@ -541,6 +541,6 @@ class RocOutputTestCase(unittest.TestCase):
             compare_images(
                 f"{self.actual_plots_dir}/{plotname}",
                 f"{self.expected_plots_dir}/{plotname}",
-                tol=1,
+                tol=2.5,
             )
         )

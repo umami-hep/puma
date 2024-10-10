@@ -3,7 +3,7 @@ name = "puma-hep"
 description = "ATLAS Flavour Tagging Plotting Code"
 dynamic = ["version", "dependencies"]
 readme = "README.md"
-requires-python = ">=3.8,<3.12"
+requires-python = ">=3.10,<3.12"
 
 [project.urls]
 "Homepage" = "https://github.com/umami-hep/puma"
@@ -13,7 +13,7 @@ requires-python = ">=3.8,<3.12"
 yuma = "puma.hlplots.yuma:main"
 
 [tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
+dependencies = { file = ["requirements.txt"] }
 
 [build-system]
 requires = ["setuptools", "wheel"]
@@ -41,7 +41,7 @@ mark-parentheses = false
 required-imports = ["from __future__ import annotations"]
 
 [tool.ruff.lint.pydocstyle]
-convention = "numpy"  # Accepts: "google", "numpy", or "pep257".
+convention = "numpy" # Accepts: "google", "numpy", or "pep257".
 
 [mypy]
 ignore_missing_imports = "True"

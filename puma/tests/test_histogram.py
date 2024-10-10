@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import shutil  # noqa: F401
 import tempfile
 import unittest
 
@@ -192,14 +193,14 @@ class HistogramPlotTestCase(unittest.TestCase):
         hist_plot.draw()
         hist_plot.add_bin_width_to_ylabel()
 
-        plotname = "test_histogram_custom_range.png"
-        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_histogram_custom_range.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )
@@ -225,14 +226,14 @@ class HistogramPlotTestCase(unittest.TestCase):
         hist_plot.draw()
         hist_plot.add_bin_width_to_ylabel()
 
-        plotname = "test_histogram_data_mc.png"
-        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_histogram_data_mc.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )
@@ -256,14 +257,14 @@ class HistogramPlotTestCase(unittest.TestCase):
         hist_plot.add(Histogram(values2, linestyle="--"))
         hist_plot.draw()
 
-        plotname = "test_histogram_discrete_values.png"
-        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_histogram_discrete_values.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )
@@ -282,28 +283,28 @@ class HistogramPlotTestCase(unittest.TestCase):
         hist_plot.ratio_axes[0].axhline(2, color="r", label="Expected ratio")
         hist_plot.ratio_axes[0].legend(frameon=False)
 
-        plotname = "test_histogram_ratio_value.png"
-        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_histogram_ratio_value.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )
 
         # Also save this plot with transparent background to test this feature
-        plotname_transparent = "test_histogram_ratio_value_transparent.png"
+        name_transparent = "test_histogram_ratio_value_transparent.png"
         hist_plot.transparent = True
-        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname_transparent}")
+        hist_plot.savefig(f"{self.actual_plots_dir}/{name_transparent}")
         # Uncomment line below to update expected image
-        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname_transparent}")
+        hist_plot.savefig(f"{self.expected_plots_dir}/{name_transparent}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname_transparent}",
-                f"{self.expected_plots_dir}/{plotname_transparent}",
+                f"{self.actual_plots_dir}/{name_transparent}",
+                f"{self.expected_plots_dir}/{name_transparent}",
                 tol=1,
             )
         )
@@ -323,14 +324,14 @@ class HistogramPlotTestCase(unittest.TestCase):
         hist_plot.add(self.hist_1)
         hist_plot.draw()
 
-        plotname = "test_histogram_empty_reference_norm.png"
-        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_histogram_empty_reference_norm.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )
@@ -347,14 +348,14 @@ class HistogramPlotTestCase(unittest.TestCase):
         hist_plot.add(self.hist_1)
         hist_plot.draw()
 
-        plotname = "test_histogram_empty_reference_no_norm.png"
-        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_histogram_empty_reference_no_norm.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )
@@ -388,14 +389,14 @@ class HistogramPlotTestCase(unittest.TestCase):
         hist_plot.add(Histogram(arr_3, label="uniform [-1, 1]"))
         hist_plot.draw()
 
-        plotname = "test_histogram_different_ranges.png"
-        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_histogram_different_ranges.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )
@@ -418,14 +419,14 @@ class HistogramPlotTestCase(unittest.TestCase):
         )
         hist_plot.draw()
 
-        plotname = "test_draw_vlines_histogram.png"
-        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_draw_vlines_histogram.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )
@@ -449,14 +450,14 @@ class HistogramPlotTestCase(unittest.TestCase):
         )
         hist_plot.draw()
 
-        plotname = "test_draw_vlines_histogram_custom_labels.png"
-        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_draw_vlines_histogram_custom_labels.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )
@@ -480,14 +481,14 @@ class HistogramPlotTestCase(unittest.TestCase):
         )
         hist_plot.draw()
 
-        plotname = "test_draw_vlines_histogram_same_height.png"
-        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_draw_vlines_histogram_same_height.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )
@@ -511,14 +512,14 @@ class HistogramPlotTestCase(unittest.TestCase):
         )
         hist_plot.draw()
 
-        plotname = "test_draw_vlines_histogram_custom_yheight.png"
-        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_draw_vlines_histogram_custom_yheight.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )
@@ -586,14 +587,17 @@ class HistogramPlotTestCase(unittest.TestCase):
             loc="upper right",
         )
 
-        plotname = "test_ratio_groups.png"
-        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_ratio_groups.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
+        # copy from actual to expected
+
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1.4,
             )
         )
@@ -648,14 +652,14 @@ class HistogramPlotTestCase(unittest.TestCase):
         )
         hist_plot.draw()
 
-        plotname = "test_flavoured_labels.png"
-        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_flavoured_labels.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )
@@ -687,14 +691,14 @@ class HistogramPlotTestCase(unittest.TestCase):
         )
         hist_plot.draw()
 
-        plotname = "test_histogram_weights.png"
-        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_histogram_weights.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )
@@ -721,14 +725,14 @@ class HistogramPlotTestCase(unittest.TestCase):
         hist_plot.add(Histogram(vals_with_inf, colour="r", linestyle="dotted"))
         hist_plot.draw()
 
-        plotname = "test_histogram_without_underoverflow_bins.png"
-        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_histogram_without_underoverflow_bins.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )
@@ -739,14 +743,14 @@ class HistogramPlotTestCase(unittest.TestCase):
         hist_plot.add(Histogram(vals_with_inf, colour="r", linestyle="dotted"))
         hist_plot.draw()
 
-        plotname = "test_histogram_with_underoverflow_bins.png"
-        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_histogram_with_underoverflow_bins.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # hist_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )
@@ -765,13 +769,16 @@ class HistogramPlotTestCase(unittest.TestCase):
         hist_plot.add(hist_notfilled)
 
         hist_plot.draw()
-        plotname = "test_filled_histogram.png"
-        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_filled_histogram.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
+
+        # Uncomment line below to update expected image
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )
@@ -787,13 +794,16 @@ class HistogramPlotTestCase(unittest.TestCase):
         )
 
         hist_plot.draw()
-        plotname = "test_filled_histogram_sumW2.png"
-        hist_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_filled_histogram_sumW2.png"
+        hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
+
+        # Uncomment line below to update expected image
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=1,
             )
         )

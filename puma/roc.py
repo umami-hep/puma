@@ -192,7 +192,7 @@ class Roc(PlotLineObject):
 class RocPlot(PlotBase):
     """ROC plot class."""
 
-    def __init__(self, grid: bool = True, **kwargs) -> None:
+    def __init__(self, grid: bool = True, leg_rej_loc: str = "lower left", **kwargs) -> None:
         """ROC plot properties.
 
         Parameters
@@ -212,10 +212,11 @@ class RocPlot(PlotBase):
         self.leg_rej_labels = {}
         self.reference_roc = None
         self.initialise_figure()
+        self.fig.get_layout_engine().set(h_pad=0, hspace=0)
         self.eff_min, self.eff_max = (1, 0)
         self.default_linestyles = get_good_linestyles()
         self.legend_flavs = None
-        self.leg_rej_loc = "lower left"
+        self.leg_rej_loc = leg_rej_loc if kwargs["n_ratio_panels"] < 2 else "ratio_legend"
 
     def add_roc(
         self,
@@ -411,7 +412,7 @@ class RocPlot(PlotBase):
                 ratio,
                 color=elem.colour,
                 linestyle=elem.linestyle,
-                linewidth=1.6,
+                linewidth=2.0,
             )
             if ratio_err is not None:
                 axis.fill_between(
@@ -589,6 +590,7 @@ class RocPlot(PlotBase):
                 elem.sig_eff[elem.non_zero_mask],
                 elem.bkg_rej[elem.non_zero_mask],
                 linestyle=elem.linestyle,
+                linewidth=2,
                 color=elem.colour,
                 label=elem.label if elem is not None else key,
                 zorder=2,

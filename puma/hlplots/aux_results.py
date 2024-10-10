@@ -263,7 +263,7 @@ class AuxResults:
             vertex_match_requirement = {"eff_req": 0.65, "purity_req": 0.5}
         eff_req = round(vertex_match_requirement["eff_req"] * 100, 1)
         purity_req = round(vertex_match_requirement["purity_req"] * 100, 1)
-        vtx_match_str = rf"Recall $\geq {eff_req}%$, Purity $\geq {purity_req}%$"
+        vtx_match_str = rf"Recall $\geq {eff_req}\%$, Purity $\geq {purity_req}\%$"
         vtx_string = "\nInclusive vertexing" if incl_vertexing else "\nExclusive vertexing"
         atlas_second_tag = self.atlas_second_tag if self.atlas_second_tag else ""
         atlas_second_tag += vtx_string
@@ -393,7 +393,7 @@ class AuxResults:
 
             plot_vtx_fakes = VarVsVtxPlot(
                 mode="fakes",
-                ylabel="Vertex Rate",
+                ylabel="Fake Rate",
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,

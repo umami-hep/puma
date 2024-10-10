@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import shutil  # noqa: F401
 import tempfile
 import unittest
 
@@ -193,15 +194,15 @@ class VarVsVarPlotTestCase(unittest.TestCase):
         test_plot.draw_hline(4)
         test_plot.draw()
 
-        plotname = "test_var_vs_var.png"
-        test_plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_var_vs_var.png"
+        test_plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # test_plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertEqual(
             None,
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=5,
             ),
         )
