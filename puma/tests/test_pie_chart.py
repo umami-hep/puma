@@ -69,7 +69,7 @@ class PiePlotTestCase(unittest.TestCase):
         name = "test_pie_chart_custom_style.png"
         pie_plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        pie_plot.savefig(f"{self.expected_plots_dir}/{name}")
+        # pie_plot.savefig(f"{self.expected_plots_dir}/{name}")
 
         self.assertIsNone(
             compare_images(
