@@ -11,9 +11,7 @@ def MaskTracks(my_data, n_jets, n_tracks):
         n_jets,
     ).reshape(n_jets, n_tracks)
 
-    track_mask = np.where(track_indices < n_real_tracks, 1, 0)
-
-    return track_mask
+    return np.where(track_indices < n_real_tracks, 1, 0)
 
 
 def ProcessTruthHadrons(my_data, n_jets):
@@ -121,9 +119,8 @@ def AssociateTracksToHadron(my_data, good_jets, drop_bad_jets=True, debug=False)
     dummy = np.zeros(n_tracks).astype(int)
 
     for i in range(n_jets):
-        if drop_bad_jets:
-            if good_jets[i] == False:
-                continue
+        if drop_bad_jets and (not good_jets[i]):
+            continue
 
         if debug:
             print("Track Parent Barcodes ", my_data["tracks"]["ftagTruthParentBarcode"][i])
@@ -175,10 +172,9 @@ def AssociateTracksToHadron(my_data, good_jets, drop_bad_jets=True, debug=False)
             print("EXCLUSIVE Track to Hadron Association ", exclusive_vertex[-1])
         if debug:
             print("Index for Hadron with highest amoutn of associated tracks ", hadron_index[-1])
-        if debug:
-            print("Number of tracks associated to the each hadron ", n_tracks_per_hadron[-1])
 
-    inclsuive_vertex = np.array(inclusive_vertex)
+
+    inclusive_vertex = np.array(inclusive_vertex)
     exclusive_vertex = np.array(exclusive_vertex)
     hadron_index = np.array(hadron_index)
 
@@ -206,6 +202,4 @@ def SelectHadronMostTracks(truth_hadrons, hadron_index):
     ]
 
     # mask invalid jets
-    truth_hadron_most_tracks = truth_hadron_most_tracks[~invalid_jet_mask]
-
-    return truth_hadron_most_tracks
+    return truth_hadron_most_tracks[~invalid_jet_mask]
