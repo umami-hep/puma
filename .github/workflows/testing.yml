@@ -52,7 +52,7 @@ jobs:
       # is affected by the changes that triggered the job
       - name: Upload examples-material
         #if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: JamesIves/github-pages-deploy-action@4.6.8
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
           BRANCH: examples-material
           FOLDER: plots
