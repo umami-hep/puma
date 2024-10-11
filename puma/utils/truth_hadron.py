@@ -173,7 +173,6 @@ def AssociateTracksToHadron(my_data, good_jets, drop_bad_jets=True, debug=False)
         if debug:
             print("Index for Hadron with highest amoutn of associated tracks ", hadron_index[-1])
 
-
     inclusive_vertex = np.array(inclusive_vertex)
     exclusive_vertex = np.array(exclusive_vertex)
     hadron_index = np.array(hadron_index)
