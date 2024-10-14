@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Improve ROC cosmetics again, add rejection smoothing option [!288](https://github.com/umami-hep/puma/pull/288)
 - Adding colour-blind-friendly colours as default colours for taggers [!286](https://github.com/umami-hep/puma/pull/286)
 - Increased number of bins in plot_vertex_mass function and fixed use of kwargs [!284](https://github.com/umami-hep/puma/pull/284)
 - Bump python, numpy and matplotlib versions. Improve ROC cosmetics [!282](https://github.com/umami-hep/puma/pull/282)
