@@ -314,9 +314,9 @@ class PlotBase(PlotObject):
 
         else:
             # you must use increments of 0.1 for the dimensions
-            width = 5.0
+            width = 4.7
             top_height = 2.7 if self.n_ratio_panels else 3.5
-            ratio_height = 1.1
+            ratio_height = 1.0
             height = top_height + self.n_ratio_panels * ratio_height
             figsize = (width, height) if self.figsize is None else self.figsize
             self.fig = Figure(figsize=figsize, constrained_layout=True)
@@ -442,7 +442,7 @@ class PlotBase(PlotObject):
                 ymax = self.ymax_ratio[i] if self.ymax_ratio[i] is not None else ymax
                 ratio_axis.set_ylim(bottom=ymin, top=ymax)
 
-    def set_ylabel(self, ax_mpl, label: str | None = None, align_right: bool = True, **kwargs):
+    def set_ylabel(self, ax_mpl, label: str | None = None, align: str | None = "right", **kwargs):
         """Set y-axis label.
 
         Parameters
@@ -451,22 +451,18 @@ class PlotBase(PlotObject):
             matplotlib axis object
         label : str, optional
             x-axis label, by default None
-        align_right : bool, optional
-            Alignment of y-axis label, by default True
+        align : str, optional
+            Alignment of y-axis label, by default "right"
         **kwargs, kwargs
             Keyword arguments passed to `matplotlib.axes.Axes.set_ylabel()`
         """
-        label_options = {}
-        if align_right:
-            label_options = {
-                "fontsize": self.label_fontsize,
-                "horizontalalignment": "right",
-                "y": 1.0,
-            }
-        else:
-            label_options = {
-                "fontsize": self.label_fontsize,
-            }
+        label_options = {"fontsize": self.label_fontsize}
+        if align:
+            label_options["horizontalalignment"] = align
+            if align == "right":
+                label_options["y"] = 1
+            elif align == "left":
+                label_options["y"] = 0
 
         ax_mpl.set_ylabel(
             self.ylabel if label is None else label,
