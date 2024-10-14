@@ -288,7 +288,7 @@ class RocOutputTestCase(unittest.TestCase):
         plot.add_roc(
             Roc(
                 self.sig_eff,
-                self.u_rej_1,
+                self.u_rej_1 * 2,
                 rej_class="ujets",
                 label="reference",
                 n_test=1_000,
@@ -298,7 +298,7 @@ class RocOutputTestCase(unittest.TestCase):
         plot.add_roc(
             Roc(
                 self.sig_eff,
-                self.u_rej_2,
+                self.u_rej_2 * 2,
                 rej_class="ujets",
                 label="test",
                 n_test=1_000,
