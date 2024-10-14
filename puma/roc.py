@@ -370,13 +370,9 @@ class RocPlot(PlotBase):
         for key, elem in self.rocs.items():
             if elem.rej_class != rej_class:
                 continue
-
-            if self.reference_roc and self.reference_roc[rej_class].get(elem.ratio_group):
-                sig_eff, ratio, ratio_err = elem.divide(
-                    self.rocs[self.reference_roc[rej_class][elem.ratio_group]]
-                )
-            else:
-                sig_eff, ratio, ratio_err = elem.divide(elem)
+            sig_eff, ratio, ratio_err = elem.divide(
+                self.rocs[self.reference_roc[rej_class][elem.ratio_group]]
+            )
 
             self.roc_ratios[key] = (sig_eff, ratio, ratio_err)
             axis.plot(
@@ -499,21 +495,13 @@ class RocPlot(PlotBase):
         self.set_ylabel(self.axis_top)
 
         # set ylabel for ratio panels
-        if self.rej_leg_loc == "ratio":
+        if self.n_ratio_panels > 0:
             self.set_ylabel(
                 list(self.rej_axes.values())[-1],
                 f"Ratio to {self.reference_label}",
                 align="left",
                 labelpad=labelpad,
             )
-        else:
-            for axis in self.rej_axes.values():
-                self.set_ylabel(
-                    axis,
-                    f"Ratio to {self.reference_label}",
-                    align="left",
-                    labelpad=labelpad,
-                )
 
         if self.n_ratio_panels < 2:
             self.make_legend(plt_handles, ax_mpl=self.axis_top)
