@@ -116,6 +116,9 @@ class Roc(PlotLineObject):
         np.array or None
             Ratio_err if `n_test` was provided to class
         """
+        if not np.array_equal(self.sig_eff, roc_comp.sig_eff):
+            raise ValueError("Signal efficiencies of the two ROCs do not match.")
+
         ratio = self.bkg_rej / roc_comp.bkg_rej
         if inverse:
             ratio = 1 / ratio
@@ -184,7 +187,7 @@ class RocPlot(PlotBase):
         self.eff_min, self.eff_max = (1, 0)
         self.default_linestyles = get_good_linestyles()
         self.legend_flavs = None
-        self.leg_rej_loc = "ratio_legend" if kwargs["n_ratio_panels"] > 0 else "lower left"
+        self.rej_leg_loc = "ratio" if kwargs["n_ratio_panels"] > 0 else "lower left"
 
     def add_roc(
         self,
@@ -411,7 +414,7 @@ class RocPlot(PlotBase):
         if self.n_ratio_panels < 2:
             raise ValueError("For a split legend you need 2 ratio panels.")
 
-        if self.leg_rej_loc == "ratio_legend":
+        if self.rej_leg_loc == "ratio":
             for rej_class, axis in self.rej_axes.items():
                 legend_line = mpl.lines.Line2D(
                     [],
@@ -442,7 +445,7 @@ class RocPlot(PlotBase):
             self.legend_flavs = self.axis_top.legend(
                 handles=line_list_rej,
                 labels=[handle.get_label() for handle in line_list_rej],
-                loc=self.leg_rej_loc,
+                loc=self.rej_leg_loc,
                 fontsize=self.leg_fontsize,
                 ncol=self.leg_ncol,
             )
@@ -496,12 +499,21 @@ class RocPlot(PlotBase):
         self.set_ylabel(self.axis_top)
 
         # set ylabel for ratio panels
-        self.set_ylabel(
-            list(self.rej_axes.values())[-1],
-            f"Ratios to {self.reference_label}",
-            align="left",
-            labelpad=labelpad,
-        )
+        if self.rej_leg_loc == "ratio":
+            self.set_ylabel(
+                list(self.rej_axes.values())[-1],
+                f"Ratio to {self.reference_label}",
+                align="left",
+                labelpad=labelpad,
+            )
+        else:
+            for axis in self.rej_axes.values():
+                self.set_ylabel(
+                    axis,
+                    f"Ratio to {self.reference_label}",
+                    align="left",
+                    labelpad=labelpad,
+                )
 
         if self.n_ratio_panels < 2:
             self.make_legend(plt_handles, ax_mpl=self.axis_top)
@@ -509,7 +521,6 @@ class RocPlot(PlotBase):
             if not self.leg_rej_labels:
                 for rej_class in self.rej_axes:
                     self.leg_rej_labels[rej_class] = rej_class
-
             self.make_split_legend(handles=plt_handles)
 
         self.plotting_done = True
