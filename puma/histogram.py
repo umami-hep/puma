@@ -842,7 +842,7 @@ class HistogramPlot(PlotBase):
             self.set_ylabel(
                 self.ratio_axes[0],
                 self.ylabel_ratio[0],
-                align_right=False,
+                align="center",
                 labelpad=labelpad,
             )
 

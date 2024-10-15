@@ -455,7 +455,7 @@ class Results:
     def plot_rocs(
         self,
         x_range: tuple[float, float] | None = None,
-        resolution: int = 100,
+        resolution: int = 50,
         suffix: str | None = None,
         **roc_kwargs,
     ):
@@ -496,6 +496,7 @@ class Results:
                     discs[tagger.is_flav(self.signal)],
                     discs[tagger.is_flav(background)],
                     sig_effs,
+                    smooth=True,
                 )
                 roc.add_roc(
                     Roc(

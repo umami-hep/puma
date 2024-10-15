@@ -116,44 +116,15 @@ class Roc(PlotLineObject):
         np.array or None
             Ratio_err if `n_test` was provided to class
         """
-        # if same objects return array with value 1
-        if np.array_equal(
-            np.array([self.sig_eff, self.bkg_rej]),
-            np.array([roc_comp.sig_eff, roc_comp.bkg_rej]),
-        ):
-            logger.debug("roc objects are identical -> ratio is 1.")
-            ratio = np.ones(len(self.sig_eff))
-            if self.n_test is None:
-                return self.sig_eff, ratio, None
-            ratio_err = self.binomial_error(norm=True) * ratio
-            return self.sig_eff, ratio, ratio_err
+        if not np.array_equal(self.sig_eff, roc_comp.sig_eff):
+            raise ValueError("Signal efficiencies of the two ROCs do not match.")
 
-        # get overlapping sig_eff interval of the two roc curves
-        min_eff = max(self.sig_eff.min(), roc_comp.sig_eff.min())
-        max_eff = min(self.sig_eff.max(), roc_comp.sig_eff.max())
-        eff_mask = np.all([self.sig_eff >= min_eff, self.sig_eff <= max_eff], axis=0)
-        ratio_sig_eff = self.sig_eff[eff_mask]
-
-        # Ratio of interpolated rejection functions
-        ratio = self.fct_inter(ratio_sig_eff) / roc_comp.fct_inter(ratio_sig_eff)
+        ratio = self.bkg_rej / roc_comp.bkg_rej
         if inverse:
             ratio = 1 / ratio
-        if self.n_test is None:
-            return ratio_sig_eff, ratio, None
-        ratio_err = self.binomial_error(norm=True) * ratio
-        return ratio_sig_eff, ratio, ratio_err[eff_mask]
 
-    @property
-    def fct_inter(self):
-        """
-        Interpolate the rejection function for better ratio calculation plotting etc.
-
-        Returns
-        -------
-        pchip
-            Interpolation function
-        """
-        return lambda x: np.interp(x, self.sig_eff, self.bkg_rej)
+        ratio_err = self.binomial_error(norm=True) * ratio if self.n_test else None
+        return self.sig_eff, ratio, ratio_err
 
     @property
     def non_zero_mask(self):
@@ -192,7 +163,7 @@ class Roc(PlotLineObject):
 class RocPlot(PlotBase):
     """ROC plot class."""
 
-    def __init__(self, grid: bool = True, leg_rej_loc: str = "lower left", **kwargs) -> None:
+    def __init__(self, grid: bool = True, **kwargs) -> None:
         """ROC plot properties.
 
         Parameters
@@ -216,7 +187,7 @@ class RocPlot(PlotBase):
         self.eff_min, self.eff_max = (1, 0)
         self.default_linestyles = get_good_linestyles()
         self.legend_flavs = None
-        self.leg_rej_loc = leg_rej_loc if kwargs["n_ratio_panels"] < 2 else "ratio_legend"
+        self.rej_leg_loc = "ratio" if kwargs["n_ratio_panels"] > 0 else "lower left"
 
     def add_roc(
         self,
@@ -287,6 +258,7 @@ class RocPlot(PlotBase):
         if reference:
             logger.debug("Setting roc %s as reference for %s.", key, roc_curve.rej_class)
             self.set_roc_reference(key, roc_curve.rej_class, roc_curve.ratio_group)
+            self.reference_label = roc_curve.label
 
     def set_roc_reference(
         self,
@@ -398,17 +370,13 @@ class RocPlot(PlotBase):
         for key, elem in self.rocs.items():
             if elem.rej_class != rej_class:
                 continue
+            sig_eff, ratio, ratio_err = elem.divide(
+                self.rocs[self.reference_roc[rej_class][elem.ratio_group]]
+            )
 
-            if self.reference_roc and self.reference_roc[rej_class].get(elem.ratio_group):
-                ratio_sig_eff, ratio, ratio_err = elem.divide(
-                    self.rocs[self.reference_roc[rej_class][elem.ratio_group]]
-                )
-            else:
-                ratio_sig_eff, ratio, ratio_err = elem.divide(elem)
-
-            self.roc_ratios[key] = (ratio_sig_eff, ratio, ratio_err)
+            self.roc_ratios[key] = (sig_eff, ratio, ratio_err)
             axis.plot(
-                ratio_sig_eff,
+                sig_eff,
                 ratio,
                 color=elem.colour,
                 linestyle=elem.linestyle,
@@ -416,34 +384,14 @@ class RocPlot(PlotBase):
             )
             if ratio_err is not None:
                 axis.fill_between(
-                    ratio_sig_eff,
+                    sig_eff,
                     ratio - ratio_err,
                     ratio + ratio_err,
                     color=elem.colour,
-                    alpha=0.3,
+                    alpha=0.25,
+                    edgecolor="none",
                     zorder=1,
                 )
-
-    def set_leg_rej_loc(self, option: str):
-        """Set the position of the rejection class legend. Only if 2 ratio panels are
-        defined.
-
-        Parameters
-        ----------
-        option : str
-            Defines where to place the legend for rejection class. Accepts all options
-            from `matplotlib.axes.Axes.legend` as well as the option `ratio_legend`,
-            which adds the legend into the ratio panels
-
-        Raises
-        ------
-        ValueError
-            If not 2 ratios requested
-        """
-        if self.n_ratio_panels != 2:
-            raise ValueError("For a rejection class legend you need 2 ratio panels.")
-
-        self.leg_rej_loc = option
 
     def make_split_legend(self, handles):
         """Draw legend for the case of 2 ratios, splitting up legend into models and
@@ -462,7 +410,7 @@ class RocPlot(PlotBase):
         if self.n_ratio_panels < 2:
             raise ValueError("For a split legend you need 2 ratio panels.")
 
-        if self.leg_rej_loc == "ratio_legend":
+        if self.rej_leg_loc == "ratio":
             for rej_class, axis in self.rej_axes.items():
                 legend_line = mpl.lines.Line2D(
                     [],
@@ -493,7 +441,7 @@ class RocPlot(PlotBase):
             self.legend_flavs = self.axis_top.legend(
                 handles=line_list_rej,
                 labels=[handle.get_label() for handle in line_list_rej],
-                loc=self.leg_rej_loc,
+                loc=self.rej_leg_loc,
                 fontsize=self.leg_fontsize,
                 ncol=self.leg_ncol,
             )
@@ -546,11 +494,12 @@ class RocPlot(PlotBase):
         self.set_xlabel()
         self.set_ylabel(self.axis_top)
 
-        for i, axis in enumerate(self.rej_axes.values()):
+        # set ylabel for ratio panels
+        if self.n_ratio_panels > 0:
             self.set_ylabel(
-                axis,
-                self.ylabel_ratio[i],
-                align_right=False,
+                list(self.rej_axes.values())[-1],
+                f"Ratio to {self.reference_label}",
+                align="left",
                 labelpad=labelpad,
             )
 
@@ -560,7 +509,6 @@ class RocPlot(PlotBase):
             if not self.leg_rej_labels:
                 for rej_class in self.rej_axes:
                     self.leg_rej_labels[rej_class] = rej_class
-
             self.make_split_legend(handles=plt_handles)
 
         self.plotting_done = True
@@ -610,7 +558,8 @@ class RocPlot(PlotBase):
                     rej_band_down,
                     rej_band_up,
                     color=elem.colour,
-                    alpha=0.3,
+                    alpha=0.25,
+                    edgecolor="none",
                     zorder=2,
                 )
         return plt_handles
