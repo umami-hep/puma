@@ -18,6 +18,7 @@ discs_dips = get_discriminant(df, "dips", signal="bjets", fc=0.018)
 
 # defining target efficiency
 sig_eff = np.linspace(0.49, 1, 20)
+
 # defining boolean arrays to select the different flavour classes
 is_light = df["HadronConeExclTruthLabelID"] == 0
 is_c = df["HadronConeExclTruthLabelID"] == 4
@@ -31,17 +32,6 @@ rnnip_ujets_rej = calc_rej(discs_rnnip[is_b], discs_rnnip[is_light], sig_eff)
 rnnip_cjets_rej = calc_rej(discs_rnnip[is_b], discs_rnnip[is_c], sig_eff)
 dips_ujets_rej = calc_rej(discs_dips[is_b], discs_dips[is_light], sig_eff)
 dips_cjets_rej = calc_rej(discs_dips[is_b], discs_dips[is_c], sig_eff)
-
-# Alternatively you can simply use a results file with the rejection values
-# logger.info("read h5")
-# df = pd.read_hdf("results-rej_per_eff-1_new.h5", "ttbar")
-# print(df.columns.values)
-# sig_eff = df["effs"]
-# rnnip_ujets_rej = df["rnnip_ujets_rej"]
-# rnnip_cjets_rej = df["rnnip_cjets_rej"]
-# dips_ujets_rej = df["dips_ujets_rej"]
-# dips_cjets_rej = df["dips_cjets_rej"]
-# n_test = 10_000
 
 # here the plotting of the roc starts
 logger.info("Plotting ROC curves.")
@@ -98,9 +88,6 @@ plot_roc.add_roc(
 # setting which flavour rejection ratio is drawn in which ratio panel
 plot_roc.set_ratio_class(1, "ujets")
 plot_roc.set_ratio_class(2, "cjets")
-# if you want to swap the ratios just uncomment the following 2 lines
-# plot_roc.set_ratio_class(2, "ujets")
-# plot_roc.set_ratio_class(1, "cjets")
 
 plot_roc.draw()
 plot_roc.savefig("roc.png", transparent=False)
