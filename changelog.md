@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Add autohide for ROC ratio y-axis labels [!289](https://github.com/umami-hep/puma/pull/289)
 - Improve ROC cosmetics again, add rejection smoothing option [!288](https://github.com/umami-hep/puma/pull/288)
 - Adding colour-blind-friendly colours as default colours for taggers [!286](https://github.com/umami-hep/puma/pull/286)
 - Increased number of bins in plot_vertex_mass function and fixed use of kwargs [!284](https://github.com/umami-hep/puma/pull/284)
