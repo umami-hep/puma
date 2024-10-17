@@ -12,6 +12,37 @@ from puma.plot_base import PlotBase, PlotLineObject
 from puma.utils import get_good_colours, get_good_linestyles, logger
 
 
+def can_hide(ax) -> bool:
+    num_labels = 0
+    ax_bbox = ax.get_window_extent()
+    for label in ax.get_yticklabels():
+        label_bbox = label.get_window_extent()
+        if label.get_visible() and (label_bbox.y0 > ax_bbox.y0 and label_bbox.y1 < ax_bbox.y1):
+            num_labels += 1
+    return num_labels > 1
+
+
+def adjust_ylabels(fig, axes, min_distance=1) -> None:
+    """Adjust the y-axis labels to avoid overlap."""
+    fig.canvas.draw()
+    for ax in axes:
+        labels = ax.get_yticklabels()
+        ax_bbox = ax.get_window_extent()
+        for label in labels:
+            label_bbox = label.get_window_extent()
+            # skip label if it is not visible
+            if label_bbox.y1 < ax_bbox.y0 or label_bbox.y0 > ax_bbox.y1:
+                continue
+            # hide label if it is too close to the bottom
+            if label_bbox.y0 - ax_bbox.y0 < min_distance and can_hide(ax):
+                label.set_visible(False)
+                continue
+            # hide label if it is too close to the top
+            if ax_bbox.y1 - label_bbox.y1 < min_distance and can_hide(ax):
+                label.set_visible(False)
+                continue
+
+
 class Roc(PlotLineObject):
     """Represent a single ROC curve and allows to calculate ratio w.r.t other ROCs."""
 
@@ -518,6 +549,8 @@ class RocPlot(PlotBase):
             # the second legend by hand
             if self.legend_flavs is not None:
                 self.legend_flavs.set_frame_on(False)
+
+        adjust_ylabels(self.fig, self.rej_axes.values())
 
     def plot_roc(self, **kwargs) -> mpl.lines.Line2D:
         """Plotting roc curves.
