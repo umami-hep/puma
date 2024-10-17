@@ -1,7 +1,5 @@
 # Histograms
 
-To set up the inputs for the plots, have a look [here](./index.md).
-
 The following examples use the dummy data which is described [here](./dummy_data.md)
 
 ## _b_-tagging discriminant plot
