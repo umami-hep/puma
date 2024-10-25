@@ -641,20 +641,6 @@ class Results:
         if not any([working_point, disc_cut, fixed_rejections]):
             raise ValueError("Either working_point or disc_cut must be set")
 
-        # Define default kwargs
-        var_perf_kwargs = {
-            "xlabel": xlabel,
-            "n_ratio_panels": 1,
-            "atlas_first_tag": self.atlas_first_tag,
-            "atlas_second_tag": self.atlas_second_tag,
-            "y_scale": 1.5,
-            "logy": False,
-        }
-
-        # If extra kwargs are given, update the default ones accordingly
-        if kwargs is not None:
-            var_perf_kwargs.update(kwargs)
-
         # If fixed_rejections is given, call different function
         if fixed_rejections:
             self.plot_flat_rej_var_perf(
@@ -666,8 +652,26 @@ class Results:
             )
             return
 
+        # Split the kwargs according to if they are used for the plot or the curve
+        var_perf_plot_kwargs = {
+            "xlabel": xlabel,
+            "n_ratio_panels": 1,
+            "atlas_first_tag": self.atlas_first_tag,
+            "atlas_second_tag": self.atlas_second_tag,
+            "y_scale": 1.5,
+            "logy": False,
+        }
+
+        # Update the default plot kwargs if present in kwargs and remove it from kwargs
+        if kwargs is not None:
+            for key in kwargs:
+                if key in var_perf_plot_kwargs:
+                    var_perf_plot_kwargs[key] = kwargs.pop(key)
+
         # Init new var vs eff plot
-        plot_sig_eff = VarVsEffPlot(mode="sig_eff", ylabel=self.signal.eff_str, **var_perf_kwargs)
+        plot_sig_eff = VarVsEffPlot(
+            mode="sig_eff", ylabel=self.signal.eff_str, **var_perf_plot_kwargs
+        )
 
         # Adapt the atlas second tag
         plot_sig_eff.apply_modified_atlas_second_tag(
@@ -684,7 +688,7 @@ class Results:
         for background in self.backgrounds:
             # Init and append new background plot to the list
             plot_bkg.append(
-                VarVsEffPlot(mode="bkg_rej", ylabel=background.rej_str, **var_perf_kwargs)
+                VarVsEffPlot(mode="bkg_rej", ylabel=background.rej_str, **var_perf_plot_kwargs)
             )
 
             # Adapt the atlas second label accordingly
@@ -790,6 +794,22 @@ class Results:
         if "working_point" in kwargs:
             raise ValueError("working_point should not be set for this plot")
 
+        # Split the kwargs according to if they are used for the plot or the curve
+        var_perf_plot_kwargs = {
+            "xlabel": r"$p_{T}$ [GeV]",
+            "n_ratio_panels": 1,
+            "atlas_first_tag": self.atlas_first_tag,
+            "atlas_second_tag": self.atlas_second_tag,
+            "y_scale": 1.5,
+            "logy": False,
+        }
+
+        # Update the default plot kwargs if present in kwargs and remove it from kwargs
+        if kwargs is not None:
+            for key in kwargs:
+                if key in var_perf_plot_kwargs:
+                    var_perf_plot_kwargs[key] = kwargs.pop(key)
+
         # Get a list of all backgrounds
         backgrounds = [Flavours[b] for b in fixed_rejections]
 
@@ -799,7 +819,7 @@ class Results:
         # Loop over all backgrounds
         for bkg in backgrounds:
             # Modify the atlas second tag accordingly
-            modified_second_tag = (
+            var_perf_plot_kwargs["atlas_second_tag"] = (
                 f"{self.atlas_second_tag}\nFlat {bkg.rej_str} of"
                 f" {fixed_rejections[bkg.name]} per bin"
             )
@@ -809,8 +829,7 @@ class Results:
                 VarVsEffPlot(
                     mode="bkg_eff_sig_err",
                     ylabel=self.signal.eff_str,
-                    atlas_second_tag=modified_second_tag,
-                    **kwargs,
+                    **var_perf_plot_kwargs,
                 )
             )
 
