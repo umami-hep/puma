@@ -68,6 +68,18 @@ class Results:
         self.saved_plots = []
 
     def set_signal(self, signal: Flavour):
+        """Set the signal flavour and define background flavours.
+
+        Parameters
+        ----------
+        signal : Flavour
+            Flavour which is the signal
+
+        Raises
+        ------
+        ValueError
+            If the signal class is not supported
+        """
         if isinstance(signal, str):
             signal = Flavours[signal]
         self.signal = signal
@@ -88,6 +100,13 @@ class Results:
 
     @property
     def sig_str(self):
+        """Returns the name of the signal as a string.
+
+        Returns
+        -------
+        str
+            Name of the signal as string
+        """
         suffix = "jets"
         sig = str(self.signal)
         if sig.endswith(suffix):
@@ -261,7 +280,11 @@ class Results:
         return self.taggers[tagger_name]
 
     def save(
-        self, plot: Figure, plot_type: str, base: str | None = None, suffix: str | None = None
+        self,
+        plot: Figure,
+        plot_type: str,
+        base: str | None = None,
+        suffix: str | None = None,
     ):
         """Get the output file path.
 
@@ -303,36 +326,55 @@ class Results:
         **kwargs : kwargs
             key word arguments for `puma.HistogramPlot`
         """
+        # Get good linestyles for plotting
         line_styles = get_good_linestyles()
+
+        # Get a list of all flavours which are present
         flavours = [*self.backgrounds, self.signal]
+
+        # Init a default kwargs dict for the HistogramPlot
+        histo_kwargs = {
+            "ylabel": "Normalised number of jets",
+            "figsize": (7.0, 4.5),
+            "n_ratio_panels": 1,
+            "atlas_first_tag": self.atlas_first_tag,
+            "atlas_second_tag": self.atlas_second_tag,
+        }
+
+        # If kwargs are given, update the histo_kwargs dict
+        if kwargs is not None:
+            histo_kwargs.update(kwargs)
 
         # group by output probability
         for flav_prob in flavours:
+            # Create a new histogram plot
             hist = HistogramPlot(
-                n_ratio_panels=1,
                 xlabel=flav_prob.px,
-                ylabel="Normalised number of jets",
-                figsize=(7.0, 4.5),
-                atlas_first_tag=self.atlas_first_tag,
-                atlas_second_tag=self.atlas_second_tag,
-                **kwargs,
+                **histo_kwargs,
             )
 
+            # Init a new list for the tagger labels
             tagger_labels = []
-            for i, tagger in enumerate(self.taggers.values()):
+
+            # Loop over the taggers
+            for counter, tagger in enumerate(self.taggers.values()):
+                # Append labels if existing else the name
                 tagger_labels.append(tagger.label if tagger.label else tagger.name)
+
+                # Add the probability output of the given tagger for each flavour
                 for flav_class in flavours:
                     hist.add(
                         Histogram(
                             tagger.probs(flav_prob, flav_class),
                             ratio_group=flav_class,
-                            label=flav_class.label if i == 0 else None,
+                            label=flav_class.label if counter == 0 else None,
                             colour=flav_class.colour,
-                            linestyle=line_styles[i],
+                            linestyle=line_styles[counter],
                         ),
                         reference=tagger.reference,
                     )
 
+            # Finalise the plot and draw it
             hist.draw()
             hist.make_linestyle_legend(
                 linestyles=line_styles,
@@ -343,31 +385,34 @@ class Results:
 
         # group by flavour
         for flav_class in flavours:
+            # Create a new histogram plot
             hist = HistogramPlot(
-                n_ratio_panels=1,
                 xlabel=flav_class.label,
-                ylabel="Normalised number of jets",
-                figsize=(7.0, 4.5),
-                atlas_first_tag=self.atlas_first_tag,
-                atlas_second_tag=self.atlas_second_tag,
-                **kwargs,
+                **histo_kwargs,
             )
 
+            # Init a new list for the tagger labels
             tagger_labels = []
-            for i, tagger in enumerate(self.taggers.values()):
+
+            # Loop over the taggers
+            for counter, tagger in enumerate(self.taggers.values()):
+                # Append labels if existing else the name
                 tagger_labels.append(tagger.label if tagger.label else tagger.name)
+
+                # Add the probability output of the given tagger for each flavour
                 for flav_prob in flavours:
                     hist.add(
                         Histogram(
                             tagger.probs(flav_prob, flav_class),
                             ratio_group=flav_prob,
-                            label=flav_prob.px if i == 0 else None,
+                            label=flav_prob.px if counter == 0 else None,
                             colour=flav_prob.colour,
-                            linestyle=line_styles[i],
+                            linestyle=line_styles[counter],
                         ),
                         reference=tagger.reference,
                     )
 
+            # Finalise the plot and draw it
             hist.draw()
             hist.make_linestyle_legend(
                 linestyles=line_styles,
@@ -404,8 +449,11 @@ class Results:
         if wp_vlines is None:
             wp_vlines = []
 
+        # Get good linestyles for plotting
         line_styles = get_good_linestyles()
-        hist_defaults = {
+
+        # Init histo_kwargs
+        histo_kwargs = {
             "n_ratio_panels": 0,
             "xlabel": xlabel,
             "ylabel": "Normalised number of jets",
@@ -413,37 +461,56 @@ class Results:
             "atlas_first_tag": self.atlas_first_tag,
             "atlas_second_tag": self.atlas_second_tag,
         }
-        if kwargs is not None:
-            hist_defaults.update(kwargs)
-        hist = HistogramPlot(**hist_defaults)
 
+        # Check if kwargs are given and update the histo_kwargs accordingly
+        if kwargs is not None:
+            histo_kwargs.update(kwargs)
+
+        # Create a new histogram plot
+        hist = HistogramPlot(**histo_kwargs)
+
+        # Init a tagger label list
         tagger_labels = []
-        for i, tagger in enumerate(self.taggers.values()):
+
+        # Loop over the defined taggers
+        for counter, tagger in enumerate(self.taggers.values()):
+            # Check if the tagger is excluded and skip it if so
             if exclude_tagger is not None and tagger.name in exclude_tagger:
                 continue
+
+            # Get the discriminant values from the tagger for the given signal
             discs = tagger.discriminant(self.signal)
 
+            # Get lists for the working put cuts and labels
             wp_cuts, wp_labels = [], []
-            # get working point
+
+            # get working point cuts and labels and append them
             for wp in wp_vlines:
                 cut = np.percentile(discs[tagger.is_flav(self.signal)], 100 - wp)
-                label = None if i > 0 else f"{wp}%"
+                label = None if counter > 0 else f"{wp}%"
                 wp_cuts.append(cut)
                 wp_labels.append(label)
 
-            hist.draw_vlines(wp_cuts, labels=wp_labels, linestyle=line_styles[i])
+            # Draw the vertical lines for the working points
+            hist.draw_vlines(wp_cuts, labels=wp_labels, linestyle=line_styles[counter])
+
+            # Loop over the flavours and add the disc values for each flavour
             for flav in self.flavours:
                 hist.add(
                     Histogram(
                         discs[tagger.is_flav(flav)],
                         ratio_group=flav,
-                        label=flav.label if i == 0 else None,
+                        label=flav.label if counter == 0 else None,
                         colour=flav.colour,
-                        linestyle=line_styles[i],
+                        linestyle=line_styles[counter],
                     ),
                     reference=tagger.reference,
                 )
+
+            # Add the tagger label or name to the label list
             tagger_labels.append(tagger.label if tagger.label else tagger.name)
+
+        # Finalise the plot and draw it
         hist.draw()
         hist.make_linestyle_legend(
             linestyles=line_styles,
@@ -454,10 +521,10 @@ class Results:
 
     def plot_rocs(
         self,
-        x_range: tuple[float, float] | None = None,
+        x_range: tuple[float, float] | None = (0.5, 1.0),
         resolution: int = 50,
         suffix: str | None = None,
-        **roc_kwargs,
+        **kwargs,
     ):
         """Plots rocs.
 
@@ -469,14 +536,14 @@ class Results:
             number of points to use for the x-axis, by default 100
         suffix : str, optional
             suffix to add to output file name, by default None
-        roc_kwargs: dict, optional
+        kwargs: dict, optional
             key word arguments being passed to `RocPlot`
         """
-        if x_range is None:
-            x_range = (0.5, 1.0)
+        # Linspace the signal efficiencies
         sig_effs = np.linspace(*x_range, resolution)
 
-        roc_plot_args = {
+        # Init a default kwargs dict for roc plots
+        roc_kwargs = {
             "n_ratio_panels": len(self.backgrounds),
             "ylabel": "Background rejection",
             "xlabel": self.signal.eff_str,
@@ -485,19 +552,30 @@ class Results:
             "y_scale": 1.3,
             "ymin": 1,
         }
-        if roc_kwargs is not None:
-            roc_plot_args.update(roc_kwargs)
-        roc = RocPlot(**roc_plot_args)
 
+        # If kwargs are given, update the default kwargs accordingly
+        if kwargs is not None:
+            kwargs.update(roc_kwargs)
+
+        # Init a new ROC plot using the given/default kwargs
+        roc = RocPlot(**kwargs)
+
+        # Iterate over the taggers
         for tagger in self.taggers.values():
+            # Get the disc values for the given tagger
             discs = tagger.discriminant(self.signal)
+
+            # Loop over all backgrouns
             for background in self.backgrounds:
+                # Calculate rejection for the given background
                 rej = calc_rej(
                     discs[tagger.is_flav(self.signal)],
                     discs[tagger.is_flav(background)],
                     sig_effs,
                     smooth=True,
                 )
+
+                # Add the rejection curve to the ROC plot
                 roc.add_roc(
                     Roc(
                         sig_effs,
@@ -512,9 +590,10 @@ class Results:
                 )
 
         # setting which flavour rejection ratio is drawn in which ratio panel
-        for i, background in enumerate(self.backgrounds):
-            roc.set_ratio_class(i + 1, background)
+        for counter, background in enumerate(self.backgrounds):
+            roc.set_ratio_class(counter + 1, background)
 
+        # Finalise the plot and draw it
         roc.draw()
         self.save(roc, "roc", suffix=suffix)
 
@@ -556,17 +635,14 @@ class Results:
         **kwargs : kwargs
             key word arguments for `puma.VarVsEff`
         """
+        # Check correct setting of working_point, disc_cut and fixed_rejections
         if sum([bool(working_point), bool(disc_cut), bool(fixed_rejections)]) > 1:
-            raise ValueError("Only one of working_point or disc_cut can be set")
+            raise ValueError("Only one of working_point, disc_cut, or fixed_rejections can be set")
         if not any([working_point, disc_cut, fixed_rejections]):
             raise ValueError("Either working_point or disc_cut must be set")
-        if fixed_rejections:
-            self.plot_flat_rej_var_perf(
-                fixed_rejections, suffix, xlabel, perf_var, h_line, **kwargs
-            )
-            return
-        # define the curves
-        plot_kwargs = {
+
+        # Define default kwargs
+        var_perf_kwargs = {
             "xlabel": xlabel,
             "n_ratio_panels": 1,
             "atlas_first_tag": self.atlas_first_tag,
@@ -574,16 +650,44 @@ class Results:
             "y_scale": 1.5,
             "logy": False,
         }
-        plot_sig_eff = VarVsEffPlot(mode="sig_eff", ylabel=self.signal.eff_str, **plot_kwargs)
+
+        # If extra kwargs are given, update the default ones accordingly
+        if kwargs is not None:
+            var_perf_kwargs.update(kwargs)
+
+        # If fixed_rejections is given, call different function
+        if fixed_rejections:
+            self.plot_flat_rej_var_perf(
+                fixed_rejections=fixed_rejections,
+                suffix=suffix,
+                perf_var=perf_var,
+                h_line=h_line,
+                **kwargs,
+            )
+            return
+
+        # Init new var vs eff plot
+        plot_sig_eff = VarVsEffPlot(mode="sig_eff", ylabel=self.signal.eff_str, **var_perf_kwargs)
+
+        # Adapt the atlas second tag
         plot_sig_eff.apply_modified_atlas_second_tag(
             self.signal,
             working_point=working_point,
             disc_cut=disc_cut,
             flat_per_bin=kwargs.get("flat_per_bin", False),
         )
+
+        # Init new list for background plots
         plot_bkg = []
+
+        # Loop over all backgrounds
         for background in self.backgrounds:
-            plot_bkg.append(VarVsEffPlot(mode="bkg_rej", ylabel=background.rej_str, **plot_kwargs))
+            # Init and append new background plot to the list
+            plot_bkg.append(
+                VarVsEffPlot(mode="bkg_rej", ylabel=background.rej_str, **var_perf_kwargs)
+            )
+
+            # Adapt the atlas second label accordingly
             plot_bkg[-1].apply_modified_atlas_second_tag(
                 self.signal,
                 working_point=working_point,
@@ -591,36 +695,53 @@ class Results:
                 flat_per_bin=kwargs.get("flat_per_bin", False),
             )
 
+        # Loop over the given taggers
         for tagger in self.taggers.values():
+            # Load the discriminant values and check if
             discs = tagger.discriminant(self.signal)
             is_signal = tagger.is_flav(self.signal)
 
+            # Assure that the variable is in the data for the given tagger
             assert perf_var in tagger.perf_vars, f"{perf_var} not in tagger {tagger.name} data!"
-            this_kwargs = {
-                "x_var_sig": tagger.perf_vars[perf_var][is_signal],
-                "disc_sig": discs[is_signal],
-                "label": tagger.label,
-                "colour": tagger.colour,
-                "working_point": working_point,
-                "disc_cut": disc_cut,
-            }
-            plot_sig_eff.add(VarVsEff(**this_kwargs, **kwargs), reference=tagger.reference)
-            for i, background in enumerate(self.backgrounds):
+
+            # Add the variable to the plot
+            plot_sig_eff.add(
+                VarVsEff(
+                    x_var_sig=tagger.perf_vars[perf_var][is_signal],
+                    disc_sig=discs[is_signal],
+                    label=tagger.label,
+                    colour=tagger.colour,
+                    working_point=working_point,
+                    disc_cut=disc_cut,
+                    **kwargs,
+                ),
+                reference=tagger.reference,
+            )
+
+            # Loop over the background plots and add the variables
+            for counter, background in enumerate(self.backgrounds):
                 is_bkg = tagger.is_flav(background)
-                plot_bkg[i].add(
+                plot_bkg[counter].add(
                     VarVsEff(
+                        x_var_sig=tagger.perf_vars[perf_var][is_signal],
+                        disc_sig=discs[is_signal],
                         x_var_bkg=tagger.perf_vars[perf_var][is_bkg],
                         disc_bkg=discs[is_bkg],
-                        **this_kwargs,
+                        label=tagger.label,
+                        colour=tagger.colour,
+                        working_point=working_point,
+                        disc_cut=disc_cut,
                         **kwargs,
                     ),
                     reference=tagger.reference,
                 )
 
+        # Finalise the plot and draw it
         plot_sig_eff.draw()
         if h_line:
             plot_sig_eff.draw_hline(h_line)
 
+        # Generate the name according to inputs and save the figure
         plot_base = "flat_per_bin" if kwargs.get("flat_per_bin") else "fixed_cut"
         wp_disc = (f"disc_cut{disc_cut}" if disc_cut else f"wp{int(working_point * 100)}").replace(
             ".", "p"
@@ -630,16 +751,16 @@ class Results:
         suffix = f"{suffix}_" if suffix else ""
         self.save(plot_sig_eff, "profile", fname, suffix)
 
-        for i, bkg in enumerate(self.backgrounds):
-            plot_bkg[i].draw()
+        # Save the background figures
+        for counter, bkg in enumerate(self.backgrounds):
+            plot_bkg[counter].draw()
             fname = f"{str(bkg)[0]}rej_vs_{perf_var}_{plot_base}_{wp_disc}"
-            self.save(plot_bkg[i], "profile", fname, suffix)
+            self.save(plot_bkg[counter], "profile", fname, suffix)
 
     def plot_flat_rej_var_perf(
         self,
         fixed_rejections: dict[Flavour, float],
         suffix: str | None = None,
-        xlabel: str = r"$p_{T}$ [GeV]",
         perf_var: str = "pt",
         h_line: float | None = None,
         **kwargs,
@@ -654,8 +775,6 @@ class Results:
             fixed_rejections = {'cjets' : 0.1, 'ujets' : 0.01}
         suffix : str, optional
             suffix to add to output file name, by default None
-        xlabel : regexp, optional
-            _description_, by default "$p_{T}$ [GeV]"
         perf_var: str, optional
             The x axis variable, default is 'pt'
         h_line : float, optional
@@ -663,37 +782,49 @@ class Results:
         **kwargs : kwargs
             key word arguments for `puma.VarVsEff`
         """
+        # Check for invalid inputs
         if inv_bkg := set(fixed_rejections.keys()) - {str(b) for b in self.backgrounds}:
             raise ValueError(f"Invalid background flavours: {inv_bkg}")
         if "disc_cut" in kwargs:
             raise ValueError("disc_cut should not be set for this plot")
         if "working_point" in kwargs:
             raise ValueError("working_point should not be set for this plot")
+
+        # Get a list of all backgrounds
         backgrounds = [Flavours[b] for b in fixed_rejections]
+
+        # Init a list for background plots
         plot_bkg = []
+
+        # Loop over all backgrounds
         for bkg in backgrounds:
+            # Modify the atlas second tag accordingly
             modified_second_tag = (
                 f"{self.atlas_second_tag}\nFlat {bkg.rej_str} of"
                 f" {fixed_rejections[bkg.name]} per bin"
             )
+
+            # Init and append the background plot to the list
             plot_bkg.append(
                 VarVsEffPlot(
                     mode="bkg_eff_sig_err",
                     ylabel=self.signal.eff_str,
-                    xlabel=xlabel,
-                    logy=False,
-                    atlas_first_tag=self.atlas_first_tag,
                     atlas_second_tag=modified_second_tag,
-                    n_ratio_panels=1,
-                    y_scale=1.5,
+                    **kwargs,
                 )
             )
+
+        # After all plots are created, loop over the taggers
         for tagger in self.taggers.values():
+            # Get the disc values
             discs = tagger.discriminant(self.signal)
             is_signal = tagger.is_flav(self.signal)
-            for i, bkg in enumerate(backgrounds):
+
+            # Loop over the backgrounds
+            for counter, bkg in enumerate(backgrounds):
                 is_bkg = tagger.is_flav(bkg)
 
+                # Check that variable is present in tagger data
                 assert perf_var in tagger.perf_vars, f"{perf_var} not in tagger {tagger.name} data!"
 
                 # We want x bins to all have the same background rejection, so we
@@ -702,7 +833,7 @@ class Results:
                 # while keeping the 'sig_eff' a flat rate on the x axis, we therefore
                 # pass the signal as the background, and the background as the
                 # signal.
-                plot_bkg[i].add(
+                plot_bkg[counter].add(
                     VarVsEff(
                         x_var_sig=tagger.perf_vars[perf_var][is_bkg],
                         disc_sig=discs[is_bkg],
@@ -717,14 +848,17 @@ class Results:
                     reference=tagger.reference,
                 )
 
+        # Update the suffix
         suffix = f"_{suffix}" if suffix else ""
-        for i, bkg in enumerate(backgrounds):
-            plot_bkg[i].draw()
+
+        # Loop over the backgrounds, draw and save all plots
+        for counter, bkg in enumerate(backgrounds):
+            plot_bkg[counter].draw()
             if h_line:
-                plot_bkg[i].draw_hline(h_line)
+                plot_bkg[counter].draw_hline(h_line)
             details = f"{self.sig_str}eff_vs_{perf_var}_"
             base = f"{str(bkg)[0]}rej_flat_{int(fixed_rejections[bkg.name])}"
-            self.save(plot_bkg[i], "profile", details + base, suffix)
+            self.save(plot_bkg[counter], "profile", details + base, suffix)
 
     def plot_fraction_scans(
         self,
@@ -752,42 +886,67 @@ class Results:
         **kwargs
             Keyword arguments for `puma.Line2DPlot
         """
+        # Check signal flavour
         if self.signal not in {Flavours.bjets, Flavours.cjets}:
             raise ValueError("Signal flavour must be bjets or cjets")
 
+        # Get the background flavours in a list
         backgrounds = (
             [Flavours[b] for b in backgrounds] if backgrounds is not None else self.backgrounds
         )
+
+        # Check that only two background flavours are given
         if len(backgrounds) != 2:
             raise ValueError("Only two background flavours are supported")
 
+        # Adapt the plot name and suffix accordingly
         frac = "fc" if self.signal == Flavours.bjets else "fb"
         back_str = "_".join([f.name for f in backgrounds])
         plot_name = f"{frac}_scan"
         suffix = combine_suffixes([f"{back_str}_eff{int(efficiency * 100)}", suffix])
 
-        # set defaults
-        if "logx" not in kwargs:
-            kwargs["logx"] = True
-        if "logy" not in kwargs:
-            kwargs["logy"] = True
+        # Init a default kwargs dict
+        fraction_scan_kwargs = {
+            "logx": True,
+            "logy": True,
+        }
 
+        # If kwargs are given, update the default dict accordingly
+        if kwargs is not None:
+            fraction_scan_kwargs.update(kwargs)
+
+        # Define the granulartiy of the scan
         fxs = fraction_scan.get_fx_values(resolution=kwargs.pop("resolution", 100))
+
+        # Adapt the tag
         tag = self.atlas_second_tag + "\n" if self.atlas_second_tag else ""
         tag += f"{self.signal.eff_str} = {efficiency:.0%}"
         tag += f"\n$f_{frac[1:]}$ scan"
 
+        # Define a new plot for the scan
         plot = Line2DPlot(atlas_second_tag=tag, **kwargs)
+
+        # Get good colours and define, if the efficiency or the rejection is calculated
         eff_or_rej = calc_eff if not rej else calc_rej
         colours = get_good_colours()
-        for i, tagger in enumerate(self.taggers.values()):
+
+        # Loop over the taggers
+        for counter, tagger in enumerate(self.taggers.values()):
+            # Init zeros for both axes
             xs = np.zeros(len(fxs))
             ys = np.zeros(len(fxs))
+
+            # Get the indices of the flavours
             sig_idx = tagger.is_flav(self.signal)
             bkg_1_idx = tagger.is_flav(backgrounds[0])
             bkg_2_idx = tagger.is_flav(backgrounds[1])
+
+            # Loop over the fraction values
             for j, fx in enumerate(fxs):
+                # Calculate disc values for the tagger for the given fraction values
                 disc = tagger.discriminant(self.signal, fxs={frac: fx})
+
+                # Calculate the effciency/rejection and add it to the value arrays
                 xs[j] = eff_or_rej(disc[sig_idx], disc[bkg_1_idx], efficiency)
                 ys[j] = eff_or_rej(disc[sig_idx], disc[bkg_2_idx], efficiency)
 
@@ -798,7 +957,7 @@ class Results:
                     x_values=xs,
                     y_values=ys,
                     label=f"{tagger.label} ($f_x={tagger_fx}$)",
-                    colour=tagger.colour if tagger.colour else colours[i],
+                    colour=tagger.colour if tagger.colour else colours[counter],
                 )
             )
 
@@ -816,6 +975,8 @@ class Results:
                 ),
                 is_marker=True,
             )
+
+            # Plot optimal fc if wanted
             if optimal_fc:
                 opt_idx, opt_fc = fraction_scan.get_optimal_fc(
                     np.stack((xs, ys), axis=1), fc_space=fxs, rej=rej
@@ -831,13 +992,16 @@ class Results:
                     ),
                     is_marker=True,
                 )
+
             # Adding labels
             if not rej:
                 plot.xlabel = backgrounds[0].eff_str
                 plot.ylabel = backgrounds[1].eff_str
+
             else:
                 plot.xlabel = backgrounds[0].rej_str
                 plot.ylabel = backgrounds[1].rej_str
+
         # Draw and save the plot
         plot.draw()
         self.save(plot, "scan", plot_name, suffix)
