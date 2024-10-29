@@ -2,6 +2,10 @@
 
 ### [Latest]
 
+- Removing hardcoded kwargs from high-level plotting [!293](https://github.com/umami-hep/puma/pull/293)
+
+### [v0.4.0] (2024/10/24)
+
 - Clean up the docs a bit [!290](https://github.com/umami-hep/puma/pull/290)
 - Add autohide for ROC ratio y-axis labels [!289](https://github.com/umami-hep/puma/pull/289)
 - Improve ROC cosmetics again, add rejection smoothing option [!288](https://github.com/umami-hep/puma/pull/288)
