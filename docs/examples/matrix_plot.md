@@ -3,8 +3,6 @@
 The class `MatshowPlot` in `puma.matshow` is designed to plot matrixes based on `matplotlib`'s `matshow`. 
 
 
-To set up the inputs for the plots, have a look [here](./index.md).
-
 ## Basic plot
 
 The class can plot a matrix stored in a `np.ndarray`:
