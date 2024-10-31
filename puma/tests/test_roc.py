@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import os
+import shutil  # noqa: F401
 import tempfile
 import unittest
 
 import numpy as np
+import py
 from matplotlib.testing.compare import compare_images
 
 from puma import Roc, RocPlot
@@ -51,12 +53,8 @@ class RocTestCase(unittest.TestCase):
         bkg_rej_ref = np.exp(-sig_eff_ref) * 10e3
         roc_curve = Roc(sig_eff, bkg_rej)
         roc_curve_ref = Roc(sig_eff_ref, bkg_rej_ref * 2)
-        sig_eff, ratio, _ = roc_curve.divide(roc_curve_ref)
-
-        np.testing.assert_array_almost_equal(
-            [sig_eff, ratio],
-            [np.linspace(0.6, 0.9, 4), 1 / 2 * np.ones(4)],
-        )
+        with py.test.raises(ValueError, match="Signal efficiencies"):
+            _, _, _ = roc_curve.divide(roc_curve_ref)
 
     def test_ratio_factor_two_inverse(self):
         """Test roc divide function."""
@@ -94,11 +92,6 @@ class RocTestCase(unittest.TestCase):
         error_rej = np.array([8.717798, 35.0, 99.498744])
         roc_curve = Roc(np.array([0.1, 0.2, 0.3]), np.array([20, 50, 100]))
         np.testing.assert_array_almost_equal(roc_curve.binomial_error(n_test=100), error_rej)
-
-    def test_fct_inter(self):
-        """Test roc fct_inter function."""
-        roc_curve = Roc(self.sig_eff, self.bkg_rej)
-        np.testing.assert_array_almost_equal(roc_curve.fct_inter(self.sig_eff), self.bkg_rej)
 
 
 class RocMaskTestCase(unittest.TestCase):
@@ -183,21 +176,6 @@ class RocOutputTestCase(unittest.TestCase):
         # sig efficiency with different start
         self.sig_eff_short = np.linspace(0.5, 1, 100)
 
-    def test_set_leg_rej_loc_1_ratio(self):
-        """Test set_leg_rej_loc with one ratio panel."""
-        plot = RocPlot(
-            n_ratio_panels=1,
-        )
-        with self.assertRaises(ValueError):
-            plot.set_leg_rej_loc("upper center")
-
-    def test_set_leg_rej_loc_2_ratio(self):
-        """Test set_leg_rej_loc with one ratio panel."""
-        plot = RocPlot(
-            n_ratio_panels=2,
-        )
-        plot.set_leg_rej_loc("upper center")
-
     def test_output_two_curves_no_ratio(self):
         """Test with two curves of same flavour, without ratio panel."""
         plot = RocPlot(
@@ -205,7 +183,7 @@ class RocOutputTestCase(unittest.TestCase):
             ylabel="Light-jet rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
             ),
             y_scale=1.5,
         )
@@ -216,7 +194,7 @@ class RocOutputTestCase(unittest.TestCase):
                 self.sig_eff,
                 self.u_rej_1,
                 rej_class="ujets",
-                label="reference curve",
+                label="reference",
             ),
             reference=True,
         )
@@ -225,21 +203,21 @@ class RocOutputTestCase(unittest.TestCase):
                 self.sig_eff,
                 self.u_rej_2,
                 rej_class="ujets",
-                label="second curve",
+                label="test",
             )
         )
 
         # Draw the figure
         plot.draw()
 
-        plotname = "test_roc_two_curves_no_ratio.png"
-        plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_roc_two_curves_no_ratio.png"
+        plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copyfile(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=2.5,
             )
         )
@@ -248,10 +226,10 @@ class RocOutputTestCase(unittest.TestCase):
         """Test with two curves of same flavour, one ratio panel."""
         plot = RocPlot(
             n_ratio_panels=1,
-            ylabel="Background rejection",
+            ylabel="Light-jet rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
             ),
             y_scale=1.5,
             # logy=False,
@@ -263,7 +241,7 @@ class RocOutputTestCase(unittest.TestCase):
                 self.sig_eff,
                 self.u_rej_1,
                 rej_class="ujets",
-                label="reference curve",
+                label="reference",
             ),
             reference=True,
         )
@@ -272,7 +250,7 @@ class RocOutputTestCase(unittest.TestCase):
                 self.sig_eff,
                 self.u_rej_2,
                 rej_class="ujets",
-                label="second curve",
+                label="test",
             )
         )
 
@@ -281,14 +259,14 @@ class RocOutputTestCase(unittest.TestCase):
         # Draw the figure
         plot.draw()
 
-        plotname = "test_roc_two_curves_1_ratio.png"
-        plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_roc_two_curves_1_ratio.png"
+        plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copyfile(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=2.5,
             )
         )
@@ -297,10 +275,10 @@ class RocOutputTestCase(unittest.TestCase):
         """Test with two curves of same flavour, one ratio panel."""
         plot = RocPlot(
             n_ratio_panels=1,
-            ylabel="Background rejection",
+            ylabel="Light-jet rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
             ),
             y_scale=1.5,
             # logy=False,
@@ -310,9 +288,9 @@ class RocOutputTestCase(unittest.TestCase):
         plot.add_roc(
             Roc(
                 self.sig_eff,
-                self.u_rej_1,
+                self.u_rej_1 * 2,
                 rej_class="ujets",
-                label="reference curve",
+                label="reference",
                 n_test=1_000,
             ),
             reference=True,
@@ -320,9 +298,9 @@ class RocOutputTestCase(unittest.TestCase):
         plot.add_roc(
             Roc(
                 self.sig_eff,
-                self.u_rej_2,
+                self.u_rej_2 * 2,
                 rej_class="ujets",
-                label="second curve",
+                label="test",
                 n_test=1_000,
             )
         )
@@ -332,14 +310,14 @@ class RocOutputTestCase(unittest.TestCase):
         # Draw the figure
         plot.draw()
 
-        plotname = "test_roc_two_curves_1_ratio_unc.png"
-        plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_roc_two_curves_1_ratio_unc.png"
+        plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copyfile(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=2.5,
             )
         )
@@ -351,7 +329,7 @@ class RocOutputTestCase(unittest.TestCase):
             ylabel="Background rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
             ),
         )
 
@@ -361,7 +339,7 @@ class RocOutputTestCase(unittest.TestCase):
                 self.sig_eff,
                 self.u_rej_1,
                 rej_class="ujets",
-                label="reference curve",
+                label="reference",
             ),
             reference=True,
         )
@@ -370,7 +348,7 @@ class RocOutputTestCase(unittest.TestCase):
                 self.sig_eff,
                 self.u_rej_2,
                 rej_class="ujets",
-                label="second curve",
+                label="test",
             )
         )
         plot.add_roc(
@@ -378,7 +356,7 @@ class RocOutputTestCase(unittest.TestCase):
                 self.sig_eff,
                 self.c_rej_1,
                 rej_class="cjets",
-                label="reference curve",
+                label="reference",
             ),
             reference=True,
         )
@@ -387,7 +365,7 @@ class RocOutputTestCase(unittest.TestCase):
                 self.sig_eff,
                 self.c_rej_2,
                 rej_class="cjets",
-                label="second curve",
+                label="test",
             )
         )
 
@@ -397,14 +375,14 @@ class RocOutputTestCase(unittest.TestCase):
         # Draw the figure
         plot.draw()
 
-        plotname = "test_roc_four_curves_2_ratio.png"
-        plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_roc_four_curves_2_ratio.png"
+        plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copyfile(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=2.5,
             )
         )
@@ -416,7 +394,7 @@ class RocOutputTestCase(unittest.TestCase):
             ylabel="Background rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
             ),
         )
 
@@ -426,7 +404,7 @@ class RocOutputTestCase(unittest.TestCase):
                 self.sig_eff,
                 self.u_rej_1,
                 rej_class="ujets",
-                label="reference curve",
+                label="reference",
             ),
             reference=True,
         )
@@ -435,7 +413,7 @@ class RocOutputTestCase(unittest.TestCase):
                 self.sig_eff,
                 self.u_rej_2,
                 rej_class="ujets",
-                label="second curve",
+                label="test",
             )
         )
         plot.add_roc(
@@ -443,7 +421,7 @@ class RocOutputTestCase(unittest.TestCase):
                 self.sig_eff,
                 self.c_rej_1,
                 rej_class="cjets",
-                label="reference curve",
+                label="reference",
             ),
             reference=True,
         )
@@ -452,26 +430,24 @@ class RocOutputTestCase(unittest.TestCase):
                 self.sig_eff,
                 self.c_rej_2,
                 rej_class="cjets",
-                label="second curve",
+                label="test",
             )
         )
 
         plot.set_ratio_class(1, "ujets")
         plot.set_ratio_class(2, "cjets")
 
-        plot.set_leg_rej_loc("ratio_legend")
-
         # Draw the figure
         plot.draw()
 
-        plotname = "test_output_ratio_legend_four_curves_two_ratio.png"
-        plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_output_ratio_legend_four_curves_two_ratio.png"
+        plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copyfile(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=2.5,
             )
         )
@@ -483,7 +459,7 @@ class RocOutputTestCase(unittest.TestCase):
             ylabel="Background rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets,\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
             ),
         )
 
@@ -493,7 +469,7 @@ class RocOutputTestCase(unittest.TestCase):
                 self.sig_eff,
                 self.u_rej_1,
                 rej_class="ujets",
-                label="reference curve",
+                label="reference",
                 n_test=1_000,
             ),
             reference=True,
@@ -503,7 +479,7 @@ class RocOutputTestCase(unittest.TestCase):
                 self.sig_eff,
                 self.u_rej_2,
                 rej_class="ujets",
-                label="second curve",
+                label="test",
                 n_test=1_000,
             )
         )
@@ -512,7 +488,7 @@ class RocOutputTestCase(unittest.TestCase):
                 self.sig_eff,
                 self.c_rej_1,
                 rej_class="cjets",
-                label="reference curve",
+                label="reference",
                 n_test=1_000,
             ),
             reference=True,
@@ -522,7 +498,7 @@ class RocOutputTestCase(unittest.TestCase):
                 self.sig_eff,
                 self.c_rej_2,
                 rej_class="cjets",
-                label="second curve",
+                label="test",
                 n_test=1_000,
             )
         )
@@ -533,14 +509,14 @@ class RocOutputTestCase(unittest.TestCase):
         # Draw the figure
         plot.draw()
 
-        plotname = "test_roc_four_curves_2_ratio_unc.png"
-        plot.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_roc_four_curves_2_ratio_unc.png"
+        plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # plot.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copyfile(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=2.5,
             )
         )

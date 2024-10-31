@@ -26,9 +26,6 @@ You can get the output probability distributions just run
 ```py
 --8<-- "examples/high_level_plots.py:47:48"
 ```
-<img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_probs_bjets.png width=500>
-<img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_probs_cjets.png width=500>
-<img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_probs_ujets.png width=500>
 
 
 ## Discriminant plots
@@ -38,7 +35,6 @@ here for the _b_-jet discriminant
 --8<-- "examples/high_level_plots.py:50:53"
 ```
 
-<img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_disc.png width=500>
 
 
 ## ROC plots
@@ -47,7 +43,6 @@ In the same manner you can plot ROC curves, here for the _b_-tagging performance
 ```py
 --8<-- "examples/high_level_plots.py:55:57"
 ```
-<img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_roc.png width=500>
 
 
 
@@ -56,18 +51,12 @@ In this case we plot the performance as a function of the jet pT with the same s
 ```py
 --8<-- "examples/high_level_plots.py:59:69"
 ```
-<img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_profile_fixed_bjets_eff.png width=500>
-<img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_profile_fixed_cjets_rej.png width=500>
-<img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_profile_fixed_ujets_rej.png width=500>
 
 and similar for a fixed b-efficiency per bin.
 ```py
 --8<-- "examples/high_level_plots.py:71:78"
 ```
 
-<img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_profile_flat_bjets_eff.png width=500>
-<img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_profile_flat_cjets_rej.png width=500>
-<img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_profile_flat_ujets_rej.png width=500>
 
 
 Similar to above you can also do these plots for _c_-tagging by changing the `signal_class` to `cjets`.
@@ -80,5 +69,3 @@ Plot the two background efficiencies as a function of the $f_c$ or $f_b$ value.
 ```py
 --8<-- "examples/high_level_plots.py:87:90"
 ```
-
-<img src=https://github.com/umami-hep/puma/raw/examples-material/dummy_bjets_fraction_scan.png width=500>

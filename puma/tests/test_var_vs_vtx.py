@@ -7,6 +7,7 @@ import tempfile
 import unittest
 
 import numpy as np
+from matplotlib.testing.compare import compare_images
 
 # from matplotlib.testing.compare import compare_images
 from puma import VarVsVtx, VarVsVtxPlot
@@ -216,15 +217,16 @@ class VarVsVtxPlotTestCase(unittest.TestCase):
         plot_eff.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
         # plot_eff.savefig(f"{self.expected_plots_dir}/{plotname}")
+
         # Investigate small shifts in labels/scale causing this test to fail
-        # self.assertEqual(
-        #     None,
-        #     compare_images(
-        #         f"{self.actual_plots_dir}/{plotname}",
-        #         f"{self.expected_plots_dir}/{plotname}",
-        #         tol=5,
-        #     ),
-        # )
+        self.assertEqual(
+            None,
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname}",
+                f"{self.expected_plots_dir}/{plotname}",
+                tol=5,
+            ),
+        )
 
     def test_var_vs_vtx_plot_mode_purity(self):
         """Test vtx output plot - purity."""
@@ -264,15 +266,16 @@ class VarVsVtxPlotTestCase(unittest.TestCase):
         plot_pur.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
         # plot_pur.savefig(f"{self.expected_plots_dir}/{plotname}")
+
         # Investigate small shifts in labels/scale causing this test to fail
-        # self.assertEqual(
-        #     None,
-        #     compare_images(
-        #         f"{self.actual_plots_dir}/{plotname}",
-        #         f"{self.expected_plots_dir}/{plotname}",
-        #         tol=5,
-        #     ),
-        # )
+        self.assertEqual(
+            None,
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname}",
+                f"{self.expected_plots_dir}/{plotname}",
+                tol=5,
+            ),
+        )
 
     def test_var_vs_vtx_plot_mode_fake_rate(self):
         """Test aux output plot - fake_rate."""
@@ -312,12 +315,13 @@ class VarVsVtxPlotTestCase(unittest.TestCase):
         plot_fakes.savefig(f"{self.actual_plots_dir}/{plotname}")
         # Uncomment line below to update expected image
         # plot_fakes.savefig(f"{self.expected_plots_dir}/{plotname}")
+
         # Investigate small shifts in labels/scale causing this test to fail
-        # self.assertEqual(
-        #     None,
-        #     compare_images(
-        #         f"{self.actual_plots_dir}/{plotname}",
-        #         f"{self.expected_plots_dir}/{plotname}",
-        #         tol=5,
-        #     ),
-        # )
+        self.assertEqual(
+            None,
+            compare_images(
+                f"{self.actual_plots_dir}/{plotname}",
+                f"{self.expected_plots_dir}/{plotname}",
+                tol=5,
+            ),
+        )
