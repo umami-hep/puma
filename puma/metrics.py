@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import numpy as np
+from scipy.ndimage import gaussian_filter1d
 
 from puma.utils import logger
 from puma.utils.histogram import hist_w_unc, save_divide
@@ -109,6 +110,7 @@ def calc_rej(
     return_cuts: bool = False,
     sig_weights: np.ndarray = None,
     bkg_weights: np.ndarray = None,
+    smooth: bool = False,
 ):
     """Calculate efficiency.
 
@@ -148,7 +150,8 @@ def calc_rej(
         bkg_weights=bkg_weights,
     )
     rej = save_divide(1, eff[0] if return_cuts else eff, np.inf)
-
+    if smooth:
+        rej = gaussian_filter1d(rej, sigma=1, radius=2, mode="nearest")
     if return_cuts:
         return rej, eff[1]
     return rej

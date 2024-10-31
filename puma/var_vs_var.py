@@ -418,7 +418,7 @@ class VarVsVarPlot(PlotBase):
             self.set_ylabel(
                 self.ratio_axes[0],
                 self.ylabel_ratio[0],
-                align_right=False,
+                align="center",
                 labelpad=labelpad,
             )
         self.make_legend(plt_handles, ax_mpl=self.axis_top)

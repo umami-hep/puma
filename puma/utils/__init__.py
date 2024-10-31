@@ -51,19 +51,16 @@ def get_good_pie_colours(colour_scheme=None):
     """
     if colour_scheme is None:
         return [
-            "#1F77B4",
-            "#FF7F0E",
-            "#2CA02C",
-            "#D62728",
-            "#9467BD",
-            "#8C564B",
-            "#E377C2",
-            "#7F7F7F",
-            "#808000",
-            "#000080",
-            "#800080",
-            "#80B9A1",
-            "#205522",
+            "#3f90da",
+            "#ffa90e",
+            "#bd1f01",
+            "#94a4a2",
+            "#832db6",
+            "#a96b59",
+            "#e76300",
+            "#b9ac70",
+            "#717581",
+            "#92dadd",
         ]
     if colour_scheme == "red":
         return [
@@ -111,7 +108,7 @@ def get_good_pie_colours(colour_scheme=None):
     )
 
 
-def get_good_colours(colour_scheme=None):
+def get_good_colours(colour_scheme: str | None = None):
     """List of colours adequate for plotting
 
     Parameters
@@ -124,14 +121,21 @@ def get_good_colours(colour_scheme=None):
     list
         list with colours
     """
+
+    # If no colour scheme is selected, return colour-blind friendly colours
+    # See https://arxiv.org/pdf/2107.02270 Page 15 (10 colours)
     if colour_scheme is None:
         return [
-            "#AA3377",
-            "#228833",
-            "#4477AA",
-            "#CCBB44",
-            "#EE6677",
-            "#BBBBBB",
+            "#3f90da",
+            "#ffa90e",
+            "#bd1f01",
+            "#94a4a2",
+            "#832db6",
+            "#a96b59",
+            "#e76300",
+            "#b9ac70",
+            "#717581",
+            "#92dadd",
         ] + Dark2_8.mpl_colors
 
     elif colour_scheme == "Dark2_8":
