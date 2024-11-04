@@ -9,5 +9,5 @@ and extract the number of tracks per jet (and per track origin) as a function of
 An example of the usage of this function can be found here:
 
 ```py
---8<-- "examples/plot_n_track_origin.py"
+--8<-- "examples/plot_n_tracks_origin.py"
 ```

@@ -14,8 +14,8 @@ from puma.var_vs_var import VarVsVar, VarVsVarPlot
 def n_tracks_per_origin(
     flavour_list: list[Flavour],
     files: dict[dict[str]],
-    plot_path: str,
     plot_type: str,
+    plot_path: str | None = None,
     track_origin_dict: dict | None = None,
     plot_format: str = "pdf",
     plot_name: str | None = None,
@@ -47,11 +47,12 @@ def n_tracks_per_origin(
             Name of the track truth origin variable. By default "ftagTruthOriginLabel".
         flavour_label_variable : str, optional
             Name of the flavour label variable. By default "HadronConeExclTruthLabelID".
-    plot_path : str
-        Path to the folder where the plots will be stored.
     plot_type : str
         Decide, which type of plot is wanted. Supported are "all_samples_one_flavour"
         or "one_sample_all_flavour".
+    plot_path : str, optional
+        Path to the folder where the plots will be stored. If None, plot is saved to current
+        directory. By default None
     track_origin_dict : dict | None, optional
         Dict with the track origin names as keys and their origin value(s) as a list.
         With this, you can combine different origins and give them a new name. See the
