@@ -7,8 +7,8 @@ import numpy as np
 from ftag import Flavour
 from ftag.hdf5 import H5Reader
 
-from puma.line_plot_2d import Line2DPlot
 from puma.utils import get_good_colours, get_good_linestyles
+from puma.var_vs_var import VarVsVar, VarVsVarPlot
 
 
 def n_tracks_per_origin(
@@ -18,6 +18,7 @@ def n_tracks_per_origin(
     plot_type: str,
     track_origin_dict: dict | None = None,
     plot_format: str = "pdf",
+    plot_name: str | None = None,
     **kwargs,
 ):
     """Plot number of tracks per track origin plot as a function of pT.
@@ -57,6 +58,8 @@ def n_tracks_per_origin(
         definition of the default track_origin_dict in the code. By default None
     plot_format : str, optional
         Plot format, by default "pdf"
+    plot_name : str, optional
+        Extra for the plot name, by default None
 
     Raises
     ------
@@ -85,32 +88,59 @@ def n_tracks_per_origin(
             "Others": [0, 1, 2, 7],
         }
 
-    # Init a default kwargs dict for the Line2DPlot
-    Line2D_kwargs = {
+    # Init a default kwargs dict for the VarVsVarPlot
+    VarVsVarPlot_kwargs = {
         "xlabel": "$p_T$ [GeV]",
         "ylabel": "Average $N_\\mathrm{Tracks}$ per Origin",
         "figsize": (7.0, 4.5),
-        "y_scale": 1.2,
+        "y_scale": 1.3,
         "atlas_first_tag": "Simulation Internal",
-        "atlas_second_tag": "",
+        "atlas_second_tag": None,
+        "logx": False,
+        "logy": False,
     }
 
-    # If kwargs are given, update the Line2D_kwargs dict
+    # If kwargs are given, update the VarVsVarPlot_kwargs dict
     if kwargs is not None:
-        Line2D_kwargs.update(kwargs)
+        VarVsVarPlot_kwargs.update(kwargs)
+
+    # Init a dict for the plots
+    var_plot_dict = {}
 
     # Check plot type and init plot if needed
     if all_flav_plot:
-        line_plot_dict = {
-            file_key: Line2DPlot(title=file_value["process_label"] + " Jets", **Line2D_kwargs)
-            for file_key, file_value in files.items()
-        }
+        for file_key, file_value in files.items():
+            unmodified_second_tag = VarVsVarPlot_kwargs.get("atlas_second_tag")
+
+            # Modify the second tag
+            if unmodified_second_tag is None:
+                VarVsVarPlot_kwargs["atlas_second_tag"] = file_value["process_label"] + " Jets"
+
+            else:
+                VarVsVarPlot_kwargs["atlas_second_tag"] += f'\n{file_value["process_label"]} Jets'
+
+            # Init the plot
+            var_plot_dict[file_key] = VarVsVarPlot(**VarVsVarPlot_kwargs)
+
+            # Reverse the change for the next plot
+            VarVsVarPlot_kwargs["atlas_second_tag"] = unmodified_second_tag
 
     else:
-        line_plot_dict = {
-            flavour.name: Line2DPlot(title=flavour.label, **Line2D_kwargs)
-            for flavour in flavour_list
-        }
+        for flavour in flavour_list:
+            unmodified_second_tag = VarVsVarPlot_kwargs.get("atlas_second_tag")
+
+            # Modify the second tag
+            if unmodified_second_tag is None:
+                VarVsVarPlot_kwargs["atlas_second_tag"] = flavour.label
+
+            else:
+                VarVsVarPlot_kwargs["atlas_second_tag"] += f"\n{flavour.label}"
+
+            # Init the plot
+            var_plot_dict[flavour.name] = VarVsVarPlot(**VarVsVarPlot_kwargs)
+
+            # Reverse the change for the next plot
+            VarVsVarPlot_kwargs["atlas_second_tag"] = unmodified_second_tag
 
     # Init lists for legend handles
     file_handles = []
@@ -182,19 +212,40 @@ def n_tracks_per_origin(
                     np.mean(n_trks_tmp[bin_indices == i]) for i in range(len(pt_bins) - 1)
                 ])
 
+                # Calculate the std error
+                n_trks_std = [
+                    np.sqrt(
+                        np.sum(
+                            (n_trks_tmp[bin_indices == i] - np.mean(n_trks_tmp[bin_indices == i]))
+                            ** 2
+                        )
+                        / len(n_trks_tmp[bin_indices == i] - 1)
+                    )
+                    / np.sqrt(len(n_trks_tmp[bin_indices == i]))
+                    for i in range(len(pt_bins) - 1)
+                ]
+
                 # Plot the curve
-                line_plot_dict[plot_iterator].axis_top.plot(
-                    (pt_bins[:-1] + 0.5 * (pt_bins[0] - pt_bins[1])) / 1_000,
-                    n_trks_means,
-                    linestyle=(
-                        get_good_linestyles()[flavour_counter]
-                        if all_flav_plot
-                        else get_good_linestyles()[file_counter]
-                    ),
-                    marker="o",
-                    markersize="4",
-                    color=get_good_colours()[trk_origin_counter],
-                    label=None if all_flav_plot else file_value["process_label"],
+                var_plot_dict[plot_iterator].add(
+                    VarVsVar(
+                        x_var=(0.5 * (pt_bins[1:] + pt_bins[:-1])) / 1000,
+                        y_var_mean=n_trks_means,
+                        x_var_widths=(
+                            (0.5 * (pt_bins[1:] + pt_bins[:-1])) / 1000 - pt_bins[:-1] / 1000
+                        )
+                        * 2,
+                        y_var_std=n_trks_std,
+                        plot_y_std=False,
+                        linestyle=(
+                            get_good_linestyles()[flavour_counter]
+                            if all_flav_plot
+                            else get_good_linestyles()[file_counter]
+                        ),
+                        marker="o",
+                        markersize="4",
+                        colour=get_good_colours()[trk_origin_counter],
+                        label=None if all_flav_plot else file_value["process_label"],
+                    )
                 )
 
                 # Append the track origin labels only once
@@ -235,21 +286,24 @@ def n_tracks_per_origin(
             )
         )
 
+    # Get the extra for the plot_name
+    tmp_plot_name = "" if plot_name is None else plot_name + "_"
+
     # Iterate over all plots
-    for iter_plot_name in line_plot_dict:
+    for iter_plot_name in var_plot_dict:
         # Draw the actual plot
-        line_plot_dict[iter_plot_name].draw()
+        var_plot_dict[iter_plot_name].draw()
 
         # Remove initial legend
-        line_plot_dict[iter_plot_name].axis_top.get_legend().remove()
+        var_plot_dict[iter_plot_name].axis_top.get_legend().remove()
 
         # Remove the puma legend and call adjust layout
-        line_plot_dict[iter_plot_name].fig.tight_layout()
+        var_plot_dict[iter_plot_name].fig.tight_layout()
 
         # Add the flavour or the process legend to the plots
         iter_handles = flavour_handles if all_flav_plot else file_handles
-        line_plot_dict[iter_plot_name].axis_top.add_artist(
-            line_plot_dict[iter_plot_name].axis_top.legend(
+        var_plot_dict[iter_plot_name].axis_top.add_artist(
+            var_plot_dict[iter_plot_name].axis_top.legend(
                 handles=iter_handles,
                 labels=[handle.get_label() for handle in iter_handles],
                 loc="upper right",
@@ -259,8 +313,8 @@ def n_tracks_per_origin(
         )
 
         # Add the track origin legend to the plots
-        line_plot_dict[iter_plot_name].axis_top.add_artist(
-            line_plot_dict[iter_plot_name].axis_top.legend(
+        var_plot_dict[iter_plot_name].axis_top.add_artist(
+            var_plot_dict[iter_plot_name].axis_top.legend(
                 handles=trk_origin_handles,
                 labels=[handle.get_label() for handle in trk_origin_handles],
                 loc="upper center",
@@ -270,13 +324,13 @@ def n_tracks_per_origin(
         )
 
         # Safe the figure
-        line_plot_dict[iter_plot_name].savefig(
+        var_plot_dict[iter_plot_name].savefig(
             plot_name=os.path.join(
                 plot_path,
                 (
-                    f"{iter_plot_name}_all_flavour.{plot_format}"
+                    f"{tmp_plot_name}{iter_plot_name}_all_flavour.{plot_format}"
                     if all_flav_plot
-                    else f"{iter_plot_name}_all_samples.{plot_format}"
+                    else f"{tmp_plot_name}{iter_plot_name}_all_samples.{plot_format}"
                 ),
             )
         )
