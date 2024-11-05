@@ -1025,7 +1025,7 @@ class Results:
         plot.draw()
         self.save(plot, "scan", plot_name, suffix)
 
-    def make_plot(self, plot_type, kwargs):
+    def make_plot(self, plot_type: str, **kwargs):
         """Make a plot.
 
         Parameters
