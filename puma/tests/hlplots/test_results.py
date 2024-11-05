@@ -8,7 +8,7 @@ from pathlib import Path
 
 import h5py
 import numpy as np
-from ftag import get_mock_file
+from ftag import Flavours, get_mock_file
 from ftag.hdf5 import structured_from_dict
 
 from puma.hlplots import Results
@@ -20,6 +20,20 @@ set_log_level(logger, "DEBUG")
 
 class ResultsTestCase(unittest.TestCase):
     """Test class for the Results class."""
+
+    def test_set_signal_hcc(self):
+        """Test set_signal for hcc."""
+        results = Results(signal="hcc", sample="test")
+        self.assertEqual(
+            results.backgrounds,
+            [Flavours.hbb, Flavours.top, Flavours.qcd],
+        )
+        self.assertEqual(results.signal, Flavours.hcc)
+
+    def test_unsupported_signal(self):
+        """Test usage of unsupported signal."""
+        with self.assertRaises(ValueError):
+            Results(signal="ujets", sample="test")
 
     def test_add_duplicated(self):
         """Test empty string as model name."""
@@ -101,7 +115,9 @@ class ResultsTestCase(unittest.TestCase):
         # get mock file and rename variables match taujets
         fname = get_mock_file()[0]
         results = Results(
-            signal="bjets", sample="test", all_flavours=["bjets", "cjets", "ujets", "taujets"]
+            signal="bjets",
+            sample="test",
+            all_flavours=["bjets", "cjets", "ujets", "taujets"],
         )
         taggers = [Tagger("MockTagger", fxs={"fc": 0.1, "fb": 0.1, "ftau": 0.1})]
         results.load_taggers_from_file(taggers, fname)
@@ -317,6 +333,27 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 assert fpath.is_file()
             results.saved_plots = []
 
+    def test_plot_var_perf_extra_kwargs(self):
+        """Test that png file is being created."""
+        self.dummy_tagger_1.reference = True
+        self.dummy_tagger_1.fxs = {"fc": 0.05}
+        self.dummy_tagger_1.disc_cut = 2
+        rng = np.random.default_rng(seed=16)
+        self.dummy_tagger_1.perf_vars = {
+            "pt": rng.exponential(100, size=len(self.dummy_tagger_1.scores))
+        }
+        with tempfile.TemporaryDirectory() as tmp_file:
+            results = Results(signal="bjets", sample="test", output_dir=tmp_file)
+            results.add(self.dummy_tagger_1)
+            results.plot_var_perf(
+                bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
+                working_point=0.7,
+                y_scale=1.3,
+            )
+            for fpath in results.saved_plots:
+                assert fpath.is_file()
+            results.saved_plots = []
+
     def test_plot_var_perf_multi_bjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
@@ -383,6 +420,27 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 assert fpath.is_file()
             results.saved_plots = []
 
+    def test_plot_beff_vs_flat_rej_extra_kwargs(self):
+        self.dummy_tagger_1.reference = True
+        self.dummy_tagger_1.fxs = {"fc": 0.05}
+        self.dummy_tagger_1.working_point = 0.5
+        rng = np.random.default_rng(seed=16)
+        self.dummy_tagger_1.perf_vars = {
+            "pt": rng.exponential(100, size=len(self.dummy_tagger_1.scores))
+        }
+        with tempfile.TemporaryDirectory() as tmp_file:
+            results = Results(signal="bjets", sample="test", output_dir=tmp_file)
+            results.add(self.dummy_tagger_1)
+            results.plot_flat_rej_var_perf(
+                fixed_rejections={"cjets": 10, "ujets": 100},
+                bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
+                h_line=0.5,
+                y_scale=1.3,
+            )
+            for fpath in results.saved_plots:
+                assert fpath.is_file()
+            results.saved_plots = []
+
     def test_plot_ceff_vs_flat_rej(self):
         self.dummy_tagger_1.reference = True
         self.dummy_tagger_1.fxs = {"fb": 0.05}
@@ -435,3 +493,23 @@ class ResultsPlotsTestCase(unittest.TestCase):
             for fpath in results.saved_plots:
                 assert fpath.is_file()
             results.saved_plots = []
+
+    def test_plot_fraction_scans_multiple_bkg_error(self):
+        """Test error of more than two backgrounds."""
+        self.dummy_tagger_1.reference = True
+        self.dummy_tagger_1.fxs = {"fc": 0.05}
+        with tempfile.TemporaryDirectory() as tmp_file:
+            results = Results(signal="bjets", sample="test", output_dir=tmp_file)
+            results.add(self.dummy_tagger_1)
+            with self.assertRaises(ValueError):
+                results.plot_fraction_scans(
+                    rej=False,
+                    optimal_fc=True,
+                    backgrounds=[Flavours.cjets, Flavours.ujets, Flavours.taujets],
+                )
+
+    def test_make_plot_error(self):
+        """Test error of non-existing plot type."""
+        results = Results(signal="bjets", sample="test")
+        with self.assertRaises(ValueError):
+            results.make_plot(plot_type="crash", kwargs={})

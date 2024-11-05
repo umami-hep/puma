@@ -664,7 +664,11 @@ class Results:
 
         # Update the default plot kwargs if present in kwargs and remove it from kwargs
         if kwargs is not None:
-            for key in kwargs:
+            # Init a list to loop over
+            iter_kwargs_list = list(kwargs.keys())
+
+            # Loop over the kwargs list
+            for key in iter_kwargs_list:
                 if key in var_perf_plot_kwargs:
                     var_perf_plot_kwargs[key] = kwargs.pop(key)
 
@@ -806,7 +810,11 @@ class Results:
 
         # Update the default plot kwargs if present in kwargs and remove it from kwargs
         if kwargs is not None:
-            for key in kwargs:
+            # Init a list to loop over
+            iter_kwargs_list = list(kwargs.keys())
+
+            # Loop over the kwargs list
+            for key in iter_kwargs_list:
                 if key in var_perf_plot_kwargs:
                     var_perf_plot_kwargs[key] = kwargs.pop(key)
 
@@ -1025,7 +1033,7 @@ class Results:
         plot.draw()
         self.save(plot, "scan", plot_name, suffix)
 
-    def make_plot(self, plot_type, kwargs):
+    def make_plot(self, plot_type: str, kwargs: dict):
         """Make a plot.
 
         Parameters
