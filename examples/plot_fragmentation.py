@@ -248,8 +248,7 @@ def SV_Finding(
 def main():
     # Set up argparse
     parser = argparse.ArgumentParser(description="Path to samples.")
-    # /fs/ddn/sdf/group/atlas/d/lapereir/GN2/OpenDataset_final_v2/MC23a_new-ttbar.h5
-    parser.add_argument("path", type=str, help="Path to sample list")
+    parser.add_argument("--path",  type=str, default="./", type=str, help="Path to sample list")
     parser.add_argument("--n_jets", type=int, default=300000, help="Number of jets to run")
 
     parser.add_argument("--sample", type=str, default="ttbar", help="Sample name")
