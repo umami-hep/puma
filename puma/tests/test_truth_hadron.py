@@ -73,7 +73,7 @@ class TruthHadronTestCase(unittest.TestCase):
         ])
 
     def test_hadron_order(self):
-        result = GetOrderedHadrons(self.hadron_barcode, self.hadron_parent, n_max_showers=1)
+        result = GetOrderedHadrons(self.hadron_barcode, self.parent_barcode, n_max_showers=1)
         known_result = [[[0, 1, 2, -1, -1]]]
 
         assert (result == known_result).all(), "Test failed: result does not match known_result"
