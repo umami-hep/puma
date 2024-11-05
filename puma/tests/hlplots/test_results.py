@@ -512,4 +512,4 @@ class ResultsPlotsTestCase(unittest.TestCase):
         """Test error of non-existing plot type."""
         results = Results(signal="bjets", sample="test")
         with self.assertRaises(ValueError):
-            results.make_plot(plot_type="crash")
+            results.make_plot(plot_type="crash", kwargs={})
