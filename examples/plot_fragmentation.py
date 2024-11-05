@@ -248,7 +248,7 @@ def SV_Finding(
 def main():
     # Set up argparse
     parser = argparse.ArgumentParser(description="Path to samples.")
-    parser.add_argument("--path",  type=str, default="./", help="Path to sample list")
+    parser.add_argument("--path", type=str, default="./", help="Path to sample list")
     parser.add_argument("--n_jets", type=int, default=300000, help="Number of jets to run")
 
     parser.add_argument("--sample", type=str, default="ttbar", help="Sample name")
