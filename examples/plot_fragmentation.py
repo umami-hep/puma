@@ -10,7 +10,12 @@ from ftag import Cuts
 from ftag.hdf5 import H5Reader  # I use ftag tools to read the file
 
 from puma import Histogram, HistogramPlot
-from puma.utils.truth_hadron import *
+from puma.utils.truth_hadron import (
+    AssociateTracksToHadron,
+    GetOrderedHadrons,
+    SelectHadron,
+    select_tracks,
+)
 
 # starting parameters
 
@@ -69,7 +74,7 @@ def jet_flavour(jet, f=""):
     return jet["HadronConeExclTruthLabelID"] >= 0
 
 
-def LoadDataset(file_path, kinematic_cuts, n_jets=-1, n_tracks=40):
+def LoadDataset(file_path, kinematic_cuts, n_jets=-1):
     track_var = [
         "dphi",
         "d0Uncertainty",
@@ -159,18 +164,18 @@ ertexToTruthVertexDisplacementY",
 
 def ExtractHadronInfo(f, good_jets):
     tracks = f["tracks"][good_jets]
-    jets = f["jets"][good_jets]
+    # jets = f["jets"][good_jets]
     hadrons = f["truth_hadrons"][good_jets]
 
-    n_jets = jets.shape[0]
-    n_tracks = tracks.shape[1]
-    n_hadrons = hadrons.shape[1]
+    # n_jets = jets.shape[0]
+    # n_tracks = tracks.shape[1]
+    # n_hadrons = hadrons.shape[1]
 
     ordered_hadron_indices = GetOrderedHadrons(
         hadrons["barcode"], hadrons["ftagTruthParentBarcode"], n_max_showers=2
     )
 
-    # CHOICE: I choose to keep only the first shower/element and ignore the random hadrons that pop up.
+    # CHOICE:keep only the first shower
     shower_index = 0  # < n_max_showers --- Select the index most important shower
     hadron_indices_first_shower = ordered_hadron_indices[:, shower_index, :]
 
@@ -314,7 +319,6 @@ inclusive_vertex = True
 # Get Vertex Index, where are the secondary vertices?
 
 # this is the old function (it is slower and uses the FTAG clean vertex finding)
-# reco_track_weights, reco_vertex_index = GetTrackWeights(track_data, incl_vertexing=inclusive_vertex, truth=False, max_sv=max_sv) # if not inclusive you can choose to store more than one vertex i.e. max_sv != 1
 
 # process SV finding ###
 
@@ -358,9 +362,6 @@ reco_track_weights = SV_Finding(
 ############################
 # Fragmentation Plot ####
 ############################
-
-
-# We need the sv1_shower because we want to associate the tracks to the parent of the shower if there are multiple tracks. Or select the unrelated hadron with highest tracks.
 
 hadron_varaiables, n_tracks_hadron_shower, tracks_hadron_family = sv1_shower
 
@@ -498,9 +499,10 @@ if normalise:
     y_axis = "Arbitrary Units"
 
 # Initialise histogram plot
+pt = "$\\sum$ p$_\\mathrm{T}$"
 plot_histo = HistogramPlot(
     ylabel=y_axis,
-    xlabel="$\\sum$ p$_\\mathrm{T}$ tracks $\\in$ (SV Hadron) / $\\sum$ p$_\\mathrm{T}$ tracks $\\in$ jet",
+    xlabel=pt + " tracks $\\in$ (SV Hadron) / " + pt + " tracks $\\in$ jet",
     logy=True,
     # bins=np.linspace(0, 5, 60),  # you can force a binning for the plot here
     bins=25,  # you can also define an integer number for the number of bins
@@ -538,7 +540,7 @@ if normalise:
 # Initialise histogram plot
 plot_histo = HistogramPlot(
     ylabel=y_axis,
-    xlabel="$\\sum$ p$_\\mathrm{T}$ tracks $\\in$ (GN2 Inclusive SV) / $\\sum$ p$_\\mathrm{T}$  tracks $\\in$ jet",
+    xlabel=pt + " tracks $\\in$ (SV Hadron) / " + pt + " tracks $\\in$ jet",
     logy=True,
     # bins=np.linspace(0, 5, 60),  # you can force a binning for the plot here
     bins=25,  # you can also define an integer number for the number of bins

@@ -10,10 +10,6 @@ def GetOrderedHadrons(hadron_barcode, hadron_parent, n_max_showers=2):
     # n_showers max would be n_hadrons if there were 5 unrelated showers (not likely)
 
     # Output: Padded array of indices with shape (n_jets, n_showers, n_hadrons)
-    # The showers are ordered as follows: 1st) all hadrons in the longest decay chain 2nd) hadrons in shorter decay chains 3rd) unrelated (family-less) hadrons.
-    # The hadrons are ordered as follows: 1st parent, then children.. if there is only one hadron it is given the first element. The hadrons are separated by showers.
-    # Example of jet with 1 lonely hadron assuming n_max_showers = 2: [[0, -1, -1, -1, -1] [-1 -1 -1 -1 -1]]
-    # Example of jet with 4 hadrons, incides (0, 2, 3) belong to a same decay chain where 0 is the parent, there is olso an unrelated hadron in index 1: [[0, 2, 3, -1, -1] [1 -1 -1 -1 -1]]
 
     n_jets, n_hadrons = hadron_barcode.shape
 
@@ -103,13 +99,13 @@ def GetOrderedHadrons(hadron_barcode, hadron_parent, n_max_showers=2):
 
 def AssociateTracksToHadron(track_parent, hadron_barcode, hadron_mask):
     # INPUTS #####
-    # track_parent         shape (n_jets, n_tracks)   ----  barcode of the hadron that is parent of each track
-    # hadron_barcode       shape (n_jets, n_hadrons)    --- barcode of each hadron (to associate tracks to hadron index)
-    # track_hadron_mask    shape (n_hadrons, n_jets, n_tracks) --- select only the tracks from hadrons in the most important hadron (and their children)
+    # track_parent         shape (n_jets, n_tracks)
+    # hadron_barcode       shape (n_jets, n_hadrons)
+    # track_hadron_mask    shape (n_hadrons, n_jets, n_tracks)
     # OUTPUTS #####
-    # track_to_hadron_array           shape (n_jets, n_hadrons, n_tracks)    ---- SV finding track to hadron association, for each hadron. If only one track is associated to a hadron/vertex it is dropped.
-    # inclusive_track_first_hadron    shape (n_jets, n_tracks)    ---- SV finding track to the first hadron (and children) i.e. tracks associated to the first hadron (and family) are added.
-    # inclusive_track_hadron          shape (n_jets, n_tracks)    ---- SV finding track to hadrons (INCLUSIVE) i.e. tracks associated to any hadron are added.
+    # track_to_hadron_array           shape (n_jets, n_hadrons, n_tracks)
+    # inclusive_track_first_hadron    shape (n_jets, n_tracks)
+    # inclusive_track_hadron          shape (n_jets, n_tracks)
 
     n_jets, n_tracks = track_parent.shape
     n_hadrons = hadron_barcode.shape[1]
@@ -160,5 +156,4 @@ def SelectHadron(truth_hadrons, hadron_index):
 
 def select_tracks(track_hadron, index, element=0):
     rows = np.arange(track_hadron.shape[1])
-    selected_tracks = track_hadron[index[rows, element], rows, :]
-    return selected_tracks
+    return track_hadron[index[rows, element], rows, :]

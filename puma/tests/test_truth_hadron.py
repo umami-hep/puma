@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import unittest
 
+import numpy as np
+
 from puma.utils.logging import logger, set_log_level
 from puma.utils.truth_hadron import AssociateTracksToHadron, GetOrderedHadrons, SelectHadron
 
@@ -72,7 +74,7 @@ class TruthHadronTestCase(unittest.TestCase):
 
     def test_hadron_order(self):
         result = GetOrderedHadrons(self.hadron_barcode, self.hadron_parent, n_max_showers=1)
-        knwon_result = [[[0, 1, 2, -1, -1]]]
+        known_result = [[[0, 1, 2, -1, -1]]]
 
         assert (result == known_result).all(), "Test failed: result does not match known_result"
         print("Test passed!")
@@ -354,6 +356,9 @@ class TruthHadronTestCase(unittest.TestCase):
         print("Test passed!")
 
         assert (result_b == known_result_b).all(), "Test failed: result does not match known_result"
+        print("Test passed!")
+
+        assert (result_c == known_result_b).all(), "Test failed: result does not match known_result"
         print("Test passed!")
 
         def test_select_hadron(self):
