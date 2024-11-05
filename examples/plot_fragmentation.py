@@ -1,10 +1,10 @@
 # Script for processing hadrons and getting fragmentation plots
 from __future__ import annotations
 
+import argparse
 import os
 
 import numpy as np
-import argparse
 
 # Plotting
 from ftag import Cuts
@@ -249,38 +249,14 @@ def main():
     # Set up argparse
     parser = argparse.ArgumentParser(description="Path to samples.")
     # /fs/ddn/sdf/group/atlas/d/lapereir/GN2/OpenDataset_final_v2/MC23a_new-ttbar.h5
-    parser.add_argument(
-        "path",
-        type=str,
-        help="Path to sample list"
-    )
-    parser.add_argument(
-        "--n_jets",
-        type=int,
-        default=10000,
-        help="Number of jets to run"
-    )
+    parser.add_argument("path", type=str, help="Path to sample list")
+    parser.add_argument("--n_jets", type=int, default=300000, help="Number of jets to run")
 
-    parser.add_argument(
-        "--sample",
-        type=str,
-        default="ttbar",
-        help="Sample name"
-    )
+    parser.add_argument("--sample", type=str, default="ttbar", help="Sample name")
 
-    parser.add_argument(
-        "--mc",
-        type=str,
-        default="MC23a",
-        help="Campaign name"
-    )
+    parser.add_argument("--mc", type=str, default="MC23a", help="Campaign name")
 
-    parser.add_argument(
-        "--output",
-        type=str,
-        default="Plots/",
-        help="Campaign name (MC23a)"
-    )
+    parser.add_argument("--output", type=str, default="Plots/", help="Campaign name (MC23a)")
 
     # Parse the arguments
     args = parser.parse_args()
@@ -291,7 +267,6 @@ def main():
     n_jets = args.n_jets
 
     path = path + "/" + mc + "_" + "new-" + sample + ".h5"
-    n_tracks = 40
 
     output = args.output
     os.makedirs(output, exist_ok=True)
@@ -329,10 +304,10 @@ def main():
     dataset = LoadDataset(path, Cuts.from_list(cuts), n_jets=n_jets)
 
     good_jets = np.where(dataset["jets"]["HadronConeExclExtendedTruthLabelID"] < 6, 1, 0).astype(
-    bool
+        bool
     )  # remove double b-jets
 
-    (sv1, sv2, sv3), sv1_shower, inclusive_vertex = ExtractHadronInfo(
+    _, sv1_shower, inclusive_vertex = ExtractHadronInfo(
         dataset, good_jets
     )  # process truth Hadron information (you will need it later)
 
@@ -340,11 +315,6 @@ def main():
 
     jets = dataset["jets"][good_jets]
     tracks = dataset["tracks"][good_jets]
-    events = dataset["eventwise"][good_jets]
-    hadrons = dataset["truth_hadrons"][good_jets]
-
-    n_tracks = tracks.shape[1]
-    n_hadrons = hadrons.shape[1]
 
     ############################
     # Reco (GN2)      ##
@@ -386,7 +356,6 @@ def main():
 
     # drop vertex with highest number of tracks from PV
 
-
     clean_vertex_index = np.where(tracks_from_pv_candidate, -1, vertex_index)
     reco_track_weights = SV_Finding(
         clean_vertex_index,
@@ -396,13 +365,12 @@ def main():
         min2tracks=True,
     )
 
-
     ############################
     # Fragmentation Plot ####
     ############################
 
-    hadron_varaiables, n_tracks_hadron_shower, tracks_hadron_family = sv1_shower
-    
+    hadron_varaiables, _, tracks_hadron_family = sv1_shower
+
     truth_pt = hadron_varaiables["pt"] / 1000
 
     shower_tracks_pt = np.where(tracks_hadron_family, tracks["pt"] / 1000, 0)
@@ -410,7 +378,6 @@ def main():
 
     GN2_tracks_pt = np.where(reco_track_weights, tracks["pt"] / 1000, 0)
     GN2_sum_track_pt = np.sum(GN2_tracks_pt, axis=1)
-
 
     for flavour in ["bjets", "cjets"]:
         # Choose selection
@@ -434,14 +401,15 @@ def main():
 
         h_hadron = Histogram(truth_pt[selection], label="Hadron (Truth)", histtype="step", alpha=1)
         h_tracks = Histogram(
-            sum_track_pt[selection], label="$\\sum$ SV Hadron tracks (Reco)", histtype="step", alpha=1
+            sum_track_pt[selection],
+            label="$\\sum$ SV Hadron tracks (Reco)",
+            histtype="step",
+            alpha=1,
         )
-        
+
         normalise = False
-        extra_string = ""
         y_axis = "Number of jets"
         if normalise:
-            extra_string = "_norm"
             y_axis = "Normalised Arbitrary Units"
 
         # Initialise histogram plot
@@ -474,19 +442,16 @@ def main():
 
         plot_histo.draw()
         plot_histo.savefig(output + "Fragmentation_Hadron_" + f + ".png", transparent=False)
-        
+
         h_hadron = Histogram(truth_pt[selection], label="Hadron (Truth)", histtype="step", alpha=1)
         h_tracks = Histogram(
             GN2_sum_track_pt[selection], label="$\\sum$ tracks (GN2 SV)", histtype="step", alpha=1
         )
 
         normalise = False
-        extra_string = ""
         y_axis = "Number of jets"
         if normalise:
-            extra_string = "_norm"
             y_axis = "Normalised Arbitrary Units"
-
 
         # Initialise histogram plot
         plot_histo = HistogramPlot(
@@ -519,22 +484,17 @@ def main():
         plot_histo.draw()
         plot_histo.savefig(output + "Fragmentation_GN2_" + f + ".png", transparent=False)
 
-
     all_tracks_pt = np.sum(np.where(tracks["valid"], tracks["pt"] / 1000, 0), axis=1)
 
-    
     var = sum_track_pt / all_tracks_pt
-
 
     h_b = Histogram(var[(jet_flavour(jets, "b"))], label="b-jets", histtype="step", alpha=1)
     h_c = Histogram(var[(jet_flavour(jets, "c"))], label="c-jets", histtype="step", alpha=1)
     h_l = Histogram(var[(jet_flavour(jets, "light"))], label="light jets", histtype="step", alpha=1)
 
     normalise = True
-    extra_string = ""
     y_axis = "Number of jets"
     if normalise:
-        extra_string = "_norm"
         y_axis = "Normalised Arbitrary Units"
 
     # Initialise histogram plot
@@ -546,7 +506,7 @@ def main():
         # bins=np.linspace(0, 5, 60),  # you can force a binning for the plot here
         bins=25,  # you can also define an integer number for the number of bins
         bins_range=(0, 1),  # only considered if bins is an integer
-    norm=normalise,
+        norm=normalise,
         atlas_first_tag="Simulation Internal",
         atlas_second_tag="$\\sqrt{s}=" + com + "$ TeV, " + mc + "\n" + sample_str + ", " + cut_str,
         figsize=(6, 5),
@@ -557,25 +517,21 @@ def main():
     plot_histo.add(h_b, reference=False)
     plot_histo.add(h_c, reference=False)
     plot_histo.add(h_l, reference=False)
-    
+
     plot_histo.draw()
     plot_histo.savefig(output + "Fragmentation_pT_Hadrons_all_flav.png", transparent=False)
 
-    
     var = GN2_sum_track_pt / all_tracks_pt
-
 
     h_b = Histogram(var[(jet_flavour(jets, "b"))], label="b-jets", histtype="step", alpha=1)
     h_c = Histogram(var[(jet_flavour(jets, "c"))], label="c-jets", histtype="step", alpha=1)
     h_l = Histogram(var[(jet_flavour(jets, "light"))], label="light jets", histtype="step", alpha=1)
-    
+
     normalise = True
-    extra_string = ""
     y_axis = "Number of jets"
     if normalise:
-        extra_string = "_norm"
         y_axis = "Normalised Arbitrary Units"
-        
+
     # Initialise histogram plot
     plot_histo = HistogramPlot(
         ylabel=y_axis,
@@ -595,7 +551,7 @@ def main():
     plot_histo.add(h_b, reference=False)
     plot_histo.add(h_c, reference=False)
     plot_histo.add(h_l, reference=False)
-    
+
     plot_histo.draw()
     plot_histo.savefig(output + "Fragmentation_pT_GN2_all_flav.png", transparent=False)
 

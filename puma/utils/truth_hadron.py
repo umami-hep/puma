@@ -43,12 +43,16 @@ def GetOrderedHadrons(hadron_barcode, hadron_parent, n_max_showers=2):
     mask = lengths > 1
 
     # Create reshuffle indices only for those jets that have more than one family
-    reshuffle = np.empty((n_jets), dtype=object)  # n_max_shower
-    reshuffle[mask] = [
+    reshuffle = np.empty((n_jets, n_max_showers), dtype=object)  # n_max_shower
+
+    reshuffle_indices = [
         np.argsort([len(elem) for elem in family_indices[i]])[::-1]
         for i in range(n_jets)
         if mask[i]
     ]
+    reshuffle_indices = [idx[:n_max_showers] for idx in reshuffle_indices]
+    if np.array(reshuffle_indices).size > 0:
+        reshuffle[mask] = reshuffle_indices
 
     # Initialize sorted_family_indices
     sorted_family_indices = np.empty(n_jets, dtype=object)
@@ -63,6 +67,7 @@ def GetOrderedHadrons(hadron_barcode, hadron_parent, n_max_showers=2):
 
     # Convert to numpy array if desired
     sorted_family_indices = np.array(sorted_family_indices, dtype=object)
+
     #######################################################################################################
 
     # Deal with the unrelated hadrons
