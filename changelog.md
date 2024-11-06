@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Adding functions to process truth hadron information and associate tracks to hadrons
 - Adding missing unit tests [!295](https://github.com/umami-hep/puma/pull/295)
 - Removing hardcoded kwargs from high-level plotting [!293](https://github.com/umami-hep/puma/pull/293)
 
