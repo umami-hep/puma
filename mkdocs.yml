@@ -43,6 +43,7 @@ nav:
   - High level API:
       - High level API: hlapi/index.md
       - High level API for aux task plots: hlapi/high_level_aux_api.md
+      - Number of Tracks per Jet per Origin: hlapi/n_track_origin.md
       - YUMA (Yaml Plotting): hlapi/yuma.md
   - Tutorial: examples/tutorial-plotting.md
   - Contributing:
