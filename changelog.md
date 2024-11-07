@@ -2,6 +2,17 @@
 
 ### [Latest]
 
+- Adding new n_tracks_origin plots [!294](https://github.com/umami-hep/puma/pull/294)
+- Adding missing unit tests [!295](https://github.com/umami-hep/puma/pull/295)
+- Removing hardcoded kwargs from high-level plotting [!293](https://github.com/umami-hep/puma/pull/293)
+
+### [v0.4.0] (2024/10/24)
+
+- Clean up the docs a bit [!290](https://github.com/umami-hep/puma/pull/290)
+- Add autohide for ROC ratio y-axis labels [!289](https://github.com/umami-hep/puma/pull/289)
+- Improve ROC cosmetics again, add rejection smoothing option [!288](https://github.com/umami-hep/puma/pull/288)
+- Adding colour-blind-friendly colours as default colours for taggers [!286](https://github.com/umami-hep/puma/pull/286)
+- Increased number of bins in plot_vertex_mass function and fixed use of kwargs [!284](https://github.com/umami-hep/puma/pull/284)
 - Bump python, numpy and matplotlib versions. Improve ROC cosmetics [!282](https://github.com/umami-hep/puma/pull/282)
 - Added functionality to plot secondary vertex mass histograms using a pion mass hypothesis [!265](https://github.com/umami-hep/puma/pull/265)
 - Fixed error bars on stacked histograms to be a distinct pattern, rather than just the last colour plotted [!281](https://github.com/umami-hep/puma/pull/281)
