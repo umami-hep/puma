@@ -2,7 +2,9 @@
 
 ### [Latest]
 
-- Adding functions to process truth hadron information and associate tracks to hadrons
+
+- Adding functions to process truth hadron information and associate tracks to hadrons [!285](https://github.com/umami-hep/puma/pull/285)
+- Adding new n_tracks_origin plots [!294](https://github.com/umami-hep/puma/pull/294)
 - Adding missing unit tests [!295](https://github.com/umami-hep/puma/pull/295)
 - Removing hardcoded kwargs from high-level plotting [!293](https://github.com/umami-hep/puma/pull/293)
 
