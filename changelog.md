@@ -3,6 +3,7 @@
 ### [Latest]
 
 - Adding new n_tracks_origin plots [!294](https://github.com/umami-hep/puma/pull/294)
+- Adding missing unit tests [!295](https://github.com/umami-hep/puma/pull/295)
 - Removing hardcoded kwargs from high-level plotting [!293](https://github.com/umami-hep/puma/pull/293)
 
 ### [v0.4.0] (2024/10/24)
