@@ -4,7 +4,7 @@ import os
 
 import matplotlib as mpl
 import numpy as np
-from ftag import Flavour
+from ftag import Label
 from ftag.hdf5 import H5Reader
 
 from puma.utils import get_good_colours, get_good_linestyles
@@ -12,7 +12,7 @@ from puma.var_vs_var import VarVsVar, VarVsVarPlot
 
 
 def n_tracks_per_origin(
-    flavour_list: list[Flavour],
+    flavour_list: list[Label],
     files: dict[dict[str]],
     plot_type: str,
     plot_path: str | None = None,
