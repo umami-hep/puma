@@ -8,7 +8,7 @@ from pathlib import Path
 import h5py
 import numpy as np
 import pandas as pd
-from ftag import Cuts, Flavour, Flavours, get_discriminant
+from ftag import Cuts, Flavours, Label, get_discriminant
 
 from puma.utils.aux import get_aux_labels
 from puma.utils.vertexing import clean_reco_vertices, clean_truth_vertices
@@ -60,13 +60,13 @@ class Tagger:
     def __repr__(self):
         return f"{self.name} ({self.label})"
 
-    def is_flav(self, flavour: Flavour | str):
+    def is_flav(self, flavour: Label | str):
         """Return indices of jets of given flavour.
 
         Parameters
         ----------
-        flavour : str
-            Flavour to select
+        flavour : Label | str
+            Flavour label to select
 
         Returns
         -------
@@ -175,12 +175,12 @@ class Tagger:
         else:
             raise ValueError(f"{source_type} is not a valid value for `source_type`.")
 
-    def n_jets(self, flavour: Flavour | str):
+    def n_jets(self, flavour: Label | str):
         """Retrieve number of jets of a given flavour.
 
         Parameters
         ----------
-        flavour : Flavour | str
+        flavour : Label | str
             Flavour of jets to count
 
         Returns
@@ -191,14 +191,14 @@ class Tagger:
         flavour = Flavours[flavour]
         return len(flavour.cuts(self.labels).values)
 
-    def probs(self, prob_flavour: Flavour, label_flavour: Flavour = None):
+    def probs(self, prob_flavour: Label, label_flavour: Label = None):
         """Retrieve probabilities for a given flavour.
 
         Parameters
         ----------
-        prob_flavour : Flavour
+        prob_flavour : Label
             Return probabilities for this flavour class
-        label_flavour : Flavour, optional
+        label_flavour : Label, optional
             Only return jets of the given truth flavour, by default None
 
         Returns
@@ -212,12 +212,12 @@ class Tagger:
             scores = scores[self.is_flav(label_flavour)]
         return scores[f"{self.name}_{prob_flavour.px}"]
 
-    def discriminant(self, signal: Flavour, fxs: dict | None = None):
+    def discriminant(self, signal: Label, fxs: dict | None = None):
         """Retrieve the discriminant for a given signal class.
 
         Parameters
         ----------
-        signal : Flavour
+        signal : Label
             Signal class for which the discriminant should be retrieved
         fxs : dict, optional
             dict of fractions to use instead of the default ones, by default None

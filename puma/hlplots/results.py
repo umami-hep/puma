@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
-from ftag import Cuts, Flavour, Flavours
+from ftag import Cuts, Flavours, Label
 from ftag.hdf5 import H5Reader
 from matplotlib.figure import Figure
 
@@ -31,10 +31,10 @@ from puma.utils import get_good_colours, get_good_linestyles, logger
 class Results:
     """Store information about several taggers and plot results."""
 
-    signal: Flavour | str
+    signal: Label | str
     sample: str
     backgrounds: list = field(init=False)
-    all_flavours: list[Flavour] | None = None
+    all_flavours: list[Label] | None = None
     atlas_first_tag: str = "Simulation Internal"
     atlas_second_tag: str = None
     atlas_third_tag: str = None
@@ -67,7 +67,7 @@ class Results:
         }
         self.saved_plots = []
 
-    def set_signal(self, signal: Flavour):
+    def set_signal(self, signal: Label):
         """Set the signal flavour and define background flavours.
 
         Parameters
@@ -605,7 +605,7 @@ class Results:
         h_line: float | None = None,
         working_point: float | None = None,
         disc_cut: float | None = None,
-        fixed_rejections: dict[Flavour, float] | None = None,
+        fixed_rejections: dict[Label, float] | None = None,
         **kwargs,
     ):
         """Variable vs efficiency/rejection plot.
@@ -767,7 +767,7 @@ class Results:
 
     def plot_flat_rej_var_perf(
         self,
-        fixed_rejections: dict[Flavour, float],
+        fixed_rejections: dict[Label, float],
         suffix: str | None = None,
         perf_var: str = "pt",
         h_line: float | None = None,
@@ -826,9 +826,8 @@ class Results:
 
         # Loop over all backgrounds
         for bkg in backgrounds:
-            # Modify the atlas second tag accordingly
             var_perf_plot_kwargs["atlas_second_tag"] = (
-                f"{self.atlas_second_tag}\nFlat {bkg.rej_str} of"
+                f"{self.atlas_second_tag}\nConstant {bkg.rej_str.lower()} of"
                 f" {fixed_rejections[bkg.name]} per bin"
             )
 
@@ -893,7 +892,7 @@ class Results:
         efficiency: float = 0.7,
         rej: bool = False,
         optimal_fc: bool = False,
-        backgrounds: list[Flavour] | None = None,
+        backgrounds: list[Label] | None = None,
         **kwargs,
     ):
         """Produce fraction scan (fc/fb) iso-efficiency plots.

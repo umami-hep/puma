@@ -133,7 +133,7 @@ class YumaConfig:
     @property
     def signals(self):
         """Iterates all plots in the config and returns a list of all signals."""
-        return list({p["signal"] for pt in self.plots.values() for p in pt})
+        return sorted({p["signal"] for pt in self.plots.values() for p in pt})
 
     @property
     def peff_vars(self):

@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
-from ftag import Cuts, Flavour, Flavours
+from ftag import Cuts, Flavours, Label
 from ftag.hdf5 import H5Reader
 
 from puma import Histogram, HistogramPlot
@@ -238,8 +238,8 @@ class AuxResults:
 
     def plot_var_vtx_perf(
         self,
-        vtx_flavours: list[Flavour] | list[str] | None = None,
-        no_vtx_flavours: list[Flavour] | list[str] | None = None,
+        vtx_flavours: list[Label] | list[str] | None = None,
+        no_vtx_flavours: list[Label] | list[str] | None = None,
         suffix: str | None = None,
         xlabel: str = r"$p_{T}$ [GeV]",
         perf_var: str = "pt",
@@ -423,7 +423,7 @@ class AuxResults:
 
     def plot_vertex_mass(
         self,
-        vtx_flavours: list[Flavour] | list[str],
+        vtx_flavours: list[Label] | list[str],
         incl_vertexing: bool = True,
         mass_range: tuple = (0, 5),
         **kwargs,
@@ -432,7 +432,7 @@ class AuxResults:
 
         Parameters
         ----------
-        vtx_flavours : list[Flavour] | list[str]
+        vtx_flavours : list[Label] | list[str]
             List of jet flavours to make SV mass plots for
         incl_vertexing : bool, optional
             Whether to use inclusive or exclusive vertexing, by default inclusive

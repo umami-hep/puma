@@ -5,7 +5,7 @@ from __future__ import annotations
 import matplotlib as mpl
 import numpy as np
 import pandas as pd
-from ftag import Flavour, Flavours
+from ftag import Flavours, Label
 
 from puma.plot_base import PlotBase, PlotLineObject
 from puma.utils import get_good_colours, logger
@@ -25,7 +25,7 @@ class Histogram(PlotLineObject):
         bin_edges: np.ndarray = None,
         sum_squared_weights: np.ndarray = None,
         ratio_group: str | None = None,
-        flavour: str | Flavour = None,
+        flavour: str | Label = None,
         add_flavour_label: bool = True,
         histtype: str = "step",
         is_data: bool = False,
@@ -55,7 +55,7 @@ class Histogram(PlotLineObject):
             Name of the ratio group this histogram is compared with. The ratio group
             allows you to compare different groups of histograms within one plot.
             By default None
-        flavour: str | Flavour, optional
+        flavour: str | Label, optional
             If set, the correct colour and a label prefix will be extracted from
             `puma.utils.global_config` set for this histogram.
             Allowed values are e.g. "bjets", "cjets", "ujets", "bbjets", ...
