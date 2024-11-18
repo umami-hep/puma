@@ -5,7 +5,7 @@ from __future__ import annotations
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-from ftag import Flavour, Flavours
+from ftag import Flavours, Label
 
 from puma.metrics import rej_err
 from puma.plot_base import PlotBase, PlotLineObject
@@ -51,7 +51,7 @@ class Roc(PlotLineObject):
         sig_eff: np.ndarray,
         bkg_rej: np.ndarray,
         n_test: int | None = None,
-        rej_class: str | Flavour = None,
+        rej_class: str | Label = None,
         signal_class: str | None = None,
         key: str | None = None,
         ratio_group: str | None = None,
@@ -70,7 +70,7 @@ class Roc(PlotLineObject):
             by default None
         signal_class : str
             Signal class, e.g. for b-tagging "bjets", by default None
-        rej_class : str or Flavour
+        rej_class : str or Label
             Rejection class, e.g. for b-tagging anc charm rejection "cjets",
             by default None
         key : str
@@ -294,7 +294,7 @@ class RocPlot(PlotBase):
     def set_roc_reference(
         self,
         key: str,
-        rej_class: Flavour,
+        rej_class: Label,
         ratio_group: str | None = None,
     ):
         """Setting the reference roc curves used in the ratios.
@@ -332,14 +332,14 @@ class RocPlot(PlotBase):
                 )
             self.reference_roc[rej_class][ratio_group] = key
 
-    def set_ratio_class(self, ratio_panel: int, rej_class: str | Flavour):
+    def set_ratio_class(self, ratio_panel: int, rej_class: str | Label):
         """Associate the rejection class to a ratio panel adn set the legend label.
 
         Parameters
         ----------
         ratio_panel : int
             Ratio panel either 1 or 2
-        rej_class : Flavour
+        rej_class : Labels
             Rejeciton class associated to that panel
 
         Raises

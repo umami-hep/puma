@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 from pathlib import Path
 
-from ftag import Flavour
+from ftag import Label
 from ftag.hdf5 import H5Reader
 
 from puma.utils import logger
@@ -80,7 +80,7 @@ def get_included_taggers(results, plot_config):
     )
 
 
-def get_tagger_name(name: str, sample_path: Path, key: str, flavours: list[Flavour]):
+def get_tagger_name(name: str, sample_path: Path, key: str, flavours: list[Label]):
     """Attempts to return the name of the tagger if it is not specified in the config
     file by looking at available variable names, and the key of the tagger in the config.
 
@@ -93,7 +93,7 @@ def get_tagger_name(name: str, sample_path: Path, key: str, flavours: list[Flavo
     key : str
         The key of the tagger in the config file, if multiple taggers are found in the
         sample path, this is used to select the correct tagger
-    flavours : list[Flavour]
+    flavours : list[Label]
         The flavours of the tagger, used to identify the correct tagger. A 'valid'
         tagger in the file is one where tagger_p{flav} exists for all flavours defined
         in this list

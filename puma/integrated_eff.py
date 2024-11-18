@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import matplotlib as mpl
 import numpy as np
-from ftag import Flavour, Flavours
+from ftag import Flavours, Label
 
 from puma.metrics import calc_eff
 from puma.plot_base import PlotBase, PlotLineObject
@@ -21,7 +21,7 @@ class IntegratedEfficiency(PlotLineObject):
         key: str | None = None,
         n_vals: int = 500,
         tagger: str | None = None,
-        flavour: str | Flavour = None,
+        flavour: str | Label = None,
         **kwargs,
     ) -> None:
         """Initialise properties of IntegratedEfficiency object.
@@ -38,8 +38,8 @@ class IntegratedEfficiency(PlotLineObject):
             Number of values to calculate the efficiency at, by default 500
         tagger : str, optional
             Tagger name, by default None
-        flavour : str or Flavour, optional
-            Flavour of the jets, by default None
+        flavour : str or Label, optional
+            Flavour label of the jets, by default None
         **kwargs : kwargs
             Keyword arguments passed to `puma.PlotLineObject`
 

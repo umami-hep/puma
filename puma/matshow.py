@@ -131,7 +131,7 @@ class MatshowPlot(PlotBase):
                         text = (
                             f"{matrix[i, j]:.3f}"
                             if not self.show_percentage
-                            else f"{matrix[i, j] * 100:.2f}%"
+                            else f"{matrix[i, j] * 100:.0f}%"
                         )
                     # Plotting text
                     self.axis_top.text(
@@ -169,10 +169,11 @@ class MatshowPlot(PlotBase):
         # Writing class names on the axes
         positions = list(range(n_cols))
         self.axis_top.set_xticks(
-            positions,
+            np.array(positions) + 0.25,
             labels=self.x_ticklabels,
             rotation=self.x_ticks_rotation,
             fontsize=self.fontsize,
+            ha="right",
         )
         positions = list(range(n_rows))
         self.axis_top.set_yticks(positions, labels=self.y_ticklabels, fontsize=self.fontsize)
