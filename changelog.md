@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+- Upgrade atlas-ftag-tools version [!297](https://github.com/umami-hep/puma/pull/297)
+
 ### [v0.4.1] (2024/11/18)
 - Update tools package version [!296](https://github.com/umami-hep/puma/pull/296)
 - Adding functions to process truth hadron information and associate tracks to hadrons [!285](https://github.com/umami-hep/puma/pull/285)
