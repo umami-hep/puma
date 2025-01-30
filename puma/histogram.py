@@ -314,7 +314,12 @@ class HistogramPlot(PlotBase):
             raise ValueError("Not more than one ratio panel supported.")
         self.initialise_figure()
 
-    def add(self, histogram: object, key: str | None = None, reference: bool = False):
+    def add(
+        self,
+        histogram: Histogram,
+        key: str | None = None,
+        reference: bool = False,
+    ):
         """Adding histogram object to figure.
 
         Parameters
@@ -438,7 +443,6 @@ class HistogramPlot(PlotBase):
             "x": [],
             "weights": [],
             "color": [],
-            "band": None,
             "unc": None,
         }
 
@@ -498,17 +502,11 @@ class HistogramPlot(PlotBase):
                 self.stacked_dict["weights"].append(elem.hist)
                 self.stacked_dict["color"].append(elem.colour)
 
-                if self.stacked_dict["band"] is None:
-                    self.stacked_dict["band"] = elem.band
-
-                else:
-                    self.stacked_dict["band"] += elem.band
-
                 if self.stacked_dict["unc"] is None:
                     self.stacked_dict["unc"] = elem.unc
 
                 else:
-                    self.stacked_dict["unc"] += elem.unc
+                    self.stacked_dict["unc"] = np.sqrt(self.stacked_dict["unc"] ** 2 + elem.unc**2)
 
                 # Add the element to the legend with a "bar"
                 plt_handles.append(
@@ -581,10 +579,19 @@ class HistogramPlot(PlotBase):
         # Check if errors should be drawn
         # If stacked is true, plot the combined uncertainty
         if self.draw_errors and self.stacked:
-            bottom_error = self.stacked_dict["band"]
+            # Create a total weights entry to correctly plot the error band
+            # Total weights is here the y-value of all contributions stacked
+            self.stacked_dict["total_weights"] = np.sum(self.stacked_dict["weights"], axis=0)
+
+            # Calculate the y-values of the bottom error
+            bottom_error = self.stacked_dict["total_weights"] - self.stacked_dict["unc"]
             bottom_error = np.array([bottom_error[0], *bottom_error.tolist()])
-            top_error = self.stacked_dict["band"] + 2 * self.stacked_dict["unc"]
+
+            # Calculate the y-values of the top error
+            top_error = self.stacked_dict["total_weights"] + self.stacked_dict["unc"]
             top_error = np.array([top_error[0], *top_error.tolist()])
+
+            # Fill the space between bottom and top with the unc. band
             self.axis_top.fill_between(
                 x=elem.bin_edges,
                 y1=bottom_error,
@@ -597,6 +604,8 @@ class HistogramPlot(PlotBase):
                 linewidth=0,
                 hatch="/////",
             )
+
+            # Add a label for the unc. in the legend
             plt_handles.append(
                 mpl.patches.Patch(
                     facecolor="white",
@@ -731,8 +740,9 @@ class HistogramPlot(PlotBase):
                 if not elem.is_data:
                     continue
 
+                # Using the total weights (full stacked histo) as reference for data
                 ratio, ratio_unc = elem.divide_data_mc(
-                    ref_hist=self.stacked_dict["band"],
+                    ref_hist=self.stacked_dict["total_weights"],
                 )
 
             else:
