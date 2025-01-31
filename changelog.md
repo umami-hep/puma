@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+- Fixing ratio/uncertainty calculation issue for Data/MC histograms [!298](https://github.com/umami-hep/puma/pull/298)
+
 ### [v0.4.2] (2025/01/27)
 
 - Upgrade atlas-ftag-tools version [!297](https://github.com/umami-hep/puma/pull/297)
