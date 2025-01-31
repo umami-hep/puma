@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+### [v0.4.3] (2025/01/31)
+
 - Fixing ratio/uncertainty calculation issue for Data/MC histograms [!298](https://github.com/umami-hep/puma/pull/298)
 
 ### [v0.4.2] (2025/01/27)
