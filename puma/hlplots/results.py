@@ -41,7 +41,7 @@ class Results:
     taggers: dict = field(default_factory=dict)
     perf_vars: str | tuple | list = "pt"
     output_dir: str | Path = "."
-    extension: str = "png"
+    extension: str = "pdf"
     global_cuts: Cuts | list | None = None
     num_jets: int | None = None
     remove_nan: bool = False
@@ -331,6 +331,13 @@ class Results:
 
         # Get a list of all flavours which are present
         flavours = [*self.backgrounds, self.signal]
+
+        # Remove any flavours that are not used by all taggers
+        flavours = [
+            flav
+            for flav in flavours
+            if all(flav in tagger.output_flavours for tagger in self.taggers.values())
+        ]
 
         # Init a default kwargs dict for the HistogramPlot
         histo_kwargs = {

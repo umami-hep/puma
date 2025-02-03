@@ -33,7 +33,7 @@ class AuxResults:
     perf_vars: str | tuple | list = "pt"
     aux_perf_vars: str | tuple | list = None
     output_dir: str | Path = "."
-    extension: str = "png"
+    extension: str = "pdf"
     global_cuts: Cuts | list | None = None
     num_jets: int | None = None
     remove_nan: bool = False
