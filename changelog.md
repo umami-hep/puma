@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Added ability to modify ATLAS tag in track origin plots [!303](https://github.com/umami-hep/puma/pull/303)
 - Fixing ratio calculation issue when using no error band [!302](https://github.com/umami-hep/puma/pull/302)
 - Update y-axis label to accomodate british english [!300](https://github.com/umami-hep/puma/pull/300)
 - Use pdf plots by default in the HLAPI [!299](https://github.com/umami-hep/puma/pull/299)
