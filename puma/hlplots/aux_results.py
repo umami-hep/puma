@@ -457,7 +457,7 @@ class AuxResults:
             mass_plot = HistogramPlot(
                 bins_range=mass_range,
                 xlabel="$m_{SV}$ [GeV]",
-                ylabel="Normalized number of vertices",
+                ylabel="Normalised number of vertices",
                 atlas_first_tag=self.atlas_first_tag,
                 atlas_second_tag=atlas_second_tag + f"\n{vertexing_text} vertexing, {flav.label}",
                 y_scale=1.7,
@@ -469,7 +469,7 @@ class AuxResults:
                 mass_diff_plot = HistogramPlot(
                     bins=np.linspace(-mass_range[1] / 2, mass_range[1] / 2, 12),
                     xlabel=r"$\Delta m_{SV}$ [GeV] (reco - truth)",
-                    ylabel="Normalized number of vertices",
+                    ylabel="Normalised number of vertices",
                     atlas_first_tag=self.atlas_first_tag,
                     atlas_second_tag=atlas_second_tag
                     + f"\n{vertexing_text} vertexing, {flav.label}",
@@ -596,6 +596,7 @@ class AuxResults:
                     y_ticklabels=class_names_with_perf,
                     xlabel="Predicted Classes",
                     ylabel="Target Classes",
+                    atlas_first_tag=self.atlas_first_tag,
                     atlas_second_tag=self.atlas_second_tag,
                     show_cbar=False,
                     atlas_tag_outside=True,
@@ -613,6 +614,7 @@ class AuxResults:
                     title="Track Origin Auxiliary Task\nConfusion Matrix",
                     xlabel="Predicted Classes",
                     ylabel="Target Classes",
+                    atlas_first_tag=self.atlas_first_tag,
                     atlas_second_tag=self.atlas_second_tag,
                     atlas_tag_outside=True,
                     show_cbar=False,
