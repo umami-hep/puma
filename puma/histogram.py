@@ -576,13 +576,13 @@ class HistogramPlot(PlotBase):
                 **kwargs,
             )
 
-        # Check if errors should be drawn
-        # If stacked is true, plot the combined uncertainty
-        if self.draw_errors and self.stacked:
-            # Create a total weights entry to correctly plot the error band
+            # Create a total weights entry to correctly plot the ratio
             # Total weights is here the y-value of all contributions stacked
             self.stacked_dict["total_weights"] = np.sum(self.stacked_dict["weights"], axis=0)
 
+        # Check if errors should be drawn
+        # If stacked is true, plot the combined uncertainty
+        if self.draw_errors and self.stacked:
             # Calculate the y-values of the bottom error
             bottom_error = self.stacked_dict["total_weights"] - self.stacked_dict["unc"]
             bottom_error = np.array([bottom_error[0], *bottom_error.tolist()])
