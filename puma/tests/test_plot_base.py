@@ -84,12 +84,8 @@ class TestPlotBaseShow(unittest.TestCase):
         self.plot_object = PlotBase(n_ratio_panels=1, ymin_ratio=[0], ymax_ratio=[1])
         self.plot_object.initialise_figure()
 
-    @patch("IPython.display.display")
-    def test_show_runs_without_errors(self, mock_tk):
+    def test_show_runs_without_errors(self):
         """Test that show() runs through without throwing an error."""
-        mock_root = MagicMock()
-        mock_tk.return_value = mock_root
-
         # Simulate Jupyter
         with patch.dict(sys.modules, {"ipykernel": MagicMock()}, clear=False):
             try:
