@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
+import sys
+import tkinter as tk
 from dataclasses import dataclass
 
 import atlasify
+from IPython.display import display
 from matplotlib import axis, gridspec, lines
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
 from puma.utils import logger, set_xaxis_ticklabels_invisible
@@ -559,6 +563,55 @@ class PlotBase(PlotObject):
             pad_inches=0.04,
             **kwargs,
         )
+
+    def _close_window(self, root: tk.Tk):
+        """Properly close the Tkinter window and exit the main loop."""
+        logger.debug("Closing plot window.")
+
+        # Stop the Tkinter main loop and destroy the window
+        root.quit()
+        root.destroy()
+
+    def show(
+        self,
+        auto_close_after: int | None = None,
+    ):
+        """Show the plot using tkinter in command line and detecting Jupyter to avoid issues.
+
+        Parameters
+        ----------
+        auto_close_after : int | None, optional
+            After how many milliseconds, the window is automatically closed, by default None
+        """
+        # Detect Jupyter Notebook and show the plot using the inline style of jupyter
+        if "ipykernel" in sys.modules:
+            logger.debug("Detected Jupyter Notebook, displaying inline.")
+            display(self.fig)
+            return
+
+        logger.debug("Showing plot using tkinter")
+
+        # Init a tkinter window
+        root = tk.Tk()
+
+        # Embed the figure into a tkinter window
+        canvas = FigureCanvasTkAgg(self.fig, master=root)
+
+        # Render the figure
+        canvas.draw()
+
+        # Convert to tkinter widget and put it into the tkinter window
+        canvas.get_tk_widget().pack()
+
+        # If auto
+        if auto_close_after:
+            root.after(auto_close_after, lambda: self._close_window(root))
+
+        # Handle window close event manually
+        root.protocol("WM_DELETE_WINDOW", lambda: self._close_window(root))
+
+        # Start the GUI application and wait until it's closed
+        root.mainloop()
 
     def atlasify(self, force: bool = False):
         """Apply ATLAS style to all axes using the atlasify package.

@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import sys
 import unittest
+from unittest.mock import MagicMock, patch
 
 from puma import PlotBase, PlotObject
 from puma.utils import logger, set_log_level
@@ -72,3 +74,30 @@ class PlotBaseTestCase(unittest.TestCase):
         for i in range(2):
             ymin, ymax = plot_object.ratio_axes[i].get_ylim()
             self.assertEqual((ymin, ymax), (i, i + 1))
+
+
+class TestPlotBaseShow(unittest.TestCase):
+    """Test class for the puma.PlotBase.show() function."""
+
+    def setUp(self):
+        """Set up a minimal PlotBase instance for testing."""
+        self.plot_object = PlotBase(n_ratio_panels=1, ymin_ratio=[0], ymax_ratio=[1])
+        self.plot_object.initialise_figure()
+
+    @patch("IPython.display.display")
+    def test_show_runs_without_errors(self, mock_tk):
+        """Test that show() runs through without throwing an error."""
+        mock_root = MagicMock()
+        mock_tk.return_value = mock_root
+
+        # Simulate Jupyter
+        with patch.dict(sys.modules, {"ipykernel": MagicMock()}, clear=False):
+            try:
+                self.plot_object.show(auto_close_after=500)
+            except Exception as e:  # noqa: BLE001
+                self.fail(f"show() raised an unexpected exception: {e}")
+
+    def tearDown(self):
+        """Clean up Tkinter resources after tests."""
+        if self.plot_object.fig:
+            self.plot_object.fig.clf()
