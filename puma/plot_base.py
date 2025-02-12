@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import sys
 import tkinter as tk
 from dataclasses import dataclass
 
 import atlasify
+from IPython import get_ipython
 from IPython.display import display
 from matplotlib import axis, gridspec, lines
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -564,53 +564,91 @@ class PlotBase(PlotObject):
             **kwargs,
         )
 
+    def _is_running_in_jupyter(self):
+        """Detect if running inside a Jupyter notebook."""
+        try:
+            shell = get_ipython()
+
+            # Running in standard Python interpreter
+            if shell is None:
+                return False
+
+            shell_name = shell.__class__.__name__
+
+            # Jupyter notebook or qtconsole
+            if shell_name == "ZMQInteractiveShell":
+                return True
+
+            # Terminal running IPython
+            if shell_name == "TerminalInteractiveShell":
+                return False
+
+        # Probably standard Python interpreter
+        except (NameError, ImportError):
+            return False
+
+        else:
+            # Other type (?)
+            return False
+
     def _close_window(self, root: tk.Tk):
-        """Properly close the Tkinter window and exit the main loop."""
-        logger.debug("Closing plot window.")
+        """Properly close the Tkinter window and exit the main loop.
 
-        # Stop the Tkinter main loop and destroy the window
-        root.quit()
-        root.destroy()
+        Parameters
+        ----------
+        root : tk.Tk
+            The Tkinter root window instance to be closed.
+        """
+        if root is not None:
+            logger.debug("Closing plot window.")
 
-    def show(
-        self,
-        auto_close_after: int | None = None,
-    ):
-        """Show the plot using tkinter in command line and detecting Jupyter to avoid issues.
+            # Stop the Tkinter main loop and destroy the window
+            root.quit()
+            root.destroy()
+
+            # Explicitly delete the root object (optional but helps with garbage collection)
+            del root
+
+    def show(self, auto_close_after: int | None = None):
+        """Show the plot using tkinter in command line and detect Jupyter to avoid issues.
 
         Parameters
         ----------
         auto_close_after : int | None, optional
             After how many milliseconds, the window is automatically closed, by default None
         """
-        # Detect Jupyter Notebook and show the plot using the inline style of jupyter
-        if "ipykernel" in sys.modules:
+        if self._is_running_in_jupyter():
             logger.debug("Detected Jupyter Notebook, displaying inline.")
             display(self.fig)
             return
 
         logger.debug("Showing plot using tkinter")
 
-        # Init a tkinter window
-        root = tk.Tk()
+        # Ensure figure is initialized
+        if self.fig is None:
+            raise ValueError("You need to initalize the figure before using show().")
 
-        # Embed the figure into a tkinter window
+        # Create the Tkinter root window
+        root = tk.Tk()
+        root.title("Plot Display")
+
+        # Embed the figure into a Tkinter canvas
         canvas = FigureCanvasTkAgg(self.fig, master=root)
+        canvas_widget = canvas.get_tk_widget()
+        canvas_widget.pack(fill="both", expand=True)
 
         # Render the figure
         canvas.draw()
 
-        # Convert to tkinter widget and put it into the tkinter window
-        canvas.get_tk_widget().pack()
-
-        # If auto
+        # If auto_close_after is set, close the window automatically
         if auto_close_after:
+            logger.debug(f"Auto-closing window after {auto_close_after} ms")
             root.after(auto_close_after, lambda: self._close_window(root))
 
         # Handle window close event manually
         root.protocol("WM_DELETE_WINDOW", lambda: self._close_window(root))
 
-        # Start the GUI application and wait until it's closed
+        # Start Tkinter event loop
         root.mainloop()
 
     def atlasify(self, force: bool = False):
