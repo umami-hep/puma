@@ -591,7 +591,7 @@ class PlotBase(PlotObject):
             # Other type (?)
             return False
 
-    def _close_window(self, root: tk.Tk):
+    def close_window(self, root: tk.Tk):
         """Properly close the Tkinter window and exit the main loop.
 
         Parameters
@@ -643,10 +643,10 @@ class PlotBase(PlotObject):
         # If auto_close_after is set, close the window automatically
         if auto_close_after:
             logger.debug(f"Auto-closing window after {auto_close_after} ms")
-            root.after(auto_close_after, lambda: self._close_window(root))
+            root.after(auto_close_after, lambda: self.close_window(root))
 
         # Handle window close event manually
-        root.protocol("WM_DELETE_WINDOW", lambda: self._close_window(root))
+        root.protocol("WM_DELETE_WINDOW", lambda: self.close_window(root))
 
         # Start Tkinter event loop
         root.mainloop()

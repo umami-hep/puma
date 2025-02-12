@@ -366,3 +366,36 @@ class TestPlotBase(unittest.TestCase):
         plot_base = PlotBase()
         with patch("puma.plot_base.get_ipython", side_effect=ImportError("No IPython")):
             self.assertFalse(plot_base.is_running_in_jupyter())
+
+    @patch("puma.plot_base.logger.debug")
+    def test_close_window_with_valid_root(self, mock_logger):
+        """
+        Test _close_window when root is not None.
+        Should call root.quit(), root.destroy(), and log a debug message.
+        """
+        plot_base = PlotBase()
+        mock_root = MagicMock()
+
+        plot_base.close_window(mock_root)
+
+        mock_root.quit.assert_called_once()
+        mock_root.destroy.assert_called_once()
+        mock_logger.assert_called_once_with("Closing plot window.")
+
+    @patch("puma.plot_base.logger.debug")
+    def test_close_window_with_none(self, mock_logger):
+        """
+        Test _close_window when root is None.
+        Should do nothing and should not log any debug messages.
+        """
+        plot_base = PlotBase()
+        plot_base.close_window(None)
+
+        # root is None, so these should not be called
+        mock_logger.assert_not_called()
+
+    def test_show_without_init_figure(self):
+        """Test the error when the figure was not initalised."""
+        self.plot_base.n_ratio_panels = 0
+        with self.assertRaises(ValueError):
+            self.plot_base.show()
