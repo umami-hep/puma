@@ -192,7 +192,7 @@ class TestPlotBase(unittest.TestCase):
         self.assertEqual(len(lines_in_top), 2)
         self.assertEqual(len(lines_in_ratio), 2)
 
-    @patch("puma.plot_base.PlotBase._is_running_in_jupyter", return_value=True)
+    @patch("puma.plot_base.PlotBase.is_running_in_jupyter", return_value=True)
     @patch("puma.plot_base.display")  # Patch IPython.display.display
     def test_show_in_jupyter(self, mock_display, mock_jupyter):  # noqa:ARG002
         """
@@ -205,7 +205,7 @@ class TestPlotBase(unittest.TestCase):
 
     @patch("puma.plot_base.FigureCanvasTkAgg")
     @patch("puma.plot_base.tk.Tk")
-    @patch("puma.plot_base.PlotBase._is_running_in_jupyter", return_value=False)
+    @patch("puma.plot_base.PlotBase.is_running_in_jupyter", return_value=False)
     def test_show_in_tkinter(self, mock_jupyter, mock_tk, mock_canvas):  # noqa:ARG002
         """
         Test show() in non-Jupyter environment. We'll patch Tk calls
@@ -309,3 +309,60 @@ class TestPlotBase(unittest.TestCase):
         mock_atlasify.assert_called()
         # The logger might have warnings about forcing style.
         self.assertTrue(mock_logger.call_count >= 1)
+
+    def test_jupyter_zmq_interactive_shell(self):
+        """
+        If get_ipython() returns an object with __class__.__name__ == 'ZMQInteractiveShell',
+        it should return True (Jupyter Notebook or qtconsole).
+        """
+        plot_base = PlotBase()
+        with patch("puma.plot_base.get_ipython") as mock_get_ipython:
+            # Mock object with the right __class__.__name__
+            mock_shell = MagicMock()
+            mock_shell.__class__.__name__ = "ZMQInteractiveShell"
+            mock_get_ipython.return_value = mock_shell
+
+            self.assertTrue(plot_base.is_running_in_jupyter())
+
+    def test_ipython_terminal_shell(self):
+        """
+        If get_ipython() returns an object with __class__.__name__ == 'TerminalInteractiveShell',
+        it should return False (IPython in a terminal, not a Jupyter Notebook).
+        """
+        plot_base = PlotBase()
+        with patch("puma.plot_base.get_ipython") as mock_get_ipython:
+            mock_shell = MagicMock()
+            mock_shell.__class__.__name__ = "TerminalInteractiveShell"
+            mock_get_ipython.return_value = mock_shell
+
+            self.assertFalse(plot_base.is_running_in_jupyter())
+
+    def test_no_ipython(self):
+        """
+        If get_ipython() returns None, then we assume it's standard Python interpreter,
+        so is_running_in_jupyter() should return False.
+        """
+        plot_base = PlotBase()
+        with patch("puma.plot_base.get_ipython") as mock_get_ipython:
+            mock_get_ipython.return_value = None
+
+            self.assertFalse(plot_base.is_running_in_jupyter())
+
+    def test_unknown_shell(self):
+        """If get_ipython() returns some unknown shell object, we default to False."""
+        plot_base = PlotBase()
+        with patch("puma.plot_base.get_ipython") as mock_get_ipython:
+            mock_shell = MagicMock()
+            mock_shell.__class__.__name__ = "SomeRandomShell"
+            mock_get_ipython.return_value = mock_shell
+
+            self.assertFalse(plot_base.is_running_in_jupyter())
+
+    def test_import_error(self):
+        """
+        If there's a NameError or ImportError when calling get_ipython(),
+        is_running_in_jupyter() should return False.
+        """
+        plot_base = PlotBase()
+        with patch("puma.plot_base.get_ipython", side_effect=ImportError("No IPython")):
+            self.assertFalse(plot_base.is_running_in_jupyter())

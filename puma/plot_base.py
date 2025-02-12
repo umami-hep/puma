@@ -564,7 +564,7 @@ class PlotBase(PlotObject):
             **kwargs,
         )
 
-    def _is_running_in_jupyter(self):
+    def is_running_in_jupyter(self):
         """Detect if running inside a Jupyter notebook."""
         try:
             shell = get_ipython()
@@ -617,7 +617,7 @@ class PlotBase(PlotObject):
         auto_close_after : int | None, optional
             After how many milliseconds, the window is automatically closed, by default None
         """
-        if self._is_running_in_jupyter():
+        if self.is_running_in_jupyter():
             logger.debug("Detected Jupyter Notebook, displaying inline.")
             display(self.fig)
             return
