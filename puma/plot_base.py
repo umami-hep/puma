@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
+import tkinter as tk
 from dataclasses import dataclass
 
 import atlasify
+from IPython import get_ipython
+from IPython.display import display
 from matplotlib import axis, gridspec, lines
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
 from puma.utils import logger, set_xaxis_ticklabels_invisible
@@ -559,6 +563,93 @@ class PlotBase(PlotObject):
             pad_inches=0.04,
             **kwargs,
         )
+
+    def is_running_in_jupyter(self):
+        """Detect if running inside a Jupyter notebook."""
+        try:
+            shell = get_ipython()
+
+            # Running in standard Python interpreter
+            if shell is None:
+                return False
+
+            shell_name = shell.__class__.__name__
+
+            # Jupyter notebook or qtconsole
+            if shell_name == "ZMQInteractiveShell":
+                return True
+
+            # Terminal running IPython
+            if shell_name == "TerminalInteractiveShell":
+                return False
+
+        # Probably standard Python interpreter
+        except (NameError, ImportError):
+            return False
+
+        else:
+            # Other type (?)
+            return False
+
+    def close_window(self, root: tk.Tk):
+        """Properly close the Tkinter window and exit the main loop.
+
+        Parameters
+        ----------
+        root : tk.Tk
+            The Tkinter root window instance to be closed.
+        """
+        if root is not None:
+            logger.debug("Closing plot window.")
+
+            # Stop the Tkinter main loop and destroy the window
+            root.quit()
+            root.destroy()
+
+            # Explicitly delete the root object (optional but helps with garbage collection)
+            del root
+
+    def show(self, auto_close_after: int | None = None):
+        """Show the plot using tkinter in command line and detect Jupyter to avoid issues.
+
+        Parameters
+        ----------
+        auto_close_after : int | None, optional
+            After how many milliseconds, the window is automatically closed, by default None
+        """
+        if self.is_running_in_jupyter():
+            logger.debug("Detected Jupyter Notebook, displaying inline.")
+            display(self.fig)
+            return
+
+        logger.debug("Showing plot using tkinter")
+
+        # Ensure figure is initialized
+        if self.fig is None:
+            raise ValueError("You need to initalize the figure before using show().")
+
+        # Create the Tkinter root window
+        root = tk.Tk()
+        root.title("Plot Display")
+
+        # Embed the figure into a Tkinter canvas
+        canvas = FigureCanvasTkAgg(self.fig, master=root)
+        canvas_widget = canvas.get_tk_widget()
+        canvas_widget.pack(fill="both", expand=True)
+
+        # Render the figure
+        canvas.draw()
+
+        # If auto_close_after is set, close the window automatically
+        if auto_close_after:
+            logger.debug(f"Auto-closing window after {auto_close_after} ms")
+            root.after(auto_close_after, lambda: self.close_window(root))
+
+        # Handle window close event manually
+        root.protocol("WM_DELETE_WINDOW", lambda: self.close_window(root))
+
+        # Start Tkinter event loop
+        root.mainloop()
 
     def atlasify(self, force: bool = False):
         """Apply ATLAS style to all axes using the atlasify package.
