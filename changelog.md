@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+### [v0.4.4] (2025/02/17)
+
 - Adding show() function support [!304](https://github.com/umami-hep/puma/pull/304)
 - Added ability to modify ATLAS tag in track origin plots [!303](https://github.com/umami-hep/puma/pull/303)
 - Fixing ratio calculation issue when using no error band [!302](https://github.com/umami-hep/puma/pull/302)

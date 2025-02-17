@@ -2,7 +2,7 @@
 
 # flake8: noqa
 
-__version__ = "0.4.3"
+__version__ = "0.4.4"
 
 from puma.histogram import Histogram, HistogramPlot
 from puma.integrated_eff import IntegratedEfficiency, IntegratedEfficiencyPlot
