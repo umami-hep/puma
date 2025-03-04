@@ -261,6 +261,9 @@ class AuxResults:
 
         if vertex_match_requirement is None:
             vertex_match_requirement = {"eff_req": 0.65, "purity_req": 0.5}
+            # if you want to make the track level recall and purity plots,
+            # don't require any quality requirements
+            # vertex_match_requirement = {"eff_req": 0, "purity_req": 0}
         eff_req = round(vertex_match_requirement["eff_req"] * 100, 1)
         purity_req = round(vertex_match_requirement["purity_req"] * 100, 1)
         vtx_match_str = rf"Recall $\geq {eff_req}\%$, Purity $\geq {purity_req}\%$"
@@ -277,8 +280,9 @@ class AuxResults:
 
             # get cleaned vertex indices and calculate vertexing metrics
             truth_indices, reco_indices = tagger.vertex_indices(incl_vertexing=incl_vertexing)
+            max_vertices = 20 if not incl_vertexing else 1
             vtx_metrics[tagger.name] = calculate_vertex_metrics(
-                reco_indices, truth_indices, **vertex_match_requirement
+                reco_indices, truth_indices, max_vertices=max_vertices, **vertex_match_requirement
             )
 
         if not vtx_metrics:
@@ -316,7 +320,7 @@ class AuxResults:
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
-                atlas_second_tag=atlas_second_tag + f", {flav.label}\n{vtx_match_str}",
+                atlas_second_tag=atlas_second_tag + f", {flav.label}",
                 y_scale=1.4,
             )
             # $n_{trk}^{match}/n_{trk}^{reco}$
@@ -326,7 +330,7 @@ class AuxResults:
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
-                atlas_second_tag=atlas_second_tag + f", {flav.label}\n{vtx_match_str}",
+                atlas_second_tag=atlas_second_tag + f", {flav.label}",
                 y_scale=1.4,
             )
 

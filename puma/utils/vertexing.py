@@ -227,13 +227,10 @@ def calculate_vertex_metrics(
         max_index = min(metrics["n_match"][i], max_vertices)
 
         # write out vertexing purity metrics
-        metrics["track_overlap"][i, :max_index] = common_tracks[associations][:max_index]
-        metrics["test_vertex_size"][i, :max_index] = test_vertices[
-            associations.sum(axis=1).astype(bool)
-        ].sum(axis=1)[:max_index]
-        metrics["ref_vertex_size"][i, :max_index] = ref_vertices[
-            associations.sum(axis=0).astype(bool)
-        ].sum(axis=1)[:max_index]
+        # assert (common_tracks[associations] == common_tracks).all()
+        metrics["track_overlap"][i, :max_index] = common_tracks[:, :max_index]
+        metrics["test_vertex_size"][i, :max_index] = test_vertices.sum(axis=1)[:max_index]
+        metrics["ref_vertex_size"][i, :max_index] = ref_vertices.sum(axis=1)[:max_index]
 
     return metrics
 
@@ -277,7 +274,9 @@ def clean_truth_vertices(truth_vertices, truth_track_origin, incl_vertexing=Fals
     return truth_vertices
 
 
-def clean_reco_vertices(reco_vertices, reco_track_origin=None, incl_vertexing=False):
+def clean_reco_vertices(
+    reco_vertices, reco_track_origin=None, incl_vertexing=False, require_hf_track=True
+):
     """
     Clean reconstructed vertices for each track in a single jet. This function
     removes the vertex with the most reco PV tracks if track origin classification
@@ -293,6 +292,8 @@ def clean_reco_vertices(reco_vertices, reco_track_origin=None, incl_vertexing=Fa
         Array containing reco track origin labels for each track in a jet.
     incl_vertexing: bool, optional
         Whether to merge all vertex indices, by default False.
+    require_hf_track: bool, optional
+        Whether to require at least one track from HF to keep a vertex, by default True.
 
     Returns
     -------
@@ -314,12 +315,13 @@ def clean_reco_vertices(reco_vertices, reco_track_origin=None, incl_vertexing=Fa
             )
 
         # remove vertices with no tracks from HF
-        hf_vertex_indices = np.unique(reco_vertices[np.isin(reco_track_origin, [3, 4, 5])])
-        reco_vertices = clean_indices(
-            reco_vertices,
-            np.isin(reco_vertices, hf_vertex_indices, invert=True),
-            mode="remove",
-        )
+        if require_hf_track:
+            hf_vertex_indices = np.unique(reco_vertices[np.isin(reco_track_origin, [3, 4, 5])])
+            reco_vertices = clean_indices(
+                reco_vertices,
+                np.isin(reco_vertices, hf_vertex_indices, invert=True),
+                mode="remove",
+            )
 
         # merge remaining vertices for inclusive performance
         if incl_vertexing:
