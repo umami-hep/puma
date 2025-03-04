@@ -227,10 +227,13 @@ def calculate_vertex_metrics(
         max_index = min(metrics["n_match"][i], max_vertices)
 
         # write out vertexing purity metrics
-        # assert (common_tracks[associations] == common_tracks).all()
-        metrics["track_overlap"][i, :max_index] = common_tracks[:, :max_index]
-        metrics["test_vertex_size"][i, :max_index] = test_vertices.sum(axis=1)[:max_index]
-        metrics["ref_vertex_size"][i, :max_index] = ref_vertices.sum(axis=1)[:max_index]
+        metrics["track_overlap"][i, :max_index] = common_tracks[associations][:max_index]
+        metrics["test_vertex_size"][i, :max_index] = test_vertices[
+            associations.sum(axis=1).astype(bool)
+        ].sum(axis=1)[:max_index]
+        metrics["ref_vertex_size"][i, :max_index] = ref_vertices[
+            associations.sum(axis=0).astype(bool)
+        ].sum(axis=1)[:max_index]
 
     return metrics
 
