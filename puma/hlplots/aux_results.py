@@ -316,7 +316,7 @@ class AuxResults:
             # $n_{trk}^{match}/n_{trk}^{true}$
             plot_vtx_trk_eff = VarVsVtxPlot(
                 mode="efficiency",
-                ylabel="Track Assignment Efficiency",
+                ylabel="Track assignment efficiency",
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
@@ -326,7 +326,7 @@ class AuxResults:
             # $n_{trk}^{match}/n_{trk}^{reco}$
             plot_vtx_trk_purity = VarVsVtxPlot(
                 mode="purity",
-                ylabel="Track Assignment Purity",
+                ylabel="Track assignment purity",
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
