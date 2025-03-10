@@ -630,5 +630,6 @@ class AuxResults:
                     **kwargs,
                 )
             plot_cm.draw(cm)
-            base = tagger.label + "_trackOrigin_cm"
+            base = tagger.name + "_trackOrigin_cm"
             plot_cm.savefig(self.get_filename(base))
+            print("saved file with name", self.get_filename(base))
