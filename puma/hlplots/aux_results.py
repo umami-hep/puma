@@ -275,13 +275,15 @@ class AuxResults:
         vtx_metrics = {}
         for tagger in self.taggers.values():
             if "vertexing" not in tagger.aux_tasks:
-                logger.warning(f"{tagger.name} does not have vertexing aux task defined. Skipping.")
-            assert perf_var in tagger.perf_vars, f"{perf_var} not in tagger {tagger.name} data!"
+                logger.warning(
+                    f"{tagger.label} does not have vertexing aux task defined. Skipping."
+                )
+            assert perf_var in tagger.perf_vars, f"{perf_var} not in tagger {tagger.label} data!"
 
             # get cleaned vertex indices and calculate vertexing metrics
             truth_indices, reco_indices = tagger.vertex_indices(incl_vertexing=incl_vertexing)
             max_vertices = 20 if not incl_vertexing else 1
-            vtx_metrics[tagger.name] = calculate_vertex_metrics(
+            vtx_metrics[tagger.label] = calculate_vertex_metrics(
                 reco_indices, truth_indices, max_vertices=max_vertices, **vertex_match_requirement
             )
 
@@ -330,21 +332,21 @@ class AuxResults:
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
-                atlas_second_tag=atlas_second_tag + f", {flav.label}",
+                atlas_second_tag=atlas_second_tag + f", {flav.label.lower()}",
                 y_scale=1.4,
             )
 
             for tagger in self.taggers.values():
-                if tagger.name not in vtx_metrics:
+                if tagger.label not in vtx_metrics:
                     continue
                 is_flavour = tagger.is_flav(flav)
-                include_sum = vtx_metrics[tagger.name]["track_overlap"][is_flavour] >= 0
+                include_sum = vtx_metrics[tagger.label]["track_overlap"][is_flavour] >= 0
 
                 vtx_perf = VarVsVtx(
                     x_var=tagger.perf_vars[perf_var][is_flavour],
-                    n_match=vtx_metrics[tagger.name]["n_match"][is_flavour],
-                    n_true=vtx_metrics[tagger.name]["n_ref"][is_flavour],
-                    n_reco=vtx_metrics[tagger.name]["n_test"][is_flavour],
+                    n_match=vtx_metrics[tagger.label]["n_match"][is_flavour],
+                    n_true=vtx_metrics[tagger.label]["n_ref"][is_flavour],
+                    n_reco=vtx_metrics[tagger.label]["n_test"][is_flavour],
                     label=tagger.label,
                     colour=tagger.colour,
                     **kwargs,
@@ -352,17 +354,17 @@ class AuxResults:
                 vtx_trk_perf = VarVsVtx(
                     x_var=tagger.perf_vars[perf_var][is_flavour],
                     n_match=np.sum(
-                        vtx_metrics[tagger.name]["track_overlap"][is_flavour],
+                        vtx_metrics[tagger.label]["track_overlap"][is_flavour],
                         axis=1,
                         where=include_sum,
                     ),
                     n_true=np.sum(
-                        vtx_metrics[tagger.name]["ref_vertex_size"][is_flavour],
+                        vtx_metrics[tagger.label]["ref_vertex_size"][is_flavour],
                         axis=1,
                         where=include_sum,
                     ),
                     n_reco=np.sum(
-                        vtx_metrics[tagger.name]["test_vertex_size"][is_flavour],
+                        vtx_metrics[tagger.label]["test_vertex_size"][is_flavour],
                         axis=1,
                         where=include_sum,
                     ),
@@ -397,24 +399,24 @@ class AuxResults:
 
             plot_vtx_fakes = VarVsVtxPlot(
                 mode="fakes",
-                ylabel="Fake Rate",
+                ylabel="Vertex rate",
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
-                atlas_second_tag=atlas_second_tag + f", {flav.label}",
+                atlas_second_tag=atlas_second_tag + f", {flav.label.lower()}",
                 y_scale=1.4,
             )
 
             for tagger in self.taggers.values():
-                if tagger.name not in vtx_metrics:
+                if tagger.label not in vtx_metrics:
                     continue
                 is_flavour = tagger.is_flav(flav)
 
                 vtx_perf = VarVsVtx(
                     x_var=tagger.perf_vars[perf_var][is_flavour],
-                    n_match=vtx_metrics[tagger.name]["n_match"][is_flavour],
-                    n_true=vtx_metrics[tagger.name]["n_ref"][is_flavour],
-                    n_reco=vtx_metrics[tagger.name]["n_test"][is_flavour],
+                    n_match=vtx_metrics[tagger.label]["n_match"][is_flavour],
+                    n_true=vtx_metrics[tagger.label]["n_ref"][is_flavour],
+                    n_reco=vtx_metrics[tagger.label]["n_test"][is_flavour],
                     label=tagger.label,
                     colour=tagger.colour,
                     **kwargs,
@@ -487,7 +489,7 @@ class AuxResults:
             for i, tagger in enumerate(self.taggers.values()):
                 if "vertexing" not in tagger.aux_tasks:
                     logger.warning(
-                        f"{tagger.name} does not have vertexing aux task defined. Skipping."
+                        f"{tagger.label} does not have vertexing aux task defined. Skipping."
                     )
 
                 assert {"pt", "eta", "dphi"}.issubset(
@@ -628,5 +630,5 @@ class AuxResults:
                     **kwargs,
                 )
             plot_cm.draw(cm)
-            base = tagger.name + "_trackOrigin_cm"
+            base = tagger.label + "_trackOrigin_cm"
             plot_cm.savefig(self.get_filename(base))
