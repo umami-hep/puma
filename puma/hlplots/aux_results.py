@@ -300,7 +300,7 @@ class AuxResults:
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
-                atlas_second_tag=atlas_second_tag + f", {flav.label}\n{vtx_match_str}",
+                atlas_second_tag=atlas_second_tag + f", {flav.label.lower()}\n{vtx_match_str}",
                 y_scale=1.4,
             )
             # $n_{vtx}^{match}/n_{vtx}^{reco}$
@@ -310,7 +310,7 @@ class AuxResults:
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
-                atlas_second_tag=atlas_second_tag + f", {flav.label}\n{vtx_match_str}",
+                atlas_second_tag=atlas_second_tag + f", {flav.label.lower()}\n{vtx_match_str}",
                 y_scale=1.4,
             )
             # $n_{trk}^{match}/n_{trk}^{true}$
@@ -320,7 +320,7 @@ class AuxResults:
                 xlabel=xlabel,
                 logy=False,
                 atlas_first_tag=self.atlas_first_tag,
-                atlas_second_tag=atlas_second_tag + f", {flav.label}",
+                atlas_second_tag=atlas_second_tag + f", {flav.label.lower()}",
                 y_scale=1.4,
             )
             # $n_{trk}^{match}/n_{trk}^{reco}$
@@ -463,9 +463,12 @@ class AuxResults:
                 xlabel="$m_{SV}$ [GeV]",
                 ylabel="Normalised number of vertices",
                 atlas_first_tag=self.atlas_first_tag,
-                atlas_second_tag=atlas_second_tag + f"\n{vertexing_text} vertexing, {flav.label}",
+                atlas_second_tag=atlas_second_tag
+                + f"\n{vertexing_text} vertexing, {flav.label.lower()}",
                 y_scale=1.7,
                 n_ratio_panels=1,
+                ymin_ratio=[0.8],
+                ymax_ratio=[1.4],
                 **kwargs,
             )
 
@@ -476,7 +479,7 @@ class AuxResults:
                     ylabel="Normalised number of vertices",
                     atlas_first_tag=self.atlas_first_tag,
                     atlas_second_tag=atlas_second_tag
-                    + f"\n{vertexing_text} vertexing, {flav.label}",
+                    + f"\n{vertexing_text} vertexing, {flav.label.lower()}",
                     y_scale=1.4,
                     **kwargs,
                 )
