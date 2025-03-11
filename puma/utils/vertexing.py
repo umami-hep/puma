@@ -277,7 +277,9 @@ def clean_truth_vertices(truth_vertices, truth_track_origin, incl_vertexing=Fals
     return truth_vertices
 
 
-def clean_reco_vertices(reco_vertices, reco_track_origin=None, incl_vertexing=False):
+def clean_reco_vertices(
+    reco_vertices, reco_track_origin=None, incl_vertexing=False, require_hf_track=True
+):
     """
     Clean reconstructed vertices for each track in a single jet. This function
     removes the vertex with the most reco PV tracks if track origin classification
@@ -293,6 +295,8 @@ def clean_reco_vertices(reco_vertices, reco_track_origin=None, incl_vertexing=Fa
         Array containing reco track origin labels for each track in a jet.
     incl_vertexing: bool, optional
         Whether to merge all vertex indices, by default False.
+    require_hf_track: bool, optional
+        Whether to require at least one track from HF to keep a vertex, by default True.
 
     Returns
     -------
@@ -314,12 +318,13 @@ def clean_reco_vertices(reco_vertices, reco_track_origin=None, incl_vertexing=Fa
             )
 
         # remove vertices with no tracks from HF
-        hf_vertex_indices = np.unique(reco_vertices[np.isin(reco_track_origin, [3, 4, 5])])
-        reco_vertices = clean_indices(
-            reco_vertices,
-            np.isin(reco_vertices, hf_vertex_indices, invert=True),
-            mode="remove",
-        )
+        if require_hf_track:
+            hf_vertex_indices = np.unique(reco_vertices[np.isin(reco_track_origin, [3, 4, 5])])
+            reco_vertices = clean_indices(
+                reco_vertices,
+                np.isin(reco_vertices, hf_vertex_indices, invert=True),
+                mode="remove",
+            )
 
         # merge remaining vertices for inclusive performance
         if incl_vertexing:
