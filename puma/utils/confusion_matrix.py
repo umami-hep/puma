@@ -59,7 +59,7 @@ def confusion_matrix(
         }, "confusion_matrix: invalid normalization keyword"
 
     # Finding number of target classes
-    # (i.e. unique elements across targets and predictions) 
+    # (i.e. unique elements across targets and predictions)
     n_classes = np.unique(np.concatenate((targets, predictions))).size
 
     # If no samples' weights are given, give to each sample weight = 1
