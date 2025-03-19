@@ -131,8 +131,6 @@ class Results:
             current_colours = [t.colour for t in self.taggers.values()]
             tagger.colour = next(c for c in good_colours if c not in current_colours)
 
-        if tagger.output_flavours is None:
-            tagger.output_flavours = self.flavours
         self.taggers[str(tagger)] = tagger
 
     def load(self):
@@ -210,9 +208,8 @@ class Results:
             # provided, the flavour is ignored
             for iter_flav in self.backgrounds:
                 if (
-                    iter_flav.frac_str not in tagger.fxs
-                    and Flavours[iter_flav.name] in tagger.output_flavours
-                ):
+                    iter_flav.frac_str not in tagger.fxs or tagger.fxs[iter_flav.frac_str] == 0
+                ) and Flavours[iter_flav.name] in tagger.output_flavours:
                     tagger.output_flavours.remove(Flavours[iter_flav.name])
 
         # get a list of all variables to be loaded from the file
