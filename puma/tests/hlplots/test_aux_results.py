@@ -163,7 +163,12 @@ class AuxResultsTestCase(unittest.TestCase):
                 results.load_taggers_from_file([Tagger("GN2")], fname)
             self.assertEqual(
                 cm.output,
-                [f"WARNING:puma:{len(n_nans)} NaN values found in loaded data." " Removing them."],
+                [
+                    "WARNING:puma:No value for fu found in fxs/fraction dict! Setting the value "
+                    "for fu to 0!",
+                    f"WARNING:puma:{len(n_nans)} NaN values found in loaded data."
+                    " Removing them.",
+                ],
             )
 
 

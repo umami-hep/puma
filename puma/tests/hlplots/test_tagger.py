@@ -140,18 +140,18 @@ class TaggerTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             tagger.discriminant("qcd")
         with self.assertRaises(ValueError):
-            tagger.discriminant("ujets")
+            tagger.discriminant(signal="bjets", fxs={"fc": 0.5})
 
     def test_disc_b_calc(self):
         """Test b-disc calculation."""
-        tagger = Tagger("dummy", fxs={"fc": 0.5})
+        tagger = Tagger("dummy", fxs={"fc": 0.5, "fu": 0.5})
         tagger.scores = self.scores
         discs = tagger.discriminant("bjets")
         np.testing.assert_array_equal(discs, np.zeros(10))
 
     def test_disc_c_calc(self):
         """Test c-disc calculation."""
-        tagger = Tagger("dummy", fxs={"fb": 0.5})
+        tagger = Tagger("dummy", fxs={"fb": 0.5, "fu": 0.5})
         tagger.scores = self.scores
         discs = tagger.discriminant("cjets")
         np.testing.assert_array_equal(discs, np.zeros(10))
@@ -162,8 +162,9 @@ class TaggerTestCase(unittest.TestCase):
 
         tagger = Tagger(
             "dummy",
-            fxs={"fhcc": 0.1, "ftop": 0.1},
+            fxs={"fhcc": 0.1, "ftop": 0.1, "fqcd": 0.1},
             output_flavours=[F["hbb"], F["hcc"], F["top"], F["qcd"]],
+            category="xbb",
         )
         tagger.scores = u2s(
             np.column_stack((np.ones(10) * 2, np.ones(10), np.ones(10), np.ones(10))),
@@ -175,7 +176,7 @@ class TaggerTestCase(unittest.TestCase):
             ],
         )
         discs = tagger.discriminant("hbb")
-        np.testing.assert_array_equal(discs, np.ones([10]) * 0.6931471824645996)
+        np.testing.assert_array_almost_equal(discs, np.ones([10]) * 1.89712)
 
 
 class TaggerAuxTaskTestCase(unittest.TestCase):

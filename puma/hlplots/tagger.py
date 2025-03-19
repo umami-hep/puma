@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 from ftag import Cuts, Flavours, Label, get_discriminant
 
+from puma.utils import logger
 from puma.utils.aux import get_aux_labels
 from puma.utils.vertexing import clean_reco_vertices, clean_truth_vertices
 
@@ -26,6 +27,7 @@ class Tagger:
     fxs: dict[str, float] = field(default_factory=lambda: {"fc": 0.1, "fb": 0.2})
     aux_tasks: list = field(default_factory=lambda: list(get_aux_labels().keys()))
     sample_path: Path = None
+    category: str = "single-btag"
 
     # this is only read by the Results class
     cuts: Cuts | list | None = None
@@ -56,6 +58,18 @@ class Tagger:
             self.aux_labels = dict.fromkeys(self.aux_tasks)
         if self.sample_path is not None:
             self.sample_path = Path(self.sample_path)
+        self.output_flavours = [Flavours[iter_flav] for iter_flav in self.output_flavours]
+        for iter_flav in self.output_flavours:
+            if iter_flav not in Flavours.by_category(category=self.category):
+                raise ValueError(
+                    f"Given output flavour {iter_flav.name} is not supported in label category "
+                    f"{self.category}"
+                )
+            if iter_flav.frac_str not in self.fxs:
+                logger.warning(
+                    f"No value for {iter_flav.frac_str} found in fxs/fraction dict! "
+                    f"Setting the value for {iter_flav.frac_str} to 0!"
+                )
 
     def __repr__(self):
         return f"{self.name} ({self.label})"
@@ -227,11 +241,38 @@ class Tagger:
         np.ndarray
             Discriminant for given signal class
         """
-        signal = Flavours[signal]
+        # Ensure Label instance
+        if isinstance(signal, str):
+            signal = Flavours[signal]
+
+        # Check that the given flavour is in output flavours
+        if signal not in self.output_flavours:
+            raise ValueError(
+                f"Given signal flavour {signal.name} is not available in given output flavours!"
+            )
+
+        # Get fraction values from class if not given
         if fxs is None:
             fxs = self.fxs
         fxs = {k: v for k, v in fxs.items() if k != signal.frac_str}
-        return get_discriminant(self.scores, self.name, signal, **fxs)
+
+        # Check that all fraction values for the flavours are given
+        for iter_flav in self.output_flavours:
+            if iter_flav.name == signal.name:
+                continue
+            if iter_flav.frac_str not in fxs:
+                raise ValueError(
+                    f"No fraction value {iter_flav.frac_str} provided for flavour {iter_flav.name}"
+                )
+
+        # Calculate discs
+        return get_discriminant(
+            jets=self.scores,
+            tagger=self.name,
+            signal=signal,
+            flavours=self.output_flavours,
+            fraction_values=fxs,
+        )
 
     def vertex_indices(self, incl_vertexing=False):
         """Retrieve cleaned vertex indices for the tagger.

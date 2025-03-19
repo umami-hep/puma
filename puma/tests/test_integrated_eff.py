@@ -8,7 +8,7 @@ import tempfile
 import unittest
 
 import numpy as np
-from ftag import get_discriminant
+from ftag import Flavours, get_discriminant
 from matplotlib.testing.compare import compare_images
 
 from puma import IntegratedEfficiency, IntegratedEfficiencyPlot
@@ -52,8 +52,28 @@ class IntegratedEfficiencyPlotTestCase(unittest.TestCase):
         is_c = df["HadronConeExclTruthLabelID"] == 4
         is_b = df["HadronConeExclTruthLabelID"] == 5
 
-        disc_dips = get_discriminant(df, "dips", "bjets", fc=0.018)
-        disc_rnnip = get_discriminant(df, "rnnip", "bjets", fc=0.018)
+        disc_dips = get_discriminant(
+            jets=df,
+            tagger="dips",
+            signal=Flavours["bjets"],
+            flavours=Flavours.by_category("single-btag"),
+            fraction_values={
+                "fc": 0.018,
+                "fu": 0.982,
+                "ftau": 0,
+            },
+        )
+        disc_rnnip = get_discriminant(
+            jets=df,
+            tagger="rnnip",
+            signal=Flavours["bjets"],
+            flavours=Flavours.by_category("single-btag"),
+            fraction_values={
+                "fc": 0.018,
+                "fu": 0.982,
+                "ftau": 0,
+            },
+        )
 
         self.dips_int_effs = {
             "light": IntegratedEfficiency(
