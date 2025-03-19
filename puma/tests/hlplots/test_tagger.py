@@ -22,6 +22,15 @@ set_log_level(logger, "DEBUG")
 class TaggerBasisTestCase(unittest.TestCase):
     """Test class for the Tagger class."""
 
+    def test_wrong_flavour_for_category(self):
+        """Test value error if a flavour is defined which is not supported in the category."""
+        with self.assertRaises(ValueError):
+            Tagger(
+                name="test",
+                category="single-btag",
+                output_flavours=["bjets", "cjets", "ujets", "hbb"],
+            )
+
     def test_empty_string_tagger_name(self):
         """Test empty string as model name."""
         tagger = Tagger("")
