@@ -70,6 +70,7 @@ class Tagger:
                     f"No value for {iter_flav.frac_str} found in fxs/fraction dict! "
                     f"Setting the value for {iter_flav.frac_str} to 0!"
                 )
+                self.fxs[iter_flav.frac_str] = 0
 
     def __repr__(self):
         return f"{self.name} ({self.label})"

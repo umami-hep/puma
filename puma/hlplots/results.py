@@ -205,9 +205,15 @@ class Results:
         for tagger in taggers:
             if tagger not in self.taggers.values():
                 self.add(tagger)
-            tagger.output_flavours = self.flavours
-            if "ftau" not in tagger.fxs and Flavours.taujets in tagger.output_flavours:
-                tagger.output_flavours.remove(Flavours.taujets)
+
+            # If for the given tagger no fraction value for a certain flavour in the category is
+            # provided, the flavour is ignored
+            for iter_flav in self.backgrounds:
+                if (
+                    iter_flav.frac_str not in tagger.fxs
+                    and Flavours[iter_flav.name] in tagger.output_flavours
+                ):
+                    tagger.output_flavours.remove(Flavours[iter_flav.name])
 
         # get a list of all variables to be loaded from the file
         if not isinstance(cuts, Cuts):
@@ -490,17 +496,18 @@ class Results:
             hist.draw_vlines(wp_cuts, labels=wp_labels, linestyle=line_styles[counter])
 
             # Loop over the flavours and add the disc values for each flavour
-            for flav in self.flavours:
-                hist.add(
-                    Histogram(
-                        discs[tagger.is_flav(flav)],
-                        ratio_group=flav,
-                        label=flav.label if counter == 0 else None,
-                        colour=flav.colour,
-                        linestyle=line_styles[counter],
-                    ),
-                    reference=tagger.reference,
-                )
+            for flav in self.backgrounds:
+                if flav in tagger.output_flavours:
+                    hist.add(
+                        Histogram(
+                            discs[tagger.is_flav(flav)],
+                            ratio_group=flav,
+                            label=flav.label if counter == 0 else None,
+                            colour=flav.colour,
+                            linestyle=line_styles[counter],
+                        ),
+                        reference=tagger.reference,
+                    )
 
             # Add the tagger label or name to the label list
             tagger_labels.append(tagger.label if tagger.label else tagger.name)
@@ -537,9 +544,24 @@ class Results:
         # Linspace the signal efficiencies
         sig_effs = np.linspace(*x_range, resolution)
 
+        # Define int for ratio panel number
+        n_ratio_panels = 0
+
+        # Check how many backgrounds are present
+        present_flavs = []
+        for background in self.backgrounds:
+            is_present = False
+            for tagger in self.taggers.values():
+                if background in tagger.output_flavours:
+                    is_present = True
+                    if background not in present_flavs:
+                        present_flavs.append(background)
+            if is_present:
+                n_ratio_panels += 1
+
         # Init a default kwargs dict for roc plots
         roc_kwargs = {
-            "n_ratio_panels": len(self.backgrounds),
+            "n_ratio_panels": n_ratio_panels,
             "ylabel": "Background rejection",
             "xlabel": self.signal.eff_str,
             "atlas_first_tag": self.atlas_first_tag,
@@ -562,6 +584,10 @@ class Results:
 
             # Loop over all backgrouns
             for background in self.backgrounds:
+                # Skip non-existing flavours
+                if background not in tagger.output_flavours:
+                    continue
+
                 # Calculate rejection for the given background
                 rej = calc_rej(
                     discs[tagger.is_flav(self.signal)],
@@ -586,7 +612,8 @@ class Results:
 
         # setting which flavour rejection ratio is drawn in which ratio panel
         for counter, background in enumerate(self.backgrounds):
-            roc.set_ratio_class(counter + 1, background)
+            if background in present_flavs:
+                roc.set_ratio_class(counter + 1, background)
 
         # Finalise the plot and draw it
         roc.draw()

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import numpy as np
-from ftag import get_discriminant
+from ftag import Flavours, get_discriminant
 
 from puma import Roc, RocPlot
 from puma.metrics import calc_rej
@@ -13,8 +13,28 @@ from puma.utils import get_dummy_2_taggers, logger
 df = get_dummy_2_taggers(add_pt=True)
 
 logger.info("caclulate tagger discriminants")
-discs_rnnip = get_discriminant(df, "rnnip", signal="bjets", fc=0.018)
-discs_dips = get_discriminant(df, "dips", signal="bjets", fc=0.018)
+discs_dips = get_discriminant(
+    jets=df,
+    tagger="dips",
+    signal=Flavours["bjets"],
+    flavours=Flavours.by_category("single-btag"),
+    fraction_values={
+        "fc": 0.018,
+        "fu": 0.982,
+        "ftau": 0,
+    },
+)
+discs_rnnip = get_discriminant(
+    jets=df,
+    tagger="rnnip",
+    signal=Flavours["bjets"],
+    flavours=Flavours.by_category("single-btag"),
+    fraction_values={
+        "fc": 0.018,
+        "fu": 0.982,
+        "ftau": 0,
+    },
+)
 
 # defining target efficiency
 sig_eff = np.linspace(0.49, 1, 20)

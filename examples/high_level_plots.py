@@ -15,13 +15,13 @@ cuts = [("n_truth_promptLepton", "==", 0)]
 dips = Tagger(
     name="dips",
     label="dummy DIPS ($f_{c}=0.005$)",
-    fxs={"fc": 0.005, "fb": 0.04},
+    fxs={"fc": 0.005, "fu": 0.995},
     colour="#AA3377",
 )
 rnnip = Tagger(
     name="rnnip",
     label="dummy RNNIP ($f_{c}=0.07$)",
-    fxs={"fc": 0.07, "fb": 0.04},
+    fxs={"fc": 0.07, "fu": 0.93},
     colour="#4477AA",
     reference=True,
 )
@@ -87,4 +87,4 @@ results.plot_flat_rej_var_perf(
 # fraction scan plots
 logger.info("Plotting fraction scans.")
 results.atlas_second_tag = "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$\n70% WP"
-results.plot_fraction_scans(efficiency=0.7, rej=False)
+results.plot_fraction_scans(backgrounds_to_plot=["cjets", "ujets"], efficiency=0.7, rej=False)
