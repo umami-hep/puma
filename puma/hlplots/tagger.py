@@ -61,19 +61,26 @@ class Tagger:
                 f"No output flavours were given. Using flavours of category {self.category}"
             )
             self.output_flavours = Flavours.by_category(self.category)
+
+        # Ensure output_flavours is a list of Label instances
         self.output_flavours = [Flavours[iter_flav] for iter_flav in self.output_flavours]
+
+        # Check used flavours and check that they are in the chosen label category
         for iter_flav in self.output_flavours:
             if iter_flav not in Flavours.by_category(category=self.category):
                 raise ValueError(
                     f"Given output flavour {iter_flav.name} is not supported in label category "
                     f"{self.category}"
                 )
-            if iter_flav.frac_str not in self.fxs:
-                logger.warning(
-                    f"No value for {iter_flav.frac_str} found in fxs/fraction dict! "
-                    f"Setting the value for {iter_flav.frac_str} to 0!"
+
+        # Check if some flavours from the category are not used. Set their fraction values to 0
+        for iter_ref_flav in Flavours.by_category(category=self.category):
+            if iter_ref_flav not in self.output_flavours:
+                logger.debug(
+                    f"Flavour {iter_ref_flav} in category {self.category} but not in "
+                    f"output_flavours. Setting {iter_ref_flav.frac_str} to 0."
                 )
-                self.fxs[iter_flav.frac_str] = 0
+                self.fxs[iter_ref_flav.frac_str] = 0
 
     def __repr__(self):
         return f"{self.name} ({self.label})"
@@ -258,19 +265,38 @@ class Tagger:
                 f"Given signal flavour {signal.name} is not available in given output flavours!"
             )
 
-        # Get fraction values from class if not given
+        # Get fraction values from class if not provided
         if fxs is None:
             fxs = self.fxs
+
+        # Remove signal fraction value if present
         fxs = {k: v for k, v in fxs.items() if k != signal.frac_str}
+
+        # Init a counter to count, how many flavour have no fraction value given
+        mis_frac_list = []
 
         # Check that all fraction values for the flavours are given
         for iter_flav in self.output_flavours:
+            # Skip signal flavour
             if iter_flav.name == signal.name:
                 continue
+
+            # Check which flavours are missing a fraction value
             if iter_flav.frac_str not in fxs:
-                raise ValueError(
-                    f"No fraction value {iter_flav.frac_str} provided for flavour {iter_flav.name}"
-                )
+                mis_frac_list.append(iter_flav.frac_str)
+
+        # Ensure only one fraction value is missing and calculate it
+        if len(mis_frac_list) == 1:
+            tmp_fx_value = 0
+            for frac_value in fxs.values():
+                tmp_fx_value += frac_value
+            fxs[mis_frac_list[0]] = round(1 - tmp_fx_value, 3)
+
+        elif len(mis_frac_list) >= 2:
+            raise ValueError(
+                "More than one fraction value is missing from the fraction dict! Please check"
+                f"{mis_frac_list}"
+            )
 
         # Calculate discs
         return get_discriminant(

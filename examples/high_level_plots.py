@@ -16,14 +16,14 @@ dips = Tagger(
     name="dips",
     output_flavours=["ujets", "cjets", "bjets"],
     label="dummy DIPS ($f_{c}=0.005$)",
-    fxs={"fc": 0.005, "fu": 0.995},
+    fxs={"fc": 0.005},
     colour="#AA3377",
 )
 rnnip = Tagger(
     name="rnnip",
     output_flavours=["ujets", "cjets", "bjets"],
     label="dummy RNNIP ($f_{c}=0.07$)",
-    fxs={"fc": 0.07, "fu": 0.93},
+    fxs={"fc": 0.07},
     colour="#4477AA",
     reference=True,
 )

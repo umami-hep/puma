@@ -193,40 +193,7 @@ class ResultsTestCase(unittest.TestCase):
                 )
             self.assertEqual(
                 cm.output,
-                [
-                    "WARNING:puma:No value for fu found in fxs/fraction dict! Setting the value "
-                    "for fu to 0!",
-                    f"WARNING:puma:{len(n_nans)} NaN values found in loaded data. Removing them.",
-                ],
-            )
-
-    def test_load_taggers_from_file_flavour_removal(self):
-        # get mock file and add nans
-        f = get_mock_file()[1]
-        d = {}
-        d["HadronConeExclTruthLabelID"] = f["jets"]["HadronConeExclTruthLabelID"]
-        d["MockTagger_pb"] = f["jets"]["MockTagger_pb"]
-        d["MockTagger_pc"] = f["jets"]["MockTagger_pc"]
-        d["MockTagger_pu"] = f["jets"]["MockTagger_pu"]
-        d["pt"] = f["jets"]["pt"]
-        n_nans = np.random.choice(range(100), 10, replace=False)
-        d["MockTagger_pb"][n_nans] = np.nan
-        array = structured_from_dict(d)
-        with tempfile.TemporaryDirectory() as tmp_file:
-            fname = Path(tmp_file) / "test.h5"
-            with h5py.File(fname, "w") as f:
-                f.create_dataset("jets", data=array)
-
-            results = Results(signal="bjets", sample="test", remove_nan=True)
-            results.load_taggers_from_file(
-                taggers=[
-                    Tagger(
-                        "MockTagger",
-                        output_flavours=["ujets", "cjets", "bjets", "taujets"],
-                        fxs={"fc": 0.018, "fu": 0.982},
-                    )
-                ],
-                file_path=fname,
+                [f"WARNING:puma:{len(n_nans)} NaN values found in loaded data. Removing them."],
             )
 
 

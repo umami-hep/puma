@@ -148,7 +148,7 @@ class TestYumaPlots(unittest.TestCase):
             assert btagging.exists(), "No b-tagging plots produced"
             assert not ctagging.exists(), "No c-tagging plots should have been produced"
             btag_plots = [p.name for p in btagging.rglob("*.pdf")]
-            assert len(btag_plots) == 25, f"Expected 25 b-tagging plot, found {len(btag_plots)}"
+            assert len(btag_plots) == 27, f"Expected 27 b-tagging plot, found {len(btag_plots)}"
 
             args = [
                 "--config",

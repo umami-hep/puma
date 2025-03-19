@@ -204,14 +204,6 @@ class Results:
             if tagger not in self.taggers.values():
                 self.add(tagger)
 
-            # If for the given tagger no fraction value for a certain flavour in the category is
-            # provided, the flavour is ignored
-            for iter_flav in self.backgrounds:
-                if (
-                    iter_flav.frac_str not in tagger.fxs or tagger.fxs[iter_flav.frac_str] == 0
-                ) and Flavours[iter_flav.name] in tagger.output_flavours:
-                    tagger.output_flavours.remove(Flavours[iter_flav.name])
-
         # get a list of all variables to be loaded from the file
         if not isinstance(cuts, Cuts):
             cuts = Cuts.empty() if cuts is None else Cuts.from_list(cuts)

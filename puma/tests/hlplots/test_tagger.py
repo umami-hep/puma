@@ -153,14 +153,22 @@ class TaggerTestCase(unittest.TestCase):
 
     def test_disc_b_calc(self):
         """Test b-disc calculation."""
-        tagger = Tagger("dummy", fxs={"fc": 0.5, "fu": 0.5})
+        tagger = Tagger(
+            "dummy",
+            fxs={"fc": 0.5},
+            output_flavours=["ujets", "cjets", "bjets"],
+        )
         tagger.scores = self.scores
         discs = tagger.discriminant("bjets")
         np.testing.assert_array_equal(discs, np.zeros(10))
 
     def test_disc_c_calc(self):
         """Test c-disc calculation."""
-        tagger = Tagger("dummy", fxs={"fb": 0.5, "fu": 0.5})
+        tagger = Tagger(
+            "dummy",
+            fxs={"fb": 0.5},
+            output_flavours=["ujets", "cjets", "bjets"],
+        )
         tagger.scores = self.scores
         discs = tagger.discriminant("cjets")
         np.testing.assert_array_equal(discs, np.zeros(10))
@@ -171,7 +179,7 @@ class TaggerTestCase(unittest.TestCase):
 
         tagger = Tagger(
             "dummy",
-            fxs={"fhcc": 0.1, "ftop": 0.1, "fqcd": 0.1},
+            fxs={"fhcc": 0.1, "ftop": 0.1},
             output_flavours=[F["hbb"], F["hcc"], F["top"], F["qcd"]],
             category="xbb",
         )
@@ -185,7 +193,7 @@ class TaggerTestCase(unittest.TestCase):
             ],
         )
         discs = tagger.discriminant("hbb")
-        np.testing.assert_array_almost_equal(discs, np.ones([10]) * 1.89712)
+        np.testing.assert_array_almost_equal(discs, np.ones([10]) * 0.693147)
 
 
 class TaggerAuxTaskTestCase(unittest.TestCase):
