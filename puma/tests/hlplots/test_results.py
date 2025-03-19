@@ -134,8 +134,18 @@ class ResultsTestCase(unittest.TestCase):
             with h5py.File(fname, "w") as f:
                 f.create_dataset("jets", data=array)
 
-            results = Results(signal="hbb", sample="test")
-            results.load_taggers_from_file([Tagger("MockTagger")], fname, label_var="R10TruthLabel")
+            results = Results(signal="hbb", sample="test", category="xbb")
+            results.load_taggers_from_file(
+                [
+                    Tagger(
+                        "MockTagger",
+                        category="xbb",
+                        output_flavours=["hbb", "hcc", "top", "qcd"],
+                    )
+                ],
+                fname,
+                label_var="R10TruthLabel",
+            )
 
     def test_add_taggers_keep_nan(self):
         # get mock file and add nans
@@ -177,7 +187,10 @@ class ResultsTestCase(unittest.TestCase):
 
             results = Results(signal="bjets", sample="test", remove_nan=True)
             with self.assertLogs("puma", "WARNING") as cm:
-                results.load_taggers_from_file([Tagger("MockTagger")], fname)
+                results.load_taggers_from_file(
+                    taggers=[Tagger("MockTagger", output_flavours=["ujets", "cjets", "bjets"])],
+                    file_path=fname,
+                )
             self.assertEqual(
                 cm.output,
                 [
@@ -194,7 +207,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def setUp(self) -> None:
         """Set up for unit tests."""
         f = get_mock_file()[1]
-        dummy_tagger_1 = Tagger("MockTagger")
+        dummy_tagger_1 = Tagger("MockTagger", output_flavours=["ujets", "cjets", "bjets"])
         dummy_tagger_1.labels = np.array(
             f["jets"]["HadronConeExclTruthLabelID"],
             dtype=[("HadronConeExclTruthLabelID", "i4")],

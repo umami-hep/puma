@@ -94,13 +94,13 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
 
     def test_data_frame(self):
         """Test passing data frame."""
-        tagger = Tagger("dummy")
+        tagger = Tagger("dummy", output_flavours=["ujets", "cjets", "bjets"])
         tagger.extract_tagger_scores(self.df_dummy)
         np.testing.assert_array_equal(s2u(tagger.scores), self.scores_expected)
 
     def test_data_frame_path(self):
         """Test passing data frame path."""
-        tagger = Tagger("dummy")
+        tagger = Tagger("dummy", output_flavours=["ujets", "cjets", "bjets"])
         with tempfile.TemporaryDirectory() as tmp_dir:
             file_name = f"{tmp_dir}/dummy_df.h5"
             self.df_dummy.to_hdf(file_name, key="dummy_tagger")
@@ -112,7 +112,7 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
 
     def test_h5_structured_numpy_path(self):
         """Test passing structured h5 path."""
-        tagger = Tagger("dummy")
+        tagger = Tagger("dummy", output_flavours=["ujets", "cjets", "bjets"])
         with tempfile.TemporaryDirectory() as tmp_dir:
             file_name = f"{tmp_dir}/dummy_df.h5"
             with h5py.File(file_name, "w") as f_h5:
@@ -123,7 +123,7 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
 
     def test_structured_array(self):
         """Test passing structured numpy array."""
-        tagger = Tagger("dummy")
+        tagger = Tagger("dummy", output_flavours=["ujets", "cjets", "bjets"])
         tagger.extract_tagger_scores(
             self.df_dummy.to_records(),
             key="dummy_tagger",

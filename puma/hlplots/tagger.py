@@ -39,9 +39,7 @@ class Tagger:
     aux_labels: dict = None
     perf_vars: dict = None
     aux_perf_vars: dict = None
-    output_flavours: list = field(
-        default_factory=lambda: [Flavours.ujets, Flavours.cjets, Flavours.bjets]
-    )
+    output_flavours: list = None
     disc_cut: float = None
     working_point: float = None
 
@@ -58,6 +56,11 @@ class Tagger:
             self.aux_labels = dict.fromkeys(self.aux_tasks)
         if self.sample_path is not None:
             self.sample_path = Path(self.sample_path)
+        if self.output_flavours is None:
+            logger.info(
+                f"No output flavours were given. Using flavours of category {self.category}"
+            )
+            self.output_flavours = Flavours.by_category(self.category)
         self.output_flavours = [Flavours[iter_flav] for iter_flav in self.output_flavours]
         for iter_flav in self.output_flavours:
             if iter_flav not in Flavours.by_category(category=self.category):
@@ -143,7 +146,10 @@ class Tagger:
         return aux_outputs
 
     def extract_tagger_scores(
-        self, source: object, source_type: str = "data_frame", key: str | None = None
+        self,
+        source: object,
+        source_type: str = "data_frame",
+        key: str | None = None,
     ):
         """Extract tagger scores from data frame or file.
 
