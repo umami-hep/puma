@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+- Bump atlas-ftag-tools to v0.2.9 [!307](https://github.com/umami-hep/puma/pull/307)
+
 ### [v0.4.4] (2025/02/17)
 
 - Adding show() function support [!304](https://github.com/umami-hep/puma/pull/304)

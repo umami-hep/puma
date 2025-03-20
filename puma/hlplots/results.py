@@ -33,8 +33,7 @@ class Results:
 
     signal: Label | str
     sample: str
-    backgrounds: list = field(init=False)
-    all_flavours: list[Label] | None = None
+    category: str = "single-btag"
     atlas_first_tag: str = "Simulation Internal"
     atlas_second_tag: str = None
     atlas_third_tag: str = None
@@ -48,8 +47,6 @@ class Results:
     label_var: str = "HadronConeExclTruthLabelID"
 
     def __post_init__(self):
-        if self.all_flavours:
-            self.all_flavours = [Flavours[f] for f in self.all_flavours]
         self.set_signal(self.signal)
         if isinstance(self.output_dir, str):
             self.output_dir = Path(self.output_dir)
@@ -83,20 +80,9 @@ class Results:
         if isinstance(signal, str):
             signal = Flavours[signal]
         self.signal = signal
-        # If we have a list of al flavours, then the background is always [all - signal]
-        if self.all_flavours:
-            self.backgrounds = [f for f in self.all_flavours if f != self.signal]
-            return
-        if self.signal == Flavours.bjets:
-            self.backgrounds = [Flavours.cjets, Flavours.ujets]
-        elif self.signal == Flavours.cjets:
-            self.backgrounds = [Flavours.bjets, Flavours.ujets]
-        elif self.signal == Flavours.hbb:
-            self.backgrounds = [Flavours.hcc, Flavours.top, Flavours.qcd]
-        elif self.signal == Flavours.hcc:
-            self.backgrounds = [Flavours.hbb, Flavours.top, Flavours.qcd]
-        else:
-            raise ValueError(f"Unsupported signal class {self.signal}.")
+
+        # Get the full flavours from the category chosen
+        self.backgrounds = [*Flavours.by_category(self.category).backgrounds(self.signal)]
 
     @property
     def sig_str(self):
@@ -139,12 +125,12 @@ class Results:
         """
         if str(tagger) in self.taggers:
             raise KeyError(f"{tagger} was already added.")
+
         if not tagger.colour:
             good_colours = get_good_colours()
             current_colours = [t.colour for t in self.taggers.values()]
             tagger.colour = next(c for c in good_colours if c not in current_colours)
-        if tagger.output_flavours is None:
-            tagger.output_flavours = self.flavours
+
         self.taggers[str(tagger)] = tagger
 
     def load(self):
@@ -165,8 +151,8 @@ class Results:
         self,
         taggers: list[Tagger],
         file_path: Path | str,
-        key="jets",
-        label_var="HadronConeExclTruthLabelID",
+        key: str = "jets",
+        label_var: str = "HadronConeExclTruthLabelID",
         cuts: Cuts | list | None = None,
         num_jets: int | None = None,
         perf_vars: dict | None = None,
@@ -182,7 +168,7 @@ class Results:
             Path to file
         key : str, optional
             Key in file, by default 'jets'
-        label_var : str
+        label_var : str, optional
             Label variable to use, by default 'HadronConeExclTruthLabelID'
         cuts : Cuts | list, optional
             Cuts to apply, by default None
@@ -217,9 +203,6 @@ class Results:
         for tagger in taggers:
             if tagger not in self.taggers.values():
                 self.add(tagger)
-            tagger.output_flavours = self.flavours
-            if "ftau" not in tagger.fxs and Flavours.taujets in tagger.output_flavours:
-                tagger.output_flavours.remove(Flavours.taujets)
 
         # get a list of all variables to be loaded from the file
         if not isinstance(cuts, Cuts):
@@ -502,17 +485,18 @@ class Results:
             hist.draw_vlines(wp_cuts, labels=wp_labels, linestyle=line_styles[counter])
 
             # Loop over the flavours and add the disc values for each flavour
-            for flav in self.flavours:
-                hist.add(
-                    Histogram(
-                        discs[tagger.is_flav(flav)],
-                        ratio_group=flav,
-                        label=flav.label if counter == 0 else None,
-                        colour=flav.colour,
-                        linestyle=line_styles[counter],
-                    ),
-                    reference=tagger.reference,
-                )
+            for flav in self.backgrounds:
+                if flav in tagger.output_flavours:
+                    hist.add(
+                        Histogram(
+                            discs[tagger.is_flav(flav)],
+                            ratio_group=flav,
+                            label=flav.label if counter == 0 else None,
+                            colour=flav.colour,
+                            linestyle=line_styles[counter],
+                        ),
+                        reference=tagger.reference,
+                    )
 
             # Add the tagger label or name to the label list
             tagger_labels.append(tagger.label if tagger.label else tagger.name)
@@ -549,9 +533,24 @@ class Results:
         # Linspace the signal efficiencies
         sig_effs = np.linspace(*x_range, resolution)
 
+        # Define int for ratio panel number
+        n_ratio_panels = 0
+
+        # Check how many backgrounds are present
+        present_flavs = []
+        for background in self.backgrounds:
+            is_present = False
+            for tagger in self.taggers.values():
+                if background in tagger.output_flavours:
+                    is_present = True
+                    if background not in present_flavs:
+                        present_flavs.append(background)
+            if is_present:
+                n_ratio_panels += 1
+
         # Init a default kwargs dict for roc plots
         roc_kwargs = {
-            "n_ratio_panels": len(self.backgrounds),
+            "n_ratio_panels": n_ratio_panels,
             "ylabel": "Background rejection",
             "xlabel": self.signal.eff_str,
             "atlas_first_tag": self.atlas_first_tag,
@@ -574,6 +573,10 @@ class Results:
 
             # Loop over all backgrouns
             for background in self.backgrounds:
+                # Skip non-existing flavours
+                if background not in tagger.output_flavours:
+                    continue
+
                 # Calculate rejection for the given background
                 rej = calc_rej(
                     discs[tagger.is_flav(self.signal)],
@@ -598,7 +601,8 @@ class Results:
 
         # setting which flavour rejection ratio is drawn in which ratio panel
         for counter, background in enumerate(self.backgrounds):
-            roc.set_ratio_class(counter + 1, background)
+            if background in present_flavs:
+                roc.set_ratio_class(counter + 1, background)
 
         # Finalise the plot and draw it
         roc.draw()
@@ -895,11 +899,12 @@ class Results:
 
     def plot_fraction_scans(
         self,
+        backgrounds_to_plot: list[Label],
         suffix: str | None = None,
         efficiency: float = 0.7,
         rej: bool = False,
-        optimal_fc: bool = False,
-        backgrounds: list[Label] | None = None,
+        plot_optimal_fraction_values: bool = False,
+        fixed_fraction_values: dict | None = None,
         **kwargs,
     ):
         """Produce fraction scan (fc/fb) iso-efficiency plots.
@@ -919,23 +924,28 @@ class Results:
         **kwargs
             Keyword arguments for `puma.Line2DPlot
         """
-        # Check signal flavour
-        if self.signal not in {Flavours.bjets, Flavours.cjets}:
-            raise ValueError("Signal flavour must be bjets or cjets")
-
         # Get the background flavours in a list
-        backgrounds = (
-            [Flavours[b] for b in backgrounds] if backgrounds is not None else self.backgrounds
-        )
+        backgrounds = [Flavours[b] for b in backgrounds_to_plot]
+
+        # Check if there are other flavours that need to be fixed
+        if fixed_fraction_values is None:
+            fixed_fraction_values = {}
+
+        # Ensure that all backgrounds are provided or the fraction value is fixed
+        for bkg in self.backgrounds:
+            if bkg not in backgrounds and bkg.frac_str not in fixed_fraction_values:
+                logger.warning(
+                    f"Found flavour {bkg.name} in given label category without a fixed "
+                    f"fraction value. Setting {bkg.frac_str} to 0!"
+                )
+                fixed_fraction_values[bkg.frac_str] = 0
 
         # Check that only two background flavours are given
         if len(backgrounds) != 2:
             raise ValueError("Only two background flavours are supported")
 
         # Adapt the plot name and suffix accordingly
-        frac = "fc" if self.signal == Flavours.bjets else "fb"
         back_str = "_".join([f.name for f in backgrounds])
-        plot_name = f"{frac}_scan"
         suffix = combine_suffixes([f"{back_str}_eff{int(efficiency * 100)}", suffix])
 
         # Init a default kwargs dict
@@ -954,7 +964,7 @@ class Results:
         # Adapt the tag
         tag = self.atlas_second_tag + "\n" if self.atlas_second_tag else ""
         tag += f"{self.signal.eff_str} = {efficiency:.0%}"
-        tag += f"\n$f_{frac[1:]}$ scan"
+        tag += f"\n{backgrounds[0].frac_str} & {backgrounds[1].frac_str} Scan"
 
         # Define a new plot for the scan
         plot = Line2DPlot(atlas_second_tag=tag, **kwargs)
@@ -977,19 +987,30 @@ class Results:
             # Loop over the fraction values
             for j, fx in enumerate(fxs):
                 # Calculate disc values for the tagger for the given fraction values
-                disc = tagger.discriminant(self.signal, fxs={frac: fx})
+                disc = tagger.discriminant(
+                    self.signal,
+                    fxs={
+                        f"{backgrounds[0].frac_str}": fx,
+                        f"{backgrounds[1].frac_str}": 1 - fx,
+                        **fixed_fraction_values,
+                    },
+                )
 
                 # Calculate the effciency/rejection and add it to the value arrays
                 xs[j] = eff_or_rej(disc[sig_idx], disc[bkg_1_idx], efficiency)
                 ys[j] = eff_or_rej(disc[sig_idx], disc[bkg_2_idx], efficiency)
 
             # add curve for this tagger
-            tagger_fx = tagger.fxs["fc" if self.signal == Flavours.bjets else "fb"]
+            tagger_fx = tagger.fxs[backgrounds[0].frac_str]
             plot.add(
                 Line2D(
                     x_values=xs,
                     y_values=ys,
-                    label=f"{tagger.label} ($f_x={tagger_fx}$)",
+                    label=(
+                        f"{tagger.label} "
+                        f"(${backgrounds[0].frac_str}={tagger_fx:.3f}$, "
+                        f"${backgrounds[1].frac_str}={1 - tagger_fx:.3f}$)"
+                    ),
                     colour=tagger.colour if tagger.colour else colours[counter],
                 )
             )
@@ -1010,9 +1031,11 @@ class Results:
             )
 
             # Plot optimal fc if wanted
-            if optimal_fc:
-                opt_idx, opt_fc = fraction_scan.get_optimal_fc(
-                    np.stack((xs, ys), axis=1), fc_space=fxs, rej=rej
+            if plot_optimal_fraction_values:
+                opt_idx, opt_fc = fraction_scan.get_optimal_fraction_value(
+                    fraction_scan=np.stack((xs, ys), axis=1),
+                    fraction_space=fxs,
+                    rej=rej,
                 )
                 plot.add(
                     Line2D(
@@ -1021,7 +1044,10 @@ class Results:
                         marker="x",
                         markersize=15,
                         markeredgewidth=1,
-                        label=f"Optimal $f_x={opt_fc:.2f}$",
+                        label=(
+                            f"Optimal ${backgrounds[0].frac_str}={opt_fc:.3f}$, "
+                            f"${backgrounds[1].frac_str}={1 - opt_fc:.3f}$"
+                        ),
                     ),
                     is_marker=True,
                 )
@@ -1037,7 +1063,7 @@ class Results:
 
         # Draw and save the plot
         plot.draw()
-        self.save(plot, "scan", plot_name, suffix)
+        self.save(plot, "scan", "fraction_scan", suffix)
 
     def make_plot(self, plot_type: str, kwargs: dict):
         """Make a plot.
