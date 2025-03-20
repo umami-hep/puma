@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Fixing Coverage [!308](https://github.com/umami-hep/puma/pull/308)
 - Bump atlas-ftag-tools to v0.2.9 [!307](https://github.com/umami-hep/puma/pull/307)
 
 ### [v0.4.4] (2025/02/17)
