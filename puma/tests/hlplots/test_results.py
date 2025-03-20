@@ -196,6 +196,31 @@ class ResultsTestCase(unittest.TestCase):
                 [f"WARNING:puma:{len(n_nans)} NaN values found in loaded data. Removing them."],
             )
 
+    def test_add_taggers_ValueError(self):
+        """Testing raise of ValueError if NaNs are still present."""
+        # get mock file and add nans
+        f = get_mock_file()[1]
+        d = {}
+        d["HadronConeExclTruthLabelID"] = f["jets"]["HadronConeExclTruthLabelID"]
+        d["MockTagger_pb"] = f["jets"]["MockTagger_pb"]
+        d["MockTagger_pc"] = f["jets"]["MockTagger_pc"]
+        d["MockTagger_pu"] = f["jets"]["MockTagger_pu"]
+        d["pt"] = f["jets"]["pt"]
+        n_nans = np.random.choice(range(100), 10, replace=False)
+        d["MockTagger_pb"][n_nans] = np.nan
+        array = structured_from_dict(d)
+        with tempfile.TemporaryDirectory() as tmp_file:
+            fname = Path(tmp_file) / "test.h5"
+            with h5py.File(fname, "w") as f:
+                f.create_dataset("jets", data=array)
+
+            results = Results(signal="bjets", sample="test", remove_nan=False)
+            with self.assertRaises(ValueError):
+                results.load_taggers_from_file(
+                    taggers=[Tagger("MockTagger", output_flavours=["ujets", "cjets", "bjets"])],
+                    file_path=fname,
+                )
+
 
 class ResultsPlotsTestCase(unittest.TestCase):
     """Test class for the Results class running plots."""
@@ -480,7 +505,6 @@ class ResultsPlotsTestCase(unittest.TestCase):
                     rej=False,
                     plot_optimal_fraction_values=True,
                 )
-                results.plot_fraction_scans(rej=False)
 
     def test_plot_fraction_scans_bjets_eff(self):
         """Test that png file is being created."""

@@ -179,13 +179,22 @@ class Results:
         """
 
         def check_nan(data: np.ndarray) -> np.ndarray:
-            """
-            Filter out NaN values from loaded data.
+            """Filter out NaN values from loaded data.
 
             Parameters
             ----------
             data : ndarray
                 Data to filter
+
+            Returns
+            -------
+            np.ndarray
+                Array with NaN values removed
+
+            Raises
+            ------
+            ValueError
+                If NaN values are found but the setting is to keep them
             """
             mask = np.ones(len(data), dtype=bool)
             for name in data.dtype.names:
