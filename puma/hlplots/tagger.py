@@ -42,6 +42,7 @@ class Tagger:
     output_flavours: list = None
     disc_cut: float = None
     working_point: float = None
+    vertexing_require_hf_track: bool = True
 
     # Used only by YUMA
     yaml_name: str = None
@@ -343,7 +344,10 @@ class Tagger:
                 else self.aux_scores["track_origin"][i]
             )
             reco_indices[i] = clean_reco_vertices(
-                reco_indices[i], reco_track_origin, incl_vertexing=incl_vertexing
+                reco_indices[i],
+                reco_track_origin,
+                incl_vertexing=incl_vertexing,
+                require_hf_track=self.vertexing_require_hf_track,
             )
 
         return truth_indices, reco_indices
