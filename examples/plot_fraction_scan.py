@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import numpy as np
-from ftag import get_discriminant
+from ftag import Flavours, get_discriminant
 
 from puma import Line2D, Line2DPlot
 from puma.metrics import calc_eff
@@ -39,7 +39,13 @@ def calc_effs(fc_value: float):
     tuple
         Tuple of shape (, 3) containing (fc_value, ujets_eff, cjets_eff)
     """
-    disc = get_discriminant(dips_scores, "dips", signal="bjets", fc=fc_value)
+    disc = get_discriminant(
+        jets=dips_scores,
+        tagger="dips",
+        signal=Flavours["bjets"],
+        flavours=Flavours.by_category("single-btag"),
+        fraction_values={"fc": fc_value, "fu": 1 - fc_value, "ftau": 0},
+    )
     ujets_eff = calc_eff(disc[is_b], disc[is_light], SIG_EFF)
     cjets_eff = calc_eff(disc[is_b], disc[is_c], SIG_EFF)
 
