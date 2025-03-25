@@ -59,9 +59,8 @@ def confusion_matrix(
         }, "confusion_matrix: invalid normalization keyword"
 
     # Finding number of target classes
-    # (i.e. max value of the categorical indexing plus one,
-    # since categorical index starts from zero)
-    n_classes = int(np.max(targets)) + 1
+    # (i.e. unique elements across targets and predictions)
+    n_classes = np.unique(np.concatenate((targets, predictions))).size
 
     # If no samples' weights are given, give to each sample weight = 1
     if sample_weights is None:

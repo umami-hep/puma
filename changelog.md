@@ -3,6 +3,9 @@
 ### [Latest]
 
 - Small improvements for vertexing plots [!305](https://github.com/umami-hep/puma/pull/305)
+- Minor change to how n_classes are calculated in confusion matrix [!306](https://github.com/umami-hep/puma/pull/306)
+- Fixing Coverage [!308](https://github.com/umami-hep/puma/pull/308)
+- Bump atlas-ftag-tools to v0.2.9 [!307](https://github.com/umami-hep/puma/pull/307)
 
 ### [v0.4.4] (2025/02/17)
 

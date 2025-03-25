@@ -12,8 +12,28 @@ from puma.utils import get_dummy_2_taggers, get_good_linestyles
 df = get_dummy_2_taggers()
 
 # Calculate discriminant scores for DIPS and RNNIP, and add them to the dataframe
-disc_dips = get_discriminant(df, "dips", "bjets", fc=0.018)
-disc_rnnip = get_discriminant(df, "rnnip", "bjets", fc=0.018)
+disc_dips = get_discriminant(
+    jets=df,
+    tagger="dips",
+    signal=Flavours["bjets"],
+    flavours=Flavours.by_category("single-btag"),
+    fraction_values={
+        "fc": 0.018,
+        "fu": 0.982,
+        "ftau": 0,
+    },
+)
+disc_rnnip = get_discriminant(
+    jets=df,
+    tagger="rnnip",
+    signal=Flavours["bjets"],
+    flavours=Flavours.by_category("single-btag"),
+    fraction_values={
+        "fc": 0.018,
+        "fu": 0.982,
+        "ftau": 0,
+    },
+)
 
 # defining boolean arrays to select the different flavour classes
 is_light = df["HadronConeExclTruthLabelID"] == 0

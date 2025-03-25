@@ -40,6 +40,9 @@ nav:
       - Fraction Scan Plots: examples/fraction_scan.md
       - Pie charts: examples/pie_charts.md
       - Line plots: examples/line_plots.md
+      - Confusion Matrix: examples/confusion_matrix.md
+      - Precision Recall: examples/precision_recall.md
+      - Matrix Plot: examples/matrix_plot.md
   - High level API:
       - High level API: hlapi/index.md
       - High level API for aux task plots: hlapi/high_level_aux_api.md
@@ -48,6 +51,7 @@ nav:
   - Tutorial: examples/tutorial-plotting.md
   - Contributing:
       - dev/development_guidelines.md
+      - dev/docs_development.md
   - API Reference:
       - Plot Base: api/plot_base.md
       - Histogram: api/histogram.md
@@ -56,6 +60,7 @@ nav:
       - Variable vs Variable: api/var_vs_var.md
       - Fraction Scan: api/fraction_scan.md
       - Pie Chart: api/pie_chart.md
+      - Matshow Plot: api/matshow_plot.md
 
 plugins:
   - search

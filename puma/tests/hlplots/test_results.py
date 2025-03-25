@@ -23,17 +23,12 @@ class ResultsTestCase(unittest.TestCase):
 
     def test_set_signal_hcc(self):
         """Test set_signal for hcc."""
-        results = Results(signal="hcc", sample="test")
+        results = Results(signal="hcc", sample="test", category="xbb")
         self.assertEqual(
             results.backgrounds,
-            [Flavours.hbb, Flavours.top, Flavours.qcd],
+            [*Flavours.by_category("xbb").backgrounds(Flavours.hcc)],
         )
         self.assertEqual(results.signal, Flavours.hcc)
-
-    def test_unsupported_signal(self):
-        """Test usage of unsupported signal."""
-        with self.assertRaises(ValueError):
-            Results(signal="ujets", sample="test")
 
     def test_add_duplicated(self):
         """Test empty string as model name."""
@@ -117,9 +112,8 @@ class ResultsTestCase(unittest.TestCase):
         results = Results(
             signal="bjets",
             sample="test",
-            all_flavours=["bjets", "cjets", "ujets", "taujets"],
         )
-        taggers = [Tagger("MockTagger", fxs={"fc": 0.1, "fb": 0.1, "ftau": 0.1})]
+        taggers = [Tagger("MockTagger", fxs={"fu": 0.1, "fc": 0.1, "ftau": 0.1})]
         results.load_taggers_from_file(taggers, fname)
         assert "MockTagger_ptau" in taggers[0].scores.dtype.names
         taggers[0].discriminant("bjets")
@@ -140,8 +134,18 @@ class ResultsTestCase(unittest.TestCase):
             with h5py.File(fname, "w") as f:
                 f.create_dataset("jets", data=array)
 
-            results = Results(signal="hbb", sample="test")
-            results.load_taggers_from_file([Tagger("MockTagger")], fname, label_var="R10TruthLabel")
+            results = Results(signal="hbb", sample="test", category="xbb")
+            results.load_taggers_from_file(
+                [
+                    Tagger(
+                        "MockTagger",
+                        category="xbb",
+                        output_flavours=["hbb", "hcc", "top", "qcd"],
+                    )
+                ],
+                fname,
+                label_var="R10TruthLabel",
+            )
 
     def test_add_taggers_keep_nan(self):
         # get mock file and add nans
@@ -183,11 +187,39 @@ class ResultsTestCase(unittest.TestCase):
 
             results = Results(signal="bjets", sample="test", remove_nan=True)
             with self.assertLogs("puma", "WARNING") as cm:
-                results.load_taggers_from_file([Tagger("MockTagger")], fname)
+                results.load_taggers_from_file(
+                    taggers=[Tagger("MockTagger", output_flavours=["ujets", "cjets", "bjets"])],
+                    file_path=fname,
+                )
             self.assertEqual(
                 cm.output,
-                [f"WARNING:puma:{len(n_nans)} NaN values found in loaded data." " Removing them."],
+                [f"WARNING:puma:{len(n_nans)} NaN values found in loaded data. Removing them."],
             )
+
+    def test_add_taggers_ValueError(self):
+        """Testing raise of ValueError if NaNs are still present."""
+        # get mock file and add nans
+        f = get_mock_file()[1]
+        d = {}
+        d["HadronConeExclTruthLabelID"] = f["jets"]["HadronConeExclTruthLabelID"]
+        d["MockTagger_pb"] = f["jets"]["MockTagger_pb"]
+        d["MockTagger_pc"] = f["jets"]["MockTagger_pc"]
+        d["MockTagger_pu"] = f["jets"]["MockTagger_pu"]
+        d["pt"] = f["jets"]["pt"]
+        n_nans = np.random.choice(range(100), 10, replace=False)
+        d["MockTagger_pb"][n_nans] = np.nan
+        array = structured_from_dict(d)
+        with tempfile.TemporaryDirectory() as tmp_file:
+            fname = Path(tmp_file) / "test.h5"
+            with h5py.File(fname, "w") as f:
+                f.create_dataset("jets", data=array)
+
+            results = Results(signal="bjets", sample="test", remove_nan=False)
+            with self.assertRaises(ValueError):
+                results.load_taggers_from_file(
+                    taggers=[Tagger("MockTagger", output_flavours=["ujets", "cjets", "bjets"])],
+                    file_path=fname,
+                )
 
 
 class ResultsPlotsTestCase(unittest.TestCase):
@@ -196,7 +228,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def setUp(self) -> None:
         """Set up for unit tests."""
         f = get_mock_file()[1]
-        dummy_tagger_1 = Tagger("MockTagger")
+        dummy_tagger_1 = Tagger("MockTagger", output_flavours=["ujets", "cjets", "bjets"])
         dummy_tagger_1.labels = np.array(
             f["jets"]["HadronConeExclTruthLabelID"],
             dtype=[("HadronConeExclTruthLabelID", "i4")],
@@ -208,7 +240,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_plot_probs_bjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.fxs = {"fc": 0.05}
+        self.dummy_tagger_1.fxs = {"fc": 0.05, "fu": 0.95}
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
@@ -220,7 +252,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_plot_discs_bjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.fxs = {"fc": 0.05}
+        self.dummy_tagger_1.fxs = {"fc": 0.05, "fu": 0.95}
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
@@ -232,7 +264,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_plot_discs_cjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.fxs = {"fb": 0.05}
+        self.dummy_tagger_1.fxs = {"fb": 0.05, "fu": 0.95}
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="cjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
@@ -244,7 +276,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_plot_roc_bjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.fxs = {"fc": 0.05}
+        self.dummy_tagger_1.fxs = {"fc": 0.05, "fu": 0.95}
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
@@ -256,7 +288,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_plot_roc_cjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.fxs = {"fb": 0.05}
+        self.dummy_tagger_1.fxs = {"fb": 0.05, "fu": 0.95}
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="cjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
@@ -268,7 +300,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_plot_var_perf_err(self):
         """Tests the performance plots throws errors with invalid inputs."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.fxs = {"fc": 0.05}
+        self.dummy_tagger_1.fxs = {"fc": 0.05, "fu": 0.95}
         self.dummy_tagger_1.disc_cut = 2
         rng = np.random.default_rng(seed=16)
         self.dummy_tagger_1.perf_vars = {
@@ -293,7 +325,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
         with invalid inputs.
         """
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.fxs = {"fc": 0.05}
+        self.dummy_tagger_1.fxs = {"fc": 0.05, "fu": 0.95}
         self.dummy_tagger_1.disc_cut = 2
         rng = np.random.default_rng(seed=16)
         self.dummy_tagger_1.perf_vars = {
@@ -316,7 +348,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_plot_var_perf_bjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.fxs = {"fc": 0.05}
+        self.dummy_tagger_1.fxs = {"fc": 0.05, "fu": 0.95}
         self.dummy_tagger_1.disc_cut = 2
         rng = np.random.default_rng(seed=16)
         self.dummy_tagger_1.perf_vars = {
@@ -336,7 +368,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_plot_var_perf_extra_kwargs(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.fxs = {"fc": 0.05}
+        self.dummy_tagger_1.fxs = {"fc": 0.05, "fu": 0.95}
         self.dummy_tagger_1.disc_cut = 2
         rng = np.random.default_rng(seed=16)
         self.dummy_tagger_1.perf_vars = {
@@ -357,7 +389,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_plot_var_perf_multi_bjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.fxs = {"fc": 0.05}
+        self.dummy_tagger_1.fxs = {"fc": 0.05, "fu": 0.95}
         self.dummy_tagger_1.disc_cut = 2
         rng = np.random.default_rng(seed=16)
         self.dummy_tagger_1.perf_vars = {
@@ -382,7 +414,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_plot_var_perf_cjets(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.fxs = {"fb": 0.05}
+        self.dummy_tagger_1.fxs = {"fb": 0.05, "fu": 0.95}
         self.dummy_tagger_1.working_point = 0.5
         rng = np.random.default_rng(seed=16)
         self.dummy_tagger_1.perf_vars = {
@@ -402,7 +434,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
 
     def test_plot_beff_vs_flat_rej(self):
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.fxs = {"fc": 0.05}
+        self.dummy_tagger_1.fxs = {"fc": 0.05, "fu": 0.95}
         self.dummy_tagger_1.working_point = 0.5
         rng = np.random.default_rng(seed=16)
         self.dummy_tagger_1.perf_vars = {
@@ -422,7 +454,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
 
     def test_plot_beff_vs_flat_rej_extra_kwargs(self):
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.fxs = {"fc": 0.05}
+        self.dummy_tagger_1.fxs = {"fc": 0.05, "fu": 0.95}
         self.dummy_tagger_1.working_point = 0.5
         rng = np.random.default_rng(seed=16)
         self.dummy_tagger_1.perf_vars = {
@@ -443,7 +475,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
 
     def test_plot_ceff_vs_flat_rej(self):
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.fxs = {"fb": 0.05}
+        self.dummy_tagger_1.fxs = {"fb": 0.05, "fu": 0.95}
         self.dummy_tagger_1.working_point = 0.5
         rng = np.random.default_rng(seed=16)
         self.dummy_tagger_1.perf_vars = {
@@ -463,21 +495,29 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_plot_fraction_scans_hbb_error(self):
         """Test that correct error is raised."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.fxs = {"fc": 0.05}
+        self.dummy_tagger_1.fxs = {"fc": 0.05, "fu": 0.95}
         with tempfile.TemporaryDirectory() as tmp_file:
-            results = Results(signal="hbb", sample="test", output_dir=tmp_file)
+            results = Results(signal="hbb", sample="test", category="xbb", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
             with self.assertRaises(ValueError):
-                results.plot_fraction_scans(rej=False)
+                results.plot_fraction_scans(
+                    backgrounds_to_plot=["cjets", "ujets"],
+                    rej=False,
+                    plot_optimal_fraction_values=True,
+                )
 
     def test_plot_fraction_scans_bjets_eff(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.fxs = {"fc": 0.05}
+        self.dummy_tagger_1.fxs = {"fc": 0.05, "fu": 0.95}
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
-            results.plot_fraction_scans(rej=False, optimal_fc=True)
+            results.plot_fraction_scans(
+                backgrounds_to_plot=["cjets", "ujets"],
+                rej=False,
+                plot_optimal_fraction_values=True,
+            )
             for fpath in results.saved_plots:
                 assert fpath.is_file()
             results.saved_plots = []
@@ -485,11 +525,15 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_plot_fraction_scans_cjets_rej(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.fxs = {"fb": 0.05}
+        self.dummy_tagger_1.fxs = {"fb": 0.05, "fu": 0.95}
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="cjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
-            results.plot_fraction_scans(rej=True, optimal_fc=True)
+            results.plot_fraction_scans(
+                backgrounds_to_plot=["bjets", "ujets"],
+                rej=False,
+                plot_optimal_fraction_values=True,
+            )
             for fpath in results.saved_plots:
                 assert fpath.is_file()
             results.saved_plots = []
@@ -497,15 +541,15 @@ class ResultsPlotsTestCase(unittest.TestCase):
     def test_plot_fraction_scans_multiple_bkg_error(self):
         """Test error of more than two backgrounds."""
         self.dummy_tagger_1.reference = True
-        self.dummy_tagger_1.fxs = {"fc": 0.05}
+        self.dummy_tagger_1.fxs = {"fc": 0.05, "fu": 0.95}
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
             with self.assertRaises(ValueError):
                 results.plot_fraction_scans(
+                    backgrounds_to_plot=["bjets", "ujets", "taujets"],
                     rej=False,
-                    optimal_fc=True,
-                    backgrounds=[Flavours.cjets, Flavours.ujets, Flavours.taujets],
+                    plot_optimal_fraction_values=True,
                 )
 
     def test_make_plot_error(self):

@@ -22,6 +22,15 @@ set_log_level(logger, "DEBUG")
 class TaggerBasisTestCase(unittest.TestCase):
     """Test class for the Tagger class."""
 
+    def test_wrong_flavour_for_category(self):
+        """Test value error if a flavour is defined which is not supported in the category."""
+        with self.assertRaises(ValueError):
+            Tagger(
+                name="test",
+                category="single-btag",
+                output_flavours=["bjets", "cjets", "ujets", "hbb"],
+            )
+
     def test_empty_string_tagger_name(self):
         """Test empty string as model name."""
         tagger = Tagger("")
@@ -85,13 +94,13 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
 
     def test_data_frame(self):
         """Test passing data frame."""
-        tagger = Tagger("dummy")
+        tagger = Tagger("dummy", output_flavours=["ujets", "cjets", "bjets"])
         tagger.extract_tagger_scores(self.df_dummy)
         np.testing.assert_array_equal(s2u(tagger.scores), self.scores_expected)
 
     def test_data_frame_path(self):
         """Test passing data frame path."""
-        tagger = Tagger("dummy")
+        tagger = Tagger("dummy", output_flavours=["ujets", "cjets", "bjets"])
         with tempfile.TemporaryDirectory() as tmp_dir:
             file_name = f"{tmp_dir}/dummy_df.h5"
             self.df_dummy.to_hdf(file_name, key="dummy_tagger")
@@ -103,7 +112,7 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
 
     def test_h5_structured_numpy_path(self):
         """Test passing structured h5 path."""
-        tagger = Tagger("dummy")
+        tagger = Tagger("dummy", output_flavours=["ujets", "cjets", "bjets"])
         with tempfile.TemporaryDirectory() as tmp_dir:
             file_name = f"{tmp_dir}/dummy_df.h5"
             with h5py.File(file_name, "w") as f_h5:
@@ -114,7 +123,7 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
 
     def test_structured_array(self):
         """Test passing structured numpy array."""
-        tagger = Tagger("dummy")
+        tagger = Tagger("dummy", output_flavours=["ujets", "cjets", "bjets"])
         tagger.extract_tagger_scores(
             self.df_dummy.to_records(),
             key="dummy_tagger",
@@ -140,18 +149,26 @@ class TaggerTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             tagger.discriminant("qcd")
         with self.assertRaises(ValueError):
-            tagger.discriminant("ujets")
+            tagger.discriminant(signal="bjets", fxs={"fc": 0.5})
 
     def test_disc_b_calc(self):
         """Test b-disc calculation."""
-        tagger = Tagger("dummy", fxs={"fc": 0.5})
+        tagger = Tagger(
+            "dummy",
+            fxs={"fc": 0.5},
+            output_flavours=["ujets", "cjets", "bjets"],
+        )
         tagger.scores = self.scores
         discs = tagger.discriminant("bjets")
         np.testing.assert_array_equal(discs, np.zeros(10))
 
     def test_disc_c_calc(self):
         """Test c-disc calculation."""
-        tagger = Tagger("dummy", fxs={"fb": 0.5})
+        tagger = Tagger(
+            "dummy",
+            fxs={"fb": 0.5},
+            output_flavours=["ujets", "cjets", "bjets"],
+        )
         tagger.scores = self.scores
         discs = tagger.discriminant("cjets")
         np.testing.assert_array_equal(discs, np.zeros(10))
@@ -164,6 +181,7 @@ class TaggerTestCase(unittest.TestCase):
             "dummy",
             fxs={"fhcc": 0.1, "ftop": 0.1},
             output_flavours=[F["hbb"], F["hcc"], F["top"], F["qcd"]],
+            category="xbb",
         )
         tagger.scores = u2s(
             np.column_stack((np.ones(10) * 2, np.ones(10), np.ones(10), np.ones(10))),
@@ -175,7 +193,7 @@ class TaggerTestCase(unittest.TestCase):
             ],
         )
         discs = tagger.discriminant("hbb")
-        np.testing.assert_array_equal(discs, np.ones([10]) * 0.6931471824645996)
+        np.testing.assert_array_almost_equal(discs, np.ones([10]) * 0.693147)
 
 
 class TaggerAuxTaskTestCase(unittest.TestCase):
