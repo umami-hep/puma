@@ -332,6 +332,31 @@ class VarVsEffTestCase(unittest.TestCase):
         self.assertEqual(len(eff), 2)
         self.assertEqual(len(err), 2)
 
+    def test_pcft_working_point(self):
+        """Calls PCFT working point."""
+        x_var_sig = np.random.uniform(0, 1, 100)
+        disc_sig = np.random.uniform(0, 1, 100)
+        x_var_bkg = np.random.uniform(0, 1, 100)
+        disc_bkg = np.random.uniform(0, 1, 100)
+
+        obj = VarVsEff(
+            x_var_sig=x_var_sig,
+            disc_sig=disc_sig,
+            x_var_bkg=x_var_bkg,
+            disc_bkg=disc_bkg,
+            bins=2,
+            working_point=[0.01, 0.06],
+        )
+        eff, err = obj.bkg_eff_sig_err
+
+        # Just verify shapes and that we don't crash
+        self.assertEqual(len(eff), 2)
+        self.assertEqual(len(err), 2)
+        self.assertAlmostEqual(eff[0], 0.08928571)
+        self.assertAlmostEqual(eff[1], 0.06818182)
+        self.assertAlmostEqual(err[0], 0.03640475)
+        self.assertAlmostEqual(err[1], 0.02569958)
+
     def test_equality_with_different_type(self):
         """If other is not an instance of VarVsEff, return False immediately."""
         x_var_sig = np.array([0, 1])
@@ -359,6 +384,24 @@ class VarVsEffTestCase(unittest.TestCase):
             disc_cut=0.5,
         )
         eff, err = obj.get("bkg_eff_sig_err")
+        self.assertIsNotNone(eff)
+        self.assertIsNotNone(err)
+
+    def test_get_sig_rej(self):
+        """Covers get('sig_rej')."""
+        x_var_sig = np.array([0, 1])
+        disc_sig = np.array([0.2, 0.8])
+        x_var_bkg = np.array([0, 1])
+        disc_bkg = np.array([0.3, 0.7])
+        obj = VarVsEff(
+            x_var_sig=x_var_sig,
+            disc_sig=disc_sig,
+            x_var_bkg=x_var_bkg,
+            disc_bkg=disc_bkg,
+            bins=1,
+            disc_cut=0.5,
+        )
+        eff, err = obj.get("sig_rej")
         self.assertIsNotNone(eff)
         self.assertIsNotNone(err)
 
