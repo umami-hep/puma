@@ -188,15 +188,27 @@ class VarVsEffTestCase(unittest.TestCase):
 
     def test_inverse_cut(self):
         """Test the inverse_cut functionality in get()."""
-        obj = VarVsEff(x_var_sig=self.x_sig, disc_sig=self.disc_sig, bins=5, disc_cut=0.5)
+        obj = VarVsEff(
+            x_var_sig=self.x_sig,
+            disc_sig=self.disc_sig,
+            x_var_bkg=self.x_bkg,
+            disc_bkg=self.disc_bkg,
+            bins=5,
+            disc_cut=0.5,
+        )
         normal_sig_eff, _ = obj.get("sig_eff", inverse_cut=False)
         inverse_sig_eff, _ = obj.get("sig_eff", inverse_cut=True)
+        normal_bkg_rej, _ = obj.get("bkg_rej", inverse_cut=False)
+        inverse_bkg_rej, _ = obj.get("bkg_rej", inverse_cut=True)
 
         # For a random uniform disc in [0,1], the sum of normal and inverse
         # efficiency across the entire dataset should be close to 1.0 per bin.
         # We won't test exact equality, but at least a sanity check:
         for e1, e2 in zip(normal_sig_eff, inverse_sig_eff):
             self.assertTrue(np.isclose(e1 + e2, 1.0, atol=0.05))
+
+        self.assertTrue(np.isclose(normal_bkg_rej[0] + inverse_bkg_rej[0], 4.426316, atol=0.05))
+        self.assertTrue(np.isclose(normal_bkg_rej[1] + inverse_bkg_rej[1], 4.002809, atol=0.05))
 
     def test_bkg_eff_sig_err(self):
         """
@@ -347,15 +359,21 @@ class VarVsEffTestCase(unittest.TestCase):
             bins=2,
             working_point=[0.01, 0.06],
         )
-        eff, err = obj.bkg_eff_sig_err
+        rej, rej_err = obj.bkg_rej
+        self.assertEqual(len(rej), 2)
+        self.assertEqual(len(rej_err), 2)
+        self.assertAlmostEqual(rej[0], 11.2)
+        self.assertAlmostEqual(rej[1], 14.66666666)
+        self.assertAlmostEqual(rej_err[0], 4.77995816)
+        self.assertAlmostEqual(rej_err[1], 8.17403296)
 
-        # Just verify shapes and that we don't crash
+        eff, eff_err = obj.bkg_eff_sig_err
         self.assertEqual(len(eff), 2)
-        self.assertEqual(len(err), 2)
+        self.assertEqual(len(eff_err), 2)
         self.assertAlmostEqual(eff[0], 0.08928571)
         self.assertAlmostEqual(eff[1], 0.06818182)
-        self.assertAlmostEqual(err[0], 0.03640475)
-        self.assertAlmostEqual(err[1], 0.02569958)
+        self.assertAlmostEqual(eff_err[0], 0.03640475)
+        self.assertAlmostEqual(eff_err[1], 0.02569958)
 
     def test_equality_with_different_type(self):
         """If other is not an instance of VarVsEff, return False immediately."""

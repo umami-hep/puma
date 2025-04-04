@@ -97,11 +97,6 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
                 raise ValueError(
                     "You cannot specify `disc_cut` when `flat_per_bin` is set to True."
                 )
-            if working_point is None:
-                raise ValueError(
-                    "You need to specify a working point `working_point`, when `flat_per_bin` is"
-                    " set to True."
-                )
             if not isinstance(working_point, float):
                 raise ValueError("You can't define PCFT working points when using a `flat_per_bin`")
         if isinstance(working_point, list):
