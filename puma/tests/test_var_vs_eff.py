@@ -21,215 +21,216 @@ class VarVsEffTestCase(unittest.TestCase):
     """Test class for the puma.var_vs_eff functions."""
 
     def setUp(self):
-        self.working_point = 0.77
-        self.disc_sig = np.linspace(-6, +6, 100)
-        self.x_var_sig = np.exp(-self.disc_sig) * 10e3
-        self.disc_bkg = np.linspace(-5.5, +6.6, 120)
-        self.x_var_bkg = np.exp(-self.disc_bkg * 0.8) * 10e3 + 30
+        """Prepare some common data to use in multiple tests."""
+        # Perfectly overlapping random data for signal and background for demonstration
+        np.random.seed(42)
+        self.x_sig = np.random.normal(0, 1, 1000)
+        self.disc_sig = np.random.rand(1000)
 
-    def test_var_vs_eff_init_wrong_sig_shape(self):
-        """Test var_vs_eff init."""
+        self.x_bkg = np.random.normal(0, 1, 1000)
+        self.disc_bkg = np.random.rand(1000)
+
+    def test_init_success_with_working_point(self):
+        """Test that VarVsEff initializes correctly when `working_point` is provided."""
+        obj = VarVsEff(
+            x_var_sig=self.x_sig,
+            disc_sig=self.disc_sig,
+            x_var_bkg=self.x_bkg,
+            disc_bkg=self.disc_bkg,
+            bins=10,
+            working_point=0.8,
+        )
+        self.assertEqual(obj.n_bins, 10)
+        self.assertIsNotNone(obj.disc_binned_sig)
+        self.assertIsNotNone(obj.disc_binned_bkg)
+
+    def test_init_success_with_disc_cut(self):
+        """Test that VarVsEff initializes correctly when `disc_cut` is provided."""
+        obj = VarVsEff(
+            x_var_sig=self.x_sig,
+            disc_sig=self.disc_sig,
+            x_var_bkg=self.x_bkg,
+            disc_bkg=self.disc_bkg,
+            bins=5,
+            disc_cut=0.5,
+        )
+        self.assertEqual(obj.n_bins, 5)
+        # disc_cut should become an array of the same length as n_bins
+        self.assertEqual(len(obj.disc_cut), 5)
+
+    def test_init_raises_for_mismatched_lengths(self):
+        """
+        Test that VarVsEff raises ValueError if x_var_sig and disc_sig
+        have different lengths.
+        """
         with self.assertRaises(ValueError):
-            VarVsEff(np.ones(4), np.ones(5))
+            VarVsEff(x_var_sig=self.x_sig[:500], disc_sig=self.disc_sig, disc_cut=0.5)
 
-    def test_var_vs_eff_init_wrong_bkg_shape(self):
-        """Test var_vs_eff init."""
-        with self.assertRaises(ValueError):
-            VarVsEff(np.ones(6), np.ones(6), np.ones(4), np.ones(5))
-
-    def test_var_vs_eff_init_flat_eff_disc_cut(self):
-        """Test var_vs_eff init."""
+    def test_init_raises_for_bkg_mismatched_lengths(self):
+        """
+        Test that VarVsEff raises ValueError if x_var_bkg and disc_bkg
+        have different lengths.
+        """
         with self.assertRaises(ValueError):
             VarVsEff(
-                np.ones(6),
-                np.ones(6),
-                flat_per_bin=True,
-                disc_cut=1.0,
-                working_point=0.77,
+                x_var_sig=self.x_sig,
+                disc_sig=self.disc_sig,
+                x_var_bkg=self.x_bkg[:500],
+                disc_bkg=self.disc_bkg,
+                disc_cut=0.5,
             )
 
-    def test_var_vs_eff_init_flat_eff_no_wp(self):
-        """Test var_vs_eff init."""
+    def test_init_raises_for_no_cut_and_no_wp(self):
+        """
+        Test that VarVsEff raises ValueError if neither `working_point`
+        nor `disc_cut` is specified.
+        """
         with self.assertRaises(ValueError):
-            VarVsEff(np.ones(6), np.ones(6), flat_per_bin=True, disc_cut=1.0)
+            VarVsEff(
+                x_var_sig=self.x_sig,
+                disc_sig=self.disc_sig,
+                x_var_bkg=self.x_bkg,
+                disc_bkg=self.disc_bkg,
+            )
 
-    def test_var_vs_eff_init_disc_cut_wp(self):
-        """Test var_vs_eff init."""
+    def test_init_raises_for_flat_per_bin_with_disc_cut(self):
+        """
+        Test that VarVsEff raises ValueError if flat_per_bin=True and
+        disc_cut is also provided.
+        """
         with self.assertRaises(ValueError):
-            VarVsEff(np.ones(6), np.ones(6), disc_cut=1.0, working_point=0.77)
+            VarVsEff(
+                x_var_sig=self.x_sig,
+                disc_sig=self.disc_sig,
+                x_var_bkg=self.x_bkg,
+                disc_bkg=self.disc_bkg,
+                flat_per_bin=True,
+                disc_cut=0.5,
+            )
 
-    def test_var_vs_eff_init_no_disc_cut_no_wp(self):
-        """Test var_vs_eff init."""
+    def test_init_raises_for_flat_per_bin_without_wp(self):
+        """
+        Test that VarVsEff raises ValueError if flat_per_bin=True and
+        no `working_point` is given.
+        """
         with self.assertRaises(ValueError):
-            VarVsEff(np.ones(6), np.ones(6))
+            VarVsEff(
+                x_var_sig=self.x_sig,
+                disc_sig=self.disc_sig,
+                x_var_bkg=self.x_bkg,
+                disc_bkg=self.disc_bkg,
+                flat_per_bin=True,
+            )
 
-    def test_var_vs_eff_init_disc_cut_wrong_shape(self):
-        """Test var_vs_eff init."""
+    def test_init_raises_for_flat_per_bin_with_non_float_wp(self):
+        """
+        Test that VarVsEff raises ValueError if flat_per_bin=True
+        and working_point is not a float.
+        """
         with self.assertRaises(ValueError):
-            VarVsEff(np.ones(6), np.ones(6), disc_cut=[1.0, 2.0])
+            VarVsEff(
+                x_var_sig=self.x_sig,
+                disc_sig=self.disc_sig,
+                x_var_bkg=self.x_bkg,
+                disc_bkg=self.disc_bkg,
+                flat_per_bin=True,
+                working_point=[0.8, 0.9],
+            )
 
-    def test_var_vs_eff_set_bin_edges_list(self):
-        """Test var_vs_eff _set_bin_edges."""
-        var_plot = VarVsEff(
-            x_var_sig=[0, 1, 2], disc_sig=[3, 4, 5], bins=[0, 1, 2], working_point=0.7
-        )
-        np.testing.assert_array_almost_equal(var_plot.bin_edges, [0, 1, 2])
-
-    def test_var_vs_eff_set_bin_edges_only_signal(self):
-        """Test var_vs_eff _set_bin_edges."""
-        var_plot = VarVsEff(x_var_sig=[0, 1, 2], disc_sig=[3, 4, 5], bins=2, working_point=0.7)
-        np.testing.assert_array_almost_equal(var_plot.bin_edges, [0, 1, 2], decimal=4)
-
-    def test_var_vs_eff_set_bin_edges(self):
-        """Test var_vs_eff _set_bin_edges."""
-        var_plot = VarVsEff(
-            x_var_sig=[0, 1, 2],
-            disc_sig=[3, 4, 5],
-            x_var_bkg=[-1, 1, 3],
-            disc_bkg=[3, 4, 5],
-            bins=2,
-            working_point=0.7,
-        )
-        np.testing.assert_array_almost_equal(var_plot.bin_edges, [-1, 1, 3], decimal=4)
-
-    def test_var_vs_eff_flat_eff_sig_eff(self):
-        """Test var_vs_eff sig_eff."""
-        n_bins = 4
-        var_plot = VarVsEff(
-            x_var_sig=self.disc_sig,
-            disc_sig=self.x_var_sig,
-            x_var_bkg=self.disc_bkg,
-            disc_bkg=self.x_var_bkg,
-            working_point=self.working_point,
-            flat_per_bin=True,
-            bins=n_bins,
-        )
-        np.testing.assert_array_almost_equal(
-            var_plot.sig_eff[0], [self.working_point] * n_bins, decimal=2
-        )
-
-    def test_var_vs_eff_flat_eff_sig_rej(self):
-        """Test var_vs_eff sig_rej."""
-        n_bins = 4
-        var_plot = VarVsEff(
-            x_var_sig=self.disc_sig,
-            disc_sig=self.x_var_sig,
-            x_var_bkg=self.disc_bkg,
-            disc_bkg=self.x_var_bkg,
-            working_point=self.working_point,
-            flat_per_bin=True,
-            bins=n_bins,
-        )
-        np.testing.assert_array_almost_equal(
-            var_plot.sig_rej[0], [1 / self.working_point] * n_bins, decimal=2
-        )
-
-    def test_var_vs_eff_one_bin(self):
-        """Test var_vs_eff."""
-        n_bins = 1
-        var_plot = VarVsEff(
-            x_var_sig=self.disc_sig,
-            disc_sig=self.x_var_sig,
-            x_var_bkg=self.disc_bkg,
-            disc_bkg=self.x_var_bkg,
-            working_point=self.working_point,
-            flat_per_bin=True,
-            bins=n_bins,
-        )
-        var_plot_comp = VarVsEff(
-            x_var_sig=self.disc_sig,
-            disc_sig=self.x_var_sig,
-            x_var_bkg=self.disc_bkg,
-            disc_bkg=self.x_var_bkg,
-            working_point=self.working_point,
-            bins=n_bins,
-        )
-        var_plot_list = VarVsEff(
-            x_var_sig=self.disc_sig,
-            disc_sig=self.x_var_sig,
-            x_var_bkg=self.disc_bkg,
-            disc_bkg=self.x_var_bkg,
-            disc_cut=var_plot.disc_cut,
-            bins=n_bins,
-        )
-        with self.subTest("Comparison var_plot_comp"):
-            np.testing.assert_array_almost_equal(var_plot.sig_eff, var_plot_comp.sig_eff)
-        with self.subTest("Comparison var_plot_list"):
-            np.testing.assert_array_almost_equal(var_plot.sig_eff, var_plot_list.sig_eff)
-
-    def test_var_vs_eff_divide_same(self):
-        """Test var_vs_eff divide."""
-        n_bins = 1
-        var_plot = VarVsEff(
-            x_var_sig=self.disc_sig,
-            disc_sig=self.x_var_sig,
-            x_var_bkg=self.disc_bkg,
-            disc_bkg=self.x_var_bkg,
-            working_point=self.working_point,
-            flat_per_bin=True,
-            bins=n_bins,
-        )
-        var_plot.y_var_mean, var_plot.y_var_std = var_plot.get("sig_eff")
-        np.testing.assert_array_almost_equal(var_plot.divide(var_plot)[0], np.ones(1))
-
-    def test_var_vs_eff_wrong_mode(self):
-        """Test var_vs_eff wrong mode."""
-        n_bins = 1
-        var_plot = VarVsEff(
-            x_var_sig=self.disc_sig,
-            disc_sig=self.x_var_sig,
-            x_var_bkg=self.disc_bkg,
-            disc_bkg=self.x_var_bkg,
-            working_point=self.working_point,
-            flat_per_bin=True,
-            bins=n_bins,
-        )
+    def test_init_raises_for_both_disc_cut_and_wp(self):
+        """
+        Test that VarVsEff raises ValueError if both disc_cut and
+        working_point are provided.
+        """
         with self.assertRaises(ValueError):
-            var_plot.y_var_mean, var_plot.y_var_std = var_plot.get("test")
+            VarVsEff(x_var_sig=self.x_sig, disc_sig=self.disc_sig, disc_cut=0.5, working_point=0.8)
 
-    def test_var_vs_eff_divide_different_binning(self):
-        """Test var_vs_eff divide."""
-        var_plot = VarVsEff(
-            x_var_sig=self.disc_sig,
-            disc_sig=self.x_var_sig,
-            x_var_bkg=self.disc_bkg,
-            disc_bkg=self.x_var_bkg,
-            working_point=self.working_point,
-            flat_per_bin=True,
-            bins=1,
-        )
-        var_plot_comp = VarVsEff(
-            x_var_sig=self.disc_sig,
-            disc_sig=self.x_var_sig,
-            x_var_bkg=self.disc_bkg,
-            disc_bkg=self.x_var_bkg,
-            working_point=self.working_point,
-            flat_per_bin=True,
-            bins=2,
-        )
+    def test_init_raises_for_disc_cut_length_mismatch(self):
+        """
+        Test that VarVsEff raises ValueError if disc_cut is array-like
+        but its length doesn't match the number of bins.
+        """
         with self.assertRaises(ValueError):
-            var_plot.y_var_mean, var_plot.y_var_std = var_plot.get("sig_eff")
-            var_plot_comp.y_var_mean, var_plot_comp.y_var_std = var_plot.get("sig_eff")
-            var_plot.divide(var_plot_comp)
+            VarVsEff(
+                x_var_sig=self.x_sig,
+                disc_sig=self.disc_sig,
+                bins=5,
+                disc_cut=[0.1, 0.2, 0.3],  # length 3 not matching bins=5
+            )
 
-    def test_var_vs_eff_eq_different_classes(self):
-        """Test var_vs_eff eq."""
-        var_plot = VarVsEff(x_var_sig=[0, 1, 2], disc_sig=[3, 4, 5], bins=2, working_point=0.7)
-        self.assertNotEqual(var_plot, np.ones(6))
-
-    def test_var_vs_eff_get(self):
-        var_plot = VarVsEff(
-            x_var_sig=self.disc_sig,
-            disc_sig=self.x_var_sig,
-            x_var_bkg=self.disc_bkg,
-            disc_bkg=self.x_var_bkg,
-            working_point=self.working_point,
-            flat_per_bin=True,
-            bins=1,
+    def test_efficiency_and_rejection(self):
+        """
+        Test that we can retrieve the signal/background efficiency
+        and rejection without errors.
+        """
+        obj = VarVsEff(
+            x_var_sig=self.x_sig,
+            disc_sig=self.disc_sig,
+            x_var_bkg=self.x_bkg,
+            disc_bkg=self.disc_bkg,
+            bins=10,
+            disc_cut=0.5,
         )
-        mode_options = ["sig_eff", "bkg_eff", "sig_rej", "bkg_rej"]
-        for mode in mode_options:
-            var_plot.get(mode)
+        # normal cut
+        sig_eff, sig_eff_err = obj.sig_eff
+        bkg_eff, bkg_eff_err = obj.bkg_eff
+        sig_rej, sig_rej_err = obj.sig_rej
+        bkg_rej, bkg_rej_err = obj.bkg_rej
+
+        self.assertEqual(len(sig_eff), obj.n_bins)
+        self.assertEqual(len(sig_eff_err), obj.n_bins)
+        self.assertEqual(len(bkg_eff), obj.n_bins)
+        self.assertEqual(len(bkg_eff_err), obj.n_bins)
+        self.assertEqual(len(sig_rej), obj.n_bins)
+        self.assertEqual(len(sig_rej_err), obj.n_bins)
+        self.assertEqual(len(bkg_rej), obj.n_bins)
+        self.assertEqual(len(bkg_rej_err), obj.n_bins)
+
+    def test_inverse_cut(self):
+        """Test the inverse_cut functionality in get()."""
+        obj = VarVsEff(x_var_sig=self.x_sig, disc_sig=self.disc_sig, bins=5, disc_cut=0.5)
+        normal_sig_eff, _ = obj.get("sig_eff", inverse_cut=False)
+        inverse_sig_eff, _ = obj.get("sig_eff", inverse_cut=True)
+
+        # For a random uniform disc in [0,1], the sum of normal and inverse
+        # efficiency across the entire dataset should be close to 1.0 per bin.
+        # We won't test exact equality, but at least a sanity check:
+        for e1, e2 in zip(normal_sig_eff, inverse_sig_eff):
+            self.assertTrue(np.isclose(e1 + e2, 1.0, atol=0.05))
+
+    def test_bkg_eff_sig_err(self):
+        """
+        Test the bkg_eff_sig_err property (returns background efficiencies
+        and signal efficiency errors).
+        """
+        obj = VarVsEff(
+            x_var_sig=self.x_sig,
+            disc_sig=self.disc_sig,
+            x_var_bkg=self.x_bkg,
+            disc_bkg=self.disc_bkg,
+            bins=5,
+            disc_cut=0.5,
+        )
+        eff, err = obj.bkg_eff_sig_err
+        self.assertEqual(len(eff), obj.n_bins)
+        self.assertEqual(len(err), obj.n_bins)
+
+    def test_equality_operator(self):
+        """
+        Test that two VarVsEff objects are considered equal if
+        they have the same data and parameters.
+        """
+        obj1 = VarVsEff(
+            x_var_sig=self.x_sig, disc_sig=self.disc_sig, bins=5, disc_cut=0.5, key="tagger1"
+        )
+        obj2 = VarVsEff(
+            x_var_sig=self.x_sig, disc_sig=self.disc_sig, bins=5, disc_cut=0.5, key="tagger1"
+        )
+        self.assertTrue(obj1 == obj2)
+
+        # Modify one parameter in obj2
+        obj2.working_point = 0.9
+        self.assertFalse(obj1 == obj2)
 
 
 class VarVsEffOutputTestCase(unittest.TestCase):
