@@ -234,32 +234,36 @@ class VarVsEffTestCase(unittest.TestCase):
 
 
 class VarVsEffOutputTestCase(unittest.TestCase):
-    """Test class for the puma.var_vs_eff_plot output."""
+    """Test class for the VarVsEffPlot output."""
 
     def setUp(self):
-        # Set up temp directory for comparison plots
+        """
+        Prepare a temporary directory for saving output plots and
+        generate data for signal/background distributions.
+
+        The data is crafted so that:
+        - Background distributions (self.disc_bkg, self.x_var_bkg) are the same
+          for any "tagger".
+        - 'reference tagger' has a constant separation power for the full pT range.
+        - 'new tagger' has improved separation for pT > 110.
+        """
         self.tmp_dir = tempfile.TemporaryDirectory()  # pylint:disable=R1732
         self.actual_plots_dir = f"{self.tmp_dir.name}/"
+        # Replace this with the actual path to your "expected_plots" directory
         self.expected_plots_dir = os.path.join(os.path.dirname(__file__), "expected_plots")
-        # Generate discriminant and pT distribution for sig and bkg for two taggers
-        # We want that both taggers yield the same discriminant values for the bkg
-        # jets, a gaussian located at 0.
-        # For low pT, we want both taggers to perform similar (discriminant values
-        # are a gaussian located at 1).
-        # For high pT (here pT>110), the "new" tagger signal is better separated from
-        # bkg (discriminant values are then a gaussian located at 2)
+
         np.random.seed(42)
         n_random = 10_000
 
-        # background (same for both taggers)
+        # background
         self.disc_bkg = np.random.normal(loc=0, size=2 * n_random)
         self.x_var_bkg = np.random.uniform(0, 250, size=2 * n_random)
 
-        # reference tagger (constant separation power for whole pT range)
+        # reference tagger
         self.disc_sig_1 = np.random.normal(loc=1, size=2 * n_random)
         self.x_var_sig_1 = np.random.uniform(0, 250, size=2 * n_random)
 
-        # new tagger (better separation for pT > 110)
+        # new tagger
         self.disc_sig_2 = np.concatenate((
             np.random.normal(loc=1, size=n_random),
             np.random.normal(loc=3, size=n_random),
@@ -272,10 +276,15 @@ class VarVsEffOutputTestCase(unittest.TestCase):
         # Define pT bins
         self.bins = [20, 30, 40, 60, 85, 110, 140, 175, 250]
 
+    def tearDown(self):
+        """Clean up the temporary directory."""
+        self.tmp_dir.cleanup()
+
     def test_var_vs_eff_plot_mode_option(self):
+        """Ensure passing an invalid mode to VarVsEffPlot raises ValueError."""
         with self.assertRaises(ValueError):
             VarVsEffPlot(
-                mode="test",
+                mode="test",  # invalid mode
                 ylabel="Background rejection",
                 xlabel=r"$p_{T}$ [GeV]",
                 logy=True,
@@ -286,8 +295,12 @@ class VarVsEffOutputTestCase(unittest.TestCase):
             )
 
     def test_output_plot_flat_per_bin_bkg_rejection(self):
-        """Test output plot with flat eff per bin - bkg rejection."""
-        # define the curves
+        """
+        Test output plot with 'bkg_rej' mode and flat-per-bin setup.
+
+        We compare the generated image against a reference file
+        to ensure no regressions in the plot appearance.
+        """
         ref_light = VarVsEff(
             x_var_sig=self.x_var_sig_1,
             disc_sig=self.disc_sig_1,
@@ -336,6 +349,7 @@ class VarVsEffOutputTestCase(unittest.TestCase):
         plot_bkg_rej.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
         # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
+
         self.assertEqual(
             None,
             compare_images(
@@ -346,8 +360,11 @@ class VarVsEffOutputTestCase(unittest.TestCase):
         )
 
     def test_output_plot_flat_eff_bin_bkg_efficiency(self):
-        """Test output plot with flat eff per bin."""
-        # define the curves
+        """
+        Test output plot with 'bkg_eff' mode and flat-per-bin setup.
+
+        We again compare the generated image with a stored reference.
+        """
         ref_light = VarVsEff(
             x_var_sig=self.x_var_sig_1,
             disc_sig=self.disc_sig_1,
@@ -397,6 +414,7 @@ class VarVsEffOutputTestCase(unittest.TestCase):
         plot_bkg_rej.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
         # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
+
         self.assertEqual(
             None,
             compare_images(
@@ -407,17 +425,24 @@ class VarVsEffOutputTestCase(unittest.TestCase):
         )
 
     def test_var_vs_eff_info_str_fixed_eff(self):
+        """
+        Test that apply_modified_atlas_second_tag() produces the correct text
+        when a working point is provided (no disc_cut).
+        """
         flat_wp_plot = VarVsEffPlot(
             mode="bkg_eff",
         )
         signal = Flavours["bjets"]
 
         flat_wp_plot.apply_modified_atlas_second_tag(signal=signal, working_point=0.7)
-
         expected_tag = "70.0% $b$-jet efficiency"
         self.assertEqual(flat_wp_plot.atlas_second_tag, expected_tag)
 
     def test_var_vs_eff_info_str_flat_wp(self):
+        """
+        Test that apply_modified_atlas_second_tag() adds 'Flat ... per bin'
+        if both working_point and flat_per_bin=True are specified.
+        """
         flat_wp_plot = VarVsEffPlot(
             mode="bkg_eff",
             atlas_second_tag="test",
@@ -432,12 +457,15 @@ class VarVsEffOutputTestCase(unittest.TestCase):
         self.assertEqual(flat_wp_plot.atlas_second_tag, expected_tag)
 
     def test_var_vs_eff_info_str_fixed_disc(self):
+        """
+        Test that apply_modified_atlas_second_tag() produces the correct text
+        when a disc_cut is specified (and no working_point).
+        """
         flat_wp_plot = VarVsEffPlot(
             mode="bkg_eff",
         )
         signal = Flavours["bjets"]
 
         flat_wp_plot.apply_modified_atlas_second_tag(signal=signal, disc_cut=3.0)
-
         expected_tag = "$D_{b}$ > 3.0"
         self.assertEqual(flat_wp_plot.atlas_second_tag, expected_tag)
