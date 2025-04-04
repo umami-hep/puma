@@ -88,12 +88,18 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
                     "You need to specify a working point `wp`, when `flat_per_bin` is"
                     " set to True."
                 )
+            if not isinstance(working_point, float):
+                raise ValueError("You can't define PCFT working points when using a `flat_per_bin`")
+        if isinstance(working_point, list):
+            working_point = np.asarray(working_point)
         self.x_var_sig = np.array(x_var_sig)
         self.disc_sig = np.array(disc_sig)
         self.x_var_bkg = None if x_var_bkg is None else np.array(x_var_bkg)
         self.disc_bkg = None if disc_bkg is None else np.array(disc_bkg)
         self.working_point = working_point
         self.disc_cut = disc_cut
+        self.disc_cut_low = None
+        self.disc_cut_high = None
         self.flat_per_bin = flat_per_bin
         # Binning related variables
         self.n_bins = None
@@ -197,21 +203,33 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             self.disc_cut = [
                 np.percentile(x, (1 - self.working_point) * 100) for x in self.disc_binned_sig
             ]
+        elif isinstance(self.working_point, (list, np.ndarray)):
+            self.disc_cut_low = [
+                np.percentile(x, (1 - self.working_point[0]) * 100) for x in self.disc_binned_sig
+            ]
+            self.disc_cut_high = [
+                np.percentile(x, (1 - self.working_point[1]) * 100) for x in self.disc_binned_sig
+            ]
+            self.disc_cut = np.column_stack((
+                [np.percentile(self.disc_sig, (1 - self.working_point[0]) * 100)] * self.n_bins,
+                [np.percentile(self.disc_sig, (1 - self.working_point[1]) * 100)] * self.n_bins,
+            ))
         else:
             self.disc_cut = [
                 np.percentile(self.disc_sig, (1 - self.working_point) * 100)
             ] * self.n_bins
         logger.debug("Discriminant cut: %.3f", self.disc_cut)
 
-    def efficiency(self, arr: np.ndarray, cut: float):
+    def efficiency(self, arr: np.ndarray, cut: float | np.ndarray):
         """Calculate efficiency and the associated error.
 
         Parameters
         ----------
         arr : np.ndarray
             Array with discriminants
-        cut : float
-            Cut value
+        cut : float | np.ndarray
+            Cut value. If you want to use PCFT, two values are provided.
+            The lower and the upper cut.
 
         Returns
         -------
@@ -222,7 +240,18 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         """
         if len(arr) == 0:
             return 0, 0
-        eff = sum(arr < cut) / len(arr) if self.inverse_cut else sum(arr > cut) / len(arr)
+
+        if isinstance(cut, float):
+            eff = sum(arr < cut) / len(arr) if self.inverse_cut else sum(arr > cut) / len(arr)
+
+        elif isinstance(cut, np.ndarray):
+            eff = sum((arr < cut[0]) & (arr > cut[1])) / len(arr)
+
+        else:
+            raise TypeError(
+                f"cut parameter type {type(cut)} is not supported! Must be float or np.ndarray"
+            )
+
         eff_error = eff_err(eff, len(arr))
         return eff, eff_error
 
@@ -245,11 +274,21 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         """
         if self.inverse_cut:
             rej = save_divide(len(arr), sum(arr < cut), default=np.inf)
-        else:
+        elif isinstance(cut, float):
             rej = save_divide(len(arr), sum(arr > cut), default=np.inf)
+
+        elif isinstance(cut, np.ndarray):
+            rej = save_divide(len(arr), sum((arr < cut[0]) & (arr > cut[1])), default=np.inf)
+
+        else:
+            raise ValueError(
+                f"`cut` parameter type {type(cut)} is not supported! " "Must be float or np.ndarray"
+            )
+
         if rej == np.inf:
             logger.warning("Your rejection is infinity -> setting it to np.nan.")
             return np.nan, np.nan
+
         rej_error = rej_err(rej, len(arr))
         return rej, rej_error
 
