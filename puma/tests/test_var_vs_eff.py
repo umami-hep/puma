@@ -232,6 +232,157 @@ class VarVsEffTestCase(unittest.TestCase):
         obj2.working_point = 0.9
         self.assertFalse(obj1 == obj2)
 
+    def test_all_signal_in_underflow_bin_triggers_logger(self):
+        """
+        Test forces all signal x-values to be below the min bin edge,
+        so bin_indices_sig == 0 for all entries. This triggers the logger.error call
+        in _apply_binning.
+        """
+        x_var_sig = np.array([-10, -9, -8])  # all below the chosen bin range
+        disc_sig = np.array([0.1, 0.2, 0.3])
+        # bins that start at 0, so everything is in the underflow bin
+        bins = [0, 1, 2]
+
+        with self.assertLogs(logger="puma", level="ERROR") as cm:
+            obj = VarVsEff(
+                x_var_sig=x_var_sig,
+                disc_sig=disc_sig,
+                bins=bins,
+                working_point=0.5,
+            )
+        self.assertTrue(
+            any("All your signal is in the underflow bin." in msg for msg in cm.output),
+            "Expected logger.error about underflow bin was not triggered.",
+        )
+        # also ensure we still get properly binned arrays
+        self.assertEqual(len(obj.disc_binned_sig), len(bins) - 1)
+        self.assertTrue(
+            all(len(bin_) == 0 for bin_ in obj.disc_binned_sig),
+            "All bins should be empty for signal.",
+        )
+
+    def test_disc_cut_as_list_or_array(self):
+        """
+        Covers the scenario in _get_disc_cuts where
+        disc_cut is already a list/ndarray. Ensures no error is raised and
+        the property is set as-is.
+        """
+        x_var_sig = np.array([0.1, 0.4, 0.6, 0.9])
+        disc_sig = np.array([0.2, 0.3, 0.8, 0.7])
+        disc_cut_array = [0.5, 0.5, 0.5]  # must match the number of bins below
+        bins = [0, 0.3, 0.7, 1.0]
+
+        obj = VarVsEff(
+            x_var_sig=x_var_sig,
+            disc_sig=disc_sig,
+            bins=bins,
+            disc_cut=disc_cut_array,
+        )
+        self.assertListEqual(obj.disc_cut, disc_cut_array, "disc_cut should match the array given.")
+
+    def test_working_point_as_array_of_two_values(self):
+        """
+        Covers the scenario in _get_disc_cuts where
+        working_point is an array. This triggers the PCFT scenario (i.e., 2D cuts).
+        """
+        x_var_sig = np.array([0, 1, 2, 3])
+        disc_sig = np.array([0.1, 0.5, 0.8, 0.9])
+        bins = 2
+        wp_array = [0.7, 0.9]  # triggers np.column_stack
+
+        obj = VarVsEff(
+            x_var_sig=x_var_sig,
+            disc_sig=disc_sig,
+            bins=bins,
+            working_point=wp_array,
+        )
+        # disc_cut should be a shape (n_bins, 2) array
+        self.assertEqual(len(obj.disc_cut.shape), 2)
+        self.assertEqual(obj.disc_cut.shape[1], 2, "disc_cut should have shape (n_bins, 2).")
+
+    def test_efficiency_raises_typeerror_for_invalid_cut_type(self):
+        """If the cut is neither float nor np.ndarray, raise TypeError."""
+        obj = VarVsEff(
+            x_var_sig=np.array([0, 1]),
+            disc_sig=np.array([0.2, 0.8]),
+            bins=1,
+            disc_cut=0.5,
+        )
+        with self.assertRaises(TypeError):
+            # Pass an invalid cut type (string)
+            obj.efficiency(np.array([0.2, 0.8]), cut="invalid_cut_type")
+
+    def test_bkg_eff_sig_err_property(self):
+        """Calls bkg_eff_sig_err especially the debug statements and return lines."""
+        x_var_sig = np.random.uniform(0, 1, 100)
+        disc_sig = np.random.uniform(0, 1, 100)
+        x_var_bkg = np.random.uniform(0, 1, 100)
+        disc_bkg = np.random.uniform(0, 1, 100)
+
+        obj = VarVsEff(
+            x_var_sig=x_var_sig,
+            disc_sig=disc_sig,
+            x_var_bkg=x_var_bkg,
+            disc_bkg=disc_bkg,
+            bins=2,
+            disc_cut=0.5,
+        )
+        eff, err = obj.bkg_eff_sig_err
+        # Just verify shapes and that we don't crash
+        self.assertEqual(len(eff), 2)
+        self.assertEqual(len(err), 2)
+
+    def test_equality_with_different_type(self):
+        """If other is not an instance of VarVsEff, return False immediately."""
+        x_var_sig = np.array([0, 1])
+        disc_sig = np.array([0.2, 0.8])
+        obj = VarVsEff(
+            x_var_sig=x_var_sig,
+            disc_sig=disc_sig,
+            bins=1,
+            disc_cut=0.5,
+        )
+        self.assertFalse(obj == "a string", "Comparing with non-VarVsEff should return False.")
+
+    def test_get_bkg_eff_sig_err(self):
+        """Covers get('bkg_eff_sig_err')."""
+        x_var_sig = np.array([0, 1])
+        disc_sig = np.array([0.2, 0.8])
+        x_var_bkg = np.array([0, 1])
+        disc_bkg = np.array([0.3, 0.7])
+        obj = VarVsEff(
+            x_var_sig=x_var_sig,
+            disc_sig=disc_sig,
+            x_var_bkg=x_var_bkg,
+            disc_bkg=disc_bkg,
+            bins=1,
+            disc_cut=0.5,
+        )
+        eff, err = obj.get("bkg_eff_sig_err")
+        self.assertIsNotNone(eff)
+        self.assertIsNotNone(err)
+
+    def test_get_invalid_mode_resets_inverse_cut(self):
+        """Passing an unsupported mode raises ValueError AND resets self.inverse_cut to False."""
+        x_var_sig = np.array([0, 1])
+        disc_sig = np.array([0.2, 0.8])
+        obj = VarVsEff(
+            x_var_sig=x_var_sig,
+            disc_sig=disc_sig,
+            bins=1,
+            disc_cut=0.5,
+        )
+
+        # We set inverse_cut to True so we can check it gets reset on ValueError
+        obj.inverse_cut = True
+        with self.assertRaises(ValueError):
+            obj.get("not_a_valid_mode", inverse_cut=True)
+
+        # After the exception, self.inverse_cut should be False again
+        self.assertFalse(
+            obj.inverse_cut, "inverse_cut should be reset to False after raising ValueError."
+        )
+
 
 class VarVsEffOutputTestCase(unittest.TestCase):
     """Test class for the VarVsEffPlot output."""
