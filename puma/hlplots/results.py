@@ -771,9 +771,18 @@ class Results:
 
         # Generate the name according to inputs and save the figure
         plot_base = "flat_per_bin" if kwargs.get("flat_per_bin") else "fixed_cut"
-        wp_disc = (f"disc_cut{disc_cut}" if disc_cut else f"wp{int(working_point * 100)}").replace(
-            ".", "p"
-        )
+
+        if disc_cut:
+            wp_disc = f"disc_cut{disc_cut}".replace(".", "p")
+
+        elif isinstance(working_point, list):
+            wp_disc = (
+                f"wp{int(working_point[0] * 100):.0f}_"
+                f"{int(working_point[1] * 100):.0f}".replace(".", "p")
+            )
+
+        else:
+            wp_disc = f"wp{int(working_point * 100)}".replace(".", "p")
 
         fname = f"{self.sig_str}eff_vs_{perf_var}_{plot_base}_{wp_disc}"
         suffix = f"{suffix}_" if suffix else ""

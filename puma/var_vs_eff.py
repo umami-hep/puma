@@ -494,7 +494,7 @@ class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
             if isinstance(working_point, list):
                 mid_str = (
                     f"{round(working_point[0] * 100, 0):.0f}% - "
-                    f"{round(working_point[1] * 100, 0):.0f}" + signal.eff_str
+                    f"{round(working_point[1] * 100, 0):.0f}% " + signal.eff_str
                 )
 
             else:
