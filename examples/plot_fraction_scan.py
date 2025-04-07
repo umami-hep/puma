@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import numpy as np
-from ftag import Flavours, get_discriminant
+from ftag import Flavours
+from ftag.utils import calculate_efficiency, get_discriminant
 
 from puma import Line2D, Line2DPlot
-from puma.metrics import calc_eff
 from puma.utils import get_dummy_2_taggers, logger
 
 # The line below generates dummy data which is similar to a NN output
@@ -46,8 +46,8 @@ def calc_effs(fc_value: float):
         flavours=Flavours.by_category("single-btag"),
         fraction_values={"fc": fc_value, "fu": 1 - fc_value, "ftau": 0},
     )
-    ujets_eff = calc_eff(disc[is_b], disc[is_light], SIG_EFF)
-    cjets_eff = calc_eff(disc[is_b], disc[is_c], SIG_EFF)
+    ujets_eff = calculate_efficiency(disc[is_b], disc[is_light], SIG_EFF)
+    cjets_eff = calculate_efficiency(disc[is_b], disc[is_c], SIG_EFF)
 
     return [fc_value, ujets_eff, cjets_eff]
 

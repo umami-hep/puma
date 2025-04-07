@@ -5,8 +5,8 @@ from __future__ import annotations
 from typing import ClassVar
 
 import numpy as np
+from ftag.utils import calculate_efficiency_error, calculate_rejection_error
 
-from puma.metrics import eff_err, rej_err
 from puma.utils import logger
 from puma.utils.histogram import save_divide
 from puma.var_vs_var import VarVsVar, VarVsVarPlot
@@ -260,7 +260,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
                 f"cut parameter type {type(cut)} is not supported! Must be float or np.ndarray"
             )
 
-        eff_error = eff_err(eff, len(arr))
+        eff_error = calculate_efficiency_error(eff, len(arr))
         return eff, eff_error
 
     def rejection(self, arr: np.ndarray, cut: float):
@@ -297,7 +297,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             logger.warning("Your rejection is infinity -> setting it to np.nan.")
             return np.nan, np.nan
 
-        rej_error = rej_err(rej, len(arr))
+        rej_error = calculate_rejection_error(rej, len(arr))
         return rej, rej_error
 
     @property

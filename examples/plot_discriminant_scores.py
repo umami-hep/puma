@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import numpy as np
-from ftag import Flavours, get_discriminant
+from ftag import Flavours
+from ftag.utils import get_discriminant
 
 from puma import Histogram, HistogramPlot
 from puma.utils import get_dummy_2_taggers, get_good_linestyles

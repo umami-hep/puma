@@ -8,7 +8,8 @@ import tempfile
 import unittest
 
 import numpy as np
-from ftag import Flavours, get_discriminant
+from ftag import Flavours
+from ftag.utils import get_discriminant
 from matplotlib.testing.compare import compare_images
 
 from puma import IntegratedEfficiency, IntegratedEfficiencyPlot

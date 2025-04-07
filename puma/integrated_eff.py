@@ -5,8 +5,8 @@ from __future__ import annotations
 import matplotlib as mpl
 import numpy as np
 from ftag import Flavours, Label
+from ftag.utils import calculate_efficiency
 
-from puma.metrics import calc_eff
 from puma.plot_base import PlotBase, PlotLineObject
 from puma.utils import get_good_colours, get_good_linestyles, logger
 
@@ -61,7 +61,7 @@ class IntegratedEfficiency(PlotLineObject):
 
     def _calc_profile(self):
         """Calculate the profile of the integrated efficiency curve."""
-        self.eff, self.x = calc_eff(
+        self.eff, self.x = calculate_efficiency(
             self.disc_sig,
             self.disc_bkg,
             np.linspace(0, 1, self.n_vals),

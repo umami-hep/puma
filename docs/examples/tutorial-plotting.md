@@ -216,13 +216,13 @@ task 0.2.**
     print("c-flavour jets rejection:", 1 / cjets_eff)
     ```
 
-    Alternatively, all this functionality is also provided by `puma.metrics`.
+    Alternatively, all this functionality is also provided by the `atlas-ftag-tools` package.
     In that case this would simplify to
     ```py
-    from puma.metrics import calc_rej
+    from ftag.utils import calculate_rejection
     ljets = dummy_labels == 0
     cjets = dummy_labels == 4
-    rej = calc_rej(scores[bjets], scores[ljets], target_eff=0.7)
+    rej = calculate_rejection(scores[bjets], scores[ljets], target_eff=0.7)
     print("light-flavour jets rejection:", rej)
     ```
 
@@ -473,7 +473,7 @@ and $c$-jets rejection for a range of $b$-jets efficiencies.
     import h5py
 
     from puma import Roc, RocPlot
-    from puma.metrics import calc_rej
+    from ftag.utils import calculate_rejection
 
     ttbar_filepath = "/eos/user/u/umamibot/tutorials/ttbar.h5"
 
@@ -528,8 +528,8 @@ and $c$-jets rejection for a range of $b$-jets efficiencies.
     n_jets_light = sum(is_light)
     n_jets_c = sum(is_c)
 
-    rnnip_ujets_rej = calc_rej(discs_rnnip[is_b], discs_rnnip[is_light], sig_eff)
-    dips_ujets_rej = calc_rej(discs_dips[is_b], discs_dips[is_light], sig_eff)
+    rnnip_ujets_rej = calculate_rejection(discs_rnnip[is_b], discs_rnnip[is_light], sig_eff)
+    dips_ujets_rej = calculate_rejection(discs_dips[is_b], discs_dips[is_light], sig_eff)
     ```
 
 #### Task 2.2:
@@ -598,8 +598,8 @@ and $c$-jets rejection for a range of $b$-jets efficiencies.
 ??? warning "Solution"
 
     ```py
-    rnnip_cjets_rej = calc_rej(discs_rnnip[is_b], discs_rnnip[is_c], sig_eff)
-    dips_cjets_rej = calc_rej(discs_dips[is_b], discs_dips[is_c], sig_eff)
+    rnnip_cjets_rej = calculate_rejection(discs_rnnip[is_b], discs_rnnip[is_c], sig_eff)
+    dips_cjets_rej = calculate_rejection(discs_dips[is_b], discs_dips[is_c], sig_eff)
 
     # add this to the code from the previous task (has to be before the RocPlot.draw()
     # method is called)
