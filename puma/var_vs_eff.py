@@ -249,7 +249,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         if len(arr) == 0:
             return 0, 0
 
-        if isinstance(cut, float):
+        if isinstance(cut, (int, float, np.int32, np.float32)):
             eff = sum(arr < cut) / len(arr) if self.inverse_cut else sum(arr > cut) / len(arr)
 
         elif isinstance(cut, np.ndarray):
@@ -282,7 +282,8 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         """
         if self.inverse_cut:
             rej = save_divide(len(arr), sum(arr < cut), default=np.inf)
-        elif isinstance(cut, float):
+
+        elif isinstance(cut, (int, float, np.int32, np.float32)):
             rej = save_divide(len(arr), sum(arr > cut), default=np.inf)
 
         elif isinstance(cut, np.ndarray):
