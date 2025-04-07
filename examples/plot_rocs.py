@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import numpy as np
-from ftag import Flavours, get_discriminant
+from ftag import Flavours
+from ftag.utils import calculate_rejection, get_discriminant
 
 from puma import Roc, RocPlot
-from puma.metrics import calc_rej
 from puma.utils import get_dummy_2_taggers, logger
 
 # The line below generates dummy data which is similar to a NN output
@@ -48,10 +48,10 @@ n_jets_light = sum(is_light)
 n_jets_c = sum(is_c)
 
 logger.info("Calculate rejection")
-rnnip_ujets_rej = calc_rej(discs_rnnip[is_b], discs_rnnip[is_light], sig_eff)
-rnnip_cjets_rej = calc_rej(discs_rnnip[is_b], discs_rnnip[is_c], sig_eff)
-dips_ujets_rej = calc_rej(discs_dips[is_b], discs_dips[is_light], sig_eff)
-dips_cjets_rej = calc_rej(discs_dips[is_b], discs_dips[is_c], sig_eff)
+rnnip_ujets_rej = calculate_rejection(discs_rnnip[is_b], discs_rnnip[is_light], sig_eff)
+rnnip_cjets_rej = calculate_rejection(discs_rnnip[is_b], discs_rnnip[is_c], sig_eff)
+dips_ujets_rej = calculate_rejection(discs_dips[is_b], discs_dips[is_light], sig_eff)
+dips_cjets_rej = calculate_rejection(discs_dips[is_b], discs_dips[is_c], sig_eff)
 
 # here the plotting of the roc starts
 logger.info("Plotting ROC curves.")

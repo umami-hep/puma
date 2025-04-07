@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Bump tools version & adapt to it [!310](https://github.com/umami-hep/puma/pull/310)
 - Small improvements for vertexing plots [!305](https://github.com/umami-hep/puma/pull/305)
 - Minor change to how n_classes are calculated in confusion matrix [!306](https://github.com/umami-hep/puma/pull/306)
 - Fixing Coverage [!308](https://github.com/umami-hep/puma/pull/308)

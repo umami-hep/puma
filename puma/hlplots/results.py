@@ -8,6 +8,7 @@ from pathlib import Path
 import numpy as np
 from ftag import Cuts, Flavours, Label
 from ftag.hdf5 import H5Reader
+from ftag.utils import calculate_efficiency, calculate_rejection
 from matplotlib.figure import Figure
 
 from puma import (
@@ -23,7 +24,6 @@ from puma import (
 )
 from puma.hlplots.tagger import Tagger
 from puma.hlplots.yutils import combine_suffixes
-from puma.metrics import calc_eff, calc_rej
 from puma.utils import get_good_colours, get_good_linestyles, logger
 
 
@@ -587,7 +587,7 @@ class Results:
                     continue
 
                 # Calculate rejection for the given background
-                rej = calc_rej(
+                rej = calculate_rejection(
                     discs[tagger.is_flav(self.signal)],
                     discs[tagger.is_flav(background)],
                     sig_effs,
@@ -979,7 +979,7 @@ class Results:
         plot = Line2DPlot(atlas_second_tag=tag, **kwargs)
 
         # Get good colours and define, if the efficiency or the rejection is calculated
-        eff_or_rej = calc_eff if not rej else calc_rej
+        eff_or_rej = calculate_efficiency if not rej else calculate_rejection
         colours = get_good_colours()
 
         # Loop over the taggers

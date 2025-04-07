@@ -6,8 +6,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from ftag import Flavours, Label
+from ftag.utils import calculate_rejection_error
 
-from puma.metrics import rej_err
 from puma.plot_base import PlotBase, PlotLineObject
 from puma.utils import get_good_colours, get_good_linestyles, logger
 
@@ -124,7 +124,7 @@ class Roc(PlotLineObject):
             n_test = self.n_test
         if n_test is None:
             raise ValueError("No `n_test` provided, cannot calculate binomial error!")
-        return rej_err(self.bkg_rej[self.non_zero_mask], n_test, norm=norm)
+        return calculate_rejection_error(self.bkg_rej[self.non_zero_mask], n_test, norm=norm)
 
     def divide(self, roc_comp, inverse: bool = False):
         """Calculate ratio between the roc curve and another roc.
