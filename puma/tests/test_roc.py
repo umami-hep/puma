@@ -8,7 +8,6 @@ import tempfile
 import unittest
 
 import numpy as np
-import py
 from matplotlib.testing.compare import compare_images
 
 from puma import Roc, RocPlot
@@ -53,8 +52,12 @@ class RocTestCase(unittest.TestCase):
         bkg_rej_ref = np.exp(-sig_eff_ref) * 10e3
         roc_curve = Roc(sig_eff, bkg_rej)
         roc_curve_ref = Roc(sig_eff_ref, bkg_rej_ref * 2)
-        with py.test.raises(ValueError, match="Signal efficiencies"):
+        with self.assertRaises(ValueError) as ctx:
             _, _, _ = roc_curve.divide(roc_curve_ref)
+        self.assertEqual(
+            "Signal efficiencies of the two ROCs do not match.",
+            str(ctx.exception),
+        )
 
     def test_ratio_factor_two_inverse(self):
         """Test roc divide function."""
