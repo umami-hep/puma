@@ -375,6 +375,27 @@ class VarVsEffTestCase(unittest.TestCase):
         self.assertAlmostEqual(eff_err[0], 0.03640475)
         self.assertAlmostEqual(eff_err[1], 0.02569958)
 
+    def test_pcft_working_point_cut_type_error(self):
+        """Check if the type error is raised correctly."""
+        x_var_sig = np.random.uniform(0, 1, 100)
+        disc_sig = np.random.uniform(0, 1, 100)
+        x_var_bkg = np.random.uniform(0, 1, 100)
+        disc_bkg = np.random.uniform(0, 1, 100)
+
+        with self.assertRaises(TypeError) as ctx:
+            _ = VarVsEff(
+                x_var_sig=x_var_sig,
+                disc_sig=disc_sig,
+                x_var_bkg=x_var_bkg,
+                disc_bkg=disc_bkg,
+                bins=2,
+                working_point="Error",
+            )
+        self.assertEqual(
+            "`working_point` must either be a list or a float! You gave <class 'str'>",
+            str(ctx.exception),
+        )
+
     def test_equality_with_different_type(self):
         """If other is not an instance of VarVsEff, return False immediately."""
         x_var_sig = np.array([0, 1])
@@ -648,6 +669,20 @@ class VarVsEffOutputTestCase(unittest.TestCase):
 
         flat_wp_plot.apply_modified_atlas_second_tag(signal=signal, working_point=0.7)
         expected_tag = "70% $b$-jet efficiency"
+        self.assertEqual(flat_wp_plot.atlas_second_tag, expected_tag)
+
+    def test_var_vs_eff_info_str_pcft_working_point(self):
+        """
+        Test that apply_modified_atlas_second_tag() produces the correct text
+        when a PCFT working point is provided (no disc_cut).
+        """
+        flat_wp_plot = VarVsEffPlot(
+            mode="bkg_eff",
+        )
+        signal = Flavours["bjets"]
+
+        flat_wp_plot.apply_modified_atlas_second_tag(signal=signal, working_point=[0.7, 0.77])
+        expected_tag = "70% - 77% $b$-jet efficiency"
         self.assertEqual(flat_wp_plot.atlas_second_tag, expected_tag)
 
     def test_var_vs_eff_info_str_flat_wp(self):

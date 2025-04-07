@@ -365,6 +365,46 @@ class ResultsPlotsTestCase(unittest.TestCase):
                 assert fpath.is_file()
             results.saved_plots = []
 
+    def test_plot_var_perf_bjets_disc_cut(self):
+        """Test that png file is being created."""
+        self.dummy_tagger_1.reference = True
+        self.dummy_tagger_1.fxs = {"fc": 0.05, "fu": 0.95}
+        self.dummy_tagger_1.disc_cut = 2
+        rng = np.random.default_rng(seed=16)
+        self.dummy_tagger_1.perf_vars = {
+            "pt": rng.exponential(100, size=len(self.dummy_tagger_1.scores))
+        }
+        with tempfile.TemporaryDirectory() as tmp_file:
+            results = Results(signal="bjets", sample="test", output_dir=tmp_file)
+            results.add(self.dummy_tagger_1)
+            results.plot_var_perf(
+                bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
+                disc_cut=0.5,
+            )
+            for fpath in results.saved_plots:
+                assert fpath.is_file()
+            results.saved_plots = []
+
+    def test_plot_var_perf_bjets_pcft(self):
+        """Test that png file is being created."""
+        self.dummy_tagger_1.reference = True
+        self.dummy_tagger_1.fxs = {"fc": 0.05, "fu": 0.95}
+        self.dummy_tagger_1.disc_cut = 2
+        rng = np.random.default_rng(seed=16)
+        self.dummy_tagger_1.perf_vars = {
+            "pt": rng.exponential(100, size=len(self.dummy_tagger_1.scores))
+        }
+        with tempfile.TemporaryDirectory() as tmp_file:
+            results = Results(signal="bjets", sample="test", output_dir=tmp_file)
+            results.add(self.dummy_tagger_1)
+            results.plot_var_perf(
+                bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
+                working_point=[0.5, 0.8],
+            )
+            for fpath in results.saved_plots:
+                assert fpath.is_file()
+            results.saved_plots = []
+
     def test_plot_var_perf_extra_kwargs(self):
         """Test that png file is being created."""
         self.dummy_tagger_1.reference = True

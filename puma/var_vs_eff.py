@@ -99,8 +99,6 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
                 )
             if not isinstance(working_point, float):
                 raise ValueError("You can't define PCFT working points when using a `flat_per_bin`")
-        if isinstance(working_point, list):
-            working_point = np.asarray(working_point)
         self.x_var_sig = np.array(x_var_sig)
         self.disc_sig = np.array(disc_sig)
         self.x_var_bkg = None if x_var_bkg is None else np.array(x_var_bkg)
@@ -130,6 +128,15 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
                     "`disc_cut` has to be a float or has to have the same length as"
                     " number of bins."
                 )
+
+        elif isinstance(self.working_point, list):
+            self.working_point = np.asarray(self.working_point)
+        elif not isinstance(working_point, float):
+            raise TypeError(
+                "`working_point` must either be a list or a float! "
+                f"You gave {type(self.working_point)}"
+            )
+
         self._apply_binning()
         self._get_disc_cuts()
 
@@ -282,8 +289,8 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             rej = save_divide(len(arr), sum((arr < cut[0]) & (arr > cut[1])), default=np.inf)
 
         else:
-            raise ValueError(
-                f"`cut` parameter type {type(cut)} is not supported! " "Must be float or np.ndarray"
+            raise TypeError(
+                f"`cut` parameter type {type(cut)} is not supported! Must be float or np.ndarray!"
             )
 
         if rej == np.inf:
