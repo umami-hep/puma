@@ -493,12 +493,12 @@ class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
         if working_point:
             if isinstance(working_point, list):
                 mid_str = (
-                    f"{round(working_point[0] * 100, 0):.0f}% - "
-                    f"{round(working_point[1] * 100, 0):.0f}% " + signal.eff_str
+                    f"{int(round(working_point[0] * 100, 0))}% - "
+                    f"{int(round(working_point[1] * 100, 0))}% " + signal.eff_str
                 )
 
             else:
-                mid_str = f"{round(working_point * 100, 0):.0f}% " + signal.eff_str
+                mid_str = f"{int(round(working_point * 100, 0))}% " + signal.eff_str
         elif disc_cut:
             mid_str = rf"$D_{{{signal.name.rstrip('jets')}}}$ > {disc_cut}"
         tag = f"Flat {mid_str} per bin" if flat_per_bin else f"{mid_str}"

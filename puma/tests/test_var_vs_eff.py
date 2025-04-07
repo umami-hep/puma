@@ -647,7 +647,7 @@ class VarVsEffOutputTestCase(unittest.TestCase):
         signal = Flavours["bjets"]
 
         flat_wp_plot.apply_modified_atlas_second_tag(signal=signal, working_point=0.7)
-        expected_tag = "70.0% $b$-jet efficiency"
+        expected_tag = "70% $b$-jet efficiency"
         self.assertEqual(flat_wp_plot.atlas_second_tag, expected_tag)
 
     def test_var_vs_eff_info_str_flat_wp(self):
@@ -665,7 +665,7 @@ class VarVsEffOutputTestCase(unittest.TestCase):
             signal=signal, working_point=0.7, flat_per_bin=True
         )
 
-        expected_tag = "test\nFlat 70.0% $b$-jet efficiency per bin"
+        expected_tag = "test\nFlat 70% $b$-jet efficiency per bin"
         self.assertEqual(flat_wp_plot.atlas_second_tag, expected_tag)
 
     def test_var_vs_eff_info_str_fixed_disc(self):
