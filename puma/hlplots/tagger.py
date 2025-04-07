@@ -8,7 +8,8 @@ from pathlib import Path
 import h5py
 import numpy as np
 import pandas as pd
-from ftag import Cuts, Flavours, Label, get_discriminant
+from ftag import Cuts, Flavours, Label
+from ftag.utils import get_discriminant
 
 from puma.utils import logger
 from puma.utils.aux import get_aux_labels

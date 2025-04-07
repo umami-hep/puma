@@ -5,8 +5,8 @@ from __future__ import annotations
 from typing import ClassVar
 
 import numpy as np
+from ftag.utils import calculate_efficiency_error, calculate_rejection_error
 
-from puma.metrics import eff_err, rej_err
 from puma.utils import logger
 from puma.utils.histogram import save_divide
 from puma.var_vs_var import VarVsVar, VarVsVarPlot
@@ -223,7 +223,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         if len(arr) == 0:
             return 0, 0
         eff = sum(arr < cut) / len(arr) if self.inverse_cut else sum(arr > cut) / len(arr)
-        eff_error = eff_err(eff, len(arr))
+        eff_error = calculate_efficiency_error(eff, len(arr))
         return eff, eff_error
 
     def rejection(self, arr: np.ndarray, cut: float):
@@ -250,7 +250,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         if rej == np.inf:
             logger.warning("Your rejection is infinity -> setting it to np.nan.")
             return np.nan, np.nan
-        rej_error = rej_err(rej, len(arr))
+        rej_error = calculate_rejection_error(rej, len(arr))
         return rej, rej_error
 
     @property

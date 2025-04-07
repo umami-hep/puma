@@ -5,8 +5,8 @@ from __future__ import annotations
 from typing import ClassVar
 
 import numpy as np
+from ftag.utils import calculate_efficiency_error
 
-from puma.metrics import eff_err
 from puma.utils import logger
 from puma.utils.histogram import save_divide
 from puma.var_vs_var import VarVsVar, VarVsVarPlot
@@ -165,7 +165,7 @@ class VarVsVtx(VarVsVar):  # pylint: disable=too-many-instance-attributes
         if pm == 0:
             logger.warning("Your vertexing performance ratio is zero -> setting error to zero.")
             return 0.0, 0.0
-        pm_error = eff_err(pm, len(num))
+        pm_error = calculate_efficiency_error(pm, len(num))
         return pm, pm_error
 
     @property
