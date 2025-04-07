@@ -1,10 +1,10 @@
 atlasify==0.8.0
 coverage==6.3.1
-h5py>=3.10.0
+h5py>=3.13.0
 ipython==8.32.0
 matplotlib==3.9.2
-numpy>=2.2.3
-pandas[hdf5]==1.5.3
+numpy>=2.2.4
+pandas>=2.2.3
 pre-commit==3.5.0
 pydot==1.4.2
 pytest-cov==4.0.0
