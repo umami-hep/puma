@@ -2,6 +2,10 @@
 
 ### [Latest]
 
+
+
+### [v0.4.5] (2025/04/09)
+
 - Adding support for PCFT VarVsEff plots [!309](https://github.com/umami-hep/puma/pull/309)
 - Bump tools version & adapt to it [!310](https://github.com/umami-hep/puma/pull/310)
 - Small improvements for vertexing plots [!305](https://github.com/umami-hep/puma/pull/305)
