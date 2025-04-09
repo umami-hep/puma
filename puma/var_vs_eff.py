@@ -21,9 +21,9 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         disc_sig: np.ndarray,
         x_var_bkg: np.ndarray = None,
         disc_bkg: np.ndarray = None,
-        bins=10,
-        working_point: float | None = None,
-        disc_cut=None,
+        bins: int | list | np.ndarray = 10,
+        working_point: float | list | None = None,
+        disc_cut: int | list | np.ndarray | None = None,
         flat_per_bin: bool = False,
         key: str | None = None,
         **kwargs,
@@ -40,20 +40,20 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             Values for x-axis variable for background, by default None
         disc_bkg : np.ndarray, optional
             Discriminant values for background, by default None
-        bins : int or sequence of scalars, optional
+        bins : int, optional
             If bins is an int, it defines the number of equal-width bins in the
             given range (10, by default). If bins is a sequence, it defines a
             monotonically increasing array of bin edges, including the
             rightmost edge, allowing for non-uniform bin widths, by default 10
-        working_point : float, optional
+        working_point : float | list | None, optional
             Working point, by default None
-        disc_cut : float or  sequence of floats, optional
+        disc_cut : int | list | np.ndarray | None, optional
             Cut value for discriminant, if it is a sequence it has to have the same
             length as number of bins, by default None
         flat_per_bin : bool, optional
             If True and no `disc_cut` is given the signal efficiency is held constant
             in each bin, by default False
-        key : str, optional
+        key : str | None, optional
             Identifier for the curve e.g. tagger, by default None
         **kwargs : kwargs
             Keyword arguments passed to `PlotLineObject`
@@ -61,7 +61,21 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         Raises
         ------
         ValueError
-            If provided options are not compatible with each other
+            x_var_sig and disc_sig have different lengths
+        ValueError
+            x_var_bkg and disc_bkg have different lengths
+        ValueError
+            Neither working_point nor flat_per_bin was set
+        ValueError
+            Both disc_cut and flat_per_bin are set
+        ValueError
+            working_point is not set but flat_per_bin is
+        ValueError
+            Using PCFT bins and flat_per_bin together
+        ValueError
+            Using disc_cut and working_point together
+        ValueError
+            disc_cut (if an array) has a different length than the number of bins given
         """
         if len(x_var_sig) != len(disc_sig):
             raise ValueError(
@@ -77,17 +91,14 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         # could also think about porting it to a class function insted of passing
         # the arguments to init e.g. `set_method`
         if working_point is None and disc_cut is None:
-            raise ValueError("Either `wp` or `disc_cut` needs to be specified.")
+            raise ValueError("Either `working_point` or `disc_cut` needs to be specified.")
         if flat_per_bin:
             if disc_cut is not None:
                 raise ValueError(
                     "You cannot specify `disc_cut` when `flat_per_bin` is set to True."
                 )
-            if working_point is None:
-                raise ValueError(
-                    "You need to specify a working point `wp`, when `flat_per_bin` is"
-                    " set to True."
-                )
+            if not isinstance(working_point, float):
+                raise ValueError("You can't define PCFT working points when using a `flat_per_bin`")
         self.x_var_sig = np.array(x_var_sig)
         self.disc_sig = np.array(disc_sig)
         self.x_var_bkg = None if x_var_bkg is None else np.array(x_var_bkg)
@@ -111,12 +122,21 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
 
         if disc_cut is not None:
             if working_point is not None:
-                raise ValueError("You cannot specify `disc_cut` when providing `wp`.")
+                raise ValueError("You cannot specify `disc_cut` when providing `working_point`.")
             if isinstance(disc_cut, (list, np.ndarray)) and self.n_bins != len(disc_cut):
                 raise ValueError(
                     "`disc_cut` has to be a float or has to have the same length as"
                     " number of bins."
                 )
+
+        elif isinstance(self.working_point, list):
+            self.working_point = np.asarray(self.working_point)
+        elif not isinstance(working_point, float):
+            raise TypeError(
+                "`working_point` must either be a list or a float! "
+                f"You gave {type(self.working_point)}"
+            )
+
         self._apply_binning()
         self._get_disc_cuts()
 
@@ -133,12 +153,12 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         )
         self.inverse_cut = False
 
-    def _set_bin_edges(self, bins):
+    def _set_bin_edges(self, bins: int | list | np.ndarray):
         """Calculate bin edges, centres and width and save them as class variables.
 
         Parameters
         ----------
-        bins : int or sequence of scalars
+        bins : int | list | np.ndarray
             If bins is an int, it defines the number of equal-width bins in the given
             range. If bins is a sequence, it defines a monotonically increasing array of
             bin edges, including the rightmost edge, allowing for non-uniform bin
@@ -197,21 +217,27 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             self.disc_cut = [
                 np.percentile(x, (1 - self.working_point) * 100) for x in self.disc_binned_sig
             ]
+        elif isinstance(self.working_point, (list, np.ndarray)):
+            self.disc_cut = np.column_stack((
+                [np.percentile(self.disc_sig, (1 - self.working_point[0]) * 100)] * self.n_bins,
+                [np.percentile(self.disc_sig, (1 - self.working_point[1]) * 100)] * self.n_bins,
+            ))
         else:
             self.disc_cut = [
                 np.percentile(self.disc_sig, (1 - self.working_point) * 100)
             ] * self.n_bins
         logger.debug("Discriminant cut: %.3f", self.disc_cut)
 
-    def efficiency(self, arr: np.ndarray, cut: float):
+    def efficiency(self, arr: np.ndarray, cut: float | np.ndarray):
         """Calculate efficiency and the associated error.
 
         Parameters
         ----------
         arr : np.ndarray
             Array with discriminants
-        cut : float
-            Cut value
+        cut : float | np.ndarray
+            Cut value. If you want to use PCFT, two values are provided.
+            The lower and the upper cut.
 
         Returns
         -------
@@ -222,7 +248,18 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         """
         if len(arr) == 0:
             return 0, 0
-        eff = sum(arr < cut) / len(arr) if self.inverse_cut else sum(arr > cut) / len(arr)
+
+        if isinstance(cut, (int, float, np.int32, np.float32)):
+            eff = sum(arr < cut) / len(arr) if self.inverse_cut else sum(arr > cut) / len(arr)
+
+        elif isinstance(cut, np.ndarray):
+            eff = sum((arr < cut[0]) & (arr > cut[1])) / len(arr)
+
+        else:
+            raise TypeError(
+                f"cut parameter type {type(cut)} is not supported! Must be float or np.ndarray"
+            )
+
         eff_error = calculate_efficiency_error(eff, len(arr))
         return eff, eff_error
 
@@ -245,11 +282,22 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         """
         if self.inverse_cut:
             rej = save_divide(len(arr), sum(arr < cut), default=np.inf)
-        else:
+
+        elif isinstance(cut, (int, float, np.int32, np.float32)):
             rej = save_divide(len(arr), sum(arr > cut), default=np.inf)
+
+        elif isinstance(cut, np.ndarray):
+            rej = save_divide(len(arr), sum((arr < cut[0]) & (arr > cut[1])), default=np.inf)
+
+        else:
+            raise TypeError(
+                f"`cut` parameter type {type(cut)} is not supported! Must be float or np.ndarray!"
+            )
+
         if rej == np.inf:
             logger.warning("Your rejection is infinity -> setting it to np.nan.")
             return np.nan, np.nan
+
         rej_error = calculate_rejection_error(rej, len(arr))
         return rej, rej_error
 
@@ -451,7 +499,14 @@ class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
         being displayed.
         """
         if working_point:
-            mid_str = f"{round(working_point * 100, 3)}% " + signal.eff_str
+            if isinstance(working_point, list):
+                mid_str = (
+                    f"{int(round(working_point[0] * 100, 0))}% - "
+                    f"{int(round(working_point[1] * 100, 0))}% " + signal.eff_str
+                )
+
+            else:
+                mid_str = f"{int(round(working_point * 100, 0))}% " + signal.eff_str
         elif disc_cut:
             mid_str = rf"$D_{{{signal.name.rstrip('jets')}}}$ > {disc_cut}"
         tag = f"Flat {mid_str} per bin" if flat_per_bin else f"{mid_str}"

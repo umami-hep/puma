@@ -70,6 +70,14 @@ results.plot_var_perf(
     flat_per_bin=False,
 )
 
+# For the working point, you could also provide a list with two values, which are the
+# edges of efficiencies. For example, the PCFT working points can be plotted for that
+results.plot_var_perf(
+    working_point=[0.7, 0.77],
+    bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
+    flat_per_bin=False,
+)
+
 results.atlas_second_tag = "$\\sqrt{s}=13$ TeV, dummy jets \n$t\\bar{t}$"
 results.plot_var_perf(
     bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
