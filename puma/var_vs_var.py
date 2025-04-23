@@ -26,7 +26,6 @@ class VarVsVar(PlotLineObject):
         key: str | None = None,
         fill: bool = True,
         plot_y_std: bool = True,
-        ratio_group: str | None = None,
         **kwargs,
     ) -> None:
         """Initialise properties of VarVsVar curve object.
@@ -47,10 +46,6 @@ class VarVsVar(PlotLineObject):
             Defines do we need to fill box around point, by default True
         plot_y_std : bool, optional
             Defines do we need to plot y_var_std, by default True
-        ratio_group : str, optional
-            Name of the ratio group this VarVsVar is compared with. The ratio group
-            allows you to compare different groups of VarVsVar within one plot.
-            By default None
         **kwargs : kwargs
             Keyword arguments passed to `PlotLineObject`
 
@@ -83,7 +78,6 @@ class VarVsVar(PlotLineObject):
         self.key = key
         self.fill = fill
         self.plot_y_std = plot_y_std
-        self.ratio_group = ratio_group
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
@@ -228,7 +222,7 @@ class VarVsVarPlot(PlotBase):
             self.set_reference(key)
 
     def set_reference(self, key: str):
-        """Setting the reference VarVsVar curves used in the ratios.
+        """Setting the reference roc curves used in the ratios.
 
         Parameters
         ----------
@@ -236,10 +230,15 @@ class VarVsVarPlot(PlotBase):
             Unique identifier of roc object
         """
         if self.reference_object is None:
-            self.reference_object = [key]
+            self.reference_object = key
         else:
-            self.reference_object.append(key)
-        logger.debug("Adding '%s' to reference VarVsVar(s)", key)
+            logger.warning(
+                "You specified a second curve %s as reference for ratio. "
+                "Using it as new reference instead of %s.",
+                key,
+                self.reference_object,
+            )
+            self.reference_object = key
 
     def plot(self, **kwargs):
         """Plotting curves.
@@ -316,46 +315,6 @@ class VarVsVarPlot(PlotBase):
             )
         return plt_handles
 
-    def get_reference_name(self, var_object: VarVsVar):
-        """Get reference VarVsVar object from list of references.
-
-        Parameters
-        ----------
-        var_object : puma.var_vs_var.VarVsVar
-            VarVsVar we want to calculate the ratio for
-
-        Returns
-        -------
-        reference_name : str, int
-            Identifier of the corresponding reference VarVsVar
-
-        Raises
-        ------
-        ValueError
-            If no reference VarVsVar was found or multiple matches.
-        """
-        matches = 0
-        reference_name = None
-
-        for key in self.reference_object:
-            reference_candidate = self.plot_objects[key]
-            if var_object.ratio_group is not None:
-                if var_object.ratio_group == reference_candidate.ratio_group:
-                    matches += 1
-                    reference_name = reference_candidate
-            else:
-                matches += 1
-                reference_name = reference_candidate
-
-        if matches != 1:
-            raise ValueError(
-                f"Found {matches} matching reference candidates, but only one match is allowed."
-            )
-
-        logger.debug("Reference var_object for '%s' is '%s'", var_object.key, reference_name.key)
-
-        return reference_name
-
     def plot_ratios(self):
         """Plotting ratio curves.
 
@@ -368,9 +327,8 @@ class VarVsVarPlot(PlotBase):
             raise ValueError("Please specify a reference curve.")
         for key in self.add_order:
             elem = self.plot_objects[key]
-            ratio, ratio_err = elem.divide(
-                other=self.get_reference_name(elem),
-                method=self.ratio_method,
+            (ratio, ratio_err) = elem.divide(
+                self.plot_objects[self.reference_object], method=self.ratio_method
             )
             error_bar = self.ratio_axes[0].errorbar(
                 elem.x_var,
