@@ -1,7 +1,7 @@
 # Changelog
 
 ### [Latest]
-
+- Fix unintended gap between the last and second-last ratio plots [!312](https://github.com/umami-hep/puma/pull/312)
 
 
 ### [v0.4.5] (2025/04/09)
