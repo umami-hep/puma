@@ -527,7 +527,7 @@ class RocPlot(PlotBase):
 
         common_ratio_ylabel_text = None
         if self.n_ratio_panels > 0:
-            if hasattr(self, 'reference_label') and self.reference_label:
+            if hasattr(self, "reference_label") and self.reference_label:
                 common_ratio_ylabel_text = f"Ratio to {self.reference_label}"
 
         if self.n_ratio_panels < 2:
@@ -554,7 +554,9 @@ class RocPlot(PlotBase):
             main_ylabel_obj = self.axis_top.yaxis.get_label()
             renderer = self.fig.canvas.get_renderer()
             main_ylabel_disp_bbox = main_ylabel_obj.get_window_extent(renderer=renderer)
-            main_ylabel_fig_bbox = main_ylabel_disp_bbox.transformed(self.fig.transFigure.inverted())
+            main_ylabel_fig_bbox = main_ylabel_disp_bbox.transformed(
+                self.fig.transFigure.inverted()
+            )
             
             fig_text_x = main_ylabel_fig_bbox.x0
             last_ratio_ax_bbox_fig = self.ratio_axes[-1].get_position()
@@ -564,11 +566,11 @@ class RocPlot(PlotBase):
                 fig_text_x,
                 fig_text_y,
                 common_ratio_ylabel_text,
-                rotation='vertical',
-                va='bottom',
-                ha='left',
+                rotation="vertical",
+                va="bottom",
+                ha="left",
                 fontsize=self.label_fontsize,
-                transform=self.fig.transFigure
+                transform=self.fig.transFigure,
             )
         
         adjust_ylabels(self.fig, self.rej_axes.values())
