@@ -523,7 +523,7 @@ class RocOutputTestCase(unittest.TestCase):
                 tol=2.5,
             )
         )
-        
+
     def test_output_ratio_labelpad(self):
         """Test for labelpad support."""
         plot = RocPlot(
