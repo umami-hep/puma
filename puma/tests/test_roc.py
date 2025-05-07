@@ -523,3 +523,52 @@ class RocOutputTestCase(unittest.TestCase):
                 tol=2.5,
             )
         )
+        
+    def test_output_ratio_labelpad(self):
+        """Test for labelpad support."""
+        plot = RocPlot(
+            n_ratio_panels=1,
+            ylabel="Light-jet rejection",
+            xlabel="$b$-jet efficiency",
+            atlas_second_tag=(
+                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
+            ),
+            y_scale=1.5,
+            # logy=False,
+        )
+
+        # Add two roc curves
+        plot.add_roc(
+            Roc(
+                self.sig_eff,
+                self.u_rej_1,
+                rej_class="ujets",
+                label="reference",
+            ),
+            reference=True,
+        )
+        plot.add_roc(
+            Roc(
+                self.sig_eff,
+                self.u_rej_2,
+                rej_class="ujets",
+                label="test",
+            )
+        )
+
+        plot.set_ratio_class(1, "ujets")
+
+        # Draw the figure
+        plot.draw(labelpad=20)
+
+        name = "test_roc_ratio_labelpad.png"
+        plot.savefig(f"{self.actual_plots_dir}/{name}")
+        # Uncomment line below to update expected image
+        # shutil.copyfile(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
+                tol=2.5,
+            )
+        )

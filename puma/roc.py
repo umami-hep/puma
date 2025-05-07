@@ -557,11 +557,14 @@ class RocPlot(PlotBase):
                 self.fig.transFigure.inverted()
             )
 
-            fig_text_x = (
-                main_ylabel_fig_bbox.x0
-                if labelpad is None
-                else main_ylabel_fig_bbox.x0 - (labelpad - 4)
-            )
+            ratio_ylabel_offset = 0
+            if labelpad:
+                fig_width_inches = self.fig.get_figwidth()
+                # The default labelpad for the axis_top is 4 points
+                ratio_ylabel_offset_inchs = (labelpad - 4) / 72
+                ratio_ylabel_offset = ratio_ylabel_offset_inchs / fig_width_inches
+
+            fig_text_x = main_ylabel_fig_bbox.x0 - ratio_ylabel_offset
             last_ratio_ax_bbox_fig = self.ratio_axes[-1].get_position()
             fig_text_y = last_ratio_ax_bbox_fig.y0
 
