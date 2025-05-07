@@ -527,7 +527,7 @@ class RocPlot(PlotBase):
 
         common_ratio_ylabel_text = None
         if self.n_ratio_panels > 0 and hasattr(self, "reference_label") and self.reference_label:
-                common_ratio_ylabel_text = f"Ratio to {self.reference_label}"
+            common_ratio_ylabel_text = f"Ratio to {self.reference_label}"
 
         if self.n_ratio_panels < 2:
             self.make_legend(plt_handles, ax_mpl=self.axis_top)
@@ -544,7 +544,7 @@ class RocPlot(PlotBase):
             # the second legend by hand
             if self.legend_flavs is not None:
                 self.legend_flavs.set_frame_on(False)
-        
+
         # Ensure the figure layout is calculated before getting extents
         self.fig.canvas.draw_idle()
 
@@ -556,8 +556,12 @@ class RocPlot(PlotBase):
             main_ylabel_fig_bbox = main_ylabel_disp_bbox.transformed(
                 self.fig.transFigure.inverted()
             )
-            
-            fig_text_x = main_ylabel_fig_bbox.x0 if labelpad is None else main_ylabel_fig_bbox.x0 - (labelpad - 4)
+
+            fig_text_x = (
+                main_ylabel_fig_bbox.x0
+                if labelpad is None
+                else main_ylabel_fig_bbox.x0 - (labelpad - 4)
+            )
             last_ratio_ax_bbox_fig = self.ratio_axes[-1].get_position()
             fig_text_y = last_ratio_ax_bbox_fig.y0
 
@@ -566,12 +570,12 @@ class RocPlot(PlotBase):
                 fig_text_y,
                 common_ratio_ylabel_text,
                 rotation="vertical",
-                va="bottom",
+                va="baseline",
                 ha="left",
                 fontsize=self.label_fontsize,
                 transform=self.fig.transFigure,
             )
-        
+
         adjust_ylabels(self.fig, self.rej_axes.values())
 
     def plot_roc(self, **kwargs) -> mpl.lines.Line2D:
