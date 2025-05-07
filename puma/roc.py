@@ -526,8 +526,7 @@ class RocPlot(PlotBase):
         self.set_ylabel(self.axis_top)
 
         common_ratio_ylabel_text = None
-        if self.n_ratio_panels > 0:
-            if hasattr(self, "reference_label") and self.reference_label:
+        if self.n_ratio_panels > 0 and hasattr(self, "reference_label") and self.reference_label:
                 common_ratio_ylabel_text = f"Ratio to {self.reference_label}"
 
         if self.n_ratio_panels < 2:
@@ -558,7 +557,7 @@ class RocPlot(PlotBase):
                 self.fig.transFigure.inverted()
             )
             
-            fig_text_x = main_ylabel_fig_bbox.x0
+            fig_text_x = main_ylabel_fig_bbox.x0 if labelpad is None else main_ylabel_fig_bbox.x0 - (labelpad - 4)
             last_ratio_ax_bbox_fig = self.ratio_axes[-1].get_position()
             fig_text_y = last_ratio_ax_bbox_fig.y0
 
