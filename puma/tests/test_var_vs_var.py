@@ -206,3 +206,54 @@ class VarVsVarPlotTestCase(unittest.TestCase):
                 tol=5,
             ),
         )
+
+    def test_get_reference_name_multiple_references(self):
+        """Testing get_reference_name ValueError for multiple references."""
+        test_plot = VarVsVarPlot(
+            ylabel=r"$\overline{N}_{trk}$",
+            xlabel=r"$p_{T}$ [GeV]",
+            grid=True,
+            logy=False,
+            atlas_second_tag="Unit test plot based on exponential decay.",
+            n_ratio_panels=1,
+            figsize=(9, 6),
+        )
+        test_plot.add(
+            VarVsVar(
+                x_var=self.x_var,
+                y_var_mean=self.y_var_mean,
+                y_var_std=self.y_var_std,
+                label=r"$10e^{-x/200}$",
+                fill=False,
+                is_marker=True,
+                ratio_group="test",
+            ),
+            reference=True,
+        )
+        test_plot.add(
+            VarVsVar(
+                x_var=self.x_var,
+                y_var_mean=self.y_var_mean,
+                y_var_std=self.y_var_std,
+                label=r"$10e^{-x/200}$",
+                fill=False,
+                is_marker=True,
+                ratio_group="test",
+            ),
+            reference=True,
+        )
+        test_plot.add(
+            VarVsVar(
+                x_var=self.x_var,
+                y_var_mean=self.y_var_mean,
+                y_var_std=self.y_var_std,
+                label=r"$10e^{-x/200}$",
+                fill=False,
+                is_marker=True,
+                ratio_group="test",
+            ),
+            reference=False,
+        )
+
+        with self.assertRaises(ValueError):
+            test_plot.draw()
