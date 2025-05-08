@@ -620,7 +620,7 @@ class Results:
     def plot_var_perf(  # pylint: disable=too-many-locals
         self,
         suffix: str | None = None,
-        xlabel: str = r"$p_{T}$ [GeV]",
+        xlabel: str = r"$p_{\mathrm{T}}$ [GeV]",
         perf_var: str = "pt",
         h_line: float | None = None,
         working_point: float | None = None,
@@ -638,7 +638,7 @@ class Results:
         suffix : str, optional
             suffix to add to output file name, by default None
         xlabel : regexp, optional
-            _description_, by default "$p_{T}$ [GeV]"
+            _description_, by default "$p_{\mathrm{T}}$ [GeV]"
         perf_var: str, optional
             The x axis variable, default is 'pt'
         h_line : float, optional
@@ -829,7 +829,7 @@ class Results:
 
         # Split the kwargs according to if they are used for the plot or the curve
         var_perf_plot_kwargs = {
-            "xlabel": r"$p_{T}$ [GeV]",
+            "xlabel": r"$p_{\mathrm{T}}$ [GeV]",
             "n_ratio_panels": 1,
             "atlas_first_tag": self.atlas_first_tag,
             "atlas_second_tag": self.atlas_second_tag,

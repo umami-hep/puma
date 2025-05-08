@@ -12,7 +12,7 @@ from ftag.hdf5 import H5Reader
 from puma import Histogram, HistogramPlot
 from puma.hlplots.tagger import Tagger
 from puma.matshow import MatshowPlot
-from puma.utils import logger
+from puma.utils import logger, get_good_linestyles
 from puma.utils.aux import get_aux_labels, get_trackOrigin_classNames
 from puma.utils.confusion_matrix import confusion_matrix
 from puma.utils.mass import calculate_vertex_mass
@@ -247,6 +247,9 @@ class AuxResults:
         vertex_match_requirement: dict | None = None,
         **kwargs,
     ):
+        # Get good linestyles for plotting
+        line_styles = get_good_linestyles()
+
         if vtx_flavours is None and no_vtx_flavours is None:
             raise ValueError(
                 "Need to specify either vtx_flavours or no_vtx_flavours (or both) to make plots."
@@ -336,7 +339,7 @@ class AuxResults:
                 y_scale=1.4,
             )
 
-            for tagger in self.taggers.values():
+            for counter, tagger in enumerate(self.taggers.values()):
                 if tagger.label not in vtx_metrics:
                     continue
                 is_flavour = tagger.is_flav(flav)
@@ -349,6 +352,7 @@ class AuxResults:
                     n_reco=vtx_metrics[tagger.label]["n_test"][is_flavour],
                     label=tagger.label,
                     colour=tagger.colour,
+                    linestyle=line_styles[counter],
                     **kwargs,
                 )
                 vtx_trk_perf = VarVsVtx(
@@ -370,6 +374,7 @@ class AuxResults:
                     ),
                     label=tagger.label,
                     colour=tagger.colour,
+                    linestyle=line_styles[counter],
                     **kwargs,
                 )
 
@@ -407,7 +412,7 @@ class AuxResults:
                 y_scale=1.4,
             )
 
-            for tagger in self.taggers.values():
+            for counter, tagger in enumerate(self.taggers.values()):
                 if tagger.label not in vtx_metrics:
                     continue
                 is_flavour = tagger.is_flav(flav)
@@ -419,6 +424,7 @@ class AuxResults:
                     n_reco=vtx_metrics[tagger.label]["n_test"][is_flavour],
                     label=tagger.label,
                     colour=tagger.colour,
+                    linestyle=line_styles[counter],
                     **kwargs,
                 )
 
