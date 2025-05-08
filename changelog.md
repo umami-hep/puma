@@ -3,6 +3,7 @@
 ### [Latest]
 
 - Adding support for ratio_group for VarVsVar plots [!311](https://github.com/umami-hep/puma/pull/311)
+- Fix unintended gap between the last and second-last ratio plots [!312](https://github.com/umami-hep/puma/pull/312)
 
 ### [v0.4.5] (2025/04/09)
 
