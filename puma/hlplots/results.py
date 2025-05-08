@@ -628,7 +628,7 @@ class Results:
         fixed_rejections: dict[Label, float] | None = None,
         **kwargs,
     ):
-        """Variable vs efficiency/rejection plot.
+        r"""Variable vs efficiency/rejection plot.
 
         You can choose between different modes: "sig_eff", "bkg_eff", "sig_rej",
         "bkg_rej"
@@ -638,7 +638,7 @@ class Results:
         suffix : str, optional
             suffix to add to output file name, by default None
         xlabel : regexp, optional
-            _description_, by default "$p_{\mathrm{T}}$ [GeV]"
+            _description_, by default "$p_{T}$ [GeV]"
         perf_var: str, optional
             The x axis variable, default is 'pt'
         h_line : float, optional
