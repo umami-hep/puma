@@ -12,7 +12,7 @@ from ftag.hdf5 import H5Reader
 from puma import Histogram, HistogramPlot
 from puma.hlplots.tagger import Tagger
 from puma.matshow import MatshowPlot
-from puma.utils import logger, get_good_linestyles
+from puma.utils import get_good_linestyles, logger
 from puma.utils.aux import get_aux_labels, get_trackOrigin_classNames
 from puma.utils.confusion_matrix import confusion_matrix
 from puma.utils.mass import calculate_vertex_mass
