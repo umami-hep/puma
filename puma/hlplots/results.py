@@ -620,7 +620,7 @@ class Results:
     def plot_var_perf(  # pylint: disable=too-many-locals
         self,
         suffix: str | None = None,
-        xlabel: str = r"$p_{T}$ [GeV]",
+        xlabel: str = r"$p_{\mathrm{T}}$ [GeV]",
         perf_var: str = "pt",
         h_line: float | None = None,
         working_point: float | None = None,
@@ -628,7 +628,7 @@ class Results:
         fixed_rejections: dict[Label, float] | None = None,
         **kwargs,
     ):
-        """Variable vs efficiency/rejection plot.
+        r"""Variable vs efficiency/rejection plot.
 
         You can choose between different modes: "sig_eff", "bkg_eff", "sig_rej",
         "bkg_rej"
@@ -829,7 +829,7 @@ class Results:
 
         # Split the kwargs according to if they are used for the plot or the curve
         var_perf_plot_kwargs = {
-            "xlabel": r"$p_{T}$ [GeV]",
+            "xlabel": r"$p_{\mathrm{T}}$ [GeV]",
             "n_ratio_panels": 1,
             "atlas_first_tag": self.atlas_first_tag,
             "atlas_second_tag": self.atlas_second_tag,
