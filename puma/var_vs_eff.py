@@ -26,6 +26,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         disc_cut: int | list | np.ndarray | None = None,
         flat_per_bin: bool = False,
         key: str | None = None,
+        bin_signal_only: bool = False,
         **kwargs,
     ) -> None:
         """Initialise properties of roc curve object.
@@ -55,6 +56,10 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             in each bin, by default False
         key : str | None, optional
             Identifier for the curve e.g. tagger, by default None
+        bin_signal_only: bool, optional
+            If true, then each x-axis bin is only over the signal variable, and fully inclusive 
+            over all backgrounds. This allows plotting performance for variables which are only present
+            in signal, e.g. hadron decay length
         **kwargs : kwargs
             Keyword arguments passed to `PlotLineObject`
 
@@ -106,6 +111,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         self.working_point = working_point
         self.disc_cut = disc_cut
         self.flat_per_bin = flat_per_bin
+        self.bin_signal_only = bin_signal_only
         # Binning related variables
         self.n_bins = None
         self.bn_edges = None
@@ -168,8 +174,12 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         if isinstance(bins, int):
             # With this implementation, the data point with x=xmax will be added to the
             # overflow bin.
+            if np.isnan(self.x_var_sig).any():
+                logger.warning("x_var_sig contains NaN values. Removing them.")
+                self.x_var_sig = self.x_var_sig[~np.isnan(self.x_var_sig)]
+            
             xmin, xmax = np.amin(self.x_var_sig), np.amax(self.x_var_sig)
-            if self.x_var_bkg is not None:
+            if self.x_var_bkg is not None and not self.bin_signal_only:
                 xmin = min(xmin, np.amin(self.x_var_bkg))
                 xmax = max(xmax, np.amax(self.x_var_bkg))
             # increasing xmax slightly to inlcude largest value due to hehavior of
@@ -177,7 +187,8 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             xmax *= 1 + 1e-5
             self.bin_edges = np.linspace(xmin, xmax, bins + 1)
         elif isinstance(bins, (list, np.ndarray)):
-            self.bin_edges = np.array(bins)
+            self.bin_edges = np.array([float(b) for b in bins])
+
         logger.debug("Retrieved bin edges %s}", self.bin_edges)
         # Get the bins for the histogram
         self.x_bin_centres = (self.bin_edges[:-1] + self.bin_edges[1:]) / 2.0
@@ -198,11 +209,19 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             for x in range(1, len(self.bin_edges))
         ]
         if self.x_var_bkg is not None:
-            self.bin_indices_bkg = np.digitize(self.x_var_bkg, self.bin_edges)
-            self.disc_binned_bkg = [
-                self.disc_bkg[np.where(self.bin_indices_bkg == x)[0]]
-                for x in range(1, len(self.bin_edges))
-            ]
+            if self.bin_signal_only:
+                assert self.working_point is not None, "Working point must be set if bin_signal_only is True"
+            
+                self.signal_disc_wp_cut = [
+                    np.percentile(d, (1 - self.working_point) * 100) if len(d) > 0 else 999
+                    for d in self.disc_binned_sig 
+                ]
+            else:
+                self.bin_indices_bkg = np.digitize(self.x_var_bkg, self.bin_edges)
+                self.disc_binned_bkg = [
+                    self.disc_bkg[np.where(self.bin_indices_bkg == x)[0]]
+                    for x in range(1, len(self.bin_edges))
+                ]
 
     def _get_disc_cuts(self):
         """Retrieve cut values on discriminant. If `disc_cut` is not given, retrieve
@@ -215,7 +234,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             self.disc_cut = self.disc_cut
         elif self.flat_per_bin:
             self.disc_cut = [
-                np.percentile(x, (1 - self.working_point) * 100) for x in self.disc_binned_sig
+                np.percentile(x[~np.isnan(x)], (1 - self.working_point) * 100) if len(x) > 0 else 999 for x in self.disc_binned_sig
             ]
         elif isinstance(self.working_point, (list, np.ndarray)):
             self.disc_cut = np.column_stack((
@@ -373,7 +392,15 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             Rejection_error
         """
         logger.debug("Calculating background rejection.")
-        rej = list(map(self.rejection, self.disc_binned_bkg, self.disc_cut))
+
+        if self.bin_signal_only:
+            rej = list([
+                self.rejection(self.disc_bkg, self.signal_disc_wp_cut[x])
+                for x in range(0, len(self.bin_edges)-1)
+            ])
+
+        else:
+            rej = list(map(self.rejection, self.disc_binned_bkg, self.disc_cut))
         logger.debug("Retrieved background rejections: %s", rej)
         return np.array(rej)[:, 0], np.array(rej)[:, 1]
 
@@ -494,6 +521,7 @@ class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
         working_point=None,
         disc_cut=None,
         flat_per_bin=False,
+        bin_signal_only=False,
     ):
         """Modifies the atlas_second_tag to include info on the type of p-eff plot
         being displayed.
@@ -510,6 +538,8 @@ class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
         elif disc_cut:
             mid_str = rf"$D_{{{signal.name.rstrip('jets')}}}$ > {disc_cut}"
         tag = f"Flat {mid_str} per bin" if flat_per_bin else f"{mid_str}"
+        if bin_signal_only:
+            tag += f"\nPerformance vs binned {signal.name} Variable"
         if self.atlas_second_tag:
             self.atlas_second_tag = f"{self.atlas_second_tag}\n{tag}"
         else:

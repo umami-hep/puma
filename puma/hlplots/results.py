@@ -10,7 +10,8 @@ from ftag import Cuts, Flavours, Label
 from ftag.hdf5 import H5Reader
 from ftag.utils import calculate_efficiency, calculate_rejection
 from matplotlib.figure import Figure
-
+import h5py
+import puma.regression as regu
 from puma import (
     Histogram,
     HistogramPlot,
@@ -20,6 +21,8 @@ from puma import (
     RocPlot,
     VarVsEff,
     VarVsEffPlot,
+    VarVsVar,
+    VarVsVarPlot,
     fraction_scan,
 )
 from puma.hlplots.tagger import Tagger
@@ -39,12 +42,16 @@ class Results:
     atlas_third_tag: str = None
     taggers: dict = field(default_factory=dict)
     perf_vars: str | tuple | list = "pt"
+    regression_preds : str | tuple | list = None
     output_dir: str | Path = "."
     extension: str = "pdf"
     global_cuts: Cuts | list | None = None
     num_jets: int | None = None
     remove_nan: bool = False
+    ignore_nan: bool = False 
     label_var: str = "HadronConeExclTruthLabelID"
+    all_flavours : list | None = None
+    additional_vars : list | None = None
 
     def __post_init__(self):
         self.set_signal(self.signal)
@@ -61,6 +68,9 @@ class Results:
             "roc": self.plot_rocs,
             "peff": self.plot_var_perf,
             "scan": self.plot_fraction_scans,
+            "regression_median_sigma" : self.plot_regression_median_sigma,
+            "regression_binned" : self.plot_regression_response_binned
+
         }
         self.saved_plots = []
 
@@ -81,8 +91,12 @@ class Results:
             signal = Flavours[signal]
         self.signal = signal
 
-        # Get the full flavours from the category chosen
-        self.backgrounds = [*Flavours.by_category(self.category).backgrounds(self.signal)]
+        if self.all_flavours:
+            assert signal.name in self.all_flavours, f"All flavours is defined, but signal {signal} not found in it!"
+            self.backgrounds = [Flavours[f] for f in self.all_flavours if f != signal.name]
+        else:
+            # Get the full flavours from the category chosen
+            self.backgrounds = [*Flavours.by_category(self.category).backgrounds(self.signal)]
 
     @property
     def sig_str(self):
@@ -205,6 +219,11 @@ class Results:
                         f"{np.sum(~mask)} NaN values found in loaded data. Removing" " them."
                     )
                     return data[mask]
+                elif self.ignore_nan:
+                    logger.warning(
+                        f"{np.sum(~mask)} NaN values found in loaded data. Ignoring them."
+                    )
+                    return data
                 raise ValueError(f"{np.sum(~mask)} NaN values found in loaded data.")
             return data
 
@@ -223,6 +242,22 @@ class Results:
 
         # load data
         reader = H5Reader(file_path, precision="full")
+        maybe_var_list = []
+        for tagger in taggers:
+            if self.regression_preds:
+                tagger.regression_preds = {}
+                for pred in self.regression_preds:
+                    reg_str = f"{tagger.name}_{pred}"
+                    maybe_var_list += [reg_str]
+        h5vars = h5py.File(reader.readers[0].fname, 'r')[key].dtype.names
+        print("maybe var list", maybe_var_list)
+        maybe_var_list = list(set([v for v in maybe_var_list if v in h5vars]))
+        print(h5vars)
+        print(maybe_var_list)
+        var_list += maybe_var_list
+        print('var list!', var_list)
+        if self.additional_vars:
+            var_list += self.additional_vars
         data = reader.load({key: var_list}, num_jets)[key]
 
         # check for nan values
@@ -255,7 +290,15 @@ class Results:
                         tagger.perf_vars[perf_var] = sel_data[perf_var]
             else:
                 tagger.perf_vars = sel_perf_vars
-
+            if self.regression_preds:
+                tagger.regression_preds = {}
+                for pred in self.regression_preds:
+                    reg_str = f"{tagger.name}_{pred}"
+                    print("lol!", var_list)
+                    if reg_str in sel_data.dtype.names:
+                        tagger.regression_preds[pred] = sel_data[reg_str]
+                    
+            
     def __getitem__(self, tagger_name: str):
         """Retrieve Tagger object.
 
@@ -494,7 +537,7 @@ class Results:
             hist.draw_vlines(wp_cuts, labels=wp_labels, linestyle=line_styles[counter])
 
             # Loop over the flavours and add the disc values for each flavour
-            for flav in self.backgrounds:
+            for flav in self.backgrounds + [self.signal]:
                 if flav in tagger.output_flavours:
                     hist.add(
                         Histogram(
@@ -593,7 +636,6 @@ class Results:
                     sig_effs,
                     smooth=True,
                 )
-
                 # Add the rejection curve to the ROC plot
                 roc.add_roc(
                     Roc(
@@ -626,6 +668,7 @@ class Results:
         working_point: float | None = None,
         disc_cut: float | None = None,
         fixed_rejections: dict[Label, float] | None = None,
+        bin_signal_only : bool = False,
         **kwargs,
     ):
         """Variable vs efficiency/rejection plot.
@@ -652,6 +695,10 @@ class Results:
         fixed_rejections: dict[Flavour, float]
             Show signal efficiency as a function of fixed background rejection. Only one
             out of [working_point, disc_cut, fixed_rejections] can be set
+        signal_only: bool, optional
+            If true, then each x-axis bin is only over the signal variable, and fully inclusive 
+            over all backgrounds. This allows plotting performance for variables which are only present
+            in signal, e.g. hadron decay length
         **kwargs : kwargs
             key word arguments for `puma.VarVsEff`
         """
@@ -696,20 +743,23 @@ class Results:
         plot_sig_eff = VarVsEffPlot(
             mode="sig_eff", ylabel=self.signal.eff_str, **var_perf_plot_kwargs
         )
-
+        if bin_signal_only:
+            assert kwargs.get("flat_per_bin", False) == True, "To bin over only variables in signal, flat_per_bin must be set to True"
         # Adapt the atlas second tag
         plot_sig_eff.apply_modified_atlas_second_tag(
             self.signal,
             working_point=working_point,
             disc_cut=disc_cut,
             flat_per_bin=kwargs.get("flat_per_bin", False),
+            bin_signal_only=bin_signal_only,
         )
 
         # Init new list for background plots
         plot_bkg = []
-
+        print("DOING ", perf_var)
         # Loop over all backgrounds
         for background in self.backgrounds:
+            # if bin_signal_only: continue
             # Init and append new background plot to the list
             plot_bkg.append(
                 VarVsEffPlot(mode="bkg_rej", ylabel=background.rej_str, **var_perf_plot_kwargs)
@@ -721,6 +771,7 @@ class Results:
                 working_point=working_point,
                 disc_cut=disc_cut,
                 flat_per_bin=kwargs.get("flat_per_bin", False),
+                bin_signal_only=bin_signal_only,
             )
 
         # Loop over the given taggers
@@ -741,6 +792,7 @@ class Results:
                     colour=tagger.colour,
                     working_point=working_point,
                     disc_cut=disc_cut,
+                    bin_signal_only=bin_signal_only,
                     **kwargs,
                 ),
                 reference=tagger.reference,
@@ -748,6 +800,7 @@ class Results:
 
             # Loop over the background plots and add the variables
             for counter, background in enumerate(self.backgrounds):
+
                 is_bkg = tagger.is_flav(background)
                 plot_bkg[counter].add(
                     VarVsEff(
@@ -759,6 +812,7 @@ class Results:
                         colour=tagger.colour,
                         working_point=working_point,
                         disc_cut=disc_cut,
+                        bin_signal_only=bin_signal_only,
                         **kwargs,
                     ),
                     reference=tagger.reference,
@@ -1082,6 +1136,257 @@ class Results:
         # Draw and save the plot
         plot.draw()
         self.save(plot, "scan", "fraction_scan", suffix)
+
+    def plot_regression_median_sigma(
+        self,
+        truth_variable : str,
+        tagger_prediction_name : str,
+        global_predictions : list[str] | None = None,
+        exclude_taggers : list[str] | None = None,
+        xvariable : str | None = None,
+        xlabel : str | None = None,
+        prediction_name : str | None = None,
+        bins : int | list | np.array = 10,
+        pred_scale = 1e-3,
+        truth_scale = 1.0,
+        suffix : str | None = None,
+        **kwargs
+        ):
+        import puma.regression as reg
+        if not xvariable:
+            xvariable = truth_variable
+        if not xlabel:
+            xlabel = xvariable
+        if not prediction_name:
+            prediction_name = truth_variable
+
+        if exclude_taggers:
+            taggers = {k: v for k, v in self.taggers.items() if k not in exclude_taggers}
+        else:
+            taggers = self.taggers
+
+        t0 = next(iter(taggers))
+        t0nan_mask = np.isnan(self.taggers[t0].perf_vars[truth_variable])
+        # Can only perform regression plots if all results are over the same jets
+        assert all(
+            (taggers[t0].perf_vars[truth_variable][~t0nan_mask] == taggers[k].perf_vars[truth_variable][~t0nan_mask]).all()
+            for k in self.taggers.keys()
+        ),  "For regression plots must use exact same input jets"
+        global_preds = {truth_variable : taggers[t0].perf_vars[truth_variable]}
+        
+        if global_predictions:
+            for gp in global_predictions:
+                global_preds[gp] = taggers[t0].perf_vars[gp]
+
+        tagger_preds = {
+            t : taggers[t].regression_preds[tagger_prediction_name]
+            for t in taggers
+        }
+
+
+        xvalues = taggers[t0].perf_vars[xvariable]
+        if isinstance(bins, int):
+            bins = np.linspace(
+                np.nanmin(xvalues),
+                np.nanmax(xvalues),
+                bins + 1
+            )
+        elif isinstance(bins, list):
+            bins = np.array(bins)
+        elif not isinstance(bins, np.ndarray):
+            raise ValueError("bins must be int, list or np.ndarray")
+
+        all_preds = {
+            **global_preds,
+            **tagger_preds
+        }
+        issig = np.zeros_like(xvalues, dtype=bool)
+        issig[taggers[t0].is_flav(self.signal)] = True
+        mask = issig & (~t0nan_mask)
+        print(taggers[t0].labels[mask].shape)
+
+        xvalues = xvalues[mask]
+        all_preds = {k : v[mask] for k, v in all_preds.items()}
+        all_medians = {p : np.zeros((len(bins) - 1, 2)) for p in all_preds}
+        all_sigmas = {p : np.zeros((len(bins) - 1, 2)) for p in all_preds}
+
+        for b, (blower, bhigher) in enumerate(zip(bins[:-1], bins[1:])):
+
+            xbinmask = (xvalues >= blower) & (xvalues < bhigher)
+            truth_values = all_preds[truth_variable][xbinmask] * truth_scale
+
+
+            for p in all_preds:
+                scale = pred_scale if p in taggers else 1
+                pred_values = all_preds[p][xbinmask]
+                if len(truth_values) == 0 or len(pred_values) == 0:
+                    continue
+
+                response = (pred_values * scale) / truth_values
+                median, sigma = reg.get_mean_and_width(response, method="quantile_relative")
+                med_unc, sig_unc = reg.bootstrap_uncertainties(response, reg.get_mean_and_width, n_subsamples=10)
+                all_medians[p][b, 0] = median
+                all_medians[p][b, 1] = med_unc
+                all_sigmas[p][b, 0] = sigma
+                all_sigmas[p][b, 1] = sig_unc
+
+        bin_centres = (np.array(bins[:-1]) + np.array(bins[1:]))/2
+        bin_widths = np.array(bins[1:]) - np.array(bins[:-1])
+        plot_median = VarVsVarPlot(
+            ylabel=f"Median {self.signal.name} {prediction_name} Response",
+            xlabel=xlabel,
+            n_ratio_panels=1,
+            **kwargs,
+        )
+        plot_sigma = VarVsVarPlot(
+            ylabel=f"Median {self.signal.name} {prediction_name} Sigma",
+            xlabel=xlabel,
+            n_ratio_panels=1,
+            **kwargs
+        )
+        for p in all_preds:                
+            m = VarVsVar(
+                bin_centres,
+                all_medians[p][:, 0],
+                all_medians[p][:, 1],
+                bin_widths,
+                plot_y_std=False,
+                label=p
+            )
+            plot_median.add(m, reference = p==truth_variable)
+            s = VarVsVar(
+                bin_centres,
+                all_sigmas[p][:, 0],
+                all_sigmas[p][:, 1],
+                bin_widths,
+                plot_y_std=False,
+                label=p
+            )
+            plot_sigma.add(s, reference = p==truth_variable)
+        
+        plot_median.draw()
+        plot_sigma.draw()
+        suffix = f"_{suffix}" if suffix else ""
+        self.save(plot_median, "regression/median", "median", suffix)
+        self.save(plot_sigma, "regression/sigma", "sigma", suffix)
+        
+    def plot_regression_response_binned(
+        self,
+        truth_variable : str,
+        tagger_prediction_name : str,
+        global_predictions : list[str] | None = None,
+        exclude_taggers : list[str] | None = None,
+        xvariable : str | None = None,
+        xlabel : str | None = None,
+        prediction_name : str | None = None,
+        bins : int | list | np.array = 10,
+        pred_scale = 1e-3,
+        truth_scale = 1.0,
+        suffix : str | None = None,
+        mean_std_method='quantile',
+        **kwargs
+    ):
+        from scipy.stats import kurtosis
+        if not xvariable:
+            xvariable = truth_variable
+        if not xlabel:
+            xlabel = xvariable
+        if not prediction_name:
+            prediction_name = truth_variable
+
+        if exclude_taggers:
+            taggers = {k: v for k, v in self.taggers.items() if k not in exclude_taggers}
+        else:
+            taggers = self.taggers
+
+        t0 = next(iter(taggers))
+        t0nan_mask = np.isnan(self.taggers[t0].perf_vars[truth_variable])
+        # Can only perform regression plots if all results are over the same jets
+        assert all(
+            (taggers[t0].perf_vars[truth_variable][~t0nan_mask] == taggers[k].perf_vars[truth_variable][~t0nan_mask]).all()
+            for k in self.taggers.keys()
+        ),  "For regression plots must use exact same input jets"
+        global_preds = {truth_variable : taggers[t0].perf_vars[truth_variable]}
+        
+        if global_predictions:
+            for gp in global_predictions:
+                global_preds[gp] = taggers[t0].perf_vars[gp]
+
+        tagger_preds = {
+            t : taggers[t].regression_preds[tagger_prediction_name]
+            for t in taggers
+        }
+
+
+        xvalues = taggers[t0].perf_vars[xvariable]
+        if isinstance(bins, int):
+            bins = np.linspace(
+                np.nanmin(xvalues),
+                np.nanmax(xvalues),
+                bins + 1
+            )
+        elif isinstance(bins, list):
+            bins = np.array(bins)
+        elif not isinstance(bins, np.ndarray):
+            raise ValueError("bins must be int, list or np.ndarray")
+
+        all_preds = {
+            **global_preds,
+            **tagger_preds
+        }
+        issig = np.zeros_like(xvalues, dtype=bool)
+        issig[taggers[t0].is_flav(self.signal)] = True
+        mask = issig & (~t0nan_mask)
+        print(taggers[t0].labels[mask].shape)
+
+        xvalues = xvalues[mask]
+        all_preds = {k : v[mask] for k, v in all_preds.items()}
+        all_medians = {p : np.zeros((len(bins) - 1, 2)) for p in all_preds}
+        all_sigmas = {p : np.zeros((len(bins) - 1, 2)) for p in all_preds}
+
+        for b, (blower, bhigher) in enumerate(zip(bins[:-1], bins[1:])):
+            xbinmask = (xvalues >= blower) & (xvalues < bhigher)
+            truth_values = all_preds[truth_variable][xbinmask] * truth_scale
+            binned_plot = HistogramPlot(
+                ylabel="Normalized Count",
+                xlabel="Response",
+                bins = np.linspace(0.0, 2.0, 50),
+                n_ratio_panels=0,
+                atlas_first_tag=self.atlas_first_tag,
+                atlas_second_tag=self.atlas_second_tag + f"\n{self.signal.name} {blower:.2f} < {xlabel} < {bhigher:.2f}",
+                
+                **kwargs,
+            )
+
+            for p in all_preds:
+                if p == truth_variable:
+                    continue
+                scale = pred_scale if p in taggers else 1
+                pred_values = all_preds[p][xbinmask]
+                if len(truth_values) == 0 or len(pred_values) == 0:
+                    continue
+
+                response = (pred_values * scale) / truth_values
+                mean, width = regu.get_mean_and_width(response, method=mean_std_method)
+                k = kurtosis(pred_values)
+                label = f"{p}\n{mean:.2f}, {width:.2f}, {k:.2f}"
+                binned_plot.add(
+                    Histogram(
+                        response,
+                        label=label,
+                    )
+                )
+            binned_plot.draw()
+            binned_plot.axis_top.vlines(
+                1.0,
+                ymin=0,
+                ymax=binned_plot.axis_top.get_ylim()[1],
+                color="red",
+                linestyle="--",
+            )
+            self.save(binned_plot, "regression/response", f"response_{blower:.2f}_{bhigher:.2f}", suffix)
+
+
 
     def make_plot(self, plot_type: str, kwargs: dict):
         """Make a plot.
