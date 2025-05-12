@@ -31,11 +31,34 @@ plot_histo = HistogramPlot(
     atlas_second_tag="Example for more general plot",
     figsize=(6, 5),
     n_ratio_panels=1,
+    bin_array_path="plot_histo_example.pkl",
 )
 
 # Add histograms and plot
-plot_histo.add(expectation_hist, reference=True)
-plot_histo.add(measurement_hist)
-plot_histo.draw()
+plot_histo.add(expectation_hist, key="expectation", reference=True)
+plot_histo.add(measurement_hist, key="measurement")
 
+plot_histo.draw()
 plot_histo.savefig("histogram_basic_example.png", transparent=False)
+
+# Using the stored lines from plot_histo_example.pkl to plot again
+plot_hist_from_file = HistogramPlot(
+    ylabel="Number of events",
+    xlabel="Invariant mass $m$ [a.u.]",
+    logy=False,
+    bins=50,
+    bins_range=(1.1, 4),
+    norm=False,
+    atlas_first_tag="Simulation Internal",
+    atlas_second_tag="Example of a plot loaded from file",
+    figsize=(6, 5),
+    n_ratio_panels=1,
+    bin_array_path="plot_histo_example.pkl",
+)
+
+# Add histograms and plot
+plot_hist_from_file.add(key="expectation", reference=True)
+plot_hist_from_file.add(key="measurement")
+
+plot_hist_from_file.draw()
+plot_hist_from_file.savefig("histogram_basic_example_from_pickle.png", transparent=False)

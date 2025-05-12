@@ -92,9 +92,10 @@ plot_bkg_rej = VarVsEffPlot(
     logy=False,
     atlas_second_tag="$\\sqrt{s}=13$ TeV, dummy jets \ndummy sample, $f_{c}=0.018$",
     n_ratio_panels=1,
+    bin_array_path="plot_VarVsEff_example.pkl",
 )
-plot_bkg_rej.add(rnnip_light, reference=True)
-plot_bkg_rej.add(dips_light)
+plot_bkg_rej.add(rnnip_light, key="rnnip_ujets", reference=True)
+plot_bkg_rej.add(dips_light, key="dips_ujets")
 
 plot_bkg_rej.draw()
 plot_bkg_rej.savefig("pt_light_rej.png")
@@ -107,8 +108,8 @@ plot_sig_eff = VarVsEffPlot(
     atlas_second_tag="$\\sqrt{s}=13$ TeV, dummy jets, \ndummy sample, $f_{c}=0.018$",
     n_ratio_panels=1,
 )
-plot_sig_eff.add(rnnip_light, reference=True)
-plot_sig_eff.add(dips_light)
+plot_sig_eff.add(rnnip_light, key="rnnip_bjets", reference=True)
+plot_sig_eff.add(dips_light, key="dips_bjets")
 
 plot_sig_eff.atlas_second_tag += "\nInclusive $\\epsilon_b=70\\%$"
 
@@ -118,3 +119,20 @@ plot_sig_eff.draw()
 # Drawing a hline indicating inclusive efficiency
 plot_sig_eff.draw_hline(0.7)
 plot_sig_eff.savefig("pt_b_eff.png", transparent=False)
+
+
+# Plot again the background rejection, but this time using the pickle file
+plot_bkg_rej_from_file = VarVsEffPlot(
+    mode="bkg_rej",
+    ylabel="Light-flavour jets rejection",
+    xlabel=r"$p_{T}$ [GeV]",
+    logy=False,
+    atlas_second_tag="Example plot from pickle file",
+    n_ratio_panels=1,
+    bin_array_path="plot_VarVsEff_example.pkl",
+)
+plot_bkg_rej_from_file.add(key="rnnip_ujets", reference=True)
+plot_bkg_rej_from_file.add(key="dips_ujets")
+
+plot_bkg_rej_from_file.draw()
+plot_bkg_rej_from_file.savefig("pt_light_rej_from_pickle_file.png")
