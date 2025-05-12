@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pickle
+
 import matplotlib as mpl
 import numpy as np
 import pandas as pd
@@ -123,9 +125,15 @@ class Line2DPlot(PlotBase):
 
         self.initialise_figure()
 
+        # Check if a pickle file is given for the plot
+        if self.bin_array_path and self.bin_array_path.is_file():
+            # Load the pickle file
+            with open(self.bin_array_path, "rb") as f:
+                self.plot_objects = pickle.load(f)
+
     def add(
         self,
-        curve: object,
+        curve: Line2D | None = None,
         key: str | None = None,
         is_marker: bool = False,
     ):
@@ -133,8 +141,9 @@ class Line2DPlot(PlotBase):
 
         Parameters
         ----------
-        curve : puma.line_plot_2D.Line2D
-            Line2D object
+        curve : puma.line_plot_2D.Line2D, , optional
+            Line2D object. Need to be provided if no bin array file was given when the
+            plot was initialised. By default None
         key : str, optional
             Unique identifier for the curve, by default None
         is_marker : bool, optional
@@ -142,12 +151,22 @@ class Line2DPlot(PlotBase):
 
         Raises
         ------
+        ValueError
+            If no Line2D is provided and no bin array file was used in the creation
+            of the plot instance
         KeyError
             If unique identifier key is used twice
         """
         # If key not defined, set it to a numerical value
         if key is None:
             key = len(self.plot_objects) + 1
+
+        # Check if the Line2D objects are loaded from file
+        if self.bin_array_path and self.bin_array_path.is_file():
+            curve = self.plot_objects[key]
+
+        elif curve is None:
+            raise ValueError("No Line2D provided for addition!")
 
         # Check that key is not double used
         if key in self.plot_objects:
@@ -241,6 +260,12 @@ class Line2DPlot(PlotBase):
             )
 
         self.plotting_done = True
+
+        # If a pickle filepath is given and the file doesn't exist, create it and dump the data
+        if self.bin_array_path and not self.bin_array_path.is_file():
+            with open(self.bin_array_path, "wb") as f:
+                pickle.dump(self.plot_objects, f)
+
         return plt_handles
 
     def draw(self):

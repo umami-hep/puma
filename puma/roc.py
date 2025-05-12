@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pickle
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -207,6 +209,7 @@ class RocPlot(PlotBase):
         super().__init__(grid=grid, **kwargs)
         self.test = ""
         self.rocs = {}
+        self.add_order = []
         self.roc_ratios = {}
         self.rej_axes = {}
         self.rej_class_ls = {}
@@ -220,9 +223,15 @@ class RocPlot(PlotBase):
         self.legend_flavs = None
         self.rej_leg_loc = "ratio" if kwargs["n_ratio_panels"] > 0 else "lower left"
 
+        # Check if a pickle file is given for the plot
+        if self.bin_array_path and self.bin_array_path.is_file():
+            # Load the pickle file
+            with open(self.bin_array_path, "rb") as f:
+                self.rocs = pickle.load(f)
+
     def add_roc(
         self,
-        roc_curve: object,
+        roc_curve: Roc | None,
         key: str | None = None,
         reference: bool = False,
     ):
@@ -231,7 +240,8 @@ class RocPlot(PlotBase):
         Parameters
         ----------
         roc_curve : puma.Roc
-            ROC curve
+            ROC curve. Needs to be set if no bin array file is given when the
+            plot instance is created. By default None
         key : str, optional
             Unique identifier for roc_curve, by default None
         reference : bool, optional
@@ -239,15 +249,28 @@ class RocPlot(PlotBase):
 
         Raises
         ------
+        ValueError
+            If no ROC is provided and no bin array file was used in the creation
+            of the plot instance
         KeyError
             If unique identifier key is used twice
         """
         if key is None:
             key = len(self.rocs) + 1
-        if key in self.rocs:
-            raise KeyError(f"Duplicated key {key} already used for roc unique identifier.")
 
-        self.rocs[key] = roc_curve
+        if self.bin_array_path and self.bin_array_path.is_file():
+            roc_curve = self.rocs[key]
+
+        elif roc_curve is None:
+            raise ValueError("No ROC curve provided for addition!")
+
+        elif key in self.rocs:
+            raise KeyError(f"Duplicated key! {key} already used as unique identifier.")
+
+        # Add key to VarVsVar object
+        roc_curve.key = key
+        logger.debug("Adding ROC %s", key)
+
         # set linestyle
         if roc_curve.rej_class not in self.rej_class_ls:
             self.rej_class_ls[roc_curve.rej_class] = (
@@ -286,6 +309,8 @@ class RocPlot(PlotBase):
         if roc_curve.colour is None:
             roc_curve.colour = self.label_colours[roc_curve.label]
 
+        self.rocs[key] = roc_curve
+        self.add_order.append(key)
         if reference:
             logger.debug("Setting roc %s as reference for %s.", key, roc_curve.rej_class)
             self.set_roc_reference(key, roc_curve.rej_class, roc_curve.ratio_group)
@@ -595,7 +620,10 @@ class RocPlot(PlotBase):
             matplotlib Line2D object
         """
         plt_handles = []
-        for key, elem in self.rocs.items():
+
+        for key in self.add_order:
+            elem = self.rocs[key]
+
             plt_handles = plt_handles + self.axis_top.plot(
                 elem.sig_eff[elem.non_zero_mask],
                 elem.bkg_rej[elem.non_zero_mask],
@@ -624,4 +652,10 @@ class RocPlot(PlotBase):
                     edgecolor="none",
                     zorder=2,
                 )
+
+        # If a pickle filepath is given and the file doesn't exist, create it and dump the data
+        if self.bin_array_path and not self.bin_array_path.is_file():
+            with open(self.bin_array_path, "wb") as f:
+                pickle.dump(self.rocs, f)
+
         return plt_handles

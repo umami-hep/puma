@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pickle
+
 import matplotlib as mpl
 import numpy as np
 import pandas as pd
@@ -314,9 +316,15 @@ class HistogramPlot(PlotBase):
             raise ValueError("Not more than one ratio panel supported.")
         self.initialise_figure()
 
+        # Check if a pickle file is given for the plot
+        if self.bin_array_path and self.bin_array_path.is_file():
+            # Load the pickle file
+            with open(self.bin_array_path, "rb") as f:
+                self.plot_objects = pickle.load(f)
+
     def add(
         self,
-        histogram: Histogram,
+        histogram: Histogram | None = None,
         key: str | None = None,
         reference: bool = False,
     ):
@@ -324,23 +332,35 @@ class HistogramPlot(PlotBase):
 
         Parameters
         ----------
-        histogram : Histogram class
-            Histogram curve
-        key : str, optional
-            Unique identifier for histogram, by default None
+        histogram : Histogram class, optional
+            Histogram curve. Need to be provided if no bin array file was given when the
+            plot was initialised. By default None
+        key : str
+            Unique identifier for histogram. Should be set when saving/loading the bin arrays.
+            Otherwise, the order is not changeable later. By default None
         reference : bool, optional
             If this histogram is used as reference for ratio calculation, by default
             False
 
         Raises
         ------
+        ValueError
+            If no Histogram is provided and no bin array file was used in the creation
+            of the plot instance
         KeyError
             If unique identifier key is used twice
         """
         if key is None:
             key = len(self.plot_objects) + 1
-        if key in self.plot_objects:
-            raise KeyError(f"Duplicated key {key} already used for unique identifier.")
+
+        if self.bin_array_path and self.bin_array_path.is_file():
+            histogram = self.plot_objects[key]
+
+        elif histogram is None:
+            raise ValueError("No Histogram provided for addition!")
+
+        elif key in self.plot_objects:
+            raise KeyError(f"Duplicated key! {key} already used as unique identifier.")
 
         # Add key to histogram object
         histogram.key = key
@@ -616,6 +636,11 @@ class HistogramPlot(PlotBase):
                     hatch="/////",
                 )
             )
+
+        # If a pickle filepath is given and the file doesn't exist, create it and dump the data
+        if self.bin_array_path and not self.bin_array_path.is_file():
+            with open(self.bin_array_path, "wb") as f:
+                pickle.dump(self.plot_objects, f)
 
         if self.discrete_vals is not None:
             self.bins = bins

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pickle
+
 import matplotlib as mpl
 import numpy as np
 from matplotlib.patches import Rectangle
@@ -167,13 +169,25 @@ class VarVsVarPlot(PlotBase):
         self.ratio_method = ratio_method
         self.initialise_figure()
 
-    def add(self, curve: VarVsVar, key: str | None = None, reference: bool = False):
+        # Check if a pickle file is given for the plot
+        if self.bin_array_path and self.bin_array_path.is_file():
+            # Load the pickle file
+            with open(self.bin_array_path, "rb") as f:
+                self.plot_objects = pickle.load(f)
+
+    def add(
+        self,
+        curve: VarVsVar | None = None,
+        key: str | None = None,
+        reference: bool = False,
+    ):
         """Adding VarVsVar object to figure.
 
         Parameters
         ----------
-        curve : VarVsVar class
-            VarVsVar curve
+        curve : VarVsVar class, optional
+            VarVsVar curve. Need to be provided if no bin array file was given when the
+            plot was initialised. By default None
         key : str, optional
             Unique identifier for VarVsVar curve, by default None
         reference : bool, optional
@@ -181,22 +195,34 @@ class VarVsVarPlot(PlotBase):
 
         Raises
         ------
+        ValueError
+            If no VarVsVar is provided and no bin array file was used in the creation
+            of the plot instance
         KeyError
             If unique identifier key is used twice
         """
         if key is None:
             key = len(self.plot_objects) + 1
-        if key in self.plot_objects:
-            raise KeyError(f"Duplicated key {key} already used for unique identifier.")
 
-        self.plot_objects[key] = curve
-        self.add_order.append(key)
+        if self.bin_array_path and self.bin_array_path.is_file():
+            curve = self.plot_objects[key]
+
+        elif curve is None:
+            raise ValueError("No VarVsVar provided for addition!")
+
+        elif key in self.plot_objects:
+            raise KeyError(f"Duplicated key! {key} already used as unique identifier.")
+
+        # Add key to VarVsVar object
+        curve.key = key
+        logger.debug("Adding VarVsVar %s", key)
+
         # set linestyle
         if curve.linestyle is None:
             curve.linestyle = "-"
         # set colours
         if curve.colour is None:
-            curve.colour = get_good_colours()[len(self.plot_objects) - 1]
+            curve.colour = get_good_colours()[len(self.plot_objects)]
         # set alpha
         if curve.alpha is None:
             curve.alpha = 0.8
@@ -223,6 +249,8 @@ class VarVsVarPlot(PlotBase):
         self.x_var_min = min(self.x_var_min, np.sort(left_edge)[0])
         self.x_var_max = max(self.x_var_max, np.sort(right_edge)[-1])
 
+        self.plot_objects[key] = curve
+        self.add_order.append(key)
         if reference:
             logger.debug("Setting roc %s as reference.", key)
             self.set_reference(key)
@@ -314,6 +342,12 @@ class VarVsVarPlot(PlotBase):
                     markersize=elem.markersize,
                 )
             )
+
+        # If a pickle filepath is given and the file doesn't exist, create it and dump the data
+        if self.bin_array_path and not self.bin_array_path.is_file():
+            with open(self.bin_array_path, "wb") as f:
+                pickle.dump(self.plot_objects, f)
+
         return plt_handles
 
     def get_reference_name(self, var_object: VarVsVar):

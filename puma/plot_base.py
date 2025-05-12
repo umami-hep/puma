@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import tkinter as tk
 from dataclasses import dataclass
+from pathlib import Path
 
 import atlasify
 from IPython import get_ipython
@@ -147,6 +148,10 @@ class PlotObject:
     plotting_done : bool
         Bool that indicates if plotting is done. Only then `atlasify()` can be called,
         by default False
+    bin_array_path : str
+        File in which the bin edges, values etc. are stored. If given, it is checked
+        that the file exists and then these values are taken for plotting instead of
+        recalculating everything. By default None
     """
 
     title: str = ""
@@ -196,6 +201,8 @@ class PlotObject:
 
     plotting_done: bool = False
 
+    bin_array_path: str = None
+
     def __post_init__(self):
         """Check for allowed values.
 
@@ -239,6 +246,13 @@ class PlotObject:
                 "You specified an ATLAS tag, but `apply_atlas_style` is set to false. "
                 "Tag will therefore not be shown on plot."
             )
+        if self.bin_array_path is not None:
+            # Check that the given value will be a Path object
+            if isinstance(self.bin_array_path, str):
+                self.bin_array_path = Path(self.bin_array_path)
+
+            elif not isinstance(self.bin_array_path, Path):
+                raise ValueError("Given bin_array_path is neither a string nor a Path object")
 
     def __check_figsize(self):
         """Check `figsize`.
