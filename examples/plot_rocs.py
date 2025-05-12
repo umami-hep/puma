@@ -62,6 +62,7 @@ plot_roc = RocPlot(
     atlas_second_tag="$\\sqrt{s}=13$ TeV, dummy jets \ndummy sample, $f_{c}=0.018$",
     figsize=(6.5, 6),
     y_scale=1.4,
+    bin_array_path="plot_roc_example.pkl",
 )
 plot_roc.add_roc(
     Roc(
@@ -72,6 +73,7 @@ plot_roc.add_roc(
         signal_class="bjets",
         label="RNNIP",
     ),
+    key="rnnip_ujets",
     reference=True,
 )
 plot_roc.add_roc(
@@ -83,6 +85,7 @@ plot_roc.add_roc(
         signal_class="bjets",
         label="DIPS r22",
     ),
+    key="dips_ujets",
 )
 plot_roc.add_roc(
     Roc(
@@ -93,6 +96,7 @@ plot_roc.add_roc(
         signal_class="bjets",
         label="RNNIP",
     ),
+    key="rnnip_cjets",
     reference=True,
 )
 plot_roc.add_roc(
@@ -104,6 +108,7 @@ plot_roc.add_roc(
         signal_class="bjets",
         label="DIPS r22",
     ),
+    key="dips_cjets",
 )
 # setting which flavour rejection ratio is drawn in which ratio panel
 plot_roc.set_ratio_class(1, "ujets")
@@ -111,3 +116,26 @@ plot_roc.set_ratio_class(2, "cjets")
 
 plot_roc.draw()
 plot_roc.savefig("roc.png", transparent=False)
+
+# Using the stored lines from plot_roc_example.pkl to plot again
+plot_roc_from_file = RocPlot(
+    n_ratio_panels=2,
+    ylabel="Background rejection",
+    xlabel="$b$-jet efficiency",
+    atlas_second_tag="Example of a plot loaded from file",
+    figsize=(6.5, 6),
+    y_scale=1.4,
+    bin_array_path="plot_roc_example.pkl",
+)
+
+plot_roc_from_file.add_roc(key="rnnip_ujets", reference=True)
+plot_roc_from_file.add_roc(key="dips_ujets")
+plot_roc_from_file.add_roc(key="rnnip_cjets", reference=True)
+plot_roc_from_file.add_roc(key="dips_cjets")
+
+# setting which flavour rejection ratio is drawn in which ratio panel
+plot_roc_from_file.set_ratio_class(1, "ujets")
+plot_roc_from_file.set_ratio_class(2, "cjets")
+
+plot_roc_from_file.draw()
+plot_roc_from_file.savefig("roc_from_pickle.png", transparent=False)
