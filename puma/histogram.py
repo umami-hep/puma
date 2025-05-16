@@ -428,7 +428,7 @@ class HistogramPlot(PlotBase):
         elif isinstance(self.bins, int):
             logger.debug("Calculating bin edges of %i equal-width bins", self.bins)
             _, self.bins = np.histogram(
-                np.hstack([elem.values for elem in self.plot_objects.values()]),  # noqa: PD011
+                np.hstack([elem.values[~np.isnan(elem.values)] for elem in self.plot_objects.values()]),  # noqa: PD011
                 bins=self.bins,
                 range=self.bins_range,
             )

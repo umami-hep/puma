@@ -29,12 +29,13 @@ class Tagger:
     aux_tasks: list = field(default_factory=lambda: list(get_aux_labels().keys()))
     sample_path: Path = None
     category: str = "single-btag"
-
+    combined_flavours : dict | None = None
     # this is only read by the Results class
     cuts: Cuts | list | None = None
 
     # commonly set by the Results or AuxResults class
     scores: np.ndarray = None
+    regression_preds : dict[str, np.ndarray] = None
     labels: np.ndarray = None
     aux_scores: dict = None
     aux_labels: dict = None
@@ -57,7 +58,10 @@ class Tagger:
             self.aux_scores = dict.fromkeys(self.aux_tasks)
             self.aux_labels = dict.fromkeys(self.aux_tasks)
         if self.sample_path is not None:
-            self.sample_path = Path(self.sample_path)
+            if isinstance(self.sample_path, list):
+                self.sample_path = [Path(path) for path in self.sample_path]
+            else:
+                self.sample_path = Path(self.sample_path)
         if self.output_flavours is None:
             logger.info(
                 f"No output flavours were given. Using flavours of category {self.category}"
@@ -123,7 +127,20 @@ class Tagger:
         list
             List of the outputs variable names of the tagger
         """
-        return [f"{self.name}_{prob}" for prob in self.probabilities]
+        probs = self.probabilities
+
+        if self.combined_flavours is not None:
+            # Iterate over the combined flavours, remove the targets and add the inputs
+            for combined_flavour in self.combined_flavours:
+                if combined_flavour not in probs:
+                    raise ValueError(
+                        f"Combined flavour {combined_flavour} not found in tagger "
+                        f"{self.name} probabilities."
+                    )
+                probs.remove(combined_flavour)
+                probs.extend(self.combined_flavours[combined_flavour])
+
+        return [f"{self.name}_{prob}" for prob in probs]
 
     @property
     def aux_variables(self):
@@ -185,25 +202,39 @@ class Tagger:
         """
         if source_type == "data_frame":
             self.scores = source[self.variables].to_records(index=False)
-            return
-        if source_type == "structured_array":
+        elif source_type == "structured_array":
             self.scores = source[self.variables]
-            return
-        if key is None:
+        elif key is None:
             raise ValueError(
                 "When using a `source_type` other than `data_frame`, you need to"
                 " specify the `key`."
             )
-        if source_type == "data_frame_path":
+        elif source_type == "data_frame_path":
             df_in = pd.read_hdf(source, key=key)
             self.scores = df_in[self.variables].to_records(index=False)
-
         elif source_type == "h5_file":
             with h5py.File(source, "r") as f_h5:
                 self.scores = f_h5[key].fields(self.variables)[:]
-
         else:
             raise ValueError(f"{source_type} is not a valid value for `source_type`.")
+        
+        
+        if self.combined_flavours:
+            for target, inputs in self.combined_flavours.items():
+                combined_score = np.zeros(self.scores.shape[0])
+                for input_flavour, weight in inputs.items():
+                    combined_score += weight * self.scores[f"{self.name}_{input_flavour}"]
+                
+                self.scores = np.lib.recfunctions.append_fields(
+                    self.scores,
+                    f"{self.name}_{target}",
+                    combined_score,
+                    asrecarray=True,
+                    usemask=False,
+                )
+
+
+        
 
     def n_jets(self, flavour: Label | str):
         """Retrieve number of jets of a given flavour.

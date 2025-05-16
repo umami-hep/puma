@@ -17,22 +17,25 @@ from puma.hlplots.yutils import get_tagger_name
 
 EXAMPLES = Path(__file__).parents[3] / "examples"
 
-
-def load_no_include(plt_cfg, taggers):
+dummy_taggers = {
+    "dummy1": { "label" : "Dummy default"},
+    "dummy2": { "label" : "Dummy $f_c$ = 0.2"},
+    "dummy3": { "label" : "Dummy 3"},
+}
+def load_no_include(plt_cfg, plots):
     def dummy_inc(loader, node):  # noqa: ARG001
         return node.value
 
     # Don't load the taggers
     yaml.SafeLoader.add_constructor("!include", dummy_inc)
 
-    plt_cfg = EXAMPLES / "plt_cfg.yaml"
     with open(plt_cfg) as f:
         plt_cfg = yaml.safe_load(f)
-    taggers = EXAMPLES / "taggers.yaml"
-    with open(taggers) as f:
-        taggers = yaml.safe_load(f)
+    plt_cfg['taggers'] = list(dummy_taggers.keys())
 
-    return plt_cfg, taggers
+    with open(plots) as f:
+        plots = yaml.safe_load(f)
+    return plt_cfg, dummy_taggers, plots
 
 
 class TestYutils(unittest.TestCase):
@@ -42,9 +45,10 @@ class TestYutils(unittest.TestCase):
         YamlIncludeConstructor.add_to_loader_class(loader_class=yaml.SafeLoader, base_dir=EXAMPLES)
 
     def testGetIncludeTaggers(self):
-        plt_cfg = EXAMPLES / "plt_cfg.yaml"
-        taggers = EXAMPLES / "taggers.yaml"
-        plt_cfg, taggers = load_no_include(plt_cfg, taggers)
+        plt_cfg = EXAMPLES / "yuma_configs/plot_config_ttbar.yaml"
+        taggers = EXAMPLES / "yuma_configs/taggers.yaml"
+        plots = EXAMPLES / "yuma_configs/plots_ttbar_tag.yaml"
+        plt_cfg, taggers, plots = load_no_include(plt_cfg, plots)
 
         with tempfile.TemporaryDirectory() as tmp_file:
             fpath1, _file = get_mock_file(fname=(Path(tmp_file) / "file1.h5").as_posix())
@@ -52,7 +56,8 @@ class TestYutils(unittest.TestCase):
             taggers["dummy2"]["sample_path"] = fpath1
             taggers["dummy3"]["sample_path"] = fpath1
             updated_plt_cfg = Path(tmp_file) / "plt_cfg.yaml"
-
+            plt_cfg["plots"] = {'roc' : plots['roc']}
+            
             plt_cfg["plots"]["roc"][0]["reference"] = "dummyNot"
             plt_cfg["plots"]["roc"][0]["include_taggers"] = ["dummy1"]
 
@@ -85,17 +90,18 @@ class TestYutils(unittest.TestCase):
                 get_tagger_name(None, fname, key=None, flavours=self.flavours)
 
     def testGetSignals(self):
-        plt_cfg = EXAMPLES / "plt_cfg.yaml"
+        plt_cfg = EXAMPLES / "yuma_configs/plot_config_ttbar.yaml"
         plt_cfg = YumaConfig.load_config(plt_cfg)
-        assert sorted(plt_cfg.signals) == ["bjets", "cjets"]
+        assert sorted(plt_cfg.signals) == ["bjets", "cjets", "taujets"]
 
 
 class TestYumaPlots(unittest.TestCase):
     def testArgs(self):
-        config_path = str(EXAMPLES / "plt_cfg.yaml")
+        config_path = str(EXAMPLES / "yuma_configs/plot_config_ttbar.yaml")
         args = ["--config", config_path, "--signals", "bjets", "--plots", "not_valid"]
         with self.assertRaises(SystemExit):
             main(args)
+        
 
     def testCheckConfig(self):
         with tempfile.TemporaryDirectory() as tmp_file:
@@ -104,6 +110,7 @@ class TestYumaPlots(unittest.TestCase):
                 "plot_dir": "test/dir",
                 "taggers_config": {"tagger1": {"sample_path": "dummy1"}},
                 "results_config": {"sample": "ttbar"},
+                "tagger_defaults" : {'output_flavours': ['bjets', 'cjets', 'ujets', 'taujets']},
                 "plots": {
                     "roc": [
                         {
@@ -121,9 +128,10 @@ class TestYumaPlots(unittest.TestCase):
                 main(args)
 
     def testAllPlots(self):
-        plt_cfg = EXAMPLES / "plt_cfg.yaml"
-        taggers = EXAMPLES / "taggers.yaml"
-        plt_cfg, taggers = load_no_include(plt_cfg, taggers)
+        plt_cfg = EXAMPLES / "yuma_configs/plot_config_ttbar.yaml"
+        taggers = EXAMPLES / "yuma_configs/taggers.yaml"
+        plots = EXAMPLES / "yuma_configs/plots_ttbar_tag.yaml"
+        plt_cfg, taggers, plots = load_no_include(plt_cfg, plots)
 
         with tempfile.TemporaryDirectory() as tmp_file:
             fpath1, _file = get_mock_file(fname=(Path(tmp_file) / "file1.h5").as_posix())
@@ -134,6 +142,13 @@ class TestYumaPlots(unittest.TestCase):
             updated_plt_cfg = Path(tmp_file) / "plt_cfg.yaml"
             plt_cfg["plot_dir"] = tmp_file + "/plots"
             plt_cfg["taggers_config"] = taggers
+            plt_cfg["plots"] = {
+                "roc": plots["roc"],
+                "scan": plots["scan"],
+                "disc" : plots["disc"],
+                "probs" : plots["probs"],
+                "peff" : [plots["peff"][0]],
+            }
 
             with open(updated_plt_cfg, "w") as f:
                 yaml.dump(plt_cfg, f)
@@ -147,8 +162,8 @@ class TestYumaPlots(unittest.TestCase):
             ctagging = out_dir / "ctag"
             assert btagging.exists(), "No b-tagging plots produced"
             assert not ctagging.exists(), "No c-tagging plots should have been produced"
-            btag_plots = [p.name for p in btagging.rglob("*.pdf")]
-            assert len(btag_plots) == 27, f"Expected 27 b-tagging plot, found {len(btag_plots)}"
+            btag_plots = [p.name for p in btagging.rglob("*.png")]
+            assert len(btag_plots) == 17, f"Expected 17 b-tagging plot, found {len(btag_plots)}"
 
             args = [
                 "--config",
@@ -160,7 +175,7 @@ class TestYumaPlots(unittest.TestCase):
             ]
             main(args)
 
-            ctag_plots = [p.name for p in ctagging.rglob("*.pdf")]
+            ctag_plots = [p.name for p in ctagging.rglob("*.png")]
             assert ctagging.exists(), "No c-tagging plots produced"
             assert (
                 len(ctag_plots) == 1
@@ -170,10 +185,10 @@ class TestYumaPlots(unittest.TestCase):
             main(args)
 
     def testNoPlots(self):
-        plt_cfg = EXAMPLES / "plt_cfg.yaml"
-        taggers = EXAMPLES / "taggers.yaml"
-
-        plt_cfg, taggers = load_no_include(plt_cfg, taggers)
+        plt_cfg = EXAMPLES / "yuma_configs/plot_config_ttbar.yaml"
+        taggers = EXAMPLES / "yuma_configs/taggers.yaml"
+        plots = EXAMPLES / "yuma_configs/plots_ttbar_tag.yaml"
+        plt_cfg, taggers, plots = load_no_include(plt_cfg, plots)
 
         with tempfile.TemporaryDirectory() as tmp_file:
             fpath1, _file = get_mock_file(fname=(Path(tmp_file) / "file1.h5").as_posix())
@@ -186,11 +201,13 @@ class TestYumaPlots(unittest.TestCase):
             updated_plt_cfg = Path(tmp_file) / "plt_cfg.yaml"
             plt_cfg["taggers_config"] = taggers
             plt_cfg["plot_dir"] = tmp_file + "/plots"
-
-            plt_cfg["plots"] = {"roc": plt_cfg["plots"]["roc"]}
+            
+            plt_cfg["plots"] = {"roc": plots["roc"]}
             with open(updated_plt_cfg, "w") as f:
                 yaml.dump(plt_cfg, f)
-
+            print('lol', plt_cfg)
+            import pprint
+            pprint.pprint(plt_cfg)
             args = ["--config", updated_plt_cfg.as_posix(), "--signals", "bjets"]
             main(args)
 
@@ -200,6 +217,6 @@ class TestYumaPlots(unittest.TestCase):
             ctagging = out_dir / "ctag"
             assert btagging.exists(), "No b-tagging plots produced"
             assert not ctagging.exists(), "No c-tagging plots should have been produced"
-            btag_plots = [p.name for p in btagging.rglob("*.pdf")]
+            btag_plots = [p.name for p in btagging.rglob("*.png")]
             print(btag_plots)
-            assert len(btag_plots) == 3, f"Expected 3 b-tagging plot, found {len(btag_plots)}"
+            assert len(btag_plots) == 1, f"Expected 3 b-tagging plot, found {len(btag_plots)}"

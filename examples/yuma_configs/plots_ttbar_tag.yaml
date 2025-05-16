@@ -1,0 +1,305 @@
+# Section detailing plots for ttbar flavour tagging
+roc:
+  - signal: cjets
+    plot_kwargs:
+      x_range: [0.2, 1.0]
+
+  - signal: [bjets, taujets]
+    plot_kwargs:
+      x_range: [0.5, 1.0]
+
+
+scan:
+  - signal: bjets
+    plot_kwargs:
+      backgrounds_to_plot: ['cjets', 'ujets']
+      efficiency: 0.70
+      figsize: &scan-figsize [8, 6]
+      plot_optimal_fraction_values: True
+      fixed_fraction_values: {ftau: 0.01}
+
+
+  - signal: bjets
+    plot_kwargs:
+      backgrounds_to_plot: ['cjets', 'taujets']
+      figsize: *scan-figsize
+      efficiency: 0.70
+      plot_optimal_fraction_values: True
+      fixed_fraction_values: {fu: 0.9}
+
+  - signal: bjets
+    plot_kwargs:
+      backgrounds_to_plot: ['taujets', 'ujets']
+      figsize: *scan-figsize
+      efficiency: 0.70
+      plot_optimal_fraction_values: True
+      fixed_fraction_values: {fc: 0.2}
+
+
+  - signal: cjets
+    plot_kwargs:
+      backgrounds_to_plot: ['bjets', 'ujets']
+      figsize: *scan-figsize
+      efficiency: 0.40
+      plot_optimal_fraction_values: True
+      fixed_fraction_values: {ftau: 0.01}
+
+  - signal: cjets
+    plot_kwargs:
+      backgrounds_to_plot: ['bjets', 'taujets']
+      figsize: *scan-figsize
+      efficiency: 0.40
+      plot_optimal_fraction_values: True
+      fixed_fraction_values: {fu: 0.9}
+
+  - signal: cjets
+    plot_kwargs:
+      backgrounds_to_plot: ['taujets', 'ujets']
+      figsize: *scan-figsize
+      efficiency: 0.40
+      plot_optimal_fraction_values: True
+      fixed_fraction_values: {fb: 0.2}
+
+  - signal: taujets
+    plot_kwargs:
+      backgrounds_to_plot: ['bjets', 'ujets']
+      figsize: *scan-figsize
+      efficiency: 0.70
+      plot_optimal_fraction_values: True
+      fixed_fraction_values: {fc: 0.2}
+
+  - signal: taujets
+    plot_kwargs:
+      backgrounds_to_plot: ['bjets', 'cjets']
+      figsize: *scan-figsize
+      efficiency: 0.70
+      plot_optimal_fraction_values: True
+      fixed_fraction_values: {fu: 0.9}
+
+  - signal: taujets
+    plot_kwargs:
+      backgrounds_to_plot: ['cjets', 'ujets']
+      figsize: *scan-figsize
+      efficiency: 0.7
+      plot_optimal_fraction_values: True
+      fixed_fraction_values: {fb: 0.2}
+
+disc:
+  - signal: [bjets, taujets]
+    plot_kwargs:
+      wp_vlines: [70, 77, 80]
+  - signal: cjets
+    plot_kwargs:
+      wp_vlines: [50, 40, 30]
+
+probs:
+  - signal: bjets
+    plot_kwargs:
+      logy: True
+
+peff:
+  - signal: [bjets, taujets]
+    plot_kwargs:
+      flat_per_bin: True
+      working_point: 0.7
+      y_scale: 1.8
+
+  - signal: [bjets, taujets]
+    plot_kwargs:
+      flat_per_bin: False
+      working_point: 0.7
+      y_scale: 1.8
+
+  - signal: [bjets, taujets]
+    plot_kwargs:
+      perf_var: eta
+      xlabel: $\eta$ 
+      flat_per_bin: True
+      working_point: 0.7
+      y_scale: 1.8
+
+  - signal: [bjets, taujets]
+    plot_kwargs:
+      perf_var: eta
+      xlabel: $\eta$ 
+      flat_per_bin: False
+      working_point: 0.7
+      y_scale: 1.8
+
+  - signal: [bjets, taujets]
+    plot_kwargs:
+      working_point: 0.7
+      perf_var: nPrimaryVertices
+      xlabel: $n_{PV}$
+      y_scale: 1.8
+
+  - signal: [bjets, taujets]
+    plot_kwargs:
+      working_point: 0.7
+      perf_var: deltaRToNearestJet
+      xlabel: $\Delta R$(jet, nearest jet)
+      y_scale: 1.8
+
+
+  - signal: [bjets, taujets]
+    plot_kwargs:
+      working_point: 0.7
+      perf_var: jetPtRank
+      xlabel: Jet $p_T$ rank
+      y_scale: 1.8
+
+  - signal: bjets
+    plot_kwargs:
+      y_scale: 1.8
+      fixed_rejections:
+        cjets: 10
+        ujets: 100
+        taujets: 25
+
+  # More advanced peff plots, where we look at integrated background performance 
+  # looks vs binning only signal jets 
+
+  # How does the rejection change vs hadron pT in b-jets
+  - signal: bjets
+    plot_kwargs:
+      perf_var: HadronConeExclTruthLabelPt
+      xlabel: $b$-jet leading-hadron $p_T$ [GeV]
+      bins: [5e3, 20e3, 50e3, 75e3, 100e3, 150e3, 200e3, 300e3]
+      working_point: 0.7
+      flat_per_bin: True
+      bin_signal_only: True
+      y_scale: 1.8
+
+  - signal: bjets
+    plot_kwargs:
+      perf_var: HadronConeExclTruthLabelDR
+      xlabel: $b$-jet leading-hadron dR to the jet axis
+      bins: [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35]
+      working_point: 0.7
+      flat_per_bin: True
+      bin_signal_only: True
+      y_scale: 1.8
+
+  - signal: bjets
+    plot_kwargs:
+      perf_var: HadronConeExclTruthLabelLxy
+      xlabel: $b$-jet leading-hadron Lxy [mm]
+      bins: [0, 5, 10, 15, 25, 35, 50, 75, 100, 130, 160, 200]
+      working_point: 0.7
+      flat_per_bin: True
+      bin_signal_only: True
+      y_scale: 1.8
+
+
+  - signal: bjets
+    plot_kwargs:
+      perf_var: n_hf_tracks_ghost
+      xlabel: $b$-jet $n_{HF}$ tracks
+      bins: [-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5]
+      working_point: 0.7
+      flat_per_bin: True
+      bin_signal_only: True
+      y_scale: 1.8
+
+  # # Just as above, but for c-jets at a tighter WP
+
+  - signal: [cjets]
+    plot_kwargs:
+      flat_per_bin: True
+      working_point: 0.35
+      y_scale: 1.8
+
+  - signal: [cjets]
+    plot_kwargs:
+      flat_per_bin: False
+      working_point: 0.7
+      y_scale: 1.8
+
+  - signal: [cjets]
+    plot_kwargs:
+      perf_var: eta
+      xlabel: $\eta$ 
+      flat_per_bin: True
+      working_point: 0.35
+      y_scale: 1.8
+
+  - signal: [cjets]
+    plot_kwargs:
+      perf_var: eta
+      xlabel: $\eta$ 
+      flat_per_bin: False
+      working_point: 0.35
+      y_scale: 1.8
+
+  - signal: [cjets]
+    plot_kwargs:
+      working_point: 0.35
+      perf_var: nPrimaryVertices
+      xlabel: $n_{PV}$
+      y_scale: 1.8
+
+  - signal: [cjets]
+    plot_kwargs:
+      working_point: 0.35
+      perf_var: deltaRToNearestJet
+      xlabel: $\Delta R$(jet, nearest jet)
+      y_scale: 1.8
+
+  - signal: [cjets]
+    plot_kwargs:
+      working_point: 0.35
+      perf_var: jetPtRank
+      xlabel: Jet $p_T$ rank
+      y_scale: 1.8
+
+
+  - signal: [cjets]
+    plot_kwargs:
+      y_scale: 1.8
+      fixed_rejections:
+        bjets: 10
+        ujets: 10
+        taujets: 10
+
+
+  - signal: cjets
+    plot_kwargs:
+      perf_var: HadronConeExclTruthLabelPt
+      xlabel: $c$-jet leading-hadron $p_T$ [GeV]
+      bins: [5e3, 20e3, 50e3, 75e3, 100e3, 150e3, 200e3, 300e3]
+      working_point: 0.35
+      flat_per_bin: True
+      bin_signal_only: True
+      y_scale: 1.8
+
+  - signal: cjets
+    plot_kwargs:
+      perf_var: HadronConeExclTruthLabelDR
+      xlabel: $c$-jet leading-hadron dR to the jet axis
+      bins: [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35]
+      working_point: 0.35
+      flat_per_bin: True
+      bin_signal_only: True
+      y_scale: 1.8
+
+  - signal: cjets
+    plot_kwargs:
+      perf_var: HadronConeExclTruthLabelLxy
+      xlabel: $c$-jet leading-hadron Lxy [mm]
+      bins: [0, 5, 10, 15, 25, 35, 50, 75, 100, 130, 160, 200]
+      working_point: 0.35
+      flat_per_bin: True
+      bin_signal_only: True
+      y_scale: 1.8
+
+
+  - signal: cjets
+    plot_kwargs:
+      perf_var: n_hf_tracks_ghost
+      xlabel: $c$-jet $n_{HF}$ tracks
+      bins: [-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5]
+      working_point: 0.35
+      flat_per_bin: True
+      bin_signal_only: True
+      y_scale: 1.8
+

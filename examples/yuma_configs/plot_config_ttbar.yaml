@@ -1,0 +1,53 @@
+plot_dir: plots/
+timestamp: False
+
+# Define some default settings for the taggers
+tagger_defaults:
+  output_flavours: [bjets, cjets, ujets, taujets]
+  fxs: {fc: 0.2, fu: 0.79, fb: 0.2, ftau: 0.01}
+
+results_config:
+  extension: png
+  sample: ttbar
+  sample_path: &sample_path /home/xzcappon/phd/tools/puma/mytest/gn3/data/user.alfroch.44290694._000001.output_additional5.h5
+  atlas_first_tag: &atlas_first_tag Simulation Internal
+  atlas_second_tag: &atlas_second_tag  $\sqrt{s} = 13.6$ TeV, MC23
+  atlas_third_tag: &atlas_third_tag $t\overline{t}$ 20 < $p_T$ < 250 GeV, $|\eta| < 2.5$
+  num_jets: 2_500_000
+  # for plotting eff profiles for variables with NaNs (e.g, Lxy)
+  remove_nan: False 
+  ignore_nan: True
+  global_cuts: &global_cuts
+    - "pt > 20_000"
+    - "pt < 250_000"
+    - "eta < 2.5"
+    - "eta > -2.5"
+    - "n_truth_promptLepton == 0"
+
+taggers_config: !include taggers.yaml
+# Define all the taggers to actually plot
+taggers: [gn2v01, GN3V00, GN3PflowV00, GN3MuonsV00, GN3PflowMuonsV00]
+
+# Include a file which details all the plots to be made
+plots:
+  !include plots_ttbar_tag.yaml
+
+
+inputs_config:
+  # Config for making input distributions - see examples/yuma_configs/input_distributions.yaml
+  # for more details
+  sample_paths: 
+      sample: *sample_path
+  num_jets: 100_000
+  global_cuts: *global_cuts
+  # What flavours to plot
+  all_flavours: [bjets, cjets, ujets, taujets]
+
+  # Some information for the plot
+  plot_kwargs:
+    atlas_first_tag: *atlas_first_tag
+    atlas_second_tag: *atlas_second_tag
+    atlas_third_tag: *atlas_third_tag
+
+  plot_pattern:
+    - jets.*
