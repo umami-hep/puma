@@ -506,7 +506,7 @@ class Results:
                         ),
                         reference=tagger.reference,
                     )
-            
+
             # Add the disc values for the signal
             hist.add(
                 Histogram(
