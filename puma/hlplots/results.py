@@ -507,6 +507,18 @@ class Results:
                         reference=tagger.reference,
                     )
 
+            # Add the disc values for the signal
+            hist.add(
+                Histogram(
+                    discs[tagger.is_flav(self.signal)],
+                    ratio_group=self.signal,
+                    label=self.signal.label if counter == 0 else None,
+                    colour=self.signal.colour,
+                    linestyle=line_styles[counter],
+                ),
+                reference=tagger.reference,
+            )
+
             # Add the tagger label or name to the label list
             tagger_labels.append(tagger.label if tagger.label else tagger.name)
 
@@ -524,6 +536,7 @@ class Results:
         x_range: tuple[float, float] | None = (0.5, 1.0),
         resolution: int = 50,
         suffix: str | None = None,
+        skip_missing_flavours: bool = True,
         **kwargs,
     ):
         """Plots rocs.
@@ -536,6 +549,9 @@ class Results:
             number of points to use for the x-axis, by default 100
         suffix : str, optional
             suffix to add to output file name, by default None
+        skip_missing_flavours : bool, optional
+            If True, skip making ROC curves for flavours that are
+            not present in every tagger, by default True
         kwargs: dict, optional
             key word arguments being passed to `RocPlot`
         """
@@ -583,7 +599,7 @@ class Results:
             # Loop over all backgrouns
             for background in self.backgrounds:
                 # Skip non-existing flavours
-                if background not in tagger.output_flavours:
+                if background not in tagger.output_flavours and skip_missing_flavours:
                     continue
 
                 # Calculate rejection for the given background
