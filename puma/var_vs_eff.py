@@ -106,7 +106,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
                 raise ValueError("You can't define PCFT working points when using a `flat_per_bin`")
         self.x_var_sig = np.array(x_var_sig)
         self.disc_sig = np.array(disc_sig)
-        self.disc_sig[np.isnan(self.disc_sig)] = 0.0
+        self.disc_sig[np.isnan(self.disc_sig)] = -99
         self.x_var_bkg = None if x_var_bkg is None else np.array(x_var_bkg)
         self.disc_bkg = None if disc_bkg is None else np.array(disc_bkg)
         self.working_point = working_point

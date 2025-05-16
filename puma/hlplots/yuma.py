@@ -58,11 +58,14 @@ class YumaHTMLMaker:
         self.plot_dir = Path(plot_dir)
 
     def make_all(self):
+        all_pages = ['collapsed', 'full',]
         self.make_performance_page('collapsed', width=2, collapsable=True)
         self.make_performance_page('full', width=4, collapsable=False)
-        self.make_inputs_page('inputs_collapsed', collapsable=True)
-        self.make_inputs_page('inputs_full', collapsable=False)
-        self.make_index(['collapsed', 'full', 'inputs_collapsed', 'inputs_full'])
+        if (self.plot_dir / 'inputs').exists():
+            self.make_inputs_page('inputs_collapsed', collapsable=True)
+            self.make_inputs_page('inputs_full', collapsable=False)
+            all_pages += ['inputs_collapsed', 'inputs_full']
+        self.make_index(all_pages)
 
     def make_inputs_page(self, fname, collapsable=False):
         from collections import defaultdict
@@ -192,7 +195,7 @@ class YumaHTMLMaker:
             f.write("\n".join(html))
 
     def make_performance_page(self, fname, width=3, collapsable=False):
-        performance_plot_order = ['prob', 'roc', 'disc', 'profile', 'regression']
+        performance_plot_order = ['prob', 'roc', 'disc', 'profile']
         tag_order = ['btag', 'ctag', 'tautag', 'utag']
         all_tags = [f.name for f in self.plot_dir.glob("*tag") if f.is_dir()]
 
@@ -355,6 +358,10 @@ class YumaConfig:
 
     @classmethod
     def load_config(cls, path: Path, **kwargs) -> YumaConfig:
+        YamlIncludeConstructor.add_to_loader_class(
+            loader_class=yaml.SafeLoader, base_dir=path.parent
+        )
+        print("WHat lol!", path.parent, flush=True)
         if not path.exists():
             raise FileNotFoundError(f"Config at {path} does not exist")
         with open(path) as f:
@@ -637,9 +644,6 @@ def main(args=None):
     args = get_args(args)
 
     config_path = Path(args.config)
-    YamlIncludeConstructor.add_to_loader_class(
-        loader_class=yaml.SafeLoader, base_dir=config_path.parent
-    )
     yuma = YumaConfig.load_config(config_path, base_path=args.dir)
 
     # select and check plots
