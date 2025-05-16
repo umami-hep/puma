@@ -1,10 +1,14 @@
 import h5py
 from pathlib import Path
 from puma import Histogram, HistogramPlot
+from puma.utils import get_good_linestyles
 from ftag import Cuts, Flavours, Label
 import numpy as np
 import fnmatch
 from collections import defaultdict
+import argparse
+import yaml
+
 def percentile_bins(data, lower=0.01, upper=0.99, n_bins=50):
     """
     Create bins based on percentiles of the data.
@@ -32,7 +36,7 @@ class InputDistribution:
 
     def __init__(
         self, 
-        sample_path, 
+        sample_paths : dict[str, str], 
         output_path,
         plot_kwargs={},
         global_cuts=None,
@@ -40,7 +44,7 @@ class InputDistribution:
         num_jets=100_000,
         plot_pattern=None,
         ):
-        self.sample_path = Path(sample_path)
+        self.sample_paths = {k : Path(v) for k, v in sample_paths.items()}
         self.output_path = Path(output_path)
         self.num_jets = num_jets
         self.cuts = Cuts.empty() if global_cuts is None else Cuts.from_list(global_cuts)
@@ -83,15 +87,36 @@ class InputDistribution:
                 return True
 
         return False
-        
+    
+    def _check_files(self):
+
+        if len(self.sample_paths) == 0:
+            raise ValueError("No sample paths provided.")
+        if len(self.sample_paths)  == 0:
+            return True
+        f0 = self.sample_paths[list(self.sample_paths.keys())[0]]
+        h50 = h5py.File(f0, "r")
+        for _, f in self.sample_paths.items():
+            if not f.exists():
+                raise ValueError(f"File {f} does not exist.")
+            h5 = h5py.File(f, "r")
+            if len(h5.keys()) != len(h50.keys()):
+                raise ValueError(f"Files {f} and {f0} have different number of groups.")
+            for key in h5.keys():
+                if key not in h50.keys():
+                    raise ValueError(f"Group {key} not found in file {f0}.")
+                if len(h5[key].dtype.names) != len(h50[key].dtype.names):
+                    raise ValueError(f"Group {key} in file {f} has different number of variables than group in file {f0}.")
+        return True
+
     def plot(self, norm=False, logy=False):
         
         
         if norm and logy:
-            ylabel = "Number of events (log)"
+            ylabel = "Normalized Number of events (log)"
             detail_dir = "norm_log"
         elif norm:
-            ylabel = "Number of events"
+            ylabel = "Normalized Number of events"
             detail_dir = "norm"
         elif logy:
             ylabel = "Number of events (log)"
@@ -99,34 +124,55 @@ class InputDistribution:
         else:
             ylabel = "Number of events"
             detail_dir = "raw"
-
+        # self._check_files()
         self.output_path.mkdir(parents=True, exist_ok=True)
         
-        h5file = h5py.File(self.sample_path, "r")
+        h5files = {k : h5py.File(v, "r") for k, v in self.sample_paths.items()}
+        jet_masks_by_flavour_by_file = {}
+        h50 = None
         flavours = [Flavours[f] for f in self.all_flavours]
-        jets = h5file['jets'][:self.num_jets]
-        if self.cuts:
-            _, jets = self.cuts(jets)
-        jet_masks_by_flavour = {
-            flavours[i].name : flavours[i].cuts(jets)[0] for i in range(len(flavours))
-        }
+        
+        for i, (k, v) in enumerate(h5files.items()):
+            if i == 0:
+                h50 = v
 
-        for key in h5file.keys():
+            jets = v['jets'][:self.num_jets]
+                    
+            if self.cuts:
+                _, jets = self.cuts(jets)
+            jet_masks_by_flavour = {
+                    flavours[i].name : flavours[i].cuts(jets)[0] for i in range(len(flavours))
+            }
+            jet_masks_by_flavour_by_file[k] = jet_masks_by_flavour
+
+        linestyles = get_good_linestyles()[:len(h5files)]
+        for key in h50.keys():
             if not self._passes_selection(key):
                 continue
-            data = h5file[key][:self.num_jets]
-            if self.cuts:
-                _, data = self.cuts(data)
-            # print(jet_masks_by_flavour['bjets'])
-            data_by_flavour = {
-                flavour.name: data[jet_masks_by_flavour[flavour.name]]
-                for flavour in flavours
-            }
-            if 'valid' in data.dtype.names:
+
+            data_by_file = {}
+            combined_data = []
+            for k, h5 in h5files.items():
+                print('lol', k)
+                data = h5[key][:self.num_jets]
+                combined_data.append(data)
+                if self.cuts:
+                    _, data = self.cuts(data)
+            
                 data_by_flavour = {
-                    f : data_by_flavour[f][data_by_flavour[f]['valid']] 
-                    for f in data_by_flavour.keys()
+                    flavour.name: data[jet_masks_by_flavour_by_file[k][flavour.name]]
+                    for flavour in flavours
                 }
+                if 'valid' in data.dtype.names:
+                    data_by_flavour = {
+                        f : data_by_flavour[f][data_by_flavour[f]['valid']] 
+                        for f in data_by_flavour.keys()
+                    }
+                data_by_file[k] = data_by_flavour
+            # print(data_by_file['base'].shape)
+            combined_data = np.concatenate(combined_data)
+            if self.cuts:   
+                _, combined_data =  self.cuts(combined_data)
             print("Plotting ", key)
             plot_dir = self.output_path / key / detail_dir
 
@@ -134,11 +180,11 @@ class InputDistribution:
 
             plot_dir.mkdir(parents=True, exist_ok=True)
             
-            for v in data.dtype.names:
+            for v in combined_data.dtype.names:
                 if not self._passes_selection(key, v):
                     continue
                 try:
-                    bins = percentile_bins(data[v], n_bins=50)
+                    bins = percentile_bins(combined_data[v], n_bins=50)
                     plot = HistogramPlot(
                         ylabel=ylabel,
                         xlabel=f"{key} {v}",
@@ -148,13 +194,17 @@ class InputDistribution:
                         **self.plot_kwargs,
                         
                     )
-                    for flavour in flavours:
-                        hist = Histogram(
-                            data_by_flavour[flavour.name][v],
-                            label=flavour.label,
-                            colour=flavour.colour,
-                        )
-                        plot.add(hist)
+                    for i, (k, data_by_flavour) in enumerate(data_by_file.items()):
+                        for flavour in flavours:
+                            hist = Histogram(
+                                data_by_flavour[flavour.name][v],
+                                label=flavour.label if i ==0 else None,
+                                colour=flavour.colour,
+                                linestyle=linestyles[i],
+                            )
+                            plot.add(hist)
+                    if len(data_by_file) > 1:
+                        plot.make_linestyle_legend(linestyles, data_by_file.keys())
                     plot.draw()
                     plot.savefig(plot_dir / f"{key}_{v}.png")
                 except Exception as e:
@@ -164,101 +214,20 @@ class InputDistribution:
                     
                 
 
-    def create_input_index(self, dropdown_mode=False):
-        from collections import defaultdict
-        plot_dir = self.output_path
-        detail_dirs = ["raw", "norm", "log", "norm_log"]
 
-        html = ['<!DOCTYPE html>',
-                '<html lang="en">',
-                '<head>',
-                '<meta charset="UTF-8">',
-                '<title>Input Plot Index</title>',
-                '<style>',
-                'body { font-family: sans-serif; margin: 20px; }',
-                '.contents { margin-bottom: 40px; }',
-                '.grid { display: flex; flex-wrap: wrap; margin: -10px; }',
-                '.plot { width: 50%; padding: 10px; box-sizing: border-box; }',
-                'img { width: 100%; height: auto; display: block; }',
-                'select { margin-top: 5px; }',
-                '.variant-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }',
-                '@media print { .dropdown { display: none; } }',
-                '</style>']
 
-        if dropdown_mode:
-            html += ['<script>',
-                    'function changePlot(select, id) {',
-                    '  const img = document.getElementById(id);',
-                    '  img.src = select.value;',
-                    '}',
-                    '</script>']
+def get_args():
+    parser = argparse.ArgumentParser(description="Plot input distributions from HDF5 files.")
+    parser.add_argument("--config", '-c', type=str, required=True, help="Paths input distribution config files.")
 
-        html += ['</head>',
-                '<body>',
-                '<h1>Input Plot Index</h1>',
-                '<div class="contents">',
-                '<h2>Contents</h2>',
-                '<ul>']
+    return parser.parse_args()
 
-        # key -> variable -> detail_dir -> path
-        from collections import defaultdict
-        key_variable_map = defaultdict(lambda: defaultdict(dict))
+if __name__ == "__main__":
 
-        for key_dir in plot_dir.iterdir():
-            if not key_dir.is_dir():
-                continue
-            for detail in detail_dirs:
-                detail_dir = key_dir / detail
-                if not detail_dir.is_dir():
-                    continue
-                for img_path in detail_dir.glob("*.png"):
-                    variable = img_path.stem
-                    rel_path = img_path.relative_to(plot_dir)
-                    key_variable_map[key_dir.name][variable][detail] = rel_path
+    args = get_args()
+    with open(args.config, 'r') as f:
+        config = yaml.safe_load(f)
+    id = InputDistribution(**config)
 
-        # Contents
-        for key in sorted(key_variable_map):
-            html.append(f'<li><a href="#{key}">{key}</a><ul>')
-            for var in sorted(key_variable_map[key]):
-                html.append(f'<li><a href="#{key}-{var}">{var}</a></li>')
-            html.append('</ul></li>')
-        html.append('</ul></div>')
-
-        # Sections with 2-wide layout
-        for key in sorted(key_variable_map):
-            html.append(f'<div class="plot-section"><h2 id="{key}">{key}</h2><div class="grid">')
-            for variable in sorted(key_variable_map[key]):
-                plot_id = f"{key}-{variable}"
-                plots = key_variable_map[key][variable]
-                html.append(f'<div class="plot"><h3 id="{plot_id}">{variable}</h3>')
-
-                if dropdown_mode:
-                    default_img = plots.get("raw") or list(plots.values())[0]
-                    html.append(f'<select class="dropdown" onchange="changePlot(this, \'{plot_id}-img\')">')
-                    for detail in detail_dirs:
-                        path = plots.get(detail)
-                        if path:
-                            html.append(f'<option value="{path}">{detail}</option>')
-                    html.append('</select>')
-                    html.append(f'<img id="{plot_id}-img" src="{default_img}">')
-
-                else:
-                    html.append('<div class="variant-grid">')
-                    for detail in detail_dirs:
-                        path = plots.get(detail)
-                        if path:
-                            label = detail.replace('_', ' ').title()
-                            html.append(f'<div><b>{label}</b><br><img src="{path}"></div>')
-                    html.append('</div>')
-
-                html.append('</div>')
-            html.append('</div></div>')
-
-        html.append('</body></html>')
-        fname = 'input_index'
-        if dropdown_mode:
-            fname += '_dropdown'
-        fname += '.html'
-        index_path = plot_dir / fname
-        with open(index_path, "w") as f:
-            f.write("\n".join(html))
+    for [norm, logy] in [(False, False), (True, False), (False, True), (True, True)]:
+        id.plot(norm=norm, logy=logy)

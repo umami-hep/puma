@@ -8,6 +8,7 @@ from pathlib import Path
 import copy
 import yaml
 import re
+from pathlib import Path
 from yamlinclude import YamlIncludeConstructor
 import h5py
 from puma.hlplots import Results, Tagger, combine_suffixes, get_included_taggers
@@ -32,7 +33,7 @@ def get_args(args):
         "-s",
         "--signals",
         nargs="+",
-        choices=["bjets", "cjets"],
+        choices=["bjets", "cjets", "taujets"],
         help="Signals to plot",
     )
     parser.add_argument(
@@ -50,6 +51,277 @@ def numeric_sort_key(path):
     """
     parts = re.split(r'(\d+)', str(path))
     return [int(p) if p.isdigit() else p for p in parts]
+
+class YumaHTMLMaker:
+
+    def __init__(self, plot_dir):
+        self.plot_dir = Path(plot_dir)
+
+    def make_all(self):
+        self.make_performance_page('collapsed', width=2, collapsable=True)
+        self.make_performance_page('full', width=4, collapsable=False)
+        self.make_inputs_page('inputs_collapsed', collapsable=True)
+        self.make_inputs_page('inputs_full', collapsable=False)
+        self.make_index(['collapsed', 'full', 'inputs_collapsed', 'inputs_full'])
+
+    def make_inputs_page(self, fname, collapsable=False):
+        from collections import defaultdict
+        plot_dir = self.plot_dir / 'inputs'
+        detail_dirs = ["raw", "norm", "log", "norm_log"]
+
+        html = ['<!DOCTYPE html>',
+                '<html lang="en">',
+                '<head>',
+                '<meta charset="UTF-8">',
+                '<title>Input Plot Index</title>',
+                '<style>',
+                'body { font-family: sans-serif; margin: 20px; }',
+                '.contents { margin-bottom: 40px; }',
+                '.grid { display: flex; flex-wrap: wrap; margin: -10px; }',
+                '.plot { width: 50%; padding: 10px; box-sizing: border-box; }',
+                'img { width: 100%; height: auto; display: block; }',
+                'select { margin-top: 5px; }',
+                '.variant-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }',
+                '@media print { .dropdown { display: none; } }',
+                '</style>']
+
+        if collapsable:
+            html += ['<script>',
+                    'function changePlot(select, id) {',
+                    '  const img = document.getElementById(id);',
+                    '  img.src = select.value;',
+                    '}',
+                    '</script>']
+
+        html += ['</head>',
+                '<body>',
+                '<h1>Input Plot Index</h1>',
+                '<div class="contents">',
+                '<h2>Contents</h2>',
+                '<ul>']
+
+        # key -> variable -> detail_dir -> path
+        from collections import defaultdict
+        key_variable_map = defaultdict(lambda: defaultdict(dict))
+
+        for key_dir in plot_dir.iterdir():
+            if not key_dir.is_dir():
+                continue
+            for detail in detail_dirs:
+                detail_dir = key_dir / detail
+                if not detail_dir.is_dir():
+                    continue
+                for img_path in detail_dir.glob("*.png"):
+                    variable = img_path.stem
+                    rel_path = img_path.relative_to(self.plot_dir)
+                    key_variable_map[key_dir.name][variable][detail] = rel_path
+
+        # Contents
+        for key in sorted(key_variable_map):
+            html.append(f'<li><a href="#{key}">{key}</a><ul>')
+            for var in sorted(key_variable_map[key]):
+                html.append(f'<li><a href="#{key}-{var}">{var}</a></li>')
+            html.append('</ul></li>')
+        html.append('</ul></div>')
+
+        # Sections with 2-wide layout
+        for key in sorted(key_variable_map):
+            html.append(f'<div class="plot-section"><h2 id="{key}">{key}</h2><div class="grid">')
+            for variable in sorted(key_variable_map[key]):
+                plot_id = f"{key}-{variable}"
+                plots = key_variable_map[key][variable]
+                html.append(f'<div class="plot"><h3 id="{plot_id}">{variable}</h3>')
+
+                if collapsable:
+                    default_img = plots.get("raw") or list(plots.values())[0]
+                    html.append(f'<select class="dropdown" onchange="changePlot(this, \'{plot_id}-img\')">')
+                    for detail in detail_dirs:
+                        path = plots.get(detail)
+                        if path:
+                            html.append(f'<option value="{path}">{detail}</option>')
+                    html.append('</select>')
+                    html.append(f'<img id="{plot_id}-img" src="{default_img}">')
+
+                else:
+                    html.append('<div class="variant-grid">')
+                    for detail in detail_dirs:
+                        path = plots.get(detail)
+                        if path:
+                            label = detail.replace('_', ' ').title()
+                            html.append(f'<div><b>{label}</b><br><img src="{path}"></div>')
+                    html.append('</div>')
+
+                html.append('</div>')
+            html.append('</div></div>')
+
+        html.append('</body></html>')
+
+        fname += '.html'
+        index_path = self.plot_dir / fname
+        with open(index_path, "w") as f:
+            f.write("\n".join(html))
+
+    def make_index(self, pages):
+        html = [
+            '<!DOCTYPE html>',
+            '<html lang="en">',
+            '<head>',
+            '<meta charset="UTF-8">',
+            '<title>Index</title>',
+            '<style>',
+            'body { font-family: sans-serif; margin: 20px; }',
+            'ul { list-style-type: none; padding-left: 1em; }',
+            'li { margin-bottom: 0.5em; }',
+            '</style>',
+            '</head>',
+            '<body>',
+            '<h1>Yuma Plot Index</h1>',
+            '<ul>'
+        ]
+
+        for page in pages:
+            html.append(f'<li><a href="{page}.html">{page.replace("_", " ").title()}</a></li>')
+
+        html.extend([
+            '</ul>',
+            '</body>',
+            '</html>'
+        ])
+
+        with open(self.plot_dir / "index.html", "w") as f:
+            f.write("\n".join(html))
+
+    def make_performance_page(self, fname, width=3, collapsable=False):
+        performance_plot_order = ['prob', 'roc', 'disc', 'profile', 'regression']
+        tag_order = ['btag', 'ctag', 'tautag', 'utag']
+        all_tags = [f.name for f in self.plot_dir.glob("*tag") if f.is_dir()]
+
+        html = [
+            '<!DOCTYPE html>',
+            '<html lang="en">',
+            '<head>',
+            '<meta charset="UTF-8">',
+            '<title>Performance Plots</title>',
+            '<style>',
+            'body { font-family: sans-serif; margin: 20px; }',
+            '.contents { margin-bottom: 40px; }',
+            '.grid { display: flex; flex-wrap: wrap; margin: -10px; }',
+            f'.plot {{ width: {100/width}%; padding: 10px; box-sizing: border-box; }}',
+            'img { width: 100%; height: auto; display: block; }',
+            'h2 { margin-top: 60px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }',
+            'h3 { margin-top: 40px; }',
+            'ul { list-style-type: none; margin-left: 1em; }',
+            '.variant-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }',
+            '</style>'
+        ]
+
+        if collapsable:
+            html += [
+                '<script>',
+                'function changePlot(select, id) {',
+                '  const img = document.getElementById(id);',
+                '  img.src = select.value;',
+                '}',
+                '</script>'
+            ]
+
+        html += ['</head>', '<body>', '<h1>Performance Plots</h1>', '<div class="contents">', '<h2>Contents</h2>', '<ul>']
+
+        # Generate TOC
+        toc = []
+        for tag in tag_order:
+            if tag not in all_tags:
+                continue
+            toc.append(f'<li><a href="#{tag}">{tag}</a><ul>')
+            for ptype in performance_plot_order:
+                if (self.plot_dir / tag / ptype).exists():
+                    toc.append(f'<li><a href="#{tag}-{ptype}">{ptype}</a></li>')
+            toc.append('</ul></li>')
+        html.extend(toc)
+        html.append('</ul></div>')
+
+        # Plot sections
+        for tag in tag_order:
+            if tag not in all_tags:
+                continue
+            html.append(f'<h2 id="{tag}">{tag}</h2>')
+            tag_dir = self.plot_dir / tag
+
+            for plot_type in performance_plot_order:
+                plot_dir = tag_dir / plot_type
+                if not plot_dir.exists():
+                    continue
+
+                html.append(f'<h3 id="{tag}-{plot_type}">{plot_type}</h3>')
+
+                plots = sorted(plot_dir.glob("*.png"), key=numeric_sort_key)
+
+                if plot_type == 'profile':
+                    html.extend(self._render_profile_plots(tag, plots, collapsable))
+                else:
+                    html.append('<div class="grid">')
+                    for path in plots:
+                        name = path.stem
+                        rel_path = path.relative_to(self.plot_dir)
+                        html.append(f'<div class="plot" id="{name}">')
+                        html.append(f'<h4>{name}</h4>')
+                        html.append(f'<img src="{rel_path}">')
+                        html.append('</div>')
+                    html.append('</div>')
+
+        html.append('</body></html>')
+
+        with open(self.plot_dir / f"{fname}.html", "w") as f:
+            f.write("\n".join(html))
+
+    def _render_profile_plots(self, tag, plots, collapsable):
+        html = []
+        grouped = defaultdict(dict)  # variable -> metric -> path
+
+        for path in plots:
+            name = path.stem
+            try:
+                if '_vs_' not in name:
+                    print(f"Skipping (no _vs_): {name}")
+                    continue
+                before_vs, after_vs = name.split('_vs_', 1)
+                tokens = before_vs.split('_')
+                metric = tokens[-1]  # The last token before _vs_
+                variable = after_vs
+                if metric in ['beff', 'crej', 'trej', 'urej']:
+                    grouped[variable][metric] = path
+                else:
+                    print(f"Skipping (invalid metric): {name}")
+            except Exception as e:
+                print(f"Skipping (error): {name} ({e})")
+        html.append('<div class="grid">')
+
+        for variable in sorted(grouped):
+            plot_id = f"{tag}-profile-{variable}"
+            html.append(f'<div class="plot"><h4 id="{plot_id}">{variable}</h4>')
+
+            if collapsable:
+                default_metric = 'beff' if 'beff' in grouped[variable] else list(grouped[variable])[0]
+                default_path = grouped[variable][default_metric].relative_to(self.plot_dir)
+                html.append(f'<select onchange="changePlot(this, \'{plot_id}-img\')">')
+                for metric in ['beff', 'crej', 'trej', 'urej']:
+                    if metric in grouped[variable]:
+                        path = grouped[variable][metric].relative_to(self.plot_dir)
+                        html.append(f'<option value="{path}">{metric}</option>')
+                html.append('</select>')
+                html.append(f'<img id="{plot_id}-img" src="{default_path}">')
+            else:
+                html.append('<div class="variant-grid">')
+                for metric in ['beff', 'crej', 'trej', 'urej']:
+                    if metric in grouped[variable]:
+                        path = grouped[variable][metric].relative_to(self.plot_dir)
+                        html.append(f'<div><b>{metric}</b><br><img src="{path}"></div>')
+                html.append('</div>')
+
+            html.append('</div>')
+
+        html.append('</div>')
+        return html
 
 @dataclass
 class YumaConfig:
@@ -214,77 +486,138 @@ class YumaConfig:
                 plot_kwargs["suffix"] = combine_suffixes([plot_kwargs.get("suffix", ""), inc_str])
                 self.results.make_plot(plot_type, plot_kwargs)
                 self.results.taggers = all_taggers
-    
-    def create_index(self, width=3):
-        assert width >= 1, "Width must be at least 1"
 
-        html = ['<!DOCTYPE html>',
-            '<html lang="en">',
-            '<head>',
-            '<meta charset="UTF-8">',
-            '<title>Plot Index</title>',
-            '<style>',
-            'body { font-family: sans-serif; margin: 20px; }',
-            '.contents { margin-bottom: 40px; }',
-            '.grid { display: flex; flex-wrap: wrap; margin: -10px; }',
-            f'.plot {{ width: {100/width}%; padding: 10px; box-sizing: border-box; }}',
-            'img { width: 100%; height: auto; display: block; }',
-            'h2 { margin-top: 60px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }',
-            'h3 { margin-top: 40px; }',
-            'ul { list-style-type: none; margin-left: 1em; }',
-            '</style>',
-            '</head>',
-            '<body>',
-            '<h1>Plot Index</h1>',
-            '<div class="contents">',
-            '<h2>Contents</h2>'
-        ]
+    def _make_profile_html_section(self, width=3, collapsable=False):
+        """Creates a section of the HTML index for profile plots."""
+        pass
 
-        image_paths = sorted(self.plot_dir_final.glob("**/*.png"), key=numeric_sort_key)
-        rel_paths = [img.relative_to(self.plot_dir_final) for img in image_paths]
-        rel_paths = [p for p in rel_paths if 'inputs' not in str(p)]
+    def create_index(self, width=4, collapsable=True):
+        YumaHTMLMaker(self.plot_dir_final).make_all()
+        # from collections import defaultdict
+        # import re
 
-        # Group plots by top-level and subfolder
-        from collections import defaultdict
-        nested = defaultdict(lambda: defaultdict(list))
-        for i, rel_path in enumerate(rel_paths):
-            parts = rel_path.parts
-            top = parts[0] if len(parts) >= 2 else "root"
-            sub = "/".join(parts[:-1]) if len(parts) > 1 else top
-            nested[top][sub].append((rel_path, f"plot{i}"))
+        # assert width >= 1, "Width must be at least 1"
 
-        # Contents section
-        html.append("<ul>")
-        for top in sorted(nested):
-            html.append(f"<li>{top}<ul>")
-            for sub in sorted(nested[top]):
-                html.append(f"<li>{sub}<ul>")
-                for rel_path, anchor in nested[top][sub]:
-                    html.append(f'<li><a href="#{anchor}">{rel_path}</a></li>')
-                html.append("</ul></li>")
-            html.append("</ul></li>")
-        html.append("</ul>")
-        html.append("</div>")  # End contents
+        # html = ['<!DOCTYPE html>',
+        #     '<html lang="en">',
+        #     '<head>',
+        #     '<meta charset="UTF-8">',
+        #     '<title>Plot Index</title>',
+        #     '<style>',
+        #     'body { font-family: sans-serif; margin: 20px 60px; }',
+        #     '.contents { margin-bottom: 40px; }',
+        #     '.grid { display: flex; flex-wrap: wrap; margin: -10px; }',
+        #     f'.plot {{ width: {100/width}%; padding: 10px; box-sizing: border-box; }}',
+        #     'img { width: 100%; height: auto; display: block; }',
+        #     'h2 { margin-top: 60px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }',
+        #     'h3 { margin-top: 40px; }',
+        #     'ul { list-style-type: none; margin-left: 1em; }',
+        #     'select { margin-top: 5px; }',
+        #     '</style>',
+        #     '<script>',
+        #     'function changePlot(select, id) {',
+        #     '  const img = document.getElementById(id);',
+        #     '  img.src = select.value;',
+        #     '}',
+        #     '</script>',
+        #     '</head>',
+        #     '<body>',
+        #     '<h1>Plot Index</h1>',
+        #     '<div class="contents">',
+        #     '<h2>Contents</h2>'
+        # ]
 
-        # Plot sections
-        for top in sorted(nested):
-            html.append(f'<h2>{top}</h2>')
-            for sub in sorted(nested[top]):
-                html.append(f'<h3>{sub}</h3>')
-                html.append('<div class="grid">')
-                for rel_path, anchor in nested[top][sub]:
-                    plot_name = rel_path.stem
-                    html.append(f'<div class="plot" id="{anchor}">')
-                    html.append(f'<h4>{plot_name}</h4>')
-                    html.append(f'<img src="{rel_path}">')
-                    html.append('</div>')
-                html.append('</div>')  # End grid for this subfolder
+        # image_paths = sorted(self.plot_dir_final.glob("**/*.png"), key=numeric_sort_key)
+        # rel_paths = [img.relative_to(self.plot_dir_final) for img in image_paths]
+        # rel_paths = [p for p in rel_paths if 'inputs' not in str(p)]
 
-        html.append('</body></html>')
+        # preferred_order = ['disc', 'prob', 'profile', 'regression', 'roc', 'scan']
 
-        index_path = self.plot_dir_final / "index.html"
-        with open(index_path, "w") as f:
-            f.write("\n".join(html))
+        # # Group by top/sub and then further for profile logic
+        # nested = defaultdict(lambda: defaultdict(list))
+        # for i, rel_path in enumerate(rel_paths):
+        #     parts = rel_path.parts
+        #     top = parts[0] if len(parts) >= 2 else "root"
+        #     sub = "/".join(parts[:-1]) if len(parts) > 1 else top
+        #     nested[top][sub].append((rel_path, f"plot{i}"))
+
+        # # Contents section
+        # html.append("<ul>")
+        # for top in sorted(nested):
+        #     html.append(f"<li>{top}<ul>")
+        #     def sortkey(k):
+        #         for i, val in enumerate(preferred_order):
+        #             if k.endswith(val):
+        #                 return (i, k)
+        #         return (len(preferred_order), k)
+
+        #     for sub in sorted(nested[top], key=sortkey):
+        #         html.append(f"<li>{sub}<ul>")
+        #         for rel_path, anchor in nested[top][sub]:
+        #             html.append(f'<li><a href="#{anchor}">{rel_path}</a></li>')
+        #         html.append("</ul></li>")
+        #     html.append("</ul></li>")
+        # html.append("</ul>")
+        # html.append("</div>")  # End contents
+
+        # # Plot sections
+        # for top in sorted(nested):
+        #     html.append(f'<h2>{top}</h2>')
+        #     for sub in sorted(nested[top], key=sortkey):
+        #         html.append(f'<h3>{sub}</h3>')
+        #         plots = nested[top][sub]
+
+        #         if 'profile' in sub:
+        #             # Group profile plots by common variable name
+        #             grouped = defaultdict(dict)
+        #             pattern = re.compile(r'_btag_(?P<tag>beff|crej|trej|urej)_vs_(?P<var>.+)\.png')
+
+        #             for rel_path, anchor in plots:
+        #                 match = pattern.search(rel_path.name)
+        #                 if match:
+        #                     tag = match.group('tag')
+        #                     var = match.group('var')
+        #                     grouped[var][tag] = (rel_path, anchor)
+        #                 else:
+        #                     grouped[rel_path.stem]['single'] = (rel_path, anchor)
+
+        #             html.append('<div class="grid">')
+        #             for var, group in sorted(grouped.items()):
+        #                 if collapsable and all(t in group for t in ['beff', 'crej', 'trej', 'urej']):
+        #                     anchor = group['beff'][1]  # use beff anchor as main
+        #                     html.append(f'<div class="plot" id="{anchor}">')
+        #                     html.append(f'<h4>{var}</h4>')
+        #                     html.append(f'<select onchange="changePlot(this, \"{anchor}-img\")">')
+        #                     for t in ['beff', 'crej', 'trej', 'urej']:
+        #                         path = group[t][0]
+        #                         html.append(f'<option value="{path}">{t}</option>')
+        #                     html.append('</select>')
+        #                     html.append(f'<img id="{anchor}-img" src="{group["beff"][0]}">')
+        #                     html.append('</div>')
+        #                 else:
+        #                     for tag, (rel_path, anchor) in group.items():
+        #                         html.append(f'<div class="plot" id="{anchor}">')
+        #                         html.append(f'<h4>{rel_path.stem}</h4>')
+        #                         html.append(f'<img src="{rel_path}">')
+        #                         html.append('</div>')
+        #             html.append('</div>')  # End grid
+
+        #         else:
+        #             html.append('<div class="grid">')
+        #             for rel_path, anchor in plots:
+        #                 html.append(f'<div class="plot" id="{anchor}">')
+        #                 html.append(f'<h4>{rel_path.stem}</h4>')
+        #                 html.append(f'<img src="{rel_path}">')
+        #                 html.append('</div>')
+        #             html.append('</div>')  # End grid for this subfolder
+
+        # html.append('</body></html>')
+
+        # index_path = self.plot_dir_final / "index.html"
+        # with open(index_path, "w") as f:
+        #     f.write("\n".join(html))
+
+
 
     def plot_all_inputs(self):
         if not self.inputs_config:
@@ -296,14 +629,9 @@ class YumaConfig:
             output_path=self.plot_dir_final / "inputs",
             **self.inputs_config,
         )
-        # for [norm, logy] in [(False, False), (True, False), (False, True), (True, True)]:
-        #     inputdistr.plot(norm=norm, logy=logy)
-        inputdistr.create_input_index(
-            True
-            )
-        inputdistr.create_input_index(
-            False
-            )
+        for [norm, logy] in [(False, False), (True, False), (False, True), (True, True)]:
+            inputdistr.plot(norm=norm, logy=logy)
+
 
 def main(args=None):
     args = get_args(args)
@@ -329,10 +657,9 @@ def main(args=None):
     if args.inputs:
         yuma.plot_all_inputs()
         
-    # return
     logger.info("Instantiating Results")
     yuma.signal = signals[0]
-    yuma.get_results()  # only run once
+    yuma.get_results()  
     for signal in signals:
         logger.info(f"Plotting signal {signal}")
         yuma.signal = signal
