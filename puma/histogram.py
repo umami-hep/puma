@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+from typing import Any, ClassVar
+
 import matplotlib as mpl
 import numpy as np
 import pandas as pd
+import yaml
 from ftag import Flavours, Label
 
 from puma.plot_base import PlotBase, PlotLineObject
@@ -18,9 +23,16 @@ class Histogram(PlotLineObject):
     other histograms.
     """
 
+    _ARRAY_FIELDS: ClassVar[str] = {
+        "bin_edges",
+        "hist",
+        "unc",
+        "band",
+    }
+
     def __init__(
         self,
-        values: np.ndarray,
+        values: np.ndarray | None = None,
         bins: int | None = None,
         bins_range: tuple | None = None,
         bin_edges: np.ndarray = None,
@@ -126,6 +138,7 @@ class Histogram(PlotLineObject):
         self.bins_range = bins_range
         self.bin_edges = bin_edges
         self.sum_squared_weights = sum_squared_weights
+        self.kwargs = kwargs
 
         if self.bin_edges is None and self.sum_squared_weights is not None:
             logger.warning(
@@ -313,6 +326,165 @@ class Histogram(PlotLineObject):
             raise ValueError(
                 "Choose a binning with more than one bin in order to plot only discrete values."
             )
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return a dict with all needed info of the histogram.
+
+        Returns
+        -------
+        dict[str, Any]
+            Dict with all attributes needed or re-init.
+        """
+        # Copy the kwargs to remove safely stuff
+        extra_kwargs = dict(self.kwargs)
+
+        # Remove label
+        extra_kwargs.pop("label", None)
+
+        attrs = {
+            "bin_edges": self.bin_edges,
+            "hist": self.hist,
+            "unc": self.unc,
+            "band": self.band,
+            "ratio_group": self.ratio_group,
+            "flavour": self.flavour,
+            "add_flavour_label": self.add_flavour_label,
+            "histtype": self.histtype,
+            "is_data": self.is_data,
+            "filled": self.filled,
+            "key": self.key,
+            "label": self.label,
+            **extra_kwargs,
+        }
+
+        return {k: self._convert_args(v) for k, v in attrs.items()}
+
+    def _convert_args(self, value: object) -> object:
+        """Convert objects that JSON/YAML cannot encode natively.
+
+        np.ndarray to plain list
+        Flavour to Flavour.name (for storage)
+
+        Parameters
+        ----------
+        value : Any
+            Variable that is checked and changed if needed.
+
+        Returns
+        -------
+        Any
+            Original or adapted variable.
+        """
+        # Check for None
+        if value is None:
+            return None
+
+        # Check for numpy arrays and make them a list
+        if isinstance(value, np.ndarray):
+            return value.tolist()
+
+        # Check for flavour Label instance
+        if isinstance(value, Label):
+            return value.name
+
+        # Else return the original value
+        return value
+
+    def save(self, path: str | Path) -> None:
+        """Store Histogram attributes in a file.
+
+        Saving can be performed to a yaml and a json file.
+
+        Parameters
+        ----------
+        path : str | Path
+            Path to which the Histogram object attributes are written.
+        """
+        # Ensure path is a path object
+        path = Path(path)
+
+        # Get the attributes as a dict
+        data = self.to_dict()
+
+        # Check for json and store it as such
+        if path.suffix == ".json":
+            with path.open("w") as f:
+                json.dump(data, f, indent=2)
+
+        # Check for yaml and store it as such
+        elif path.suffix in {".yaml", ".yml"}:
+            with path.open("w") as f:
+                yaml.safe_dump(data, f)
+
+        # Else ValueError
+        else:
+            raise ValueError("Unknown file extension. Use '.json', '.yaml' or '.yml'!")
+
+    @classmethod
+    def load(cls, path: str | Path, **extra_kwargs) -> Histogram:
+        """Load the needed attributes for the Histogram from file and init.
+
+        Parameters
+        ----------
+        path : str | Path
+            Path in which the attributes are stored.
+
+        Returns
+        -------
+        Histogram
+            Instance of Histogram with the given attributes.
+
+        Raises
+        ------
+        ValueError
+            If the given file is neither json nor a yaml file.
+        """
+        # Ensure path is a path object
+        path = Path(path)
+
+        # Check if json and load it as such
+        if path.suffix == ".json":
+            with path.open() as f:
+                data = json.load(f)
+
+        # Check if yaml and load it as such
+        elif path.suffix in {".yaml", ".yml"}:
+            with path.open() as f:
+                data = yaml.safe_load(f)
+
+        # Else ValueError
+        else:
+            raise ValueError("Unknown file extension. Use '.json', '.yaml' or '.yml'.")
+
+        # Convert back to numpy where appropriate
+        for key in cls._ARRAY_FIELDS.intersection(data):
+            if data.get(key) is not None:
+                data[key] = np.asarray(data[key])
+
+        # PyYAML turns tuples into lists -> convert the ones matplotlib expects
+        tuple_fields = {"linestyle", "colour"}
+        for key in tuple_fields.intersection(data):
+            if isinstance(data[key], list):
+                data[key] = tuple(data[key])
+
+        # Change the flavour back to Flavour instance
+        data["flavour"] = (
+            Flavours[data["flavour"]]
+            if "flavour" in data and isinstance(data["flavour"], str)
+            else None
+        )
+
+        # allow caller to override
+        data.update(extra_kwargs)
+
+        # Init the class without running __init__
+        obj = cls.__new__(cls)
+
+        # Set attributes verbatim
+        for key, val in data.items():
+            setattr(obj, key, val)
+
+        return obj
 
 
 class HistogramPlot(PlotBase):

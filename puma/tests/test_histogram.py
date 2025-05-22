@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+import json
+import math
 import os
 import shutil  # noqa: F401
 import tempfile
 import unittest
+from pathlib import Path
 
 import numpy as np
+import yaml
 from ftag import Flavours
 from matplotlib.testing.compare import compare_images
 
@@ -110,6 +114,159 @@ class HistogramTestCase(unittest.TestCase):
         """Test the raise of ValueError when neither bins nor bin_edges are provided."""
         with self.assertRaises(ValueError):
             Histogram(values=np.array([1, 2, 3]))
+
+
+class HistogramIOTestCase(unittest.TestCase):
+    """
+    Unit-tests that ensure `Histogram` serialisation is lossless and robust.
+
+    The tests build a tiny deterministic histogram, write it to disk using
+    :py:meth:`Histogram.save`, reload it with :py:meth:`Histogram.load`, and
+    verify that numerical arrays, metadata and behaviour are preserved.
+    """
+
+    # ------------------------------------------------------------------
+    # helpers
+    # ------------------------------------------------------------------
+    @staticmethod
+    def _make_hist() -> Histogram:
+        """
+        Create a minimal but deterministic `Histogram` instance.
+
+        Returns
+        -------
+        Histogram
+            A histogram with three bins, assigned flavour and custom colour.
+        """
+        return Histogram(
+            values=np.arange(6),  # 0,1,2,3,4,5
+            bins=3,  # → 3 equal-width bins
+            flavour="bjets",
+            colour="cyan",
+            label="unit-test",
+        )
+
+    # ------------------------------------------------------------------
+    # _convert_args
+    # ------------------------------------------------------------------
+    def test__convert_args(self):
+        """Ensure ndarray → list and Label → name conversions work."""
+        h = self._make_hist()
+
+        self.assertEqual(h._convert_args(np.array([1, 2])), [1, 2])  # noqa: SLF001
+        self.assertEqual(h._convert_args(Flavours["bjets"]), "bjets")  # noqa: SLF001
+        self.assertEqual(h._convert_args(math.pi), math.pi)  # noqa: SLF001
+        self.assertIsNone(h._convert_args(None))  # noqa: SLF001
+
+    # ------------------------------------------------------------------
+    # to_dict
+    # ------------------------------------------------------------------
+    def test_to_dict_returns_serialisable_values(self):
+        """
+        `to_dict` must return JSON/YAML-friendly primitives and
+        contain the *final* prefixed label.
+        """
+        h = self._make_hist()
+        d = h.to_dict()
+
+        # numpy arrays are converted to plain lists
+        for field in ("bin_edges", "hist", "unc", "band"):
+            self.assertIsInstance(d[field], list)
+
+        # flavour is stored as a simple string
+        self.assertEqual(d["flavour"], "bjets")
+
+        # label already has the flavour prefix (“$b$-jets”)
+        self.assertEqual(d["label"], h.label)
+
+    # ------------------------------------------------------------------
+    # save / load (JSON)
+    # ------------------------------------------------------------------
+    def test_json_roundtrip(self):
+        """
+        Saving to JSON and loading back must reproduce the object
+        exactly, preserving arrays and metadata.
+        """
+        h = self._make_hist()
+
+        with tempfile.TemporaryDirectory() as tmpd:
+            path = Path(tmpd) / "hist.json"
+            h.save(path)
+
+            # The written file parses as valid JSON
+            with path.open() as f:
+                raw = json.load(f)
+            self.assertIn("hist", raw)
+
+            clone = Histogram.load(path)
+
+            # numerical arrays survive bit-perfect
+            np.testing.assert_array_equal(h.hist, clone.hist)
+            np.testing.assert_array_equal(h.bin_edges, clone.bin_edges)
+            np.testing.assert_array_equal(h.unc, clone.unc)
+            np.testing.assert_array_equal(h.band, clone.band)
+
+            # metadata (label includes flavour prefix)
+            self.assertEqual(clone.label, h.label)
+            self.assertEqual(clone.flavour, h.flavour)
+            self.assertEqual(clone.colour, h.colour)
+
+            # functional behaviour intact
+            ratio, _ = h.divide(clone)
+            np.testing.assert_allclose(ratio, np.ones_like(ratio))
+
+    # ------------------------------------------------------------------
+    # save / load (YAML)
+    # ------------------------------------------------------------------
+    def test_yaml_roundtrip(self):
+        """YAML round-trip should preserve arrays & metadata."""
+        h = self._make_hist()
+
+        with tempfile.TemporaryDirectory() as tmpd:
+            path = Path(tmpd) / "hist.yaml"
+            h.save(path)
+
+            # YAML parses
+            with path.open() as f:
+                raw = yaml.safe_load(f)
+            self.assertIn("hist", raw)
+
+            clone = Histogram.load(path)
+            self.assertEqual(clone.label, h.label)
+
+    # ------------------------------------------------------------------
+    def test_load_override(self):
+        """
+        `extra_kwargs` passed to `load` must override attributes
+        stored in the file.
+        """
+        h = self._make_hist()
+        with tempfile.TemporaryDirectory() as tmpd:
+            path = Path(tmpd) / "hist.json"
+            h.save(path)
+
+            clone = Histogram.load(path, colour="magenta", label="override")
+            self.assertEqual(clone.colour, "magenta")
+            self.assertEqual(clone.label, "override")
+
+    # ------------------------------------------------------------------
+    def test_invalid_extensions(self):
+        """
+        Saving or loading with an unsupported file suffix must raise
+        :class:`ValueError`.
+        """
+        h = self._make_hist()
+
+        with tempfile.TemporaryDirectory() as tmpd:
+            # save
+            with self.assertRaises(ValueError):
+                h.save(Path(tmpd) / "hist.txt")
+
+            # load
+            bogus = Path(tmpd) / "hist.conf"
+            bogus.write_text("dummy")
+            with self.assertRaises(ValueError):
+                Histogram.load(bogus)
 
 
 class HistogramPlotTestCase(unittest.TestCase):
