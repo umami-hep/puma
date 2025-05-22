@@ -17,6 +17,8 @@ hist_plot = HistogramPlot(n_ratio_panels=1)
 hist_plot.add(
     Histogram(
         values=values,
+        bins=40,
+        bins_range=(-3, 6),
         norm=False,
         label="Without weights",
     ),
@@ -26,6 +28,8 @@ hist_plot.add(
 hist_plot.add(
     Histogram(
         values=values,
+        bins=40,
+        bins_range=(-3, 6),
         weights=weights,
         norm=False,
         label="Weight 2 for right peak",
