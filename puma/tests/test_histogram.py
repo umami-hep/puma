@@ -25,88 +25,91 @@ class HistogramTestCase(unittest.TestCase):
         with self.assertRaises(TypeError):
             Histogram(values=5)
 
-    def test_divide_before_plotting(self):
-        """Test if ValueError is raised when dividing before plotting the histograms."""
-        hist_1 = Histogram([1, 1, 1, 2, 2])
-        hist_2 = Histogram([1, 2, 2, 2])
-        with self.assertRaises(ValueError):
-            hist_1.divide(hist_2)
-
-    def test_divide_after_plotting_no_norm(self):
-        """Test if ratio is calculated correctly after plotting (without norm)."""
-        hist_1 = Histogram([1, 1, 1, 2, 2])
-        hist_2 = Histogram([1, 2, 2, 2])
-        bins = np.array([1, 2, 3])
-        hist_plot = HistogramPlot(bins=bins, norm=False)
-        hist_plot.add(hist_1)
-        hist_plot.add(hist_2)
-        hist_plot.plot()
-        # Since plotting is done with the matplotlib step function, the first bin is
-        # duplicated in the ratio calculation (the first one is so to say not plotted)
-        # Therefore, we also use duplicated bins here
-        expected_ratio = np.array([3, 3, 2 / 3])
-        expected_ratio_unc = np.array([1.73205081, 1.73205081, 0.47140452])
+    def test_divide(self):
+        """Test the division of two histograms."""
+        hist_1 = Histogram(values=[1, 1, 2, 2, 3, 3], bins=3)
+        hist_2 = Histogram(values=[1, 1, 2, 2, 3, 3], bins=3)
+        expected_ratio = np.array([1, 1, 1, 1])
+        expected_ratio_unc = np.array([
+            np.sqrt(2) / 2,
+            np.sqrt(2) / 2,
+            np.sqrt(2) / 2,
+            np.sqrt(2) / 2,
+        ])
 
         np.testing.assert_almost_equal(expected_ratio, hist_1.divide(hist_2)[0])
         np.testing.assert_almost_equal(expected_ratio_unc, hist_1.divide(hist_2)[1])
 
+    def test_divide_different_binning(self):
+        """Test if ValueError is raised when dividing histograms with different binning."""
+        hist_1 = Histogram(values=[1, 1, 2, 2, 3, 3], bins=3)
+        hist_2 = Histogram(values=[1, 1, 2, 2, 3, 3], bins=2)
+        with self.assertRaises(ValueError):
+            hist_1.divide(hist_2)
+
     def test_divide_after_plotting_norm(self):
-        """Test if ratio is calculated correctly after plotting (with norm)."""
-        hist_1 = Histogram([1, 1, 1, 2, 2])
-        hist_2 = Histogram([1, 2, 2, 2])
+        """Test if ratio is calculated correctly (with norm)."""
         bins = np.array([1, 2, 3])
-        hist_plot = HistogramPlot(bins=bins, norm=True)
-        hist_plot.add(hist_1)
-        hist_plot.add(hist_2)
-        hist_plot.plot()
-        # Since plotting is done with the matplotlib step function, the first bin is
-        # duplicated in the ratio calculation (the first one is so to say not plotted)
-        # Therefore, we also use duplicated bins here
+        hist_1 = Histogram(values=[1, 1, 1, 2, 2], bins=bins, norm=True)
+        hist_2 = Histogram(values=[1, 2, 2, 2], bins=bins, norm=True)
         expected_ratio = np.array([2.4, 2.4, 0.53333333])
         expected_ratio_unc = np.array([1.38564065, 1.38564065, 0.37712362])
 
         np.testing.assert_almost_equal(expected_ratio, hist_1.divide(hist_2)[0])
         np.testing.assert_almost_equal(expected_ratio_unc, hist_1.divide(hist_2)[1])
 
-    def test_ratio_same_histogram(self):
-        """Test if ratio is 1 for equal histograms (with norm)."""
-        hist_1 = Histogram([1, 1, 1, 2, 2])
-        hist_2 = Histogram([1, 1, 1, 2, 2])
-        bins = np.array([1, 2, 3])
-        hist_plot = HistogramPlot(bins=bins, norm=True)
-        hist_plot.add(hist_1)
-        hist_plot.add(hist_2)
-        hist_plot.plot()
-        # Since plotting is done with the matplotlib step function, the first bin is
-        # duplicated in the ratio calculation (the first one is so to say not plotted)
-        # Therefore, we also use duplicated bins here
-        expected_ratio = np.ones(3)
-        expected_ratio_unc = np.array([0.57735027, 0.57735027, 0.70710678])
-
-        np.testing.assert_almost_equal(expected_ratio, hist_1.divide(hist_2)[0])
-        np.testing.assert_almost_equal(expected_ratio_unc, hist_1.divide(hist_2)[1])
-
-    def test_divide_wrong_bin_edges(self):
-        """Test if error is raised if bin edges don't match."""
-        hist_1 = Histogram([1, 1, 1, 2, 2])
-        hist_2 = Histogram([1, 2, 2, 2])
-        bins = np.array([1, 2, 3])
-        hist_plot = HistogramPlot(bins=bins, norm=False)
-        hist_plot.add(hist_1)
-        hist_plot.add(hist_2)
-        hist_plot.plot()
-        # Since plotting is done with the matplotlib step function, the first bin is
-        # duplicated in the ratio calculation (the first one is so to say not plotted)
-        # Therefore, we also use duplicated bins here
-        hist_2.bin_edges = np.array([1, 2])
-        with self.assertRaises(ValueError):
-            hist_1.divide(hist_2)
-
     def test_multiple_references_wrong_flavour(self):
         """Tests if warning is raised with wrong flavour."""
         dummy_array = np.array([1, 1, 2, 3, 2, 3])
         with self.assertRaises(KeyError):
-            Histogram(dummy_array, flavour="dummy")
+            Histogram(values=dummy_array, bins=3, flavour="dummy")
+
+    def test_get_discrete_values(self):
+        """Test the get_discrete_values standard behaviour."""
+        bins = np.array([1, 2, 3])
+        hist_1 = Histogram(
+            values=[1, 1, 1, 2, 2],
+            bins=bins,
+            norm=True,
+            discrete_vals=[1, 2],
+        )
+
+        np.testing.assert_almost_equal(hist_1.bin_edges, np.array([0, 1, 2]))
+
+    def test_get_discrete_values_one_bin_error(self):
+        """Test the get_discrete_values error if only one bin is defined."""
+        with self.assertRaises(ValueError):
+            Histogram(
+                values=[1, 1, 1, 2, 2],
+                bins=np.array([1]),
+                norm=True,
+                discrete_vals=[1, 2, 3],
+            )
+
+    def test_get_discrete_values_binwidth_error(self):
+        """Test the get_discrete_values error if the bin width is above 1."""
+        with self.assertRaises(ValueError):
+            Histogram(
+                values=[1, 1, 1, 2, 2],
+                bins=np.array([1, 3]),
+                norm=True,
+                discrete_vals=[1, 2, 3],
+            )
+
+    def test_custom_range(self):
+        """Test that the range is correctly adapted if defined."""
+        hist_1 = Histogram(
+            values=[1, 1, 1, 2, 2],
+            bins=4,
+            bins_range=(0, 4),
+            norm=True,
+        )
+        np.testing.assert_almost_equal(hist_1.bin_edges, np.array([0, 1, 2, 3, 4]))
+
+    def test_no_bins_no_bin_edges(self):
+        """Test the raise of ValueError when neither bins nor bin_edges are provided."""
+        with self.assertRaises(ValueError):
+            Histogram(values=np.array([1, 2, 3]))
 
 
 class HistogramPlotTestCase(unittest.TestCase):
@@ -114,12 +117,30 @@ class HistogramPlotTestCase(unittest.TestCase):
 
     def setUp(self):
         np.random.seed(42)
-        n_random = 10_000
-        self.hist_1 = Histogram(np.random.normal(size=n_random), label=f"N={n_random:_}")
-        self.hist_2 = Histogram(np.random.normal(size=2 * n_random), label=f"N={2 * n_random:_}")
+        self.n_random = 10_000
+        self.hist_1_values = np.random.normal(size=1 * self.n_random)
+        self.hist_2_values = np.random.normal(size=2 * self.n_random)
+        self.hist_3_values = np.random.normal(size=3 * self.n_random)
+        self.hist_1 = Histogram(
+            values=self.hist_1_values,
+            bins=20,
+            bins_range=(-2, 2),
+            label=f"N={self.n_random:_}",
+            norm=False,
+        )
+        self.hist_2 = Histogram(
+            values=self.hist_2_values,
+            bins=20,
+            bins_range=(-2, 2),
+            label=f"N={2 * self.n_random:_}",
+            norm=False,
+        )
         self.data_hist = Histogram(
-            np.random.normal(size=3 * n_random),
-            label=f"Toy Data, N={3 * n_random:_}",
+            values=self.hist_3_values,
+            bins=20,
+            bins_range=(-2, 2),
+            label=f"Toy Data, N={3 * self.n_random:_}",
+            norm=False,
             is_data=True,
             colour="k",
         )
@@ -129,16 +150,9 @@ class HistogramPlotTestCase(unittest.TestCase):
         self.actual_plots_dir = f"{self.tmp_dir.name}/"
         self.expected_plots_dir = os.path.join(os.path.dirname(__file__), "expected_plots")
 
-    def test_invalid_bins_type(self):
-        """Check if ValueError is raised when using invalid type in `bins` argument."""
-        hist_plot = HistogramPlot(bins=1.1)
-        hist_plot.add(self.hist_1, reference=True)
-        with self.assertRaises(TypeError):
-            hist_plot.plot()
-
     def test_add_bin_width_to_ylabel(self):
         """Check if ValueError is raised when using invalid type in `bins` argument."""
-        hist_plot = HistogramPlot(bins=60)
+        hist_plot = HistogramPlot()
         hist_plot.add(self.hist_1, reference=True)
         with self.assertRaises(ValueError):
             hist_plot.add_bin_width_to_ylabel()
@@ -160,9 +174,9 @@ class HistogramPlotTestCase(unittest.TestCase):
         """
         hist_plot = HistogramPlot(n_ratio_panels=1)
         dummy_array = np.array([1, 1, 2, 3, 2, 3])
-        hist_plot.add(Histogram(dummy_array, flavour="ujets"), reference=True)
-        hist_plot.add(Histogram(dummy_array, flavour="ujets"), reference=True)
-        hist_plot.add(Histogram(dummy_array, flavour="ujets"))
+        hist_plot.add(Histogram(values=dummy_array, bins=3, flavour="ujets"), reference=True)
+        hist_plot.add(Histogram(values=dummy_array, bins=3, flavour="ujets"), reference=True)
+        hist_plot.add(Histogram(values=dummy_array, bins=3, flavour="ujets"))
         hist_plot.plot()
         with self.assertRaises(ValueError):
             hist_plot.plot_ratios()
@@ -172,44 +186,9 @@ class HistogramPlotTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             HistogramPlot(n_ratio_panels=2)
 
-    def test_custom_range(self):
-        """Check if
-        1. bins_range argument is used correctly
-        2. deactivate ATLAS branding works
-        3. adding bin width to ylabel works.
-        """
-        hist_plot = HistogramPlot(
-            bins=20,
-            bins_range=(0, 4),
-            atlas_brand="",
-            atlas_first_tag="Simulation, $\\sqrt{s}=13$ TeV",
-            atlas_second_tag="Second tag with additional\ndistance from first tag",
-            figsize=(5, 4),
-            ylabel="Number of jets",
-            n_ratio_panels=1,
-            atlas_second_tag_distance=0.3,
-        )
-        hist_plot.add(self.hist_1, reference=True)
-        hist_plot.draw()
-        hist_plot.add_bin_width_to_ylabel()
-
-        name = "test_histogram_custom_range.png"
-        hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
-
     def test_data_mc(self):
         """Check if data mc looks good."""
         hist_plot = HistogramPlot(
-            bins=20,
-            bins_range=[-2, 2],
             atlas_brand="",
             atlas_first_tag="Simulation, $\\sqrt{s}=13$ TeV",
             atlas_second_tag="Second tag with additional\ndistance from first tag",
@@ -218,7 +197,6 @@ class HistogramPlotTestCase(unittest.TestCase):
             n_ratio_panels=1,
             atlas_second_tag_distance=0.3,
             stacked=True,
-            norm=False,
         )
         hist_plot.add(self.hist_1)
         hist_plot.add(self.hist_2)
@@ -241,8 +219,6 @@ class HistogramPlotTestCase(unittest.TestCase):
     def test_discrete_values(self):
         """Check if discrete values are working properly."""
         hist_plot = HistogramPlot(
-            bins=np.linspace(0, 10, 100),
-            discrete_vals=[0, 5, 7, 9],
             atlas_first_tag="Simulation, $\\sqrt{s}=13$ TeV",
             figsize=(5, 4),
             xlabel="Discrete values",
@@ -253,8 +229,27 @@ class HistogramPlotTestCase(unittest.TestCase):
         # included in the `discrete_vals` list
         values1 = np.array([0, 1, 5, 7])
         values2 = np.array([0, 5, 5, 7])
-        hist_plot.add(Histogram(values1), reference=True)
-        hist_plot.add(Histogram(values2, linestyle="--"))
+        bins = np.linspace(0, 10, 100)
+        discrete_vals = [0, 5, 7, 9]
+
+        hist_plot.add(
+            Histogram(
+                values=values1,
+                bins=bins,
+                discrete_vals=discrete_vals,
+                norm=True,
+            ),
+            reference=True,
+        )
+        hist_plot.add(
+            Histogram(
+                values=values2,
+                bins=bins,
+                discrete_vals=discrete_vals,
+                norm=True,
+                linestyle="--",
+            )
+        )
         hist_plot.draw()
 
         name = "test_histogram_discrete_values.png"
@@ -315,7 +310,6 @@ class HistogramPlotTestCase(unittest.TestCase):
     def test_output_empty_histogram_norm(self):
         """Test empty normed histogram."""
         hist_plot = HistogramPlot(
-            norm=True,
             figsize=(6.5, 5),
             atlas_second_tag=(
                 "Test if ratio is 1 for whole range if reference histogram is empty\n(+"
@@ -323,8 +317,25 @@ class HistogramPlotTestCase(unittest.TestCase):
             ),
             n_ratio_panels=1,
         )
-        hist_plot.add(Histogram(np.array([]), label="empty histogram"), reference=True)
-        hist_plot.add(self.hist_1)
+        hist_plot.add(
+            Histogram(
+                values=np.array([]),
+                bins=40,
+                bins_range=(-4, 4),
+                label="empty histogram",
+                norm=True,
+            ),
+            reference=True,
+        )
+        hist_plot.add(
+            Histogram(
+                values=self.hist_1_values,
+                bins=40,
+                bins_range=(-4, 4),
+                label=f"N={self.n_random:_}",
+                norm=True,
+            )
+        )
         hist_plot.draw()
 
         name = "test_histogram_empty_reference_norm.png"
@@ -342,13 +353,29 @@ class HistogramPlotTestCase(unittest.TestCase):
     def test_output_empty_histogram_no_norm(self):
         """Test if ratio is 1 for whole range if reference histogram is empty."""
         hist_plot = HistogramPlot(
-            norm=False,
             figsize=(6.5, 5),
             atlas_second_tag=("Test if ratio is 1 for whole range if reference histogram is empty"),
             n_ratio_panels=1,
         )
-        hist_plot.add(Histogram(np.array([]), label="empty histogram"), reference=True)
-        hist_plot.add(self.hist_1)
+        hist_plot.add(
+            Histogram(
+                values=np.array([]),
+                bins=40,
+                bins_range=(-4, 4),
+                label="empty histogram",
+                norm=False,
+            ),
+            reference=True,
+        )
+        hist_plot.add(
+            Histogram(
+                values=self.hist_1_values,
+                bins=40,
+                bins_range=(-4, 4),
+                label=f"N={self.n_random:_}",
+                norm=False,
+            )
+        )
         hist_plot.draw()
 
         name = "test_histogram_empty_reference_no_norm.png"
@@ -385,11 +412,30 @@ class HistogramPlotTestCase(unittest.TestCase):
         arr_2 = np.random.uniform(0, 2, n_random)
         arr_3 = np.random.uniform(-1, 1, n_random)
         hist_plot.add(
-            Histogram(arr_1, label="uniform [-2, 0] and uniform [0.5, 1] \n(reference)"),
+            Histogram(
+                values=arr_1,
+                bins=40,
+                bins_range=(-2, 2),
+                label="uniform [-2, 0] and uniform [0.5, 1] \n(reference)",
+            ),
             reference=True,
         )
-        hist_plot.add(Histogram(arr_2, label="uniform [0, 2]"))
-        hist_plot.add(Histogram(arr_3, label="uniform [-1, 1]"))
+        hist_plot.add(
+            Histogram(
+                values=arr_2,
+                bins=40,
+                bins_range=(-2, 2),
+                label="uniform [0, 2]",
+            )
+        )
+        hist_plot.add(
+            Histogram(
+                values=arr_3,
+                bins=40,
+                bins_range=(-2, 2),
+                label="uniform [-1, 1]",
+            )
+        )
         hist_plot.draw()
 
         name = "test_histogram_different_ranges.png"
@@ -407,8 +453,6 @@ class HistogramPlotTestCase(unittest.TestCase):
     def test_draw_vlines_histogram(self):
         """Test the drawing of vertical lines in the histogram."""
         hist_plot = HistogramPlot(
-            bins=20,
-            bins_range=(0, 4),
             atlas_brand="",
             atlas_first_tag="Simulation, $\\sqrt{s}=13$ TeV",
             atlas_tag_outside=True,
@@ -416,7 +460,16 @@ class HistogramPlotTestCase(unittest.TestCase):
             ylabel="Number of jets",
             n_ratio_panels=1,
         )
-        hist_plot.add(self.hist_1, reference=True)
+        hist_plot.add(
+            Histogram(
+                values=self.hist_1_values,
+                bins=20,
+                bins_range=(0, 4),
+                label=f"N={self.n_random:_}",
+                norm=True,
+            ),
+            reference=True,
+        )
         hist_plot.draw_vlines(
             xs=[1, 2, 3],
         )
@@ -437,8 +490,6 @@ class HistogramPlotTestCase(unittest.TestCase):
     def test_draw_vlines_histogram_custom_labels(self):
         """Test the drawing of vertical lines in the histogram."""
         hist_plot = HistogramPlot(
-            bins=20,
-            bins_range=(0, 4),
             atlas_brand="",
             atlas_first_tag="Simulation, $\\sqrt{s}=13$ TeV",
             atlas_second_tag="",
@@ -446,7 +497,16 @@ class HistogramPlotTestCase(unittest.TestCase):
             ylabel="Number of jets",
             n_ratio_panels=1,
         )
-        hist_plot.add(self.hist_1, reference=True)
+        hist_plot.add(
+            Histogram(
+                values=self.hist_1_values,
+                bins=20,
+                bins_range=(0, 4),
+                label=f"N={self.n_random:_}",
+                norm=True,
+            ),
+            reference=True,
+        )
         hist_plot.draw_vlines(
             xs=[1, 2, 3],
             labels=["One", "Two", "Three"],
@@ -468,8 +528,6 @@ class HistogramPlotTestCase(unittest.TestCase):
     def test_draw_vlines_histogram_same_height(self):
         """Test the drawing of vertical lines in the histogram."""
         hist_plot = HistogramPlot(
-            bins=20,
-            bins_range=(0, 4),
             atlas_brand="",
             atlas_first_tag="Simulation, $\\sqrt{s}=13$ TeV",
             atlas_second_tag="",
@@ -477,7 +535,16 @@ class HistogramPlotTestCase(unittest.TestCase):
             ylabel="Number of jets",
             n_ratio_panels=1,
         )
-        hist_plot.add(self.hist_1, reference=True)
+        hist_plot.add(
+            Histogram(
+                values=self.hist_1_values,
+                bins=20,
+                bins_range=(0, 4),
+                label=f"N={self.n_random:_}",
+                norm=True,
+            ),
+            reference=True,
+        )
         hist_plot.draw_vlines(
             xs=[1, 2, 3],
             same_height=True,
@@ -499,8 +566,6 @@ class HistogramPlotTestCase(unittest.TestCase):
     def test_draw_vlines_histogram_custom_yheight(self):
         """Test the drawing of vertical lines in the histogram."""
         hist_plot = HistogramPlot(
-            bins=20,
-            bins_range=(0, 4),
             atlas_brand="",
             atlas_first_tag="Simulation, $\\sqrt{s}=13$ TeV",
             atlas_second_tag="",
@@ -508,7 +573,16 @@ class HistogramPlotTestCase(unittest.TestCase):
             ylabel="Number of jets",
             n_ratio_panels=1,
         )
-        hist_plot.add(self.hist_1, reference=True)
+        hist_plot.add(
+            Histogram(
+                values=self.hist_1_values,
+                bins=20,
+                bins_range=(0, 4),
+                label=f"N={self.n_random:_}",
+                norm=True,
+            ),
+            reference=True,
+        )
         hist_plot.draw_vlines(
             xs=[1, 2, 3],
             ys=[0.7, 0.6, 0.5],
@@ -547,7 +621,9 @@ class HistogramPlotTestCase(unittest.TestCase):
         # add two histograms with flavour=None but ratio_goup set
         hist_plot.add(
             Histogram(
-                rng.normal(0, 1, size=10_000),
+                values=rng.normal(0, 1, size=10_000),
+                bins=40,
+                bins_range=(-4, 8),
                 ratio_group="ratio group 1",
                 colour=Flavours["ujets"].colour,
                 label=Flavours["ujets"].label,
@@ -556,7 +632,9 @@ class HistogramPlotTestCase(unittest.TestCase):
         )
         hist_plot.add(
             Histogram(
-                rng.normal(0.5, 1, size=10_000),
+                values=rng.normal(0.5, 1, size=10_000),
+                bins=40,
+                bins_range=(-4, 8),
                 colour=Flavours["ujets"].colour,
                 ratio_group="ratio group 1",
                 linestyle="--",
@@ -564,7 +642,9 @@ class HistogramPlotTestCase(unittest.TestCase):
         )
         hist_plot.add(
             Histogram(
-                rng.normal(3, 1, size=10_000),
+                values=rng.normal(3, 1, size=10_000),
+                bins=40,
+                bins_range=(-4, 8),
                 label=Flavours["bjets"].label,
                 colour=Flavours["bjets"].colour,
                 ratio_group="Ratio group 2",
@@ -574,6 +654,8 @@ class HistogramPlotTestCase(unittest.TestCase):
         hist_plot.add(
             Histogram(
                 rng.normal(3.5, 1, size=10_000),
+                bins=40,
+                bins_range=(-4, 8),
                 colour=Flavours["bjets"].colour,
                 ratio_group="Ratio group 2",
                 linestyle="--",
@@ -610,7 +692,6 @@ class HistogramPlotTestCase(unittest.TestCase):
         rng = np.random.default_rng(seed=42)
 
         hist_plot = HistogramPlot(
-            bins=100,
             atlas_brand=None,
             atlas_first_tag="",
             atlas_second_tag=(
@@ -622,11 +703,20 @@ class HistogramPlotTestCase(unittest.TestCase):
             figsize=(8, 6),
         )
         # No flavour
-        hist_plot.add(Histogram(rng.normal(0, 1, size=10_000), label="Unflavoured histogram"))
+        hist_plot.add(
+            Histogram(
+                values=rng.normal(0, 1, size=10_000),
+                bins=100,
+                bins_range=(-4, 16),
+                label="Unflavoured histogram",
+            )
+        )
         # Flavour, but also label (using the default flavour label + the specified one)
         hist_plot.add(
             Histogram(
-                rng.normal(4, 1, size=10_000),
+                values=rng.normal(4, 1, size=10_000),
+                bins=100,
+                bins_range=(-4, 16),
                 label="(flavoured, adding default flavour label '$b$-jets' to legend)",
                 flavour="bjets",
             )
@@ -634,7 +724,9 @@ class HistogramPlotTestCase(unittest.TestCase):
         # Flavour + label (this time with suppressing the default flavour label)
         hist_plot.add(
             Histogram(
-                rng.normal(8, 1, size=10_000),
+                values=rng.normal(8, 1, size=10_000),
+                bins=100,
+                bins_range=(-4, 16),
                 label="Flavoured histogram (default flavour label suppressed)",
                 flavour="bjets",
                 add_flavour_label=False,
@@ -644,7 +736,9 @@ class HistogramPlotTestCase(unittest.TestCase):
         # Flavoured, but using custom colour
         hist_plot.add(
             Histogram(
-                rng.normal(12, 1, size=10_000),
+                values=rng.normal(12, 1, size=10_000),
+                bins=100,
+                bins_range=(-4, 16),
                 label="(flavoured, with custom colour)",
                 flavour="bjets",
                 linestyle="dotted",
@@ -667,14 +761,12 @@ class HistogramPlotTestCase(unittest.TestCase):
 
     def test_weights(self):
         """Output plot with weights."""
-        values = np.array([])
         values = np.array([0, 1, 2, 2, 3])
         weights = np.array([1, -1, 3, -2, 1])
         hist_exp = np.array([1, -1, 2])
         unc_exp = np.sqrt(np.array([1, (-1) ** 2, 3**2 + (-2) ** 2 + 1]))
 
         hist_plot = HistogramPlot(
-            bins=3,
             figsize=(6, 5),
             atlas_first_tag=None,
             atlas_second_tag=(
@@ -682,14 +774,8 @@ class HistogramPlotTestCase(unittest.TestCase):
                 f"\nExpected bin counts: {hist_exp}"
                 f"\nExpected bin uncertainties: {unc_exp}"
             ),
-            norm=False,
         )
-        hist_plot.add(
-            Histogram(
-                values,
-                weights=weights,
-            )
-        )
+        hist_plot.add(Histogram(values=values, bins=3, weights=weights, norm=False))
         hist_plot.draw()
 
         name = "test_histogram_weights.png"
@@ -720,10 +806,27 @@ class HistogramPlotTestCase(unittest.TestCase):
         vals = [-1, 1, 2, 3, 6]
         vals_with_inf = [-1, 1, 2, 6, np.inf]
 
-        hist_plot = HistogramPlot(bins=5, bins_range=(0, 5), underoverflow=False)
+        hist_plot = HistogramPlot()
         hist_plot.atlas_second_tag = "This plot does not have under/overflow bins"
-        hist_plot.add(Histogram(vals, colour="b"))
-        hist_plot.add(Histogram(vals_with_inf, colour="r", linestyle="dotted"))
+        hist_plot.add(
+            Histogram(
+                values=vals,
+                bins=5,
+                bins_range=(0, 5),
+                underoverflow=False,
+                colour="b",
+            )
+        )
+        hist_plot.add(
+            Histogram(
+                values=vals_with_inf,
+                bins=5,
+                bins_range=(0, 5),
+                underoverflow=False,
+                colour="r",
+                linestyle="dotted",
+            )
+        )
         hist_plot.draw()
 
         name = "test_histogram_without_underoverflow_bins.png"
@@ -738,10 +841,25 @@ class HistogramPlotTestCase(unittest.TestCase):
             )
         )
 
-        hist_plot = HistogramPlot(bins=5, bins_range=(0, 5))
+        hist_plot = HistogramPlot()
         hist_plot.atlas_second_tag = "This plot has under/overflow bins"
-        hist_plot.add(Histogram(vals, colour="b"))
-        hist_plot.add(Histogram(vals_with_inf, colour="r", linestyle="dotted"))
+        hist_plot.add(
+            Histogram(
+                vals,
+                bins=5,
+                bins_range=(0, 5),
+                colour="b",
+            )
+        )
+        hist_plot.add(
+            Histogram(
+                vals_with_inf,
+                bins=5,
+                bins_range=(0, 5),
+                colour="r",
+                linestyle="dotted",
+            )
+        )
         hist_plot.draw()
 
         name = "test_histogram_with_underoverflow_bins.png"
@@ -762,10 +880,10 @@ class HistogramPlotTestCase(unittest.TestCase):
 
         vals = [0, 1, 1, 5, 4, 2, 1, 3, 3, 5, 5, 5, 5, 5]
 
-        hist_filled = Histogram(bin_counts, bin_edges=bin_edges)
-        hist_notfilled = Histogram(vals)
+        hist_filled = Histogram(bin_counts, bin_edges=bin_edges, underoverflow=False)
+        hist_notfilled = Histogram(values=vals, bins=bin_edges)
 
-        hist_plot = HistogramPlot(bins=bin_edges, underoverflow=False)
+        hist_plot = HistogramPlot()
         hist_plot.add(hist_filled)
         hist_plot.add(hist_notfilled)
 
@@ -789,9 +907,14 @@ class HistogramPlotTestCase(unittest.TestCase):
         bin_counts = [5, 4, 7, 12, 2]
         sum_squared_weights = [10, 7, 12, 21, 5]
 
-        hist_plot = HistogramPlot(bins=bin_edges, underoverflow=False)
+        hist_plot = HistogramPlot()
         hist_plot.add(
-            Histogram(bin_counts, bin_edges=bin_edges, sum_squared_weights=sum_squared_weights)
+            Histogram(
+                values=bin_counts,
+                bin_edges=bin_edges,
+                underoverflow=False,
+                sum_squared_weights=sum_squared_weights,
+            )
         )
 
         hist_plot.draw()
