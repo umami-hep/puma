@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Minor updates and fixes to results class [!316](https://github.com/umami-hep/puma/pull/316)
 - Minor changes to make aux plotting style consistent with GN2 paper [!313](https://github.com/umami-hep/puma/pull/313)
 - Adding support for ratio_group for VarVsVar plots [!311](https://github.com/umami-hep/puma/pull/311)
 - Fix unintended gap between the last and second-last ratio plots [!312](https://github.com/umami-hep/puma/pull/312)
