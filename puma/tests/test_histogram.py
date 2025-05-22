@@ -424,7 +424,6 @@ class HistogramPlotTestCase(unittest.TestCase):
     def test_output_ratio(self):
         """Check with a plot if the ratio is the expected value."""
         hist_plot = HistogramPlot(
-            norm=False,
             ymax_ratio=[4],
             figsize=(6.5, 5),
             n_ratio_panels=1,

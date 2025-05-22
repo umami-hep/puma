@@ -332,7 +332,7 @@ class Results:
         ]
 
         # Init a default kwargs dict for the HistogramPlot
-        histo_kwargs = {
+        histo_plot_kwargs = {
             "ylabel": "Normalised number of jets",
             "figsize": (7.0, 4.5),
             "n_ratio_panels": 1,
@@ -340,16 +340,29 @@ class Results:
             "atlas_second_tag": self.atlas_second_tag,
         }
 
-        # If kwargs are given, update the histo_kwargs dict
+        # If kwargs are given, update the histo_plot_kwargs dict
         if kwargs is not None:
-            histo_kwargs.update(kwargs)
+            histo_plot_kwargs.update(kwargs)
+
+        # Remove the kwargs that need to go to the Histogram objects
+        histo_kwargs = {"bins": 40, "bins_range": (0, 1)}
+        for iter_kwarg in list(histo_plot_kwargs):
+            if iter_kwarg in set(
+                "bins",
+                "bins_range",
+                "bin_edges",
+                "norm",
+                "underoverflow",
+                "discrete_vals",
+            ):
+                histo_kwargs[iter_kwarg] = histo_plot_kwargs.pop(iter_kwarg)
 
         # group by output probability
         for flav_prob in flavours:
             # Create a new histogram plot
             hist = HistogramPlot(
                 xlabel=flav_prob.px,
-                **histo_kwargs,
+                **histo_plot_kwargs,
             )
 
             # Init a new list for the tagger labels
@@ -364,11 +377,12 @@ class Results:
                 for flav_class in flavours:
                     hist.add(
                         Histogram(
-                            tagger.probs(flav_prob, flav_class),
+                            values=tagger.probs(flav_prob, flav_class),
                             ratio_group=flav_class,
                             label=flav_class.label if counter == 0 else None,
                             colour=flav_class.colour,
                             linestyle=line_styles[counter],
+                            **histo_kwargs,
                         ),
                         reference=tagger.reference,
                     )
@@ -387,7 +401,7 @@ class Results:
             # Create a new histogram plot
             hist = HistogramPlot(
                 xlabel=flav_class.label,
-                **histo_kwargs,
+                **histo_plot_kwargs,
             )
 
             # Init a new list for the tagger labels
@@ -407,6 +421,7 @@ class Results:
                             label=flav_prob.px if counter == 0 else None,
                             colour=flav_prob.colour,
                             linestyle=line_styles[counter],
+                            **histo_kwargs,
                         ),
                         reference=tagger.reference,
                     )
@@ -451,8 +466,8 @@ class Results:
         # Get good linestyles for plotting
         line_styles = get_good_linestyles()
 
-        # Init histo_kwargs
-        histo_kwargs = {
+        # Init histo_plot_kwargs
+        histo_plot_kwargs = {
             "n_ratio_panels": 0,
             "xlabel": xlabel,
             "ylabel": "Normalised number of jets",
@@ -461,12 +476,25 @@ class Results:
             "atlas_second_tag": self.atlas_second_tag,
         }
 
-        # Check if kwargs are given and update the histo_kwargs accordingly
+        # Check if kwargs are given and update the histo_plot_kwargs accordingly
         if kwargs is not None:
-            histo_kwargs.update(kwargs)
+            histo_plot_kwargs.update(kwargs)
+
+        # Remove the kwargs that need to go to the Histogram objects
+        histo_kwargs = {"bins": 40}
+        for iter_kwarg in list(histo_plot_kwargs):
+            if iter_kwarg in set(
+                "bins",
+                "bins_range",
+                "bin_edges",
+                "norm",
+                "underoverflow",
+                "discrete_vals",
+            ):
+                histo_kwargs[iter_kwarg] = histo_plot_kwargs.pop(iter_kwarg)
 
         # Create a new histogram plot
-        hist = HistogramPlot(**histo_kwargs)
+        hist = HistogramPlot(**histo_plot_kwargs)
 
         # Init a tagger label list
         tagger_labels = []
@@ -503,6 +531,7 @@ class Results:
                             label=flav.label if counter == 0 else None,
                             colour=flav.colour,
                             linestyle=line_styles[counter],
+                            **histo_kwargs,
                         ),
                         reference=tagger.reference,
                     )
