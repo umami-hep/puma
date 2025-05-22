@@ -347,14 +347,14 @@ class Results:
         # Remove the kwargs that need to go to the Histogram objects
         histo_kwargs = {"bins": 40, "bins_range": (0, 1)}
         for iter_kwarg in list(histo_plot_kwargs):
-            if iter_kwarg in set(
+            if iter_kwarg in {
                 "bins",
                 "bins_range",
                 "bin_edges",
                 "norm",
                 "underoverflow",
                 "discrete_vals",
-            ):
+            }:
                 histo_kwargs[iter_kwarg] = histo_plot_kwargs.pop(iter_kwarg)
 
         # group by output probability
@@ -483,14 +483,14 @@ class Results:
         # Remove the kwargs that need to go to the Histogram objects
         histo_kwargs = {"bins": 40}
         for iter_kwarg in list(histo_plot_kwargs):
-            if iter_kwarg in set(
+            if iter_kwarg in {
                 "bins",
                 "bins_range",
                 "bin_edges",
                 "norm",
                 "underoverflow",
                 "discrete_vals",
-            ):
+            }:
                 histo_kwargs[iter_kwarg] = histo_plot_kwargs.pop(iter_kwarg)
 
         # Create a new histogram plot

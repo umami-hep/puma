@@ -480,14 +480,14 @@ class AuxResults:
         # Remove the kwargs that need to go to the Histogram objects
         histo_kwargs = {"bins": 40, "bins_range": mass_range}
         for iter_kwarg in list(histo_plot_kwargs):
-            if iter_kwarg in set(
+            if iter_kwarg in {
                 "bins",
                 "bins_range",
                 "bin_edges",
                 "norm",
                 "underoverflow",
                 "discrete_vals",
-            ):
+            }:
                 histo_kwargs[iter_kwarg] = histo_plot_kwargs.pop(iter_kwarg)
 
         for flavour in vtx_flavours:
@@ -513,12 +513,12 @@ class AuxResults:
                         key: value
                         for key, value in histo_plot_kwargs.items()
                         if key
-                        not in set(
+                        not in {
                             "atlas_second_tag",
                             "n_ratio_panels",
                             "ymin_ratio",
                             "ymax_ratio",
-                        )
+                        }
                     },
                 )
 
@@ -583,7 +583,7 @@ class AuxResults:
                             **{
                                 key: value
                                 for key, value in histo_kwargs.items()
-                                if key not in set("bins", "bins_range")
+                                if key not in {"bins", "bins_range"}
                             },
                         )
                     )
