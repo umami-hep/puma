@@ -353,6 +353,8 @@ class Histogram(PlotLineObject):
             "filled": self.filled,
             "key": self.key,
             "label": self.label,
+            "norm": self.norm,
+            "discrete_vals": self.discrete_vals,
             **extra_kwargs,
         }
 
