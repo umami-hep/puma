@@ -12,17 +12,22 @@ values = np.hstack((rng.normal(size=10_000), rng.normal(loc=3, size=10_000)))
 # for the weighted histogram we weight entries of the right peak by a factor of 2
 weights = np.hstack((np.ones(10_000), 2 * np.ones(10_000)))
 
-hist_plot = HistogramPlot(n_ratio_panels=1, norm=False)
+hist_plot = HistogramPlot(n_ratio_panels=1)
 # add the unweighted histogram
 hist_plot.add(
-    Histogram(values, label="Without weights"),
+    Histogram(
+        values=values,
+        norm=False,
+        label="Without weights",
+    ),
     reference=True,
 )
 # add the weighted histogram
 hist_plot.add(
     Histogram(
-        values,
+        values=values,
         weights=weights,
+        norm=False,
         label="Weight 2 for right peak",
     )
 )
