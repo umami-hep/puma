@@ -544,6 +544,7 @@ class Results:
                     label=self.signal.label if counter == 0 else None,
                     colour=self.signal.colour,
                     linestyle=line_styles[counter],
+                    **histo_kwargs,
                 ),
                 reference=tagger.reference,
             )
