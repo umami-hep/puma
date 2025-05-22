@@ -177,23 +177,19 @@ class Histogram(PlotLineObject):
 
         # If flavour was specified, extract configuration from global config
         if self.flavour is not None:
-            if self.flavour in Flavours:
-                # Use globally defined flavour colour if not specified
-                if self.colour is None:
-                    self.colour = self.flavour.colour
-                    logger.debug("Histogram colour was set to %s", self.colour)
+            # Use globally defined flavour colour if not specified
+            if self.colour is None:
+                self.colour = self.flavour.colour
+                logger.debug("Histogram colour was set to %s", self.colour)
 
-                # Add globally defined flavour label if not suppressed
-                if self.add_flavour_label:
-                    global_flavour_label = self.flavour.label
-                    self.label = f"{global_flavour_label} {label}"
-
-                else:
-                    self.label = label
-                logger.debug("Histogram label was set to %s", {self.label})
+            # Add globally defined flavour label if not suppressed
+            if self.add_flavour_label:
+                global_flavour_label = self.flavour.label
+                self.label = f"{global_flavour_label} {label}"
 
             else:
-                logger.warning("The flavour '%s' was not found in the global config.", self.flavour)
+                self.label = label
+            logger.debug("Histogram label was set to %s", {self.label})
 
         # Histogram the input values
         self.bin_edges, self.hist, self.unc, self.band = hist_w_unc(
@@ -236,8 +232,11 @@ class Histogram(PlotLineObject):
         ValueError
             If bin_edges attribute is not set for one of the two histograms
         """
-        if not np.all(self.bin_edges == other.bin_edges):
-            raise ValueError("The binning of the two given objects do not match.")
+        try:
+            np.all(self.bin_edges == other.bin_edges)
+
+        except ValueError as err:
+            raise ValueError("The binning of the two given objects do not match.") from err
 
         # Bins where the reference histogram is empty/zero, are given a ratio of np.inf
         # which means that the ratio plot will not have any entry in these bins.

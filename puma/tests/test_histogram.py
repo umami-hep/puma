@@ -51,7 +51,7 @@ class HistogramTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             hist_1.divide(hist_2)
 
-    def test_divide_after_plotting_norm(self):
+    def test_divide_norm(self):
         """Test if ratio is calculated correctly (with norm)."""
         bins = np.array([1, 2, 3])
         hist_1 = Histogram(values=[1, 1, 1, 2, 2], bins=bins, norm=True)
@@ -61,6 +61,31 @@ class HistogramTestCase(unittest.TestCase):
 
         np.testing.assert_almost_equal(expected_ratio, hist_1.divide(hist_2)[0])
         np.testing.assert_almost_equal(expected_ratio_unc, hist_1.divide(hist_2)[1])
+
+    def test_divide_data_mc(self):
+        """Test the division of a data and a MC histogram."""
+        bins = 3
+        hist_1 = Histogram(values=[1, 1, 2, 2, 3, 3], bins=bins)
+        hist_2 = np.ones(shape=bins) * (1 / 3)
+        expected_ratio = np.array([1, 1, 1, 1])
+        expected_ratio_unc = np.array([
+            np.sqrt(2) / 2,
+            np.sqrt(2) / 2,
+            np.sqrt(2) / 2,
+            np.sqrt(2) / 2,
+        ])
+
+        np.testing.assert_almost_equal(expected_ratio, hist_1.divide_data_mc(hist_2)[0])
+        np.testing.assert_almost_equal(expected_ratio_unc, hist_1.divide_data_mc(hist_2)[1])
+
+    def test_divide_data_mc_wrong_binnings(self):
+        """Test the division of a data and a MC histogram with wrong binning shapes."""
+        bins = 3
+        hist_1 = Histogram(values=[1, 1, 2, 2, 3, 3], bins=bins)
+        hist_2 = np.ones(shape=4) * (1 / 3)
+
+        with self.assertRaises(ValueError):
+            hist_1.divide_data_mc(hist_2)
 
     def test_multiple_references_wrong_flavour(self):
         """Tests if warning is raised with wrong flavour."""
@@ -115,6 +140,29 @@ class HistogramTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             Histogram(values=np.array([1, 2, 3]))
 
+    def test_no_bin_edges_with_sum_squared_weights(self):
+        """Test the logger warning that sum squared weights are ignored."""
+        with self.assertLogs("puma", level="WARNING") as captured:
+            Histogram(values=np.array([1, 2, 3]), bins=3, sum_squared_weights=np.array([1, 1, 1]))
+
+        self.assertTrue(
+            any("Parameter `sum_squared_weights` is ignored" in msg for msg in captured.output),
+            "Expected warning not found",
+        )
+
+    def test_bins_and_bin_edges(self):
+        """Test the logger warning that bins are ignored."""
+        with self.assertLogs("puma", level="WARNING") as captured:
+            Histogram(values=np.array([1, 2, 3]), bins=3, bin_edges=np.array([0, 1, 2, 3, 4]))
+
+        self.assertTrue(
+            any(
+                "When bin_edges are provided, bins are not considered!" in msg
+                for msg in captured.output
+            ),
+            "Expected warning not found",
+        )
+
 
 class HistogramIOTestCase(unittest.TestCase):
     """
@@ -142,7 +190,8 @@ class HistogramIOTestCase(unittest.TestCase):
             values=np.arange(6),  # 0,1,2,3,4,5
             bins=3,  # → 3 equal-width bins
             flavour="bjets",
-            colour="cyan",
+            colour=(0.1, 0.6, 0.3),
+            linestyle=(0, (1, 2)),
             label="unit-test",
         )
 
@@ -307,12 +356,91 @@ class HistogramPlotTestCase(unittest.TestCase):
         self.actual_plots_dir = f"{self.tmp_dir.name}/"
         self.expected_plots_dir = os.path.join(os.path.dirname(__file__), "expected_plots")
 
+    def test_different_norm_settings(self):
+        """Check if ValueError is raised when using different norm settings."""
+        dummy_array = np.array([1, 1, 2, 3, 2, 3])
+        hist_plot = HistogramPlot()
+        hist_plot.add(
+            Histogram(values=dummy_array, bins=3, norm=True, flavour="ujets"),
+            reference=True,
+        )
+        hist_plot.add(
+            Histogram(
+                values=dummy_array,
+                bins=3,
+                norm=False,
+                flavour="ujets",
+            )
+        )
+        with self.assertRaises(ValueError):
+            hist_plot.draw()
+
+    def test_different_bin_edges_settings(self):
+        """Check if ValueError is raised when using different bin edges."""
+        dummy_array = np.array([1, 1, 2, 3, 2, 3])
+        hist_plot = HistogramPlot()
+        hist_plot.add(
+            Histogram(
+                values=dummy_array,
+                bin_edges=np.array([1, 2, 3]),
+                flavour="ujets",
+            ),
+            reference=True,
+        )
+        hist_plot.add(
+            Histogram(
+                values=dummy_array,
+                bin_edges=np.array([1, 2, 3, 4]),
+                flavour="ujets",
+            )
+        )
+        with self.assertRaises(ValueError):
+            hist_plot.draw()
+
+    def test_stacked_and_normed(self):
+        """Check if ValueError is raised when stacked and normed are both true."""
+        dummy_array = np.array([1, 1, 2, 3, 2, 3])
+        hist_plot = HistogramPlot(stacked=True)
+        hist_plot.add(
+            Histogram(
+                values=dummy_array,
+                bins=3,
+                norm=True,
+                flavour="ujets",
+            ),
+            reference=True,
+        )
+        hist_plot.add(
+            Histogram(
+                values=dummy_array,
+                bins=3,
+                norm=True,
+                flavour="ujets",
+            )
+        )
+        with self.assertRaises(ValueError):
+            hist_plot.draw()
+
     def test_add_bin_width_to_ylabel(self):
         """Check if ValueError is raised when using invalid type in `bins` argument."""
         hist_plot = HistogramPlot()
         hist_plot.add(self.hist_1, reference=True)
         with self.assertRaises(ValueError):
             hist_plot.add_bin_width_to_ylabel()
+
+    def test_add_bin_width_to_ylabel_smaller_certain_value(self):
+        """Check if the ylabel is correctly set at small bin widths."""
+        hist_plot = HistogramPlot()
+        hist_plot.add(
+            Histogram(
+                values=np.array([1, 2]),
+                bins=np.linspace(0, 1, 1000),
+                norm=True,
+                flavour="ujets",
+            ),
+            reference=True,
+        )
+        hist_plot.draw()
 
     def test_multiple_references_no_flavour(self):
         """Tests if error is raised in case of non-unique reference histogram."""
