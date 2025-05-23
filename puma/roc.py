@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any, ClassVar
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -45,6 +47,11 @@ def adjust_ylabels(fig, axes, min_distance=1) -> None:
 
 class Roc(PlotLineObject):
     """Represent a single ROC curve and allows to calculate ratio w.r.t other ROCs."""
+
+    _ARRAY_FIELDS: ClassVar[str] = {
+        "sig_eff",
+        "bkg_rej",
+    }
 
     def __init__(
         self,
@@ -98,6 +105,7 @@ class Roc(PlotLineObject):
         self.rej_class = Flavours[rej_class] if isinstance(rej_class, str) else rej_class
         self.key = key
         self.ratio_group = ratio_group if ratio_group else str(rej_class)
+        self.kwargs = kwargs
 
     def binomial_error(self, norm: bool = False, n_test: int | None = None) -> np.ndarray:
         """Calculate binomial error of roc curve.
@@ -189,6 +197,33 @@ class Roc(PlotLineObject):
             Masked background rejection
         """
         return self.sig_eff[self.non_zero_mask], self.bkg_rej[self.non_zero_mask]
+
+    @property
+    def args_to_store(self) -> dict[str, Any]:
+        """Returns the arguments that need to be stored/loaded.
+
+        Returns
+        -------
+        dict[str, Any]
+            Dict with the arguments
+        """
+        # Copy the kwargs to remove safely stuff
+        extra_kwargs = dict(getattr(self, "kwargs", {}))
+
+        # Remove label
+        extra_kwargs.pop("label", None)
+
+        # Create the dict with the args to store/load
+        return {
+            "sig_eff": self.sig_eff,
+            "bkg_rej": self.bkg_rej,
+            "n_test": self.n_test,
+            "rej_class": self.rej_class,
+            "signal_class": self.signal_class,
+            "key": self.key,
+            "ratio_group": self.ratio_group,
+            **extra_kwargs,
+        }
 
 
 class RocPlot(PlotBase):

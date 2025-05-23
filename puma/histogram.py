@@ -734,7 +734,7 @@ class HistogramPlot(PlotBase):
 
         if matches != 1:
             raise ValueError(
-                f"Found {matches} matching reference candidates, but only one match is" " allowed."
+                f"Found {matches} matching reference candidates, but only one match is allowed."
             )
 
         logger.debug("Reference histogram for '%s' is '%s'", histo.key, reference_histo.key)
