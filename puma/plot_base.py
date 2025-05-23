@@ -203,11 +203,9 @@ class PlotLineObject:
                 data[key] = tuple(data[key])
 
         # Change the flavour back to Flavour instance
-        data["flavour"] = (
-            Flavours[data["flavour"]]
-            if "flavour" in data and isinstance(data["flavour"], str)
-            else None
-        )
+        flavour_fields = {"flavour", "rej_class"}
+        for key in flavour_fields:
+            data[key] = Flavours[data[key]] if key in data and isinstance(data[key], str) else None
 
         # allow caller to override
         data.update(extra_kwargs)
