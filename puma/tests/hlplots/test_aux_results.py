@@ -349,5 +349,9 @@ class AuxResultsPlotsTestCase(unittest.TestCase):
                 output_dir=tmp_file,
             )
             auxresults.add(self.dummy_tagger)
-            auxresults.plot_vertex_mass(vtx_flavours=["bjets"], incl_vertexing=False)
+            auxresults.plot_vertex_mass(
+                vtx_flavours=["bjets"],
+                incl_vertexing=False,
+                underoverflow=False,
+            )
             self.assertIsFile(auxresults.get_filename("bjets_sv_mass", suffix="excl"))
