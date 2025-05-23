@@ -465,48 +465,22 @@ class Results:
 
                 # Add the probability output of the given tagger for each flavour
                 for flav_prob in flavours:
-                    # Check if tagger.prob_path is already a dict or not
-                    if tagger.prob_path is None:
-                        tagger.prob_path = {}
-
                     # Add the path to the dict
                     tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"] = (
                         self.output_directory(plot_type="prob")
                         / f"{tagger.name}_{flav_prob.px}_{flav_class.name}.yaml"
                     )
 
-                    # Try to load the Histogram object from file
-                    try:
-                        histo_object = Histogram.load(
-                            path=tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"],
-                            ratio_group=flav_prob,
-                            label=flav_prob.px if counter == 0 else None,
-                            colour=flav_prob.colour,
-                            linestyle=line_styles[counter],
-                            **histo_kwargs,
-                        )
-
-                    except FileNotFoundError:
-                        logger.warning(
-                            "No histogram file found for "
-                            f"{tagger.name}.{flav_prob.px} ({flav_class.name})."
-                            "Making from scratch..."
-                        )
-
-                        # Init the Histogram object
-                        histo_object = Histogram(
-                            values=tagger.probs(flav_prob, flav_class),
-                            ratio_group=flav_prob,
-                            label=flav_prob.px if counter == 0 else None,
-                            colour=flav_prob.colour,
-                            linestyle=line_styles[counter],
-                            **histo_kwargs,
-                        )
-
-                        # Save the histo object to file
-                        histo_object.save(
-                            path=tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"]
-                        )
+                    # Load Histogram object with probabilites. They must already exist
+                    # due to their creation and usage in the previous HistogramPlot
+                    histo_object = Histogram.load(
+                        path=tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"],
+                        ratio_group=flav_prob,
+                        label=flav_prob.px if counter == 0 else None,
+                        colour=flav_prob.colour,
+                        linestyle=line_styles[counter],
+                        **histo_kwargs,
+                    )
 
                     # Add the histogram loaded from the correct file and add it
                     hist.add(histogram=histo_object, reference=tagger.reference)
