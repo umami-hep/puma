@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import math
 import os
 import shutil  # noqa: F401
 import tempfile
@@ -198,14 +197,22 @@ class HistogramIOTestCase(unittest.TestCase):
     # ------------------------------------------------------------------
     # _convert_args
     # ------------------------------------------------------------------
-    def test__convert_args(self):
+    def test_convert_args(self):
         """Ensure ndarray → list and Label → name conversions work."""
         h = self._make_hist()
 
-        self.assertEqual(h._convert_args(np.array([1, 2])), [1, 2])  # noqa: SLF001
-        self.assertEqual(h._convert_args(Flavours["bjets"]), "bjets")  # noqa: SLF001
-        self.assertEqual(h._convert_args(math.pi), math.pi)  # noqa: SLF001
-        self.assertIsNone(h._convert_args(None))  # noqa: SLF001
+        self.assertEqual(
+            h.convert_args()["colour"],
+            (0.1, 0.6, 0.3),
+        )
+        self.assertEqual(
+            h.convert_args()["flavour"],
+            "bjets",
+        )
+        self.assertIsNone(
+            h.convert_args()["discrete_vals"],
+            None,
+        )
 
     # ------------------------------------------------------------------
     # to_dict
@@ -216,7 +223,7 @@ class HistogramIOTestCase(unittest.TestCase):
         contain the *final* prefixed label.
         """
         h = self._make_hist()
-        d = h.to_dict()
+        d = h.convert_args()
 
         # numpy arrays are converted to plain lists
         for field in ("bin_edges", "hist", "unc", "band"):

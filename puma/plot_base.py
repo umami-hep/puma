@@ -2,10 +2,16 @@
 
 from __future__ import annotations
 
+import json
 import tkinter as tk
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
 
 import atlasify
+import numpy as np
+import yaml
+from ftag import Flavours, Label
 from IPython import get_ipython
 from IPython.display import display
 from matplotlib import axis, gridspec, lines
@@ -58,6 +64,162 @@ class PlotLineObject:
     markersize: int = None
     markeredgewidth: int = None
     is_marker: bool = None
+
+    @property
+    def args_to_store(self) -> dict[str, Any]:
+        """Returns the arguments that need to be stored/loaded.
+
+        Returns
+        -------
+        dict[str, Any]
+            Dict with the arguments
+        """
+        # Create the dict with the args to store/load
+        return {
+            "xmin": self.xmin,
+            "xmax": self.xmax,
+            "colour": self.colour,
+            "label": self.label,
+            "linestyle": self.linestyle,
+            "linewidth": self.linewidth,
+            "alpha": self.alpha,
+            "marker": self.marker,
+            "markersize": self.markersize,
+            "markeredgewidth": self.markeredgewidth,
+            "is_marker": self.is_marker,
+        }
+
+    def convert_args(self) -> dict[str, Any]:
+        """Convert objects that JSON/YAML cannot encode natively.
+
+        np.ndarray to plain list
+        Flavour to Flavour.name (for storage)
+
+        Parameters
+        ----------
+        value : Any
+            Variable that is checked and changed if needed.
+
+        Returns
+        -------
+        Any
+            Original or adapted variable.
+        """
+        # Define a out_dict to which the objects are added.
+        out_dict = {}
+
+        # Loop over the args in the dict
+        for iter_key, iter_value in self.args_to_store.items():
+            # Check for numpy arrays and make them a list
+            if isinstance(iter_value, np.ndarray):
+                out_dict[iter_key] = iter_value.tolist()
+
+            # Check for flavour Label instance
+            elif isinstance(iter_value, Label):
+                out_dict[iter_key] = iter_value.name
+
+            # Else use the value how it is
+            else:
+                out_dict[iter_key] = iter_value
+
+        # Return new out_dict
+        return out_dict
+
+    def save(self, path: str | Path) -> None:
+        """Store class attributes in a file.
+
+        Saving can be performed to a yaml and a json file.
+
+        Parameters
+        ----------
+        path : str | Path
+            Path to which the class object attributes are written.
+        """
+        # Ensure path is a path object
+        path = Path(path)
+
+        # Get the attributes as a dict
+        data = self.convert_args()
+
+        # Check for json and store it as such
+        if path.suffix == ".json":
+            with path.open("w") as f:
+                json.dump(data, f, indent=2)
+
+        # Check for yaml and store it as such
+        elif path.suffix in {".yaml", ".yml"}:
+            with path.open("w") as f:
+                yaml.safe_dump(data, f)
+
+        # Else ValueError
+        else:
+            raise ValueError("Unknown file extension. Use '.json', '.yaml' or '.yml'!")
+
+    @classmethod
+    def load(cls, path: str | Path, **extra_kwargs) -> object:
+        """Load the needed attributes for the class from file and init.
+
+        Parameters
+        ----------
+        path : str | Path
+            Path in which the attributes are stored.
+
+        Returns
+        -------
+        Class Instance
+            Instance of class with the given attributes.
+
+        Raises
+        ------
+        ValueError
+            If the given file is neither json nor a yaml file.
+        """
+        # Ensure path is a path object
+        path = Path(path)
+
+        # Check if json and load it as such
+        if path.suffix == ".json":
+            with path.open() as f:
+                data = json.load(f)
+
+        # Check if yaml and load it as such
+        elif path.suffix in {".yaml", ".yml"}:
+            with path.open() as f:
+                data = yaml.safe_load(f)
+
+        # Else ValueError
+        else:
+            raise ValueError("Unknown file extension. Use '.json', '.yaml' or '.yml'.")
+
+        # Convert back to numpy where appropriate
+        for key in cls._ARRAY_FIELDS.intersection(data):
+            if data.get(key) is not None:
+                data[key] = np.asarray(data[key])
+
+        # PyYAML turns tuples into lists -> convert the ones matplotlib expects
+        tuple_fields = {"linestyle", "colour"}
+        for key in tuple_fields.intersection(data):
+            if isinstance(data[key], list):
+                data[key] = tuple(data[key])
+
+        # Change the flavour back to Flavour instance
+        data["flavour"] = (
+            Flavours[data["flavour"]]
+            if "flavour" in data and isinstance(data["flavour"], str)
+            else None
+        )
+
+        # allow caller to override
+        data.update(extra_kwargs)
+
+        # Init the class without running __init__
+        obj = cls.__new__(cls)
+
+        # Set attributes verbatim
+        for key, val in data.items():
+            setattr(obj, key, val)
+
+        return obj
 
 
 @dataclass
