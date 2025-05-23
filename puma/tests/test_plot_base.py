@@ -9,7 +9,7 @@ from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.lines import Line2D
 
-from puma.plot_base import PlotBase, PlotObject
+from puma.plot_base import PlotBase, PlotLineObject, PlotObject
 from puma.utils import logger, set_log_level
 
 set_log_level(logger, "DEBUG")
@@ -64,6 +64,17 @@ class PlotObjectTestCase(unittest.TestCase):
         plot_object.set_ratio_label(ratio_panel=2, label="Label")
         with self.assertRaises(ValueError):
             plot_object.set_ratio_label(ratio_panel=3, label="Label")
+
+
+class PlotLineObjectTestCase(unittest.TestCase):
+    """Test class for the puma.PlotLineObject dataclass."""
+
+    def test_args_to_store(self):
+        """Check the output of the args_to_store property."""
+        args_dict = PlotLineObject().args_to_store
+
+        for iter_value in args_dict.values():
+            self.assertEqual(iter_value, None)
 
 
 class PlotBaseTestCase(unittest.TestCase):
