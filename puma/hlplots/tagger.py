@@ -45,6 +45,11 @@ class Tagger:
     working_point: float = None
     vertexing_require_hf_track: bool = True
 
+    # Filepaths of stored Histogram and ROC objects
+    prob_path: dict = None
+    roc_path: dict = None
+    disc_path: dict = None
+
     # Used only by YUMA
     yaml_name: str = None
 

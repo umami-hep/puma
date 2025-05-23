@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Enable Storage of Histogram Objects [!319](https://github.com/umami-hep/puma/pull/319)
 
 ### [v0.4.6] (2025/05/23)
 

@@ -55,7 +55,11 @@ class AuxResultsTestCase(unittest.TestCase):
         """Test for AuxResults.load_taggers_from_file function."""
         np.random.default_rng(seed=16)
         fname = get_dummy_tagger_aux()[0]
-        results = AuxResults(sample="test")
+        results = AuxResults(
+            sample="test",
+            atlas_second_tag="second tag",
+            atlas_third_tag="third tag",
+        )
         taggers = [Tagger("GN2")]
         results.load_taggers_from_file(
             taggers,
@@ -345,5 +349,9 @@ class AuxResultsPlotsTestCase(unittest.TestCase):
                 output_dir=tmp_file,
             )
             auxresults.add(self.dummy_tagger)
-            auxresults.plot_vertex_mass(vtx_flavours=["bjets"], incl_vertexing=False)
+            auxresults.plot_vertex_mass(
+                vtx_flavours=["bjets"],
+                incl_vertexing=False,
+                underoverflow=False,
+            )
             self.assertIsFile(auxresults.get_filename("bjets_sv_mass", suffix="excl"))

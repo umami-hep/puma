@@ -42,6 +42,7 @@ plots:
     - signal: hbb
       plot_kwargs:
         wp_vlines: [70, 77, 80]
+        bins_range: [-5, 15]
 
   probs:
     - signal: hbb

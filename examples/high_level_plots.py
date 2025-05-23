@@ -51,8 +51,8 @@ results.plot_probs(logy=True, bins=40)
 
 # tagger discriminant distributions
 logger.info("Plotting tagger discriminant plots.")
-results.plot_discs(logy=False, wp_vlines=[60, 85])
-results.plot_discs(logy=True, wp_vlines=[60, 85], suffix="log")
+results.plot_discs(logy=False, bins=40, bins_range=(-10, 10), wp_vlines=[60, 85])
+results.plot_discs(logy=True, bins=40, bins_range=(-10, 10), wp_vlines=[60, 85], suffix="log")
 
 # ROC curves
 logger.info("Plotting ROC curves.")
