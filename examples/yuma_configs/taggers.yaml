@@ -1,0 +1,27 @@
+gn2v01:
+  label: GN2v01
+  name: GN2v01
+  reference: True
+
+GN3V00:
+  label: GN3V00
+  name: GN3V00
+
+GN3PflowV00: 
+  label: GN3PflowV00
+  name: GN3PflowV00
+
+
+GN3MuonsV00: 
+  label: GN3MuonsV00
+  name: GN3MuonsV00
+
+GN3PflowMuonsV00: 
+  label: GN3PflowMuonsV00
+  name: GN3PflowMuonsV00
+
+# Example of how to add a model from a different path
+# AnotherModel:
+#   label: AnotherModel
+#   name: AnotherModel
+#   sample_path: /home/xzcappon/phd/tools/puma/mytest/gn3/data/user.alfroch.44290694._000001.output_additional5.h5

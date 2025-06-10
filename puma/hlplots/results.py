@@ -10,7 +10,7 @@ from ftag import Cuts, Flavours, Label
 from ftag.hdf5 import H5Reader
 from ftag.utils import calculate_efficiency, calculate_rejection
 from matplotlib.figure import Figure
-
+import h5py
 from puma import (
     Histogram,
     HistogramPlot,
@@ -20,6 +20,8 @@ from puma import (
     RocPlot,
     VarVsEff,
     VarVsEffPlot,
+    VarVsVar,
+    VarVsVarPlot,
     fraction_scan,
 )
 from puma.hlplots.tagger import Tagger
@@ -39,12 +41,16 @@ class Results:
     atlas_third_tag: str = None
     taggers: dict = field(default_factory=dict)
     perf_vars: str | tuple | list = "pt"
+    regression_preds : str | tuple | list = None
     output_dir: str | Path = "."
     extension: str = "pdf"
     global_cuts: Cuts | list | None = None
     num_jets: int | None = None
     remove_nan: bool = False
+    ignore_nan: bool = False 
     label_var: str = "HadronConeExclTruthLabelID"
+    all_flavours : list | None = None
+    additional_vars : list | None = None
 
     def __post_init__(self):
         self.set_signal(self.signal)
@@ -61,6 +67,9 @@ class Results:
             "roc": self.plot_rocs,
             "peff": self.plot_var_perf,
             "scan": self.plot_fraction_scans,
+            "regression_median_sigma" : self.plot_regression_median_sigma,
+            "regression_binned" : self.plot_regression_response_binned
+
         }
         self.saved_plots = []
 
@@ -81,8 +90,12 @@ class Results:
             signal = Flavours[signal]
         self.signal = signal
 
-        # Get the full flavours from the category chosen
-        self.backgrounds = [*Flavours.by_category(self.category).backgrounds(self.signal)]
+        if self.all_flavours:
+            assert signal.name in self.all_flavours, f"All flavours is defined, but signal {signal} not found in it!"
+            self.backgrounds = [Flavours[f] for f in self.all_flavours if f != signal.name]
+        else:
+            # Get the full flavours from the category chosen
+            self.backgrounds = [*Flavours.by_category(self.category).backgrounds(self.signal)]
 
     @property
     def sig_str(self):
@@ -205,6 +218,11 @@ class Results:
                         f"{np.sum(~mask)} NaN values found in loaded data. Removing" " them."
                     )
                     return data[mask]
+                elif self.ignore_nan:
+                    logger.warning(
+                        f"{np.sum(~mask)} NaN values found in loaded data. Ignoring them."
+                    )
+                    return data
                 raise ValueError(f"{np.sum(~mask)} NaN values found in loaded data.")
             return data
 
@@ -223,6 +241,22 @@ class Results:
 
         # load data
         reader = H5Reader(file_path, precision="full")
+        maybe_var_list = []
+        for tagger in taggers:
+            if self.regression_preds:
+                tagger.regression_preds = {}
+                for pred in self.regression_preds:
+                    reg_str = f"{tagger.name}_{pred}"
+                    maybe_var_list += [reg_str]
+        h5vars = h5py.File(reader.readers[0].fname, 'r')[key].dtype.names
+        print("maybe var list", maybe_var_list)
+        maybe_var_list = list(set([v for v in maybe_var_list if v in h5vars]))
+        print(h5vars)
+        print(maybe_var_list)
+        var_list += maybe_var_list
+        print('var list!', var_list)
+        if self.additional_vars:
+            var_list += self.additional_vars
         data = reader.load({key: var_list}, num_jets)[key]
 
         # check for nan values
@@ -255,7 +289,15 @@ class Results:
                         tagger.perf_vars[perf_var] = sel_data[perf_var]
             else:
                 tagger.perf_vars = sel_perf_vars
-
+            if self.regression_preds:
+                tagger.regression_preds = {}
+                for pred in self.regression_preds:
+                    reg_str = f"{tagger.name}_{pred}"
+                    print("lol!", var_list)
+                    if reg_str in sel_data.dtype.names:
+                        tagger.regression_preds[pred] = sel_data[reg_str]
+                    
+            
     def __getitem__(self, tagger_name: str):
         """Retrieve Tagger object.
 
@@ -494,7 +536,7 @@ class Results:
             hist.draw_vlines(wp_cuts, labels=wp_labels, linestyle=line_styles[counter])
 
             # Loop over the flavours and add the disc values for each flavour
-            for flav in self.backgrounds:
+            for flav in self.backgrounds + [self.signal]:
                 if flav in tagger.output_flavours:
                     hist.add(
                         Histogram(
@@ -609,7 +651,6 @@ class Results:
                     sig_effs,
                     smooth=True,
                 )
-
                 # Add the rejection curve to the ROC plot
                 roc.add_roc(
                     Roc(
@@ -642,6 +683,7 @@ class Results:
         working_point: float | None = None,
         disc_cut: float | None = None,
         fixed_rejections: dict[Label, float] | None = None,
+        bin_signal_only : bool = False,
         **kwargs,
     ):
         r"""Variable vs efficiency/rejection plot.
@@ -668,6 +710,10 @@ class Results:
         fixed_rejections: dict[Flavour, float]
             Show signal efficiency as a function of fixed background rejection. Only one
             out of [working_point, disc_cut, fixed_rejections] can be set
+        signal_only: bool, optional
+            If true, then each x-axis bin is only over the signal variable, and fully inclusive 
+            over all backgrounds. This allows plotting performance for variables which are only present
+            in signal, e.g. hadron decay length
         **kwargs : kwargs
             key word arguments for `puma.VarVsEff`
         """
@@ -712,20 +758,23 @@ class Results:
         plot_sig_eff = VarVsEffPlot(
             mode="sig_eff", ylabel=self.signal.eff_str, **var_perf_plot_kwargs
         )
-
+        if bin_signal_only:
+            assert kwargs.get("flat_per_bin", False) == True, "To bin over only variables in signal, flat_per_bin must be set to True"
         # Adapt the atlas second tag
         plot_sig_eff.apply_modified_atlas_second_tag(
             self.signal,
             working_point=working_point,
             disc_cut=disc_cut,
             flat_per_bin=kwargs.get("flat_per_bin", False),
+            bin_signal_only=bin_signal_only,
         )
 
         # Init new list for background plots
         plot_bkg = []
-
+        print("DOING ", perf_var)
         # Loop over all backgrounds
         for background in self.backgrounds:
+            # if bin_signal_only: continue
             # Init and append new background plot to the list
             plot_bkg.append(
                 VarVsEffPlot(mode="bkg_rej", ylabel=background.rej_str, **var_perf_plot_kwargs)
@@ -737,6 +786,7 @@ class Results:
                 working_point=working_point,
                 disc_cut=disc_cut,
                 flat_per_bin=kwargs.get("flat_per_bin", False),
+                bin_signal_only=bin_signal_only,
             )
 
         # Loop over the given taggers
@@ -757,6 +807,7 @@ class Results:
                     colour=tagger.colour,
                     working_point=working_point,
                     disc_cut=disc_cut,
+                    bin_signal_only=bin_signal_only,
                     **kwargs,
                 ),
                 reference=tagger.reference,
@@ -764,6 +815,7 @@ class Results:
 
             # Loop over the background plots and add the variables
             for counter, background in enumerate(self.backgrounds):
+
                 is_bkg = tagger.is_flav(background)
                 plot_bkg[counter].add(
                     VarVsEff(
@@ -775,6 +827,7 @@ class Results:
                         colour=tagger.colour,
                         working_point=working_point,
                         disc_cut=disc_cut,
+                        bin_signal_only=bin_signal_only,
                         **kwargs,
                     ),
                     reference=tagger.reference,
@@ -1098,6 +1151,8 @@ class Results:
         # Draw and save the plot
         plot.draw()
         self.save(plot, "scan", "fraction_scan", suffix)
+
+
 
     def make_plot(self, plot_type: str, kwargs: dict):
         """Make a plot.

@@ -31,6 +31,14 @@ GN2_fc0p1:
 
 In this case, both models will be the GN2v01 from whichever sample is specified. You should add `GN2_fc0` and `GN2_fc0p1` as the taggers in the plot config to plot both.
 
+This file is then included in the main config via:
+```plot_config.yaml
+
+taggers_config: !include taggers.yaml
+```
+
+Alternatively, you can just have this config inside the main plot config, to avoid needing the additional file.
+
 ## plot_cfg.yaml
 
 This file contains info on what taggers to load, what plots to make, and where to save them.
@@ -64,6 +72,7 @@ Within each section, a list of plots should be included. Each plot requires a 's
 - exclude_taggers: Plot all taggers, except those in 'exclude_taggers'
 - plot_kwargs: arguments parsed to the base plot object, such as figsize.
 
+An example file of plots can be found in `examples/yuma_configs/plots_ttbar_tag.yaml`
 Other specific plot types have additional arguments that can be included:
 
 #### ROC plots
@@ -80,3 +89,10 @@ Other specific plot types have additional arguments that can be included:
 
 - peff_var: The variable to bin on the x-axis, default is pt
 bins: The bin edges for the x-axis, default for pT depends on if sample is ttbar/zprime
+
+
+## Input plotting
+
+Yuma also allows plotting input distributions. Within your yuma config, include a section `input_distributions`
+which should then contain the options found in `examples/yuma_configs/input_distributions.yaml`
+

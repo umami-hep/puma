@@ -1,0 +1,31 @@
+# Config for making input distributions 
+sample_paths: 
+    gammastar: /home/xzcappon/phd/tools/puma/mytest/gn3/data2/gammastar/user.wlai.44489225._000001.output.h5
+    ttbar: /home/xzcappon/phd/tools/puma/mytest/gn3/data2/ttbar/user.wlai.44489222._000001.output.h5
+# Number of jets to load (before cuts)
+num_jets: 100_000
+# Cuts to apply
+global_cuts: &global_cuts
+  - "pt > 20_000"
+  - "pt < 250_000"
+  - "eta < 2.5"
+  - "eta > -2.5"
+  - "n_truth_promptLepton == 0"
+# What flavours to plot
+all_flavours: [bjets, cjets, ujets, taujets]
+
+# Some information for the plot
+plot_kwargs:
+  atlas_first_tag: Simulation Internal
+  atlas_second_tag: $\sqrt{s} = 13.6$ TeV, MC23
+  atlas_third_tag: 20 < $p_T$ < 250 GeV, $|\eta| < 2.5$
+
+# A list of patterns, should take the form of regrexes like:
+# {group pattern}.{variable pattern}
+# Such that:
+#  - *.* will plot all variables in all groups
+#  - jets.* will plot all variables in the jets group
+#  - jets.pt will plot the pt variable in the jets group
+plot_pattern:
+  - jets.*
+
