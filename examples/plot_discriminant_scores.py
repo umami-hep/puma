@@ -54,7 +54,6 @@ plot_histo = HistogramPlot(
     logy=False,
     leg_ncol=1,
     figsize=(5.5, 4.5),
-    bins=np.linspace(-10, 10, 50),
     y_scale=1.5,
     ymax_ratio=[1.5],
     ymin_ratio=[0.5],
@@ -65,11 +64,12 @@ plot_histo = HistogramPlot(
 for tagger, linestyle in zip(taggers, linestyles):
     plot_histo.add(
         Histogram(
-            discs[tagger][is_light],
+            values=discs[tagger][is_light],
             # Only specify the label for the case of the "DIPS" light-jets, since we
             # want to hide the legend entry for "RNNIP" light-jets as it has the same
             # linecolour. Instead, we specify a "linestyle legend" further down in the
             # script
+            bins=np.linspace(-10, 10, 50),
             label="Light-flavour jets" if tagger == "dips" else None,
             colour=Flavours["ujets"].colour,
             ratio_group="ujets",
@@ -79,7 +79,8 @@ for tagger, linestyle in zip(taggers, linestyles):
     )
     plot_histo.add(
         Histogram(
-            discs[tagger][is_c],
+            values=discs[tagger][is_c],
+            bins=np.linspace(-10, 10, 50),
             label="$c$-jets" if tagger == "dips" else None,
             colour=Flavours["cjets"].colour,
             ratio_group="cjets",
@@ -89,7 +90,8 @@ for tagger, linestyle in zip(taggers, linestyles):
     )
     plot_histo.add(
         Histogram(
-            discs[tagger][is_b],
+            values=discs[tagger][is_b],
+            bins=np.linspace(-10, 10, 50),
             label="$b$-jets" if tagger == "dips" else None,
             colour=Flavours["bjets"].colour,
             ratio_group="bjets",

@@ -244,7 +244,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
-            results.plot_probs()
+            results.plot_probs(bins=40, bins_range=(0, 1))
             for fpath in results.saved_plots:
                 assert fpath.is_file()
             results.saved_plots = []
@@ -256,7 +256,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="bjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
-            results.plot_discs()
+            results.plot_discs(bins=40, bins_range=(-2, 15))
             for fpath in results.saved_plots:
                 assert fpath.is_file()
             results.saved_plots = []
@@ -268,7 +268,7 @@ class ResultsPlotsTestCase(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_file:
             results = Results(signal="cjets", sample="test", output_dir=tmp_file)
             results.add(self.dummy_tagger_1)
-            results.plot_discs(wp_vlines=[60])
+            results.plot_discs(bins=40, bins_range=(-2, 15), wp_vlines=[60])
             for fpath in results.saved_plots:
                 assert fpath.is_file()
             results.saved_plots = []

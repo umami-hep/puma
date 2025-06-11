@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Enable Storage of Histogram Objects [!319](https://github.com/umami-hep/puma/pull/319)
 - Update atlas-ftag-tools package to v0.2.11 [!321](https://github.com/umami-hep/puma/pull/321)
 
 ### [v0.4.6] (2025/05/23)
