@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any, ClassVar
+
 import matplotlib as mpl
 import numpy as np
 import pandas as pd
@@ -18,17 +20,29 @@ class Histogram(PlotLineObject):
     other histograms.
     """
 
+    _ARRAY_FIELDS: ClassVar[str] = {
+        "bin_edges",
+        "hist",
+        "unc",
+        "band",
+    }
+
     def __init__(
         self,
-        values: np.ndarray,
-        weights: np.ndarray = None,
+        values: np.ndarray | None = None,
+        bins: int | None = None,
+        bins_range: tuple | None = None,
         bin_edges: np.ndarray = None,
+        weights: np.ndarray = None,
         sum_squared_weights: np.ndarray = None,
         ratio_group: str | None = None,
         flavour: str | Label = None,
         add_flavour_label: bool = True,
         histtype: str = "step",
+        norm: bool = True,
+        underoverflow: bool = True,
         is_data: bool = False,
+        discrete_vals: list | None = None,
         **kwargs,
     ) -> None:
         """Initialise properties of histogram curve object.
@@ -38,15 +52,25 @@ class Histogram(PlotLineObject):
         values : np.ndarray
             Input data for the histogram. If bin_edges is specified (not None)
             then this array is treated as the bin heights.
+        bins : int or numpy.ndarray or list, optional
+            If bins is an int, it defines the number of equal-width bins in the given
+            range. If bins is a sequence, it defines a monotonically increasing array
+            of bin edges, including the rightmost edge, allowing for non-uniform
+            bin widths (like in numpy.histogram). By default 40
+        bins_range : tuple, optional
+            Tuple of two floats, specifying the range for the binning. If bins_range is
+            specified and bins is an integer, equal-width bins from bins_range[0] to
+            bins_range[1] are used for the histogram (like in numpy.histogram).
+            By default None
+        bin_edges : np.ndarray, optional
+            If specified, the histogram is considered "filled": the array given to
+            values is treated as if it was the bin heights corresponding to these
+            bin_edges and the "weights" input is ignored. By default None.
         weights : np.ndarray, optional
             Weights for the input data. Has to be an array of same length as the input
             data with a weight for each entry. If not specified, weight 1 will be given
             to each entry. The uncertainties are calculated as the square root of the
             squared weights (for each bin separately). By default None.
-        bin_edges : np.ndarray, optional
-            If specified, the histogram is considered "filled": the array given to
-            values is treated as if it was the bin heights corresponding to these
-            bin_edges and the "weights" input is ignored. By default None.
         sum_squared_weights : np.ndarray, optional
             Only considered if the histogram is considered filled (i.e bin_edges
             is specified). It is the sum_squared_weights per bin.
@@ -68,9 +92,21 @@ class Histogram(PlotLineObject):
             `histtype` parameter which is handed to matplotlib.hist() when plotting the
             histograms. Supported values are "bar", "barstacked", "step", "stepfilled".
             By default "step"
+        norm : bool, optional
+            Specify if the histograms are normalised, this means that histograms are
+            divided by the total numer of counts. Therefore, the sum of the bin counts
+            is equal to one, but NOT the area under the curve, which would be
+            sum(bin_counts * bin_width). By default True.
+        underoverflow : bool, optional
+            Option to include under- and overflow values in outermost bins, by default
+            True.
         is_data : bool, optional
             Decide, if the plot object will be treated as data (black dots,
             no stacking), by default False
+        discrete_vals : list, optional
+            List of values if a variable only has discrete values. If discrete_vals is
+            specified only the bins containing these values are plotted.
+            By default None.
         **kwargs : kwargs
             Keyword arguments passed to `puma.plot_base.PlotLineObject`
 
@@ -95,52 +131,113 @@ class Histogram(PlotLineObject):
         if weights is not None and len(values) != len(weights):
             raise ValueError("`values` and `weights` are not of same length.")
 
-        self.values = values
-        self.bin_edges = bin_edges  # Important to have this defined for any histogram
+        self.bins = bins
+        self.bins_range = bins_range
+        self.bin_edges = bin_edges
         self.sum_squared_weights = sum_squared_weights
+        self.kwargs = kwargs
 
-        if bin_edges is None and sum_squared_weights is not None:
+        if self.bin_edges is None and self.sum_squared_weights is not None:
             logger.warning(
-                """The Histogram has no bin edges defined and is thus
-                              not considered filled. Parameter `sum_squared_weights`
-                              is ignored. """
+                "The Histogram has no bin edges defined and is thus not considered filled. "
+                "Parameter `sum_squared_weights` is ignored."
             )
 
-        # This attribute allows to know how to handle the histogram later during
-        # plotting
-        self.filled = bin_edges is not None
+        elif self.bin_edges is not None and self.bins is not None:
+            logger.warning("When bin_edges are provided, bins are not considered!")
 
+        elif self.bin_edges is None and self.bins is None:
+            raise ValueError("You need to define either `bins` or `bin_edges`!")
+
+        # This attribute allows to know how to histogram it
+        self.filled = self.bin_edges is not None
+
+        # Ensure that the flavour is an instance of Flavour
+        self.flavour = Flavours[flavour] if isinstance(flavour, str) else flavour
+
+        # Set the inputs as attributes
         self.weights = weights
         self.ratio_group = ratio_group
-        self.flavour = Flavours[flavour] if isinstance(flavour, str) else flavour
         self.add_flavour_label = add_flavour_label
         self.histtype = histtype
+        self.norm = norm
+        self.underoverflow = underoverflow
         self.is_data = is_data
+        self.discrete_vals = discrete_vals
 
-        # Set histogram attributes to None. They will be defined when the histograms
-        # are plotted
-        self.hist = None
-        self.unc = None
-        self.band = None
+        # Define the key (like a name) for the Histogram object. Will be set later
+        # by the actual histogram plot
         self.key = None
 
+        # Set the label
         label = kwargs["label"] if "label" in kwargs and kwargs["label"] is not None else ""
+
         # If flavour was specified, extract configuration from global config
         if self.flavour is not None:
-            if self.flavour in Flavours:
-                # Use globally defined flavour colour if not specified
-                if self.colour is None:
-                    self.colour = self.flavour.colour
-                    logger.debug("Histogram colour was set to %s", self.colour)
-                # Add globally defined flavour label if not suppressed
-                if self.add_flavour_label:
-                    global_flavour_label = self.flavour.label
-                    self.label = f"{global_flavour_label} {label}"
-                else:
-                    self.label = label
-                logger.debug("Histogram label was set to %s", {self.label})
+            # Use globally defined flavour colour if not specified
+            if self.colour is None:
+                self.colour = self.flavour.colour
+                logger.debug("Histogram colour was set to %s", self.colour)
+
+            # Add globally defined flavour label if not suppressed
+            if self.add_flavour_label:
+                global_flavour_label = self.flavour.label
+                self.label = f"{global_flavour_label} {label}"
+
             else:
-                logger.warning("The flavour '%s' was not found in the global config.", self.flavour)
+                self.label = label
+            logger.debug("Histogram label was set to %s", {self.label})
+
+        # Histogram the input values
+        self.bin_edges, self.hist, self.unc, self.band = hist_w_unc(
+            arr=values,
+            bins=self.bins,
+            filled=self.filled,
+            bins_range=self.bins_range,
+            normed=self.norm,
+            weights=self.weights,
+            bin_edges=self.bin_edges,
+            sum_squared_weights=self.sum_squared_weights,
+            underoverflow=self.underoverflow,
+        )
+
+        # Discretise the bins if wanted
+        if self.discrete_vals is not None:
+            self.get_discrete_values()
+
+    @property
+    def args_to_store(self) -> dict[str, Any]:
+        """Returns the arguments that need to be stored/loaded.
+
+        Returns
+        -------
+        dict[str, Any]
+            Dict with the arguments
+        """
+        # Copy the kwargs to remove safely stuff
+        extra_kwargs = dict(getattr(self, "kwargs", {}))
+
+        # Remove label
+        extra_kwargs.pop("label", None)
+
+        # Create the dict with the args to store/load
+        return {
+            "bin_edges": self.bin_edges,
+            "hist": self.hist,
+            "unc": self.unc,
+            "band": self.band,
+            "ratio_group": self.ratio_group,
+            "flavour": self.flavour,
+            "add_flavour_label": self.add_flavour_label,
+            "histtype": self.histtype,
+            "is_data": self.is_data,
+            "filled": self.filled,
+            "key": self.key,
+            "label": self.label,
+            "norm": self.norm,
+            "discrete_vals": self.discrete_vals,
+            **extra_kwargs,
+        }
 
     def divide(self, other):
         """Calculate ratio between two class objects.
@@ -166,19 +263,11 @@ class Histogram(PlotLineObject):
         ValueError
             If bin_edges attribute is not set for one of the two histograms
         """
-        if (
-            self.bin_edges is None
-            or other.bin_edges is None
-            or self.hist is None
-            or other.hist is None
-        ):
-            raise ValueError(
-                "Can't divide histograms since bin edges and counts are not available "
-                "for both histogram. Bins are filled when they are plotted."
-            )
+        try:
+            np.all(self.bin_edges == other.bin_edges)
 
-        if not np.all(self.bin_edges == other.bin_edges):
-            raise ValueError("The binning of the two given objects do not match.")
+        except ValueError as err:
+            raise ValueError("The binning of the two given objects do not match.") from err
 
         # Bins where the reference histogram is empty/zero, are given a ratio of np.inf
         # which means that the ratio plot will not have any entry in these bins.
@@ -213,6 +302,11 @@ class Histogram(PlotLineObject):
         tuple
             Tuple of the ratios and ratio uncertaintes for the bins
         """
+        try:
+            self.hist + ref_hist
+        except ValueError as err:
+            raise ValueError("The binning of the two given objects do not match.") from err
+
         # Bins where the reference histogram is empty/zero, are given a ratio of np.inf
         # which means that the ratio plot will not have any entry in these bins.
         ratio, ratio_unc = hist_ratio(
@@ -227,19 +321,50 @@ class Histogram(PlotLineObject):
 
         return (ratio, ratio_unc)
 
+    def get_discrete_values(self) -> None:
+        """Get discrete values of a variable and adjust the bins accordingly.
+
+        Raises
+        ------
+        ValueError
+            If the bin width is larger than 1 such that potentially not
+            all discrete values are in a seperate bin
+        ValueError
+            If the number of bins is set to 1 such that no values can be
+            distinguished
+        """
+        if len(self.bin_edges) > 1:
+            if abs(self.bin_edges[1] - self.bin_edges[0]) <= 1:
+                indice = [
+                    i
+                    for i in range(len(self.bin_edges) - 1)
+                    for discrete_val in self.discrete_vals
+                    if self.bin_edges[i] <= discrete_val < self.bin_edges[i + 1]
+                ]
+                self.hist = self.hist[indice]
+                self.unc = self.unc[indice]
+                self.band = self.band[indice]
+                bins = np.linspace(0, len(self.discrete_vals), len(self.discrete_vals) + 1)
+                self.bin_edges = bins
+
+            else:
+                raise ValueError(
+                    "Bin width is larger than 1. Choose a binning with a bin"
+                    " width<= 1 to plot only discrete values."
+                )
+        else:
+            raise ValueError(
+                "Choose a binning with more than one bin in order to plot only discrete values."
+            )
+
 
 class HistogramPlot(PlotBase):
     """Histogram plot class."""
 
     def __init__(
         self,
-        bins=40,
-        bins_range: tuple | None = None,
-        discrete_vals: list | None = None,
-        norm: bool = True,
         logy: bool = False,
         bin_width_in_ylabel: bool = False,
-        underoverflow: bool = True,
         grid: bool = False,
         stacked: bool = False,
         histtype: str = "bar",
@@ -249,32 +374,10 @@ class HistogramPlot(PlotBase):
 
         Parameters
         ----------
-        bins : int or numpy.ndarray or list, optional
-            If bins is an int, it defines the number of equal-width bins in the given
-            range. If bins is a sequence, it defines a monotonically increasing array
-            of bin edges, including the rightmost edge, allowing for non-uniform
-            bin widths (like in numpy.histogram). By default 40
-        bins_range : tuple, optional
-            Tuple of two floats, specifying the range for the binning. If bins_range is
-            specified and bins is an integer, equal-width bins from bins_range[0] to
-            bins_range[1] are used for the histogram (like in numpy.histogram).
-            By default None
-        discrete_vals : list, optional
-            List of values if a variable only has discrete values. If discrete_vals is
-            specified only the bins containing these values are plotted.
-            By default None.
-        norm : bool, optional
-            Specify if the histograms are normalised, this means that histograms are
-            divided by the total numer of counts. Therefore, the sum of the bin counts
-            is equal to one, but NOT the area under the curve, which would be
-            sum(bin_counts * bin_width). By default True.
         logy : bool, optional
             Set log scale on y-axis, by default False.
         bin_width_in_ylabel : bool, optional
             Specify if the bin width should be added to the ylabel, by default False
-        underoverflow : bool, optional
-            Option to include under- and overflow values in outermost bins, by default
-            True.
         grid : bool, optional
             Set the grid for the plots, by default False
         stacked : bool, optional
@@ -292,23 +395,13 @@ class HistogramPlot(PlotBase):
         """
         super().__init__(grid=grid, **kwargs)
         self.logy = logy
-        self.bins = bins
-        self.bins_range = bins_range
-        self.discrete_vals = discrete_vals
         self.bin_width_in_ylabel = bin_width_in_ylabel
-        self.norm = norm
-        self.underoverflow = underoverflow
         self.stacked = stacked
         self.histtype = histtype
         self.plot_objects = {}
         self.add_order = []
         self.ratios_objects = {}
         self.reference_object = None
-
-        if self.norm is True and self.stacked is True:
-            raise ValueError(
-                "Stacked plots and normalised plots at the same time are not available."
-            )
 
         if self.n_ratio_panels > 1:
             raise ValueError("Not more than one ratio panel supported.")
@@ -410,37 +503,38 @@ class HistogramPlot(PlotBase):
         ValueError
             If specified bins type is not supported.
         """
+        # Get the settings from the to-be-plotted Histogram objects
+        norm_list = [iter_histo.norm for iter_histo in self.plot_objects.values()]
+        bin_edges_list = [iter_histo.bin_edges for iter_histo in self.plot_objects.values()]
+
+        # Check consistency of norm setting
+        self.norm = norm_list[0]
+        if any(n != self.norm for n in norm_list):
+            raise ValueError("Histogram objects have different settings for 'norm'!")
+
+        # Check consistency of bin_edges
+        self.bin_edges = bin_edges_list[0]
+        if any(not np.array_equal(e, self.bin_edges) for e in bin_edges_list):
+            raise ValueError("Histogram objects have different 'bin_edges'!")
+
         if self.ylabel is not None and self.norm and "norm" not in self.ylabel.lower():
             logger.warning(
                 "You are plotting normalised distributions but 'norm' is not "
                 "included in your y-label."
             )
-        plt_handles = []
 
-        # Calculate bins of stacked histograms to ensure all histograms fit in plot
-        if isinstance(self.bins, (np.ndarray, list)):
-            logger.debug("Using bin edges defined in plot instance.")
-            if self.bins_range is not None:
-                logger.warning(
-                    "You defined a range for the histogram, but also an array with "
-                    "the bin edges. The range will be ignored."
-                )
-        elif isinstance(self.bins, int):
-            logger.debug("Calculating bin edges of %i equal-width bins", self.bins)
-            _, self.bins = np.histogram(
-                np.hstack([elem.values for elem in self.plot_objects.values()]),  # noqa: PD011
-                bins=self.bins,
-                range=self.bins_range,
+        if self.norm is True and self.stacked is True:
+            raise ValueError(
+                "Stacked plots and normalised plots at the same time are not available."
             )
-        else:
-            raise TypeError("Unsupported type for bins. Supported types: int, numpy.array, list")
 
-        # Loop over all plot objects and plot them
-        bins = self.bins
+        # Init the plt_handles list
+        plt_handles = []
 
         # Stacked dict for the stacked histogram
         self.stacked_dict = {
             "x": [],
+            "bins": [],
             "weights": [],
             "color": [],
             "unc": None,
@@ -449,30 +543,16 @@ class HistogramPlot(PlotBase):
         for key in self.add_order:
             elem = self.plot_objects[key]
 
-            elem.bin_edges, elem.hist, elem.unc, elem.band = hist_w_unc(
-                elem.values,
-                weights=elem.weights,
-                bin_edges=elem.bin_edges,
-                sum_squared_weights=elem.sum_squared_weights,
-                bins=self.bins,
-                filled=elem.filled,
-                bins_range=self.bins_range,
-                normed=self.norm,
-                underoverflow=self.underoverflow,
-            )
-
-            # MAYBE CHECK HERE THAT self.bins and elem.bin_edges are
-            # equivalent for plotting or throw error!
-
-            if self.discrete_vals is not None:
-                # bins are recalculated for the discrete values
-                bins = self.get_discrete_values(elem)
+            # If discrete values were used, adapt the x-axis ticks
+            if elem.discrete_vals is not None:
+                self.axis_top.set_xticks(elem.bin_edges[:-1] + 0.5)
+                self.axis_top.set_xticklabels(elem.discrete_vals, rotation=33)
 
             # Check if the histogram is data
             if elem.is_data is True:
                 # Plot data
                 self.axis_top.errorbar(
-                    x=(bins[:-1] + bins[1:]) / 2,
+                    x=(elem.bin_edges[:-1] + elem.bin_edges[1:]) / 2,
                     y=elem.hist,
                     yerr=elem.unc if self.draw_errors else 0,
                     color=elem.colour,
@@ -498,7 +578,8 @@ class HistogramPlot(PlotBase):
                 )
 
             elif self.stacked:
-                self.stacked_dict["x"].append(bins[:-1])
+                self.stacked_dict["x"].append(elem.bin_edges[:-1])
+                self.stacked_dict["bins"].append(elem.bin_edges)
                 self.stacked_dict["weights"].append(elem.hist)
                 self.stacked_dict["color"].append(elem.colour)
 
@@ -520,8 +601,8 @@ class HistogramPlot(PlotBase):
             else:
                 # Plot histogram
                 self.axis_top.hist(
-                    x=bins[:-1],
-                    bins=bins,
+                    x=elem.bin_edges[:-1],
+                    bins=elem.bin_edges,
                     weights=elem.hist,
                     histtype=elem.histtype,
                     color=elem.colour,
@@ -565,7 +646,7 @@ class HistogramPlot(PlotBase):
         if self.stacked:
             self.axis_top.hist(
                 x=self.stacked_dict["x"],
-                bins=bins,
+                bins=self.stacked_dict["bins"][0],
                 weights=self.stacked_dict["weights"],
                 color=self.stacked_dict["color"],
                 histtype=self.histtype,
@@ -617,61 +698,8 @@ class HistogramPlot(PlotBase):
                 )
             )
 
-        if self.discrete_vals is not None:
-            self.bins = bins
-
         self.plotting_done = True
         return plt_handles
-
-    def get_discrete_values(self, elem: object):
-        """Get discrete values of a variable and adjust the
-        bins accordingly.
-
-        Parameters
-        ----------
-        elem : histogram class
-            Histogram we want to calculate the bins containing discrete values for
-
-        Returns
-        -------
-        bins : numpy.ndarray
-            Recalculated bins including only the discrete values
-
-        Raises
-        ------
-        ValueError
-            If the bin width is larger than 1 such that potentially not
-            all discrete values are in a seperate bin
-        ValueError
-            If the number of bins is set to 1 such that no values can be
-            distinguished
-        """
-        if len(elem.bin_edges) > 1:
-            if abs(elem.bin_edges[1] - elem.bin_edges[0]) <= 1:
-                indice = [
-                    i
-                    for i in range(len(elem.bin_edges) - 1)
-                    for discrete_val in self.discrete_vals
-                    if elem.bin_edges[i] <= discrete_val < elem.bin_edges[i + 1]
-                ]
-                elem.hist = elem.hist[indice]
-                elem.unc = elem.unc[indice]
-                elem.band = elem.band[indice]
-                bins = np.linspace(0, len(self.discrete_vals), len(self.discrete_vals) + 1)
-                elem.bin_edges = bins
-                self.axis_top.set_xticks(bins[:-1] + 0.5)
-                self.axis_top.set_xticklabels(self.discrete_vals, rotation=33)
-            else:
-                raise ValueError(
-                    "Bin width is larger than 1. Choose a binning with a bin"
-                    " width<= 1 to plot only discrete values."
-                )
-        else:
-            raise ValueError(
-                "Choose a binning with more than one bin in order to plot only discrete" " values."
-            )
-
-        return bins
 
     def get_reference_histo(self, histo):
         """Get reference histogram from list of references.
@@ -706,7 +734,7 @@ class HistogramPlot(PlotBase):
 
         if matches != 1:
             raise ValueError(
-                f"Found {matches} matching reference candidates, but only one match is" " allowed."
+                f"Found {matches} matching reference candidates, but only one match is allowed."
             )
 
         logger.debug("Reference histogram for '%s' is '%s'", histo.key, reference_histo.key)
@@ -816,7 +844,7 @@ class HistogramPlot(PlotBase):
                 "are calculated during plotting."
             )
 
-        bin_width = abs(self.bins[1] - self.bins[0])
+        bin_width = abs(self.bin_edges[1] - self.bin_edges[0])
         if bin_width < 1e-2:
             self.ylabel = f"{self.ylabel} / {bin_width:.0e}"
         else:
@@ -839,8 +867,8 @@ class HistogramPlot(PlotBase):
             self.plot_ratios()
 
         self.set_xlim(
-            self.bins[0] if self.xmin is None else self.xmin,
-            self.bins[-1] if self.xmax is None else self.xmax,
+            self.bin_edges[0] if self.xmin is None else self.xmin,
+            self.bin_edges[-1] if self.xmax is None else self.xmax,
         )
         self.set_log()
         self.set_y_lim()

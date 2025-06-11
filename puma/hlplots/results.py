@@ -271,6 +271,24 @@ class Results:
         """
         return self.taggers[tagger_name]
 
+    def output_directory(self, plot_type: str) -> Path:
+        """Create and return the output directory for the plot.
+
+        Parameters
+        ----------
+        plot_type : str
+            Type of plot you are providing. Like "prob".
+
+        Returns
+        -------
+        Path
+            Path object with the path to the output directory.
+        """
+        tag_str = f"{self.sig_str}tag"
+        out_dir = self.output_dir / tag_str / plot_type
+        out_dir.mkdir(parents=True, exist_ok=True)
+        return out_dir
+
     def save(
         self,
         plot: Figure,
@@ -292,8 +310,7 @@ class Results:
             Suffix to add to the filename, by default None
         """
         tag_str = f"{self.sig_str}tag"
-        out_dir = self.output_dir / tag_str / plot_type
-        out_dir.mkdir(parents=True, exist_ok=True)
+        out_dir = self.output_directory(plot_type=plot_type)
         if not base:
             base = plot_type
         fname = f"{self.sample}_{tag_str}"
@@ -332,7 +349,7 @@ class Results:
         ]
 
         # Init a default kwargs dict for the HistogramPlot
-        histo_kwargs = {
+        histo_plot_kwargs = {
             "ylabel": "Normalised number of jets",
             "figsize": (7.0, 4.5),
             "n_ratio_panels": 1,
@@ -340,16 +357,29 @@ class Results:
             "atlas_second_tag": self.atlas_second_tag,
         }
 
-        # If kwargs are given, update the histo_kwargs dict
+        # If kwargs are given, update the histo_plot_kwargs dict
         if kwargs is not None:
-            histo_kwargs.update(kwargs)
+            histo_plot_kwargs.update(kwargs)
+
+        # Remove the kwargs that need to go to the Histogram objects
+        histo_kwargs = {"bins": 40, "bins_range": (0, 1)}
+        for iter_kwarg in list(histo_plot_kwargs):
+            if iter_kwarg in {
+                "bins",
+                "bins_range",
+                "bin_edges",
+                "norm",
+                "underoverflow",
+                "discrete_vals",
+            }:
+                histo_kwargs[iter_kwarg] = histo_plot_kwargs.pop(iter_kwarg)
 
         # group by output probability
         for flav_prob in flavours:
             # Create a new histogram plot
             hist = HistogramPlot(
                 xlabel=flav_prob.px,
-                **histo_kwargs,
+                **histo_plot_kwargs,
             )
 
             # Init a new list for the tagger labels
@@ -362,16 +392,51 @@ class Results:
 
                 # Add the probability output of the given tagger for each flavour
                 for flav_class in flavours:
-                    hist.add(
-                        Histogram(
-                            tagger.probs(flav_prob, flav_class),
+                    # Check if tagger.prob_path is already a dict or not
+                    if tagger.prob_path is None:
+                        tagger.prob_path = {}
+
+                    # Add the path to the dict
+                    tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"] = (
+                        self.output_directory(plot_type="prob")
+                        / f"{tagger.name}_{flav_prob.px}_{flav_class.name}.yaml"
+                    )
+
+                    # Try to load the Histogram object from file
+                    try:
+                        histo_object = Histogram.load(
+                            path=tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"],
                             ratio_group=flav_class,
                             label=flav_class.label if counter == 0 else None,
                             colour=flav_class.colour,
                             linestyle=line_styles[counter],
-                        ),
-                        reference=tagger.reference,
-                    )
+                            **histo_kwargs,
+                        )
+
+                    except FileNotFoundError:
+                        logger.warning(
+                            "No histogram file found for "
+                            f"{tagger.name}.{flav_prob.px} ({flav_class.name})."
+                            "Making from scratch..."
+                        )
+
+                        # Init the Histogram object
+                        histo_object = Histogram(
+                            values=tagger.probs(flav_prob, flav_class),
+                            ratio_group=flav_class,
+                            label=flav_class.label if counter == 0 else None,
+                            colour=flav_class.colour,
+                            linestyle=line_styles[counter],
+                            **histo_kwargs,
+                        )
+
+                        # Save the histo object to file
+                        histo_object.save(
+                            path=tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"]
+                        )
+
+                    # Add the histogram loaded from the correct file and add it
+                    hist.add(histogram=histo_object, reference=tagger.reference)
 
             # Finalise the plot and draw it
             hist.draw()
@@ -387,7 +452,7 @@ class Results:
             # Create a new histogram plot
             hist = HistogramPlot(
                 xlabel=flav_class.label,
-                **histo_kwargs,
+                **histo_plot_kwargs,
             )
 
             # Init a new list for the tagger labels
@@ -400,16 +465,25 @@ class Results:
 
                 # Add the probability output of the given tagger for each flavour
                 for flav_prob in flavours:
-                    hist.add(
-                        Histogram(
-                            tagger.probs(flav_prob, flav_class),
-                            ratio_group=flav_prob,
-                            label=flav_prob.px if counter == 0 else None,
-                            colour=flav_prob.colour,
-                            linestyle=line_styles[counter],
-                        ),
-                        reference=tagger.reference,
+                    # Add the path to the dict
+                    tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"] = (
+                        self.output_directory(plot_type="prob")
+                        / f"{tagger.name}_{flav_prob.px}_{flav_class.name}.yaml"
                     )
+
+                    # Load Histogram object with probabilites. They must already exist
+                    # due to their creation and usage in the previous HistogramPlot
+                    histo_object = Histogram.load(
+                        path=tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"],
+                        ratio_group=flav_prob,
+                        label=flav_prob.px if counter == 0 else None,
+                        colour=flav_prob.colour,
+                        linestyle=line_styles[counter],
+                        **histo_kwargs,
+                    )
+
+                    # Add the histogram loaded from the correct file and add it
+                    hist.add(histogram=histo_object, reference=tagger.reference)
 
             # Finalise the plot and draw it
             hist.draw()
@@ -451,8 +525,8 @@ class Results:
         # Get good linestyles for plotting
         line_styles = get_good_linestyles()
 
-        # Init histo_kwargs
-        histo_kwargs = {
+        # Init histo_plot_kwargs
+        histo_plot_kwargs = {
             "n_ratio_panels": 0,
             "xlabel": xlabel,
             "ylabel": "Normalised number of jets",
@@ -461,12 +535,25 @@ class Results:
             "atlas_second_tag": self.atlas_second_tag,
         }
 
-        # Check if kwargs are given and update the histo_kwargs accordingly
+        # Check if kwargs are given and update the histo_plot_kwargs accordingly
         if kwargs is not None:
-            histo_kwargs.update(kwargs)
+            histo_plot_kwargs.update(kwargs)
+
+        # Remove the kwargs that need to go to the Histogram objects
+        histo_kwargs = {"bins": 40}
+        for iter_kwarg in list(histo_plot_kwargs):
+            if iter_kwarg in {
+                "bins",
+                "bins_range",
+                "bin_edges",
+                "norm",
+                "underoverflow",
+                "discrete_vals",
+            }:
+                histo_kwargs[iter_kwarg] = histo_plot_kwargs.pop(iter_kwarg)
 
         # Create a new histogram plot
-        hist = HistogramPlot(**histo_kwargs)
+        hist = HistogramPlot(**histo_plot_kwargs)
 
         # Init a tagger label list
         tagger_labels = []
@@ -494,30 +581,47 @@ class Results:
             hist.draw_vlines(wp_cuts, labels=wp_labels, linestyle=line_styles[counter])
 
             # Loop over the flavours and add the disc values for each flavour
-            for flav in self.backgrounds:
+            for flav in self.flavours:
                 if flav in tagger.output_flavours:
-                    hist.add(
-                        Histogram(
-                            discs[tagger.is_flav(flav)],
+                    # Ensure disc path is a dict
+                    if tagger.disc_path is None:
+                        tagger.disc_path = {}
+
+                    # Add the path to the dict
+                    tagger.disc_path[flav.name] = (
+                        self.output_directory(plot_type="disc")
+                        / f"{tagger.name}_discs_{flav.name}.yaml"
+                    )
+
+                    # Try to load the Histogram object from file
+                    try:
+                        histo_object = Histogram.load(
+                            path=tagger.disc_path[flav.name],
+                            **histo_kwargs,
+                        )
+
+                    except FileNotFoundError:
+                        logger.warning(
+                            "No histogram file found for "
+                            f"{tagger.name} discriminants ({flav.name})."
+                            "Making from scratch..."
+                        )
+
+                        # Init the Histogram object
+                        histo_object = Histogram(
+                            values=discs[tagger.is_flav(flav)],
                             ratio_group=flav,
                             label=flav.label if counter == 0 else None,
                             colour=flav.colour,
                             linestyle=line_styles[counter],
-                        ),
-                        reference=tagger.reference,
-                    )
+                            **histo_kwargs,
+                        )
 
-            # Add the disc values for the signal
-            hist.add(
-                Histogram(
-                    discs[tagger.is_flav(self.signal)],
-                    ratio_group=self.signal,
-                    label=self.signal.label if counter == 0 else None,
-                    colour=self.signal.colour,
-                    linestyle=line_styles[counter],
-                ),
-                reference=tagger.reference,
-            )
+                        # Save the histo object to file
+                        histo_object.save(path=tagger.disc_path[flav.name])
+
+                    # Add the histogram loaded from the correct file and add it
+                    hist.add(histogram=histo_object, reference=tagger.reference)
 
             # Add the tagger label or name to the label list
             tagger_labels.append(tagger.label if tagger.label else tagger.name)
@@ -602,27 +706,50 @@ class Results:
                 if background not in tagger.output_flavours and skip_missing_flavours:
                     continue
 
-                # Calculate rejection for the given background
-                rej = calculate_rejection(
-                    discs[tagger.is_flav(self.signal)],
-                    discs[tagger.is_flav(background)],
-                    sig_effs,
-                    smooth=True,
+                # Check if tagger.roc_path is already a dict or not
+                if tagger.roc_path is None:
+                    tagger.roc_path = {}
+
+                # Add the path to the dict
+                tagger.roc_path[background.name] = (
+                    self.output_directory(plot_type="roc") / f"{tagger.name}_{background.name}.yaml"
                 )
 
-                # Add the rejection curve to the ROC plot
-                roc.add_roc(
-                    Roc(
+                # Try to load the ROC object from file
+                try:
+                    roc_object = Roc.load(path=tagger.roc_path[background.name])
+
+                except FileNotFoundError:
+                    logger.warning(
+                        "No ROC file found for "
+                        f"{tagger.name} ({background.name})."
+                        "Making from scratch..."
+                    )
+
+                    # Calculate rejection for the given background
+                    rej = calculate_rejection(
+                        discs[tagger.is_flav(self.signal)],
+                        discs[tagger.is_flav(background)],
                         sig_effs,
-                        rej,
+                        smooth=True,
+                    )
+
+                    # Init the ROC object
+                    roc_object = Roc(
+                        sig_eff=sig_effs,
+                        bkg_rej=rej,
                         n_test=tagger.n_jets(background),
                         rej_class=background,
                         signal_class=self.signal,
                         label=tagger.label,
                         colour=tagger.colour,
-                    ),
-                    reference=tagger.reference,
-                )
+                    )
+
+                    # Save the ROC object to file
+                    roc_object.save(path=tagger.roc_path[background.name])
+
+                # Add the rejection curve to the ROC plot
+                roc.add_roc(roc_curve=roc_object, reference=tagger.reference)
 
         # setting which flavour rejection ratio is drawn in which ratio panel
         for counter, background in enumerate(self.backgrounds):
