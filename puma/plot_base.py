@@ -113,7 +113,7 @@ class PlotObject:
     grid : bool, optional
         Set the grid for the plots.
     figure_layout : str, optional
-        Set the layout that is used for the plot. By default "tight"
+        Set the layout that is used for the plot. By default "constrained"
     leg_fontsize : int, optional
         Fontsize of the legend, by default 10
     leg_loc : str, optional
@@ -177,7 +177,7 @@ class PlotObject:
     transparent: bool = False
 
     grid: bool = True
-    figure_layout: str = "tight"
+    figure_layout: str = "constrained"
 
     # legend settings
     leg_fontsize: int = None
