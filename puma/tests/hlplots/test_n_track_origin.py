@@ -3,9 +3,7 @@
 from __future__ import annotations
 
 import os
-
-# Uncomment line below to update expected image
-# import shutil
+import shutil  # noqa: F401
 import tempfile
 import unittest
 from urllib.request import urlretrieve
@@ -63,9 +61,7 @@ class NTrackOriginTestCase(unittest.TestCase):
         name = "ttbar_all_flavour.png"
 
         # Uncomment line below to update expected image
-        # shutil.copy(
-        #     f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}"
-        # )
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
         # Check
         self.assertIsNone(
@@ -122,9 +118,7 @@ class NTrackOriginTestCase(unittest.TestCase):
         # Check all plots
         for name in names:
             # Uncomment line below to update expected image
-            # shutil.copy(
-            #     f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}"
-            # )
+            # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
             # Check
             self.assertIsNone(
@@ -166,9 +160,7 @@ class NTrackOriginTestCase(unittest.TestCase):
         name = "ttbar_test_kwargs_all_flavour.png"
 
         # Uncomment line below to update expected image
-        # shutil.copy(
-        #     f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}"
-        # )
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
         # Check
         self.assertIsNone(

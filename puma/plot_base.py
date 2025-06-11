@@ -17,6 +17,7 @@ from IPython.display import display
 from matplotlib import axis, gridspec, lines
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+from matplotlib.ticker import MaxNLocator
 
 from puma.utils import logger, set_xaxis_ticklabels_invisible
 
@@ -272,6 +273,8 @@ class PlotObject:
         Specify if the background of the plot should be transparent, by default False
     grid : bool, optional
         Set the grid for the plots.
+    figure_layout : str, optional
+        Set the layout that is used for the plot. By default "constrained"
     leg_fontsize : int, optional
         Fontsize of the legend, by default 10
     leg_loc : str, optional
@@ -335,6 +338,7 @@ class PlotObject:
     transparent: bool = False
 
     grid: bool = True
+    figure_layout: str = "constrained"
 
     # legend settings
     leg_fontsize: int = None
@@ -483,7 +487,7 @@ class PlotBase(PlotObject):
             ratio_height = 1.0
             height = top_height + self.n_ratio_panels * ratio_height
             figsize = (width, height) if self.figsize is None else self.figsize
-            self.fig = Figure(figsize=figsize, constrained_layout=True)
+            self.fig = Figure(figsize=figsize, layout=self.figure_layout)
 
             if self.n_ratio_panels == 0:
                 self.axis_top = self.fig.gca()
@@ -499,6 +503,23 @@ class PlotBase(PlotObject):
                     if i < self.n_ratio_panels:
                         set_xaxis_ticklabels_invisible(sub_axis)
                     self.ratio_axes.append(sub_axis)
+
+        # Add the locator to all axes
+        self.axis_top.yaxis.set_major_locator(
+            locator=MaxNLocator(
+                nbins="auto",
+                prune="both",
+                steps=[1, 2, 5, 10],
+            )
+        )
+        for ratio_axis in self.ratio_axes:
+            ratio_axis.yaxis.set_major_locator(
+                locator=MaxNLocator(
+                    nbins="auto",
+                    prune="both",
+                    steps=[1, 2, 5, 10],
+                )
+            )
 
         if self.grid:
             self.axis_top.grid(lw=0.3)
