@@ -17,6 +17,7 @@ from IPython.display import display
 from matplotlib import axis, gridspec, lines
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+from matplotlib.ticker import MaxNLocator
 
 from puma.utils import logger, set_xaxis_ticklabels_invisible
 
@@ -502,6 +503,23 @@ class PlotBase(PlotObject):
                     if i < self.n_ratio_panels:
                         set_xaxis_ticklabels_invisible(sub_axis)
                     self.ratio_axes.append(sub_axis)
+
+        # Add the locator to all axes
+        self.axis_top.yaxis.set_major_locator(
+            locator=MaxNLocator(
+                nbins="auto",
+                prune="both",
+                steps=[1, 2, 5, 10],
+            )
+        )
+        for ratio_axis in self.ratio_axes:
+            ratio_axis.yaxis.set_major_locator(
+                locator=MaxNLocator(
+                    nbins="auto",
+                    prune="both",
+                    steps=[1, 2, 5, 10],
+                )
+            )
 
         if self.grid:
             self.axis_top.grid(lw=0.3)
