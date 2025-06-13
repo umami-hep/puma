@@ -82,7 +82,18 @@ dips_light = VarVsEff(
     label="DIPS",
 )
 
+# You can also store and load now the different VarVsEff curves
+# Supported formats are .yaml and .json, which are human-readable
+# and can be changed before loading them back in.
+dips_light.save("dips_light.yaml")
+rnnip_light.save("rnnip_light.yaml")
 
+# To load them again, you simply call the class with load().
+# Once loaded, you can use them as before. All needed info for plotting are still there
+dips_light_loaded = VarVsEff.load("dips_light.yaml")
+rnnip_light_loaded = VarVsEff.load("rnnip_light.yaml")
+
+# Now to the actual plotting
 logger.info("Plotting bkg rejection for inclusive efficiency as a function of pt.")
 # You can choose between different modes: "sig_eff", "bkg_eff", "sig_rej", "bkg_rej"
 plot_bkg_rej = VarVsEffPlot(

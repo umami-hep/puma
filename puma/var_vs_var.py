@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import matplotlib as mpl
 import numpy as np
 from matplotlib.patches import Rectangle
@@ -84,6 +86,34 @@ class VarVsVar(PlotLineObject):
         self.fill = fill
         self.plot_y_std = plot_y_std
         self.ratio_group = ratio_group
+
+        # Get the kwargs
+        self.kwargs = kwargs
+
+    @property
+    def args_to_store(self) -> dict[str, Any]:
+        """Returns the arguments that need to be stored/loaded.
+
+        Returns
+        -------
+        dict[str, Any]
+            Dict with the arguments
+        """
+        # Copy the kwargs to remove safely stuff
+        extra_kwargs = dict(getattr(self, "kwargs", {}))
+
+        # Create the dict with the args to store/load
+        return {
+            "x_var": self.x_var,
+            "y_var_mean": self.y_var_mean,
+            "y_var_std": self.y_var_std,
+            "x_var_widths": self.x_var_widths,
+            "key": self.key,
+            "fill": self.fill,
+            "plot_y_std": self.plot_y_std,
+            "ratio_group": self.ratio_group,
+            **extra_kwargs,
+        }
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):

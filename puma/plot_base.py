@@ -90,41 +90,47 @@ class PlotLineObject:
             "is_marker": self.is_marker,
         }
 
-    def convert_args(self) -> dict[str, Any]:
-        """Convert objects that JSON/YAML cannot encode natively.
+    @staticmethod
+    def encode(obj):
+        """Return a JSON/YAML-safe version of obj, tagging special types."""
+        # Encode special cases which can't be easily stored in json and yaml
+        if isinstance(obj, np.ndarray):
+            return {"__ndarray__": obj.tolist(), "dtype": str(obj.dtype)}
+        if isinstance(obj, Label):
+            return {"__label__": obj.name}
+        if isinstance(obj, tuple):
+            return {"__tuple__": [PlotLineObject.encode(v) for v in obj]}
 
-        np.ndarray to plain list
-        Flavour to Flavour.name (for storage)
+        # For lists and dicts, walk through them and ensure correct encoding for sub-objects
+        if isinstance(obj, list):
+            return [PlotLineObject.encode(v) for v in obj]
+        if isinstance(obj, dict):
+            return {k: PlotLineObject.encode(v) for k, v in obj.items()}
 
-        Parameters
-        ----------
-        value : Any
-            Variable that is checked and changed if needed.
+        # If no encoding is needed, return the object
+        return obj
 
-        Returns
-        -------
-        Any
-            Original or adapted variable.
-        """
-        # Define a out_dict to which the objects are added.
-        out_dict = {}
+    @staticmethod
+    def decode(obj):
+        """Inverse of encode, turning tags back into real objects."""
+        # If a dict was used, go through and check for types
+        if isinstance(obj, dict):
+            if "__ndarray__" in obj:
+                return np.asarray(obj["__ndarray__"], dtype=obj["dtype"])
+            if "__label__" in obj:
+                return Flavours[obj["__label__"]]
+            if "__tuple__" in obj:
+                return tuple(PlotLineObject.decode(v) for v in obj["__tuple__"])
 
-        # Loop over the args in the dict
-        for iter_key, iter_value in self.args_to_store.items():
-            # Check for numpy arrays and make them a list
-            if isinstance(iter_value, np.ndarray):
-                out_dict[iter_key] = iter_value.tolist()
+            # If it's a regular dict, walk down the keys
+            return {k: PlotLineObject.decode(v) for k, v in obj.items()}
 
-            # Check for flavour Label instance
-            elif isinstance(iter_value, Label):
-                out_dict[iter_key] = iter_value.name
+        # If a list was used, check that all sub-objects are correctly loaded
+        if isinstance(obj, list):
+            return [PlotLineObject.decode(v) for v in obj]
 
-            # Else use the value how it is
-            else:
-                out_dict[iter_key] = iter_value
-
-        # Return new out_dict
-        return out_dict
+        # If no decoding is needed, return the object
+        return obj
 
     def save(self, path: str | Path) -> None:
         """Store class attributes in a file.
@@ -140,7 +146,7 @@ class PlotLineObject:
         path = Path(path)
 
         # Get the attributes as a dict
-        data = self.convert_args()
+        data = self.encode(self.args_to_store)
 
         # Check for json and store it as such
         if path.suffix == ".json":
@@ -193,20 +199,7 @@ class PlotLineObject:
             raise ValueError("Unknown file extension. Use '.json', '.yaml' or '.yml'.")
 
         # Convert back to numpy where appropriate
-        for key in cls._ARRAY_FIELDS.intersection(data):
-            if data.get(key) is not None:
-                data[key] = np.asarray(data[key])
-
-        # PyYAML turns tuples into lists -> convert the ones matplotlib expects
-        tuple_fields = {"linestyle", "colour"}
-        for key in tuple_fields.intersection(data):
-            if isinstance(data[key], list):
-                data[key] = tuple(data[key])
-
-        # Change the flavour back to Flavour instance
-        flavour_fields = {"flavour", "rej_class"}
-        for key in flavour_fields:
-            data[key] = Flavours[data[key]] if key in data and isinstance(data[key], str) else None
+        data = cls.decode(data)
 
         # allow caller to override
         data.update(extra_kwargs)

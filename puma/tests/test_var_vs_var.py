@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import json
 import os
 import shutil  # noqa: F401
 import tempfile
 import unittest
+from pathlib import Path
 
 import numpy as np
+import yaml
 from matplotlib.testing.compare import compare_images
 
 from puma import VarVsVar, VarVsVarPlot
@@ -100,6 +103,138 @@ class VarVsVarTestCase(unittest.TestCase):
         )
         with self.assertRaises(ValueError):
             var_plot.divide(var_plot_comp)
+
+
+class VarVsVarIOTestCase(unittest.TestCase):
+    """
+    Ensure that VarVsVar serialisation (`save` / `load`) is loss-less and that
+    the private encode/decode helpers correctly tag / restore exotic types.
+    """
+
+    # ------------------------------------------------------------------
+    # helper to build a deterministic VarVsVar
+    # ------------------------------------------------------------------
+    @staticmethod
+    def _make_curve() -> VarVsVar:
+        return VarVsVar(
+            x_var=np.array([0.0, 1.0, 2.0, 3.0]),
+            y_var_mean=np.array([10.0, 20.0, 30.0, 40.0]),
+            y_var_std=np.array([1.0, 2.0, 3.0, 4.0]),
+            x_var_widths=np.array([0.5, 0.5, 0.5, 0.5]),
+            key="unit-test",
+            colour=(0.2, 0.4, 0.6),  # forwarded to PlotLineObject
+            linestyle=(0, (3, 1)),
+            label="curve",
+        )
+
+    # ------------------------------------------------------------------
+    # encode / decode
+    # ------------------------------------------------------------------
+    def testencodedecode_roundtrip(self):
+        """VarVsVar.encode/decode must round-trip every field exactly."""
+        v = self._make_curve()
+
+        encoded = v.encode(v.args_to_store)
+
+        # ── encoded structure is JSON-safe ───────────────────────────────
+        json.dumps(encoded)  # must not raise
+        for field in ("x_var", "y_var_mean", "y_var_std", "x_var_widths"):
+            # numpy arrays became {"__ndarray__": …}
+            self.assertIn("__ndarray__", encoded[field])
+
+        # tuples are tagged
+        self.assertEqual(encoded["colour"]["__tuple__"], [0.2, 0.4, 0.6])
+
+        # ── decoding restores original Python objects ────────────────────
+        decoded = VarVsVar.decode(encoded)
+        np.testing.assert_array_equal(decoded["y_var_std"], v.y_var_std)
+        self.assertEqual(decoded["colour"], v.colour)  # tuple restored
+        self.assertTrue(decoded["fill"])
+
+    # ------------------------------------------------------------------
+    # save / load (JSON)
+    # ------------------------------------------------------------------
+    def test_json_roundtrip(self):
+        """Saving to JSON and reloading must reproduce the object 1-to-1."""
+        v = self._make_curve()
+
+        with tempfile.TemporaryDirectory() as tmpd:
+            path = Path(tmpd) / "curve.json"
+            v.save(path)
+
+            # file parses as valid JSON
+            with path.open() as f:
+                raw = json.load(f)
+            self.assertIn("y_var_mean", raw)
+
+            clone = VarVsVar.load(path)
+
+            # numerical arrays survive bit-perfect
+            np.testing.assert_array_equal(v.x_var, clone.x_var)
+            np.testing.assert_array_equal(v.y_var_mean, clone.y_var_mean)
+            np.testing.assert_array_equal(v.y_var_std, clone.y_var_std)
+            np.testing.assert_array_equal(v.x_var_widths, clone.x_var_widths)
+
+            # metadata
+            self.assertEqual(clone.key, v.key)
+            self.assertEqual(clone.colour, v.colour)
+            self.assertEqual(clone.linestyle, v.linestyle)
+            self.assertEqual(clone.label, v.label)
+
+            # functional behaviour intact
+            ratio, _ = v.divide(clone)
+            np.testing.assert_allclose(ratio, np.ones_like(ratio))
+
+    # ------------------------------------------------------------------
+    # save / load (YAML)
+    # ------------------------------------------------------------------
+    def test_yaml_roundtrip(self):
+        """YAML round-trip preserves arrays & metadata."""
+        v = self._make_curve()
+
+        with tempfile.TemporaryDirectory() as tmpd:
+            path = Path(tmpd) / "curve.yaml"
+            v.save(path)
+
+            with path.open() as f:
+                raw = yaml.safe_load(f)
+            self.assertIn("x_var", raw)
+
+            clone = VarVsVar.load(path)
+            self.assertEqual(clone.label, v.label)
+
+    # ------------------------------------------------------------------
+    # load-time overrides
+    # ------------------------------------------------------------------
+    def test_load_override(self):
+        """`extra_kwargs` given to `load` must override stored attributes."""
+        v = self._make_curve()
+
+        with tempfile.TemporaryDirectory() as tmpd:
+            path = Path(tmpd) / "curve.json"
+            v.save(path)
+            clone = VarVsVar.load(path, colour="magenta", label="override")
+
+            self.assertEqual(clone.colour, "magenta")
+            self.assertEqual(clone.label, "override")
+
+    # ------------------------------------------------------------------
+    # unknown file extensions
+    # ------------------------------------------------------------------
+    def test_invalid_extensions(self):
+        """Unsupported suffixes must raise ValueError."""
+        v = self._make_curve()
+
+        with tempfile.TemporaryDirectory() as tmpd:
+            # save
+            with self.assertRaises(ValueError):
+                v.save(Path(tmpd) / "curve.txt")
+
+            # load
+            bogus = Path(tmpd) / "curve.conf"
+            bogus.write_text("dummy")
+            with self.assertRaises(ValueError):
+                VarVsVar.load(bogus)
 
 
 class VarVsVarPlotTestCase(unittest.TestCase):
