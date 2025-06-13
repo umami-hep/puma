@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Adding save/load functionality to VarVsVar and VarVsEff [!324](https://github.com/umami-hep/puma/pull/324)
 - Adding option to define the plot layout [!323](https://github.com/umami-hep/puma/pull/323)
 - Enable Storage of Histogram Objects [!319](https://github.com/umami-hep/puma/pull/319)
 - Update atlas-ftag-tools package to v0.2.11 [!321](https://github.com/umami-hep/puma/pull/321)
