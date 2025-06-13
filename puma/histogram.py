@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, ClassVar
+from typing import Any
 
 import matplotlib as mpl
 import numpy as np
@@ -19,13 +19,6 @@ class Histogram(PlotLineObject):
     Histogram class storing info about histogram and allows to calculate ratio w.r.t
     other histograms.
     """
-
-    _ARRAY_FIELDS: ClassVar[str] = {
-        "bin_edges",
-        "hist",
-        "unc",
-        "band",
-    }
 
     def __init__(
         self,
