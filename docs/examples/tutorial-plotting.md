@@ -55,8 +55,8 @@ wget https://umami-ci-provider.web.cern.ch/puma/zpext.h5
 
 ## Tutorial Tasks
 
-The tasks are divided in several sub-tasks. You don't have to do all of them in case you are more
-interested in the other tasks. However, the sub-tasks depend on each other, so you should finish a
+The tasks are divided in several su$b$-tasks. You don't have to do all of them in case you are more
+interested in the other tasks. However, the su$b$-tasks depend on each other, so you should finish a
 subtask before proceeding to the next one (also the solutions assume that you already have the
 previous subtasks completed).
 
@@ -161,7 +161,7 @@ fraction value.
         arr : numpy.ndarray
             array with with shape (, 3)
         f_c : float, optional
-            f_c value in the discriminant (weight for c-jets rejection)
+            f_c value in the discriminant (weight for $c$-jets rejection)
 
         Returns
         -------
@@ -198,7 +198,7 @@ retrieve the working point cut value for 70% $b$-jet efficiency.**
     scores = np.apply_along_axis(disc_fct, axis=1, arr=dummy_jets)
     target_eff = 0.7
     cutvalue = np.percentile(scores[bjets], 100.0 * (1.0 - target_eff))
-    print("cut value for 70% b-jet efficiency:", cutvalue)
+    print("cut value for 70% $b$-jet efficiency:", cutvalue)
     ```
 
     The current way to implement this is using the [atlas-ftag-tools metrics functions](https://github.com/umami-hep/atlas-ftag-tools/blob/main/ftag/utils/metrics.py)
@@ -220,8 +220,8 @@ measure. The rejection is simply the inverse of the efficiency $\frac{1}{\vareps
     print("light-flavour jets rejection:", 1 / ljets_eff)
 
     cjets_eff = ((scores > cutvalue) & cjets).sum() / cjets.sum()
-    print("c-flavour jets efficiency:", cjets_eff)
-    print("c-flavour jets rejection:", 1 / cjets_eff)
+    print("$c$-flavour jets efficiency:", cjets_eff)
+    print("$c$-flavour jets rejection:", 1 / cjets_eff)
     ```
 
     Alternatively, all this functionality is also provided by the `atlas-ftag-tools` package.
@@ -312,15 +312,14 @@ jets, $b$-jets and $b$-jets.
 
     # initialise the plot
     pt_plot = HistogramPlot(
-        bins_range=(0, 250_000),
         xlabel="$p_\text{T}$ [MeV]",
         ylabel="Normalised number of jets",
     )
 
     # add the histograms (Note that the Histogram objects need to have the same bins!)
-    pt_plot.add(Histogram(jets[is_light]["pt_btagJes"], flavour="ujets", bins=np.linspace(-10, 10, 50)))
-    pt_plot.add(Histogram(jets[is_c]["pt_btagJes"], flavour="cjets", bins=np.linspace(-10, 10, 50)))
-    pt_plot.add(Histogram(jets[is_b]["pt_btagJes"], flavour="bjets", bins=np.linspace(-10, 10, 50)))
+    pt_plot.add(Histogram(jets[is_light]["pt_btagJes"], flavour="ujets", bins=np.linspace(0, 250_000, 50)))
+    pt_plot.add(Histogram(jets[is_c]["pt_btagJes"], flavour="cjets", bins=np.linspace(0, 250_000, 50)))
+    pt_plot.add(Histogram(jets[is_b]["pt_btagJes"], flavour="bjets", bins=np.linspace(0, 250_000, 50)))
 
     pt_plot.draw()
     pt_plot.savefig("tutorial_histogram_pT.png")
@@ -373,7 +372,7 @@ In this task you will plot the $b$-jets probability of two different taggers - R
             jets[is_light]["rnnip_pb"],
             ratio_group="ujets",
             flavour="ujets",
-            bins=np.linspace(-10, 10, 50),
+            bins=np.linspace(0, 1, 50),
         ),
         reference=True,
     )
@@ -382,7 +381,7 @@ In this task you will plot the $b$-jets probability of two different taggers - R
             jets[is_c]["rnnip_pb"],
             ratio_group="cjets",
             flavour="cjets",
-            bins=np.linspace(-10, 10, 50),
+            bins=np.linspace(0, 1, 50),
         ),
         reference=True,
     )
@@ -391,7 +390,7 @@ In this task you will plot the $b$-jets probability of two different taggers - R
             jets[is_b]["rnnip_pb"],
             ratio_group="bjets",
             flavour="bjets",
-            bins=np.linspace(-10, 10, 50),
+            bins=np.linspace(0, 1, 50),
         ),
         reference=True,
     )
@@ -402,7 +401,7 @@ In this task you will plot the $b$-jets probability of two different taggers - R
             jets[is_light]["dipsLoose20220314u2_pb"],
             ratio_group="ujets",
             flavour="ujets",
-            bins=np.linspace(-10, 10, 50),
+            bins=np.linspace(0, 1, 50),
             linestyle="--"
         )
     )
@@ -411,7 +410,7 @@ In this task you will plot the $b$-jets probability of two different taggers - R
             jets[is_c]["dipsLoose20220314v2_pb"],
             ratio_group="cjets",
             flavour="cjets",
-            bins=np.linspace(-10, 10, 50),
+            bins=np.linspace(0, 1, 50),
             linestyle="--"
         )
     )
@@ -420,7 +419,7 @@ In this task you will plot the $b$-jets probability of two different taggers - R
             jets[is_b]["dipsLoose20220314v2_pb"],
             ratio_group="bjets",
             flavour="bjets",
-            bins=np.linspace(-10, 10, 50),
+            bins=np.linspace(0, 1, 50),
             linestyle="--"
         )
     )
@@ -457,7 +456,6 @@ which is challenging here and there.
         print(tracks.shape)
 
     d0_plot = HistogramPlot(
-        bins_range=(-3, 3),
         xlabel="$d_0$ significance",
         ylabel="Normalised number of tracks",
         figsize=(6, 4.5),
@@ -467,21 +465,21 @@ which is challenging here and there.
         Histogram(
             tracks["IP3D_signed_d0_significance"][is_light, :].flatten(),
             flavour="ujets",
-            bins=np.linspace(-10, 10, 50),
+            bins=np.linspace(-3, 3, 50),
         )
     )
     d0_plot.add(
         Histogram(
             tracks["IP3D_signed_d0_significance"][is_c, :].flatten(),
             flavour="cjets",
-            bins=np.linspace(-10, 10, 50),
+            bins=np.linspace(-3, 3, 50),
         )
     )
     d0_plot.add(
         Histogram(
             tracks["IP3D_signed_d0_significance"][is_b, :].flatten(),
             flavour="bjets",
-            bins=np.linspace(-10, 10, 50),
+            bins=np.linspace(-3, 3, 50),
         )
     )
 
@@ -653,6 +651,8 @@ rejection for a range of $b$-jets efficiencies.
         label="DIPS r22",
     )
 
+    # Set the n_ratio_panels in the RocPlot to 2!
+
     # Add this below the add_roc() from the other light jets
     plot_roc.add_roc(roc_curve=rnnip_cjets_roc, reference=True)
     plot_roc.add_roc(roc_curve=dips_cjets_roc)
@@ -676,6 +676,10 @@ the values that are already calculated.
 
 For a fixed inclusive $b$-efficiency, you plot the $b$-efficiency for different bins of $p_\text{T}$.
 
+??? info "Hint 1: I'm not sure which type of Plot I need"
+
+    The plot type you are looking for is `VarVsEff` and `VarVsEffPlot`.
+
 ??? warning "Solution"
 
     ```py
@@ -684,6 +688,8 @@ For a fixed inclusive $b$-efficiency, you plot the $b$-efficiency for different 
     import h5py
 
     from puma import VarVsEff, VarVsEffPlot
+    from ftag.utils import get_discriminant
+    from ftag import Flavours
 
     ttbar_filepath = "/eos/user/u/umamibot/tutorials/ttbar.h5"
 
@@ -691,42 +697,36 @@ For a fixed inclusive $b$-efficiency, you plot the $b$-efficiency for different 
     with h5py.File(ttbar_filepath, "r") as h5file:
         jets = pd.DataFrame(h5file["jets"][:])
 
-    # define a small function to calculate discriminant
-    def disc_fct(arr: np.ndarray, f_c: float = 0.018) -> np.ndarray:
-        """Tagger discriminant
-
-        Parameters
-        ----------
-        arr : numpy.ndarray
-            array with with shape (, 3)
-        f_c : float, optional
-            f_c value in the discriminant (weight for c-jets rejection)
-
-        Returns
-        -------
-        np.ndarray
-            Array with the discriminant values inside.
-        """
-        # you can adapt this for your needs
-        return np.log(arr[2] / (f_c * arr[1] + (1 - f_c) * arr[0]))
-
-
-    # calculate discriminant
-    discs_rnnip = np.apply_along_axis(
-        disc_fct, 1, jets[["rnnip_pu", "rnnip_pc", "rnnip_pb"]].values
+    # Calculate the discriminant for both taggers
+    discs_dips = get_discriminant(
+        jets=jets,
+        tagger="dips",
+        signal=Flavours["bjets"],
+        flavours=Flavours.by_category("single-btag"),
+        fraction_values={
+            "fc": 0.018,
+            "fu": 0.982,
+            "ftau": 0,
+        },
     )
-    discs_dips = np.apply_along_axis(
-        disc_fct,
-        1,
-        jets[
-            ["dipsLoose20220314v2_pu", "dipsLoose20220314v2_pc", "dipsLoose20220314v2_pb"]
-        ].values,
+    discs_rnnip = get_discriminant(
+        jets=jets,
+        tagger="rnnip",
+        signal=Flavours["bjets"],
+        flavours=Flavours.by_category("single-btag"),
+        fraction_values={
+            "fc": 0.018,
+            "fu": 0.982,
+            "ftau": 0,
+        },
     )
 
-    # Getting jet pt in GeV
+    # Getting jet pt in GeV (in the files, they are stored in MeV)
     pt = jets["pt"].values / 1e3
+
     # defining target efficiency
     sig_eff = np.linspace(0.49, 1, 20)
+
     # defining boolean arrays to select the different flavour classes
     is_light = jets["HadronConeExclTruthLabelID"] == 0
     is_c = jets["HadronConeExclTruthLabelID"] == 4
@@ -757,7 +757,6 @@ For a fixed inclusive $b$-efficiency, you plot the $b$-efficiency for different 
         fixed_eff_bin=False,
         label="DIPS",
     )
-
 
     # You can choose between different modes: "sig_eff", "bkg_eff", "sig_rej", "bkg_rej"
     plot_sig_eff = VarVsEffPlot(
@@ -807,14 +806,16 @@ For a fixed inclusive $b$-efficiency, you plot the $b$-efficiency for different 
 
 ## Bonus tasks
 
-### Run over a Run-3 MC sample and compare the pileup distributions
+### Run over a Run-3 MC Sample and Compare the Pileup Distributions
 
-This task will extend over the simple histogram plotting you already encountered in Task 1.
-You are asked to compare distributions from two different files: the Run-2 MC for the Z' sample and the Run-3 MC for the Z' sample.
+This task will extend over the simple histogram plotting you already encountered in Task 1. You are
+asked to compare distributions from two different files: the Run-2 MC for the Z' sample and the
+Run-3 MC for the Z' sample.
 
 For this task, you will:
 
-1. Download the Z' sample for the Run-3 MC `zpext_run3.h5` from `/eos/user/u/umamibot/tutorials/`.
+1. Download the Z' sample for the Run-3 MC `zpext_run3.h5` from `/eos/user/u/umamibot/tutorials/`
+   or from `https://umami-ci-provider.web.cern.ch/puma/zpext_run3.h5`.
 2. Write a plotting script to compare the `averageInteractionsPerCrossing` between the two samples.
 
 ??? warning "Solution"
@@ -822,8 +823,13 @@ For this task, you will:
     Copy the Run-3 MC file (assuming you work on lxplus):
 
     ```bash
-
     cp /eos/user/u/umamibot/tutorials/zpext_run3.h5 </path/to/tutorial/data/>
+    ```
+
+    If you don't work on lxplus, download it via
+
+    ```bash
+    wget https://umami-ci-provider.web.cern.ch/puma/zpext_run3.h5
     ```
 
     You should provide a path for the dummy `</path/to/tutorial/data/>` in the command above and in the
@@ -845,17 +851,14 @@ For this task, you will:
         jets_run3 = h5file["jets"][:]
 
     variable = "averageInteractionsPerCrossing"
-    run_2 = Histogram(jets_run2[variable], label="Run 2 MC")
-    run_3 = Histogram(jets_run3[variable], label="Run 3 MC")
+    run_2 = Histogram(jets_run2[variable], label="Run 2 MC", bins=np.linspace(10, 70, 60), norm=True)
+    run_3 = Histogram(jets_run3[variable], label="Run 3 MC", bins=np.linspace(10, 70, 60), norm=True)
 
     # Initialise histogram plot
     plot_histo = HistogramPlot(
         ylabel="Number of events",
         xlabel=r"average interactions per crossing $\langle\mu\rangle$ [a.u.]",
         logy=False,
-        bins=60,
-        bins_range=(10, 70),
-        norm=True,
         atlas_first_tag="Simulation Internal",
         atlas_second_tag="Example for a comparison plot",
         figsize=(6, 5),
@@ -871,20 +874,29 @@ For this task, you will:
 
     ```
 
-### Compare the "flipped taggers" to the regular flavour tagging algorithms
+### Compare the "Flipped Taggers" to the Regular Flavour Tagging Algorithms
 
-This task further extends over the simple histogram plotting you already encountered in Task 1.
-You are asked to compare distributions from a regular flavour tagging algorithm and a so-called "flipped tagger", which is a modified version of the flavour tagging algorithm used for light-jet mistag calibration.
-For this version, the sign of d0/z0 signed impact parameter is flipped, resulting in a selection of jets with “negative lifetime”.
+This task further extends over the simple histogram plotting you already encountered in Task 1. You
+are asked to compare distributions from a regular flavour tagging algorithm and a so-called "flipped
+tagger", which is a modified version of the flavour tagging algorithm used for light-jet mistag
+calibration. For this version, the sign of $d_0$/$z_0$ signed impact parameter is flipped, resulting
+in a selection of jets with “negative lifetime”.
 
-Consequently, the flipped tagger's b-tagging efficiency is reduced while its light-jet mistag rate is left unchanged.
+Consequently, the flipped tagger's $b$-tagging efficiency is reduced while its light-jet mistag rate
+is left unchanged.
 
 For this task, you will:
 
-1. Write a plotting script to compare the scores $p_b$, $p_c$, and $p_u$, for the RNNIP tagger to the flipped version. You should produce three plots, one for each score (such as $p_b$), which show the distributions of the RNNIP tagger and the flipped RNNIP tagger overlaid for the three different jet flavours b-jets, c-jets and light-flavour jets.
-2. Next, extend the script to compare also the flavour tagging discriminant based on the flipped tagger and the regular RNNIP tagger. You should produce one plot which compares the distributions of the RNNIP tagger and the flipped RNNIP tagger overlaid for the three different jet flavours b-jets, c-jets and light-flavour jets.
+1. Write a plotting script to compare the scores $p_b$, $p_c$, and $p_u$, for the RNNIP tagger to
+   the flipped version. You should produce three plots, one for each score (such as $p_b$), which
+   show the distributions of the RNNIP tagger and the flipped RNNIP tagger overlaid for the three
+   different jet flavours $b$-jets, $c$-jets and light-flavour jets.
+2. Next, extend the script to compare also the flavour tagging discriminant based on the flipped
+   tagger and the regular RNNIP tagger. You should produce one plot which compares the distributions
+   of the RNNIP tagger and the flipped RNNIP tagger overlaid for the three different jet flavours
+   $b$-jets, $c$-jets and light-flavour jets.
 
-??? info "Hint: Names of the RNNIP tagger and the flipped tagger scores and the corresponding b-tagging discriminant"
+??? info "Hint: Names of the RNNIP tagger and the flipped tagger scores and the corresponding $b$-tagging discriminant"
 
     The names of the RNNIP tagger scores are
 
@@ -910,6 +922,8 @@ For this task, you will:
     import h5py
     import pandas as pd
     from puma import Histogram, HistogramPlot
+    from ftag.utils import get_discriminant
+    from ftag import Flavours
 
     # load the "jets" dataset from the h5 file
     filepath = "/path/to/tutorial/data/ttbar.h5"
@@ -925,12 +939,29 @@ For this task, you will:
 
 
     # Calculate discriminant scores for RNNIP and flipped tagger, and add them to the dataframe
-    FRAC_C = 0.07
-    jets["disc_rnnip"] = np.log(
-        jets["rnnip_pb"] / (FRAC_C * jets["rnnip_pc"] + (1 - FRAC_C) * jets["rnnip_pu"])
+    
+    jets["disc_rnnip"] = get_discriminant(
+        jets=jets,
+        tagger="rnnip",
+        signal=Flavours["bjets"],
+        flavours=Flavours.by_category("single-btag"),
+        fraction_values={
+            "fc": 0.07,
+            "fu": 0.93,
+            "ftau": 0,
+        },
     )
-    jets["disc_rnnipflip"] = np.log(
-        jets["rnnipflip_pb"] / (FRAC_C * jets["rnnipflip_pc"] + (1 - FRAC_C) * jets["rnnipflip_pu"])
+
+    jets["disc_rnnipflip"] = get_discriminant(
+        jets=jets,
+        tagger="rnnipflip",
+        signal=Flavours["bjets"],
+        flavours=Flavours.by_category("single-btag"),
+        fraction_values={
+            "fc": 0.07,
+            "fu": 0.93,
+            "ftau": 0,
+        },
     )
 
     variables = [
@@ -941,30 +972,66 @@ For this task, you will:
     ]
 
     axis_labels = {
-        'rnnip_pu': 'RNNIP $p_{light}$',
+        'rnnip_pu': 'RNNIP $p_\\mathrm{light}$',
         'rnnip_pc': 'RNNIP $p_{c}$',
         'rnnip_pb': 'RNNIP $p_{b}$',
-        'disc_rnnip': 'RNNIP b-tagging discriminant',
+        'disc_rnnip': 'RNNIP $b$-tagging discriminant',
     }
-
 
     # plot score and discriminantdistributions
     for v in variables:
-        rnnip_light = Histogram(jets[is_light][v[0]], flavour="ujets", label="RNNIP")
-        rnnip_c = Histogram(jets[is_c][v[0]], flavour="cjets", label="RNNIP")
-        rnnip_b = Histogram(jets[is_b][v[0]], flavour="bjets", label="RNNIP")
+        rnnip_light = Histogram(
+            jets[is_light][v[0]],
+            flavour="ujets",
+            label="RNNIP",
+            bins=np.linspace(-10, 10, 40) if v[0] == "disc_rnnip" else np.linspace(0, 1, 20),
+            norm=False,
+        )
+        rnnip_c = Histogram(
+            jets[is_c][v[0]],
+            flavour="cjets",
+            label="RNNIP",
+            bins=np.linspace(-10, 10, 40) if v[0] == "disc_rnnip" else np.linspace(0, 1, 20),
+            norm=False,
+        )
+        rnnip_b = Histogram(
+            jets[is_b][v[0]],
+            flavour="bjets",
+            label="RNNIP",
+            bins=np.linspace(-10, 10, 40) if v[0] == "disc_rnnip" else np.linspace(0, 1, 20),
+            norm=False,
+        )
 
-        rnnip_light_flip = Histogram(jets[is_light][v[1]], linestyle="dashed", flavour="ujets", label="RNNIP (flip)")
-        rnnip_c_flip = Histogram(jets[is_c][v[1]], linestyle="dashed", flavour="cjets", label="RNNIP (flip)")
-        rnnip_b_flip = Histogram(jets[is_b][v[1]], linestyle="dashed", flavour="bjets", label="RNNIP (flip)")
+        rnnip_light_flip = Histogram(
+            jets[is_light][v[1]],
+            linestyle="dashed",
+            flavour="ujets",
+            label="RNNIP (flip)",
+            bins=np.linspace(-10, 10, 40) if v[0] == "disc_rnnip" else np.linspace(0, 1, 20),
+            norm=False,
+        )
+        rnnip_c_flip = Histogram(
+            jets[is_c][v[1]],
+            linestyle="dashed",
+            flavour="cjets",
+            label="RNNIP (flip)",
+            bins=np.linspace(-10, 10, 40) if v[0] == "disc_rnnip" else np.linspace(0, 1, 20),
+            norm=False,
+        )
+        rnnip_b_flip = Histogram(
+            jets[is_b][v[1]],
+            linestyle="dashed",
+            flavour="bjets",
+            label="RNNIP (flip)",
+            bins=np.linspace(-10, 10, 40) if v[0] == "disc_rnnip" else np.linspace(0, 1, 20),
+            norm=False,
+        )
 
         # Initialise histogram plot
         plot_histo = HistogramPlot(
             ylabel="Number of events",
             xlabel=axis_labels[v[0]],
             logy=True,
-            bins=np.linspace(-10, 10, 40) if v[0] == 'disc_rnnip' else np.linspace(0, 1, 20),
-            norm=False,
             atlas_first_tag="Simulation Internal",
             figsize=(6, 5),
             n_ratio_panels=1,
