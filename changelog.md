@@ -2,6 +2,9 @@
 
 ### [Latest]
 
+
+### [v0.4.7] (2025/06/17)
+
 - Adding save/load functionality to VarVsVar and VarVsEff [!324](https://github.com/umami-hep/puma/pull/324)
 - Enable docker build for latest only on main [!325](https://github.com/umami-hep/puma/pull/325)
 - Adding option to define the plot layout [!323](https://github.com/umami-hep/puma/pull/323)
