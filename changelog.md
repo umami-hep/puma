@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Update Puma Tutorial to newest Standards [!327](https://github.com/umami-hep/puma/pull/327)
 
 ### [v0.4.7] (2025/06/17)
 
