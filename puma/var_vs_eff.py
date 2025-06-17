@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import ClassVar
+from typing import Any, ClassVar
 
 import numpy as np
 from ftag.utils import calculate_efficiency_error, calculate_rejection_error
@@ -87,6 +87,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
                 f"Length of `x_var_bkg` ({len(x_var_bkg)}) and `disc_bkg` "
                 f"({len(disc_bkg)}) have to be identical."
             )
+
         # checking that the given options are compatible
         # could also think about porting it to a class function insted of passing
         # the arguments to init e.g. `set_method`
@@ -99,47 +100,65 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
                 )
             if not isinstance(working_point, float):
                 raise ValueError("You can't define PCFT working points when using a `flat_per_bin`")
+
+        # Ensure that signal/background variables are arrays
         self.x_var_sig = np.array(x_var_sig)
         self.disc_sig = np.array(disc_sig)
         self.x_var_bkg = None if x_var_bkg is None else np.array(x_var_bkg)
         self.disc_bkg = None if disc_bkg is None else np.array(disc_bkg)
+
+        # Define attributes for the working points
         self.working_point = working_point
         self.disc_cut = disc_cut
         self.flat_per_bin = flat_per_bin
+
         # Binning related variables
         self.n_bins = None
-        self.bn_edges = None
+        self.bin_edges = None
         self.x_bin_centres = None
         self.bin_widths = None
         self.n_bins = None
+
         # Binned distributions
         self.bin_indices_sig = None
         self.disc_binned_sig = None
         self.bin_indices_bkg = None
         self.disc_binned_bkg = None
 
+        # Kwargs
+        self.kwargs = kwargs
+
+        # Set the bin edges
         self._set_bin_edges(bins)
 
+        # Check that either disc_cut or working_point are defined
         if disc_cut is not None:
             if working_point is not None:
                 raise ValueError("You cannot specify `disc_cut` when providing `working_point`.")
+
+            # Ensure that disc_cut has the same length as the number of bins if it's used
             if isinstance(disc_cut, (list, np.ndarray)) and self.n_bins != len(disc_cut):
                 raise ValueError(
                     "`disc_cut` has to be a float or has to have the same length as"
                     " number of bins."
                 )
 
+        # Ensure that the given working points are an array
         elif isinstance(self.working_point, list):
             self.working_point = np.asarray(self.working_point)
+
+        # Throw error if the working points are neither a float nor a list
         elif not isinstance(working_point, float):
             raise TypeError(
                 "`working_point` must either be a list or a float! "
                 f"You gave {type(self.working_point)}"
             )
 
+        # Apply the binning and get the discriminant value cuts as attributes
         self._apply_binning()
         self._get_disc_cuts()
 
+        # Setup some needed attributes and also check them
         VarVsVar.__init__(
             self,
             x_var=self.x_bin_centres,
@@ -151,7 +170,34 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             plot_y_std=False,
             **kwargs,
         )
-        self.inverse_cut = False
+
+        # Calculate all efficiencies/rejections possible to make them easily available and storable
+        self.results = {"normal": {}, "inverse": {}}
+
+        # Iterate over inverse and normal setup
+        for iter_key in self.results:
+            self.inverse_cut = iter_key == "inverse"
+
+            # Iterate over the different output modes and store them
+            for iter_mode in VarVsEffPlot.mode_options:
+                self.results[iter_key][iter_mode] = {}
+
+                # We can't calculate always everything, so the ones that
+                # make problems will be filtered
+                try:
+                    (
+                        self.results[iter_key][iter_mode]["y_value"],
+                        self.results[iter_key][iter_mode]["y_error"],
+                    ) = getattr(self, iter_mode)
+
+                except (TypeError, ValueError):
+                    (
+                        self.results[iter_key][iter_mode]["y_value"],
+                        self.results[iter_key][iter_mode]["y_error"],
+                    ) = (None, None)
+
+        # Set inverse_cut back to false
+        self.inverse_cut = None
 
     def _set_bin_edges(self, bins: int | list | np.ndarray):
         """Calculate bin edges, centres and width and save them as class variables.
@@ -224,7 +270,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             ))
         else:
             self.disc_cut = [
-                np.percentile(self.disc_sig, (1 - self.working_point) * 100)
+                float(np.percentile(self.disc_sig, (1 - self.working_point) * 100))
             ] * self.n_bins
         logger.debug("Discriminant cut: %.3f", self.disc_cut)
 
@@ -302,6 +348,35 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         return rej, rej_error
 
     @property
+    def args_to_store(self) -> dict[str, Any]:
+        """Returns the arguments that need to be stored/loaded.
+
+        Returns
+        -------
+        dict[str, Any]
+            Dict with the arguments
+        """
+        # Copy the kwargs to remove safely stuff
+        extra_kwargs = dict(getattr(self, "kwargs", {}))
+
+        # Create the dict with the args to store/load
+        return {
+            "results": self.results,
+            "working_point": self.working_point,
+            "disc_cut": self.disc_cut,
+            "flat_per_bin": self.flat_per_bin,
+            "x_var": self.x_var,
+            "y_var_mean": self.y_var_mean,
+            "y_var_std": self.y_var_std,
+            "x_var_widths": self.x_var_widths,
+            "key": self.key,
+            "fill": self.fill,
+            "plot_y_std": self.plot_y_std,
+            "ratio_group": self.ratio_group,
+            **extra_kwargs,
+        }
+
+    @property
     def bkg_eff_sig_err(self):
         """Calculate signal efficiency per bin, assuming a flat background per
         bin. This results in returning the signal efficiency per bin, but the
@@ -377,21 +452,6 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         logger.debug("Retrieved background rejections: %s", rej)
         return np.array(rej)[:, 0], np.array(rej)[:, 1]
 
-    def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            return (
-                np.all(self.x_var_sig == other.x_var_sig)
-                and np.all(self.disc_sig == other.disc_sig)
-                and np.all(self.x_var_bkg == other.x_var_bkg)
-                and np.all(self.disc_bkg == other.disc_bkg)
-                and np.all(self.bn_edges == other.bn_edges)
-                and self.working_point == other.working_point
-                and np.all(self.disc_cut == other.disc_cut)
-                and self.flat_per_bin == other.flat_per_bin
-                and self.key == other.key
-            )
-        return False
-
     def get(self, mode: str, inverse_cut: bool = False):
         """Wrapper around rejection and efficiency functions.
 
@@ -416,19 +476,12 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         ValueError
             If mode not supported
         """
-        self.inverse_cut = inverse_cut
-        if mode == "sig_eff":
-            return self.sig_eff
-        if mode == "bkg_eff":
-            return self.bkg_eff
-        if mode == "sig_rej":
-            return self.sig_rej
-        if mode == "bkg_rej":
-            return self.bkg_rej
-        if mode == "bkg_eff_sig_err":
-            return self.bkg_eff_sig_err
-        # setting class variable again to False
-        self.inverse_cut = False
+        if mode in VarVsEffPlot.mode_options:
+            name = "normal" if inverse_cut is False else "inverse"
+            return (
+                self.results[name][mode]["y_value"],
+                self.results[name][mode]["y_error"],
+            )
         raise ValueError(
             f"The selected mode {mode} is not supported. Use one of the following:"
             f" {VarVsEffPlot.mode_options}."
@@ -484,9 +537,16 @@ class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
     def _setup_curves(self):
         for key in self.add_order:
             elem = self.plot_objects[key]
-            y_value, y_error = elem.get(self.mode, inverse_cut=self.inverse_cut)
-            elem.y_var_mean = y_value
-            elem.y_var_std = y_error
+
+            # Get the results dict from the object
+            results_dict = elem.results
+
+            # Check if the "normal" values or the inverse values are needed
+            type_key = "normal" if self.inverse_cut is False else "inverse"
+
+            # Get the y_values and errors
+            elem.y_var_mean = results_dict[type_key][self.mode]["y_value"]
+            elem.y_var_std = results_dict[type_key][self.mode]["y_error"]
 
     def apply_modified_atlas_second_tag(
         self,

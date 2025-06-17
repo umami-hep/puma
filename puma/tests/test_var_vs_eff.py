@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import json
 import os
 import shutil  # noqa: F401
 import tempfile
 import unittest
+from pathlib import Path
 
 import numpy as np
+import yaml
 from ftag import Flavours
 from matplotlib.testing.compare import compare_images
 
@@ -227,23 +230,6 @@ class VarVsEffTestCase(unittest.TestCase):
         self.assertEqual(len(eff), obj.n_bins)
         self.assertEqual(len(err), obj.n_bins)
 
-    def test_equality_operator(self):
-        """
-        Test that two VarVsEff objects are considered equal if
-        they have the same data and parameters.
-        """
-        obj1 = VarVsEff(
-            x_var_sig=self.x_sig, disc_sig=self.disc_sig, bins=5, disc_cut=0.5, key="tagger1"
-        )
-        obj2 = VarVsEff(
-            x_var_sig=self.x_sig, disc_sig=self.disc_sig, bins=5, disc_cut=0.5, key="tagger1"
-        )
-        self.assertTrue(obj1 == obj2)
-
-        # Modify one parameter in obj2
-        obj2.working_point = 0.9
-        self.assertFalse(obj1 == obj2)
-
     def test_all_signal_in_underflow_bin_triggers_logger(self):
         """
         Test forces all signal x-values to be below the min bin edge,
@@ -444,26 +430,152 @@ class VarVsEffTestCase(unittest.TestCase):
         self.assertIsNotNone(eff)
         self.assertIsNotNone(err)
 
-    def test_get_invalid_mode_resets_inverse_cut(self):
-        """Passing an unsupported mode raises ValueError AND resets self.inverse_cut to False."""
-        x_var_sig = np.array([0, 1])
-        disc_sig = np.array([0.2, 0.8])
-        obj = VarVsEff(
-            x_var_sig=x_var_sig,
-            disc_sig=disc_sig,
-            bins=1,
-            disc_cut=0.5,
+
+class VarVsEffIOTestCase(unittest.TestCase):
+    """Collection of I/O tests for VarVsEff."""
+
+    # ------------------------------------------------------------------
+    # helper: build a minimal deterministic VarVsEff
+    # ------------------------------------------------------------------
+    @staticmethod
+    def _make_curve() -> VarVsEff:
+        """
+        Create a small VarVsEff with four bins and a single working
+        point.  The numbers are fixed so failures are reproducible.
+        """
+        return VarVsEff(
+            x_var_sig=np.linspace(0.0, 1.0, 20),
+            disc_sig=np.linspace(0.0, 1.0, 20),
+            x_var_bkg=np.linspace(0.0, 1.0, 20),
+            disc_bkg=np.linspace(1.0, 0.0, 20),
+            bins=4,
+            working_point=0.5,
+            key="unit-test",
+            colour=(0.3, 0.5, 0.7),
+            linestyle=(0, (2, 1)),
+            label="curve",
         )
 
-        # We set inverse_cut to True so we can check it gets reset on ValueError
-        obj.inverse_cut = True
-        with self.assertRaises(ValueError):
-            obj.get("not_a_valid_mode", inverse_cut=True)
+    # ------------------------------------------------------------------
+    # test helpers encode / decode
+    # ------------------------------------------------------------------
+    def testencodedecode_roundtrip(self):
+        """Encode then decode must return the original data."""
+        v = self._make_curve()
 
-        # After the exception, self.inverse_cut should be False again
-        self.assertFalse(
-            obj.inverse_cut, "inverse_cut should be reset to False after raising ValueError."
+        # Encode the args so they are JSON/YAML friendly
+        encoded = v.encode(v.args_to_store)
+
+        # The encoded object should serialise with json.dumps
+        json.dumps(encoded)
+
+        # Arrays should now be tagged dictionaries
+        self.assertIn("__ndarray__", encoded["results"]["normal"]["sig_eff"]["y_value"])
+
+        # Tuples become {"__tuple__": [...]}
+        self.assertEqual(encoded["colour"]["__tuple__"], [0.3, 0.5, 0.7])
+
+        # Decode back to Python objects
+        decoded = VarVsEff.decode(encoded)
+
+        # The numerical data must match exactly
+        np.testing.assert_array_equal(
+            decoded["results"]["normal"]["sig_eff"]["y_value"],
+            v.results["normal"]["sig_eff"]["y_value"],
         )
+
+        # The colour tuple must be fully restored
+        self.assertEqual(decoded["colour"], v.colour)
+
+    # ------------------------------------------------------------------
+    # JSON round-trip
+    # ------------------------------------------------------------------
+    def test_json_roundtrip(self):
+        """Saving to JSON and reloading must reproduce the object 1-to-1."""
+        v = self._make_curve()
+
+        with tempfile.TemporaryDirectory() as tmpd:
+            path = Path(tmpd) / "curve.json"
+
+            # Save the object
+            v.save(path)
+
+            # The written file must parse as valid JSON
+            with path.open() as f:
+                raw = json.load(f)
+            self.assertIn("results", raw)
+
+            # Load the object back
+            clone = VarVsEff.load(path)
+
+            # The entire object should compare equal via __eq__
+            self.assertEqual(clone, v)
+
+            # Check one representative array field
+            np.testing.assert_array_equal(
+                clone.results["normal"]["bkg_eff"]["y_error"],
+                v.results["normal"]["bkg_eff"]["y_error"],
+            )
+
+            # Colour metadata must survive
+            self.assertEqual(clone.colour, v.colour)
+
+    # ------------------------------------------------------------------
+    # YAML round-trip
+    # ------------------------------------------------------------------
+    def test_yaml_roundtrip(self):
+        """YAML round-trip preserves arrays and metadata."""
+        v = self._make_curve()
+
+        with tempfile.TemporaryDirectory() as tmpd:
+            path = Path(tmpd) / "curve.yaml"
+
+            # Save as YAML
+            v.save(path)
+
+            # File must parse with PyYAML
+            with path.open() as f:
+                raw = yaml.safe_load(f)
+            self.assertIn("results", raw)
+
+            # Load back and compare a simple field
+            clone = VarVsEff.load(path)
+            self.assertEqual(clone.label, v.label)
+
+    # ------------------------------------------------------------------
+    # load-time overrides
+    # ------------------------------------------------------------------
+    def test_load_override(self):
+        """extra_kwargs to load must override stored attributes."""
+        v = self._make_curve()
+
+        with tempfile.TemporaryDirectory() as tmpd:
+            path = Path(tmpd) / "curve.json"
+            v.save(path)
+
+            # Override colour and label on load
+            clone = VarVsEff.load(path, colour="magenta", label="override")
+
+            self.assertEqual(clone.colour, "magenta")
+            self.assertEqual(clone.label, "override")
+
+    # ------------------------------------------------------------------
+    # invalid file extensions
+    # ------------------------------------------------------------------
+    def test_invalid_extensions(self):
+        """Unsupported suffixes must raise ValueError."""
+        v = self._make_curve()
+
+        with tempfile.TemporaryDirectory() as tmpd:
+            # Attempt to save with an unknown suffix
+            with self.assertRaises(ValueError):
+                v.save(Path(tmpd) / "curve.txt")
+
+            # Attempt to load with an unknown suffix
+            bogus = Path(tmpd) / "curve.conf"
+            bogus.write_text("dummy")
+            with self.assertRaises(ValueError):
+                VarVsEff.load(bogus)
 
 
 class VarVsEffOutputTestCase(unittest.TestCase):

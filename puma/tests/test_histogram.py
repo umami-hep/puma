@@ -167,13 +167,12 @@ class HistogramIOTestCase(unittest.TestCase):
     """
     Unit-tests that ensure `Histogram` serialisation is lossless and robust.
 
-    The tests build a tiny deterministic histogram, write it to disk using
-    :py:meth:`Histogram.save`, reload it with :py:meth:`Histogram.load`, and
-    verify that numerical arrays, metadata and behaviour are preserved.
+    Each test creates a deterministic histogram, writes it to disk, reloads
+    it, and verifies that arrays, metadata and behaviour are preserved.
     """
 
     # ------------------------------------------------------------------
-    # helpers
+    # helper to build a minimal deterministic Histogram
     # ------------------------------------------------------------------
     @staticmethod
     def _make_hist() -> Histogram:
@@ -186,8 +185,8 @@ class HistogramIOTestCase(unittest.TestCase):
             A histogram with three bins, assigned flavour and custom colour.
         """
         return Histogram(
-            values=np.arange(6),  # 0,1,2,3,4,5
-            bins=3,  # → 3 equal-width bins
+            values=np.arange(6),
+            bins=3,
             flavour="bjets",
             colour=(0.1, 0.6, 0.3),
             linestyle=(0, (1, 2)),
@@ -195,54 +194,50 @@ class HistogramIOTestCase(unittest.TestCase):
         )
 
     # ------------------------------------------------------------------
-    # _convert_args
+    # encode / decode
     # ------------------------------------------------------------------
-    def test_convert_args(self):
-        """Ensure ndarray → list and Label → name conversions work."""
+    def testencodedecode_roundtrip(self):
+        """
+        `encode` must turn every value into a JSON/YAML-serialisable
+        form, and `decode` must restore the original objects exactly.
+        """
         h = self._make_hist()
 
+        encoded = h.encode(h.args_to_store)
+
+        # --- encoded structure is JSON-safe --------------------------------
+        json.dumps(encoded)
+        # numpy arrays became {"__ndarray__": …, "dtype": …}
+        for field in ("bin_edges", "hist", "unc", "band"):
+            self.assertIn("__ndarray__", encoded[field])
+
+        # tuples are tagged
         self.assertEqual(
-            h.convert_args()["colour"],
-            (0.1, 0.6, 0.3),
+            encoded["colour"]["__tuple__"],
+            [0.1, 0.6, 0.3],
         )
+
+        # flavour became a tag (Label to name)
         self.assertEqual(
-            h.convert_args()["flavour"],
+            encoded["flavour"]["__label__"],
             "bjets",
         )
-        self.assertIsNone(
-            h.convert_args()["discrete_vals"],
-            None,
-        )
 
-    # ------------------------------------------------------------------
-    # to_dict
-    # ------------------------------------------------------------------
-    def test_to_dict_returns_serialisable_values(self):
-        """
-        `to_dict` must return JSON/YAML-friendly primitives and
-        contain the *final* prefixed label.
-        """
-        h = self._make_hist()
-        d = h.convert_args()
+        # --- decode restores original Python objects -----------------------
+        decoded = Histogram.decode(encoded)
 
-        # numpy arrays are converted to plain lists
-        for field in ("bin_edges", "hist", "unc", "band"):
-            self.assertIsInstance(d[field], list)
+        self.assertEqual(decoded["colour"], h.colour)
+        self.assertEqual(decoded["flavour"], h.flavour)
+        self.assertIsNone(decoded["discrete_vals"])
 
-        # flavour is stored as a simple string
-        self.assertEqual(d["flavour"], "bjets")
-
-        # label already has the flavour prefix (“$b$-jets”)
-        self.assertEqual(d["label"], h.label)
+        # ndarray round-trip
+        np.testing.assert_array_equal(decoded["hist"], h.hist)
 
     # ------------------------------------------------------------------
     # save / load (JSON)
     # ------------------------------------------------------------------
     def test_json_roundtrip(self):
-        """
-        Saving to JSON and loading back must reproduce the object
-        exactly, preserving arrays and metadata.
-        """
+        """Saving to JSON and loading back must reproduce the object."""
         h = self._make_hist()
 
         with tempfile.TemporaryDirectory() as tmpd:
@@ -262,7 +257,7 @@ class HistogramIOTestCase(unittest.TestCase):
             np.testing.assert_array_equal(h.unc, clone.unc)
             np.testing.assert_array_equal(h.band, clone.band)
 
-            # metadata (label includes flavour prefix)
+            # metadata
             self.assertEqual(clone.label, h.label)
             self.assertEqual(clone.flavour, h.flavour)
             self.assertEqual(clone.colour, h.colour)
@@ -291,10 +286,12 @@ class HistogramIOTestCase(unittest.TestCase):
             self.assertEqual(clone.label, h.label)
 
     # ------------------------------------------------------------------
+    # load-time overrides
+    # ------------------------------------------------------------------
     def test_load_override(self):
         """
-        `extra_kwargs` passed to `load` must override attributes
-        stored in the file.
+        `extra_kwargs` passed to `load` must override attributes stored
+        in the file.
         """
         h = self._make_hist()
         with tempfile.TemporaryDirectory() as tmpd:
@@ -306,11 +303,10 @@ class HistogramIOTestCase(unittest.TestCase):
             self.assertEqual(clone.label, "override")
 
     # ------------------------------------------------------------------
+    # unknown file extensions
+    # ------------------------------------------------------------------
     def test_invalid_extensions(self):
-        """
-        Saving or loading with an unsupported file suffix must raise
-        :class:`ValueError`.
-        """
+        """Unsupported suffixes must raise :class:`ValueError`."""
         h = self._make_hist()
 
         with tempfile.TemporaryDirectory() as tmpd:
