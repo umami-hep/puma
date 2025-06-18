@@ -314,14 +314,14 @@ jets, $b$-jets and $b$-jets.
 
     # initialise the plot
     pt_plot = HistogramPlot(
-        xlabel="$p_\text{T}$ [MeV]",
+        xlabel=r"$p_\text{T}$ [GeV]",
         ylabel="Normalised number of jets",
     )
 
     # add the histograms (Note that the Histogram objects need to have the same bins!)
-    pt_plot.add(Histogram(jets[is_light]["pt_btagJes"], flavour="ujets", bins=np.linspace(0, 250_000, 50)))
-    pt_plot.add(Histogram(jets[is_c]["pt_btagJes"], flavour="cjets", bins=np.linspace(0, 250_000, 50)))
-    pt_plot.add(Histogram(jets[is_b]["pt_btagJes"], flavour="bjets", bins=np.linspace(0, 250_000, 50)))
+    pt_plot.add(Histogram(jets[is_light]["pt_btagJes"] / 1000, flavour="ujets", bins=np.linspace(0, 250, 50)))
+    pt_plot.add(Histogram(jets[is_c]["pt_btagJes"] / 1000, flavour="cjets", bins=np.linspace(0, 250, 50)))
+    pt_plot.add(Histogram(jets[is_b]["pt_btagJes"] / 1000, flavour="bjets", bins=np.linspace(0, 250, 50)))
 
     pt_plot.draw()
     pt_plot.savefig("tutorial_histogram_pT.png")
