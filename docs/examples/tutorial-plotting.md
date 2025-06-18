@@ -525,9 +525,9 @@ rejection for a range of $b$-jets efficiencies.
     jets = data["jets"]
 
     # Calculate the discriminant for both taggers
-    discs_DL1r = get_discriminant(
+    discs_dips = get_discriminant(
         jets=jets,
-        tagger="DL1r",
+        tagger="dipsLoose20220314v2",
         signal=Flavours["bjets"],
         flavours=Flavours.by_category("single-btag"),
         fraction_values={
@@ -560,7 +560,7 @@ rejection for a range of $b$-jets efficiencies.
     n_jets_c = sum(is_c)
 
     rnnip_ujets_rej = calculate_rejection(discs_rnnip[is_b], discs_rnnip[is_light], sig_eff)
-    DL1r_ujets_rej = calculate_rejection(discs_DL1r[is_b], discs_DL1r[is_light], sig_eff)
+    dips_ujets_rej = calculate_rejection(discs_dips[is_b], discs_dips[is_light], sig_eff)
     ```
 
 #### Task 2.2: Plot the Rejections as a Function of the $b$-jets Efficiency
@@ -593,9 +593,9 @@ rejection for a range of $b$-jets efficiencies.
         signal_class="bjets",
         label="RNNIP",
     )
-    DL1r_ujets_roc = Roc(
+    dips_ujets_roc = Roc(
         sig_eff=sig_eff,
-        bkg_rej=DL1r_ujets_rej,
+        bkg_rej=dips_ujets_rej,
         n_test=n_jets_light,
         rej_class="ujets",
         signal_class="bjets",
@@ -614,7 +614,7 @@ rejection for a range of $b$-jets efficiencies.
 
     # Add the ROC objects to the plot
     plot_roc.add_roc(roc_curve=rnnip_ujets_roc, reference=True)
-    plot_roc.add_roc(roc_curve=DL1r_ujets_roc)
+    plot_roc.add_roc(roc_curve=dips_ujets_roc)
 
     # Set the ratio class for the ratio panels
     plot_roc.set_ratio_class(1, "ujets")
@@ -635,7 +635,7 @@ rejection for a range of $b$-jets efficiencies.
     ```py
     # Add this to the calculation part of the script (place it below or above the other calculate_rejection)
     rnnip_cjets_rej = calculate_rejection(discs_rnnip[is_b], discs_rnnip[is_c], sig_eff)
-    DL1r_cjets_rej = calculate_rejection(discs_DL1r[is_b], discs_DL1r[is_c], sig_eff)
+    dips_cjets_rej = calculate_rejection(discs_dips[is_b], discs_dips[is_c], sig_eff)
 
     # Add this below the definition of the other ROC objects
     rnnip_cjets_roc = Roc(
@@ -646,9 +646,9 @@ rejection for a range of $b$-jets efficiencies.
         signal_class="bjets",
         label="RNNIP",
     )
-    DL1r_cjets_roc = Roc(
+    dips_cjets_roc = Roc(
         sig_eff=sig_eff,
-        bkg_rej=DL1r_cjets_rej,
+        bkg_rej=dips_cjets_rej,
         n_test=n_jets_c,
         rej_class="cjets",
         signal_class="bjets",
@@ -659,7 +659,7 @@ rejection for a range of $b$-jets efficiencies.
 
     # Add this below the add_roc() from the other light jets
     plot_roc.add_roc(roc_curve=rnnip_cjets_roc, reference=True)
-    plot_roc.add_roc(roc_curve=DL1r_cjets_roc)
+    plot_roc.add_roc(roc_curve=dips_cjets_roc)
 
     # Add this to the below the other set_ratio_class
     plot_roc.set_ratio_class(2, "cjets")
@@ -704,9 +704,9 @@ For a fixed inclusive $b$-efficiency, you plot the $b$-efficiency for different 
     jets = data["jets"]
 
     # Calculate the discriminant for both taggers
-    discs_DL1r = get_discriminant(
+    discs_dips = get_discriminant(
         jets=jets,
-        tagger="DL1r",
+        tagger="dipsLoose20220314v2",
         signal=Flavours["bjets"],
         flavours=Flavours.by_category("single-btag"),
         fraction_values={
@@ -752,11 +752,11 @@ For a fixed inclusive $b$-efficiency, you plot the $b$-efficiency for different 
         flat_per_bin=False,
         label="RNNIP",
     )
-    DL1r_light = VarVsEff(
+    dips_light = VarVsEff(
         x_var_sig=pt[is_b],
         disc_sig=discs_Dl1r[is_b],
         x_var_bkg=pt[is_light],
-        disc_bkg=discs_DL1r[is_light],
+        disc_bkg=discs_dips[is_light],
         bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
         working_point=0.7,
         disc_cut=None,
@@ -995,6 +995,7 @@ For this task, you will:
             jets_df[is_light][v[0]],
             flavour="ujets",
             label="RNNIP",
+            ratio_group="ujet",
             bins=np.linspace(-10, 10, 40) if v[0] == "disc_rnnip" else np.linspace(0, 1, 20),
             norm=False,
         )
@@ -1002,6 +1003,7 @@ For this task, you will:
             jets_df[is_c][v[0]],
             flavour="cjets",
             label="RNNIP",
+            ratio_group="cjet",
             bins=np.linspace(-10, 10, 40) if v[0] == "disc_rnnip" else np.linspace(0, 1, 20),
             norm=False,
         )
@@ -1009,6 +1011,7 @@ For this task, you will:
             jets_df[is_b][v[0]],
             flavour="bjets",
             label="RNNIP",
+            ratio_group="bjet",
             bins=np.linspace(-10, 10, 40) if v[0] == "disc_rnnip" else np.linspace(0, 1, 20),
             norm=False,
         )
@@ -1018,6 +1021,7 @@ For this task, you will:
             linestyle="dashed",
             flavour="ujets",
             label="RNNIP (flip)",
+            ratio_group="ujet",
             bins=np.linspace(-10, 10, 40) if v[0] == "disc_rnnip" else np.linspace(0, 1, 20),
             norm=False,
         )
@@ -1026,6 +1030,7 @@ For this task, you will:
             linestyle="dashed",
             flavour="cjets",
             label="RNNIP (flip)",
+            ratio_group="cjet",
             bins=np.linspace(-10, 10, 40) if v[0] == "disc_rnnip" else np.linspace(0, 1, 20),
             norm=False,
         )
@@ -1034,6 +1039,7 @@ For this task, you will:
             linestyle="dashed",
             flavour="bjets",
             label="RNNIP (flip)",
+            ratio_group="bjet",
             bins=np.linspace(-10, 10, 40) if v[0] == "disc_rnnip" else np.linspace(0, 1, 20),
             norm=False,
         )
@@ -1050,8 +1056,8 @@ For this task, you will:
 
         # Add histograms and plot
         plot_histo.add(rnnip_light, reference=True)
-        plot_histo.add(rnnip_c)
-        plot_histo.add(rnnip_b)
+        plot_histo.add(rnnip_c, reference=True)
+        plot_histo.add(rnnip_b, reference=True)
         plot_histo.add(rnnip_light_flip)
         plot_histo.add(rnnip_c_flip)
         plot_histo.add(rnnip_b_flip)
