@@ -754,7 +754,7 @@ For a fixed inclusive $b$-efficiency, you plot the $b$-efficiency for different 
     )
     dips_light = VarVsEff(
         x_var_sig=pt[is_b],
-        disc_sig=discs_Dl1r[is_b],
+        disc_sig=discs_dips[is_b],
         x_var_bkg=pt[is_light],
         disc_bkg=discs_dips[is_light],
         bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
@@ -775,7 +775,7 @@ For a fixed inclusive $b$-efficiency, you plot the $b$-efficiency for different 
         n_ratio_panels=1,
     )
     plot_sig_eff.add(rnnip_light, reference=True)
-    plot_sig_eff.add(Dl1r_light)
+    plot_sig_eff.add(dips_light)
 
     plot_sig_eff.atlas_second_tag += "\n" + r"Inclusive $\epsilon_b=70\%$"
 
@@ -804,7 +804,7 @@ For a fixed inclusive $b$-efficiency, you plot the $b$-efficiency for different 
     )
     plot_sig_eff.atlas_second_tag += "\n" + r"Inclusive $\epsilon_b=70\%$"
     plot_bkg_rej.add(rnnip_light, reference=True)
-    plot_bkg_rej.add(Dl1r_light)
+    plot_bkg_rej.add(dips_light)
 
     plot_bkg_rej.draw()
     plot_bkg_rej.savefig("tutorial_pt_light_rej.png")
