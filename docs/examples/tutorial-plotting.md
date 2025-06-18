@@ -195,7 +195,8 @@ retrieve the working point cut value for 70% $b$-jet efficiency.**
     import numpy as np
 
     bjets = dummy_labels == 5
-    scores = np.apply_along_axis(disc_fct, axis=1, arr=dummy_jets)
+    dummy_jets_2d = np.column_stack((dummy_jets['ujets'], dummy_jets['cjets'], dummy_jets['bjets']))
+    scores = np.apply_along_axis(disc_fct, axis=1, arr=dummy_jets_2d)
     target_eff = 0.7
     cutvalue = np.percentile(scores[bjets], 100.0 * (1.0 - target_eff))
     print("cut value for 70% $b$-jet efficiency:", cutvalue)
@@ -296,6 +297,7 @@ jets, $b$-jets and $b$-jets.
 
     ```py
     import h5py
+    import numpy as np
     from puma import Histogram, HistogramPlot
 
     # Use directly the eos path or use the path to your downloaded files
@@ -312,14 +314,14 @@ jets, $b$-jets and $b$-jets.
 
     # initialise the plot
     pt_plot = HistogramPlot(
-        xlabel="$p_\text{T}$ [MeV]",
+        xlabel=r"$p_\text{T}$ [GeV]",
         ylabel="Normalised number of jets",
     )
 
     # add the histograms (Note that the Histogram objects need to have the same bins!)
-    pt_plot.add(Histogram(jets[is_light]["pt_btagJes"], flavour="ujets", bins=np.linspace(0, 250_000, 50)))
-    pt_plot.add(Histogram(jets[is_c]["pt_btagJes"], flavour="cjets", bins=np.linspace(0, 250_000, 50)))
-    pt_plot.add(Histogram(jets[is_b]["pt_btagJes"], flavour="bjets", bins=np.linspace(0, 250_000, 50)))
+    pt_plot.add(Histogram(jets[is_light]["pt_btagJes"] / 1000, flavour="ujets", bins=np.linspace(0, 250, 50)))
+    pt_plot.add(Histogram(jets[is_c]["pt_btagJes"] / 1000, flavour="cjets", bins=np.linspace(0, 250, 50)))
+    pt_plot.add(Histogram(jets[is_b]["pt_btagJes"] / 1000, flavour="bjets", bins=np.linspace(0, 250, 50)))
 
     pt_plot.draw()
     pt_plot.savefig("tutorial_histogram_pT.png")
@@ -398,7 +400,7 @@ In this task you will plot the $b$-jets probability of two different taggers - R
     # add the histograms
     tagger_output_plot.add(
         Histogram(
-            jets[is_light]["dipsLoose20220314u2_pb"],
+            jets[is_light]["dipsLoose20220314v2_pb"],
             ratio_group="ujets",
             flavour="ujets",
             bins=np.linspace(0, 1, 50),
@@ -513,17 +515,19 @@ rejection for a range of $b$-jets efficiencies.
     from puma import Roc, RocPlot
     from ftag.utils import calculate_rejection, get_discriminant
     from ftag import Flavours
+    from ftag.hdf5 import H5Reader
 
     ttbar_filepath = "/eos/user/u/umamibot/tutorials/ttbar.h5"
 
     # load the jets dataset from the h5 file
-    with h5py.File(ttbar_filepath, "r") as h5file:
-        jets = pd.DataFrame(h5file["jets"][:])
+    reader = H5Reader(ttbar_filepath, batch_size=100)
+    data = reader.load()
+    jets = data["jets"]
 
     # Calculate the discriminant for both taggers
     discs_dips = get_discriminant(
         jets=jets,
-        tagger="dips",
+        tagger="dipsLoose20220314v2",
         signal=Flavours["bjets"],
         flavours=Flavours.by_category("single-btag"),
         fraction_values={
@@ -613,11 +617,11 @@ rejection for a range of $b$-jets efficiencies.
     plot_roc.add_roc(roc_curve=dips_ujets_roc)
 
     # Set the ratio class for the ratio panels
-    roc_plot.set_ratio_class(1, "ujets")
+    plot_roc.set_ratio_class(1, "ujets")
 
     # Draw and save the plot
-    roc_plot.draw()
-    roc_plot.savefig("tutorial_roc.png", transparent=False)
+    plot_roc.draw()
+    plot_roc.savefig("tutorial_roc.png", transparent=False)
     ```
 
 #### Task 2.3: Add the $c$-rejection to Your Plot
@@ -658,7 +662,7 @@ rejection for a range of $b$-jets efficiencies.
     plot_roc.add_roc(roc_curve=dips_cjets_roc)
 
     # Add this to the below the other set_ratio_class
-    roc_plot.set_ratio_class(2, "cjets")
+    plot_roc.set_ratio_class(2, "cjets")
     ```
 
 ### Task 3: $p_\text{T}$ vs. Efficiency
@@ -690,17 +694,19 @@ For a fixed inclusive $b$-efficiency, you plot the $b$-efficiency for different 
     from puma import VarVsEff, VarVsEffPlot
     from ftag.utils import get_discriminant
     from ftag import Flavours
+    from ftag.hdf5 import H5Reader
 
     ttbar_filepath = "/eos/user/u/umamibot/tutorials/ttbar.h5"
 
     # load the jets dataset from the h5 file
-    with h5py.File(ttbar_filepath, "r") as h5file:
-        jets = pd.DataFrame(h5file["jets"][:])
+    reader = H5Reader(ttbar_filepath, batch_size=100)
+    data = reader.load()
+    jets = data["jets"]
 
     # Calculate the discriminant for both taggers
     discs_dips = get_discriminant(
         jets=jets,
-        tagger="dips",
+        tagger="dipsLoose20220314v2",
         signal=Flavours["bjets"],
         flavours=Flavours.by_category("single-btag"),
         fraction_values={
@@ -722,7 +728,7 @@ For a fixed inclusive $b$-efficiency, you plot the $b$-efficiency for different 
     )
 
     # Getting jet pt in GeV (in the files, they are stored in MeV)
-    pt = jets["pt"].values / 1e3
+    pt = jets["pt"] / 1e3
 
     # defining target efficiency
     sig_eff = np.linspace(0.49, 1, 20)
@@ -743,7 +749,7 @@ For a fixed inclusive $b$-efficiency, you plot the $b$-efficiency for different 
         bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
         working_point=0.7,
         disc_cut=None,
-        fixed_eff_bin=False,
+        flat_per_bin=False,
         label="RNNIP",
     )
     dips_light = VarVsEff(
@@ -754,7 +760,7 @@ For a fixed inclusive $b$-efficiency, you plot the $b$-efficiency for different 
         bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
         working_point=0.7,
         disc_cut=None,
-        fixed_eff_bin=False,
+        flat_per_bin=False,
         label="DIPS",
     )
 
@@ -771,7 +777,7 @@ For a fixed inclusive $b$-efficiency, you plot the $b$-efficiency for different 
     plot_sig_eff.add(rnnip_light, reference=True)
     plot_sig_eff.add(dips_light)
 
-    plot_sig_eff.atlas_second_tag += "\nInclusive $\\epsilon_b=70%%$"
+    plot_sig_eff.atlas_second_tag += "\n" + r"Inclusive $\epsilon_b=70\%$"
 
     # If you want to inverse the discriminant cut you can enable it via
     # plot_sig_eff.set_inverse_cut()
@@ -796,7 +802,7 @@ For a fixed inclusive $b$-efficiency, you plot the $b$-efficiency for different 
         figsize=(6, 4.5),
         n_ratio_panels=1,
     )
-    plot_sig_eff.atlas_second_tag += "\nInclusive $\\epsilon_b=70%%$"
+    plot_sig_eff.atlas_second_tag += "\n" + r"Inclusive $\epsilon_b=70\%$"
     plot_bkg_rej.add(rnnip_light, reference=True)
     plot_bkg_rej.add(dips_light)
 
@@ -840,15 +846,18 @@ For this task, you will:
     import numpy as np
     import h5py
     from puma import Histogram, HistogramPlot
+    from ftag.hdf5 import H5Reader
 
     # load the "jets" datasets from the h5 files
-    filepath_run2 = "/path/to/tutorial/data/zpext.h5"
-    with h5py.File(filepath_run2, "r") as h5file:
-        jets_run2 = h5file["jets"][:]
-
-    filepath_run3 = "/path/to/tutorial/data/zpext_run3.h5"
-    with h5py.File(filepath_run3, "r") as h5file:
-        jets_run3 = h5file["jets"][:]
+    filepath_run2 = "zpext.h5"
+    reader = H5Reader(filepath_run2, batch_size=100)
+    data = reader.load()
+    jets_run2 = data["jets"]
+    
+    filepath_run3 = "zpext_run3.h5"
+    reader = H5Reader(filepath_run3, batch_size=100)
+    data = reader.load()
+    jets_run3 = data["jets"]
 
     variable = "averageInteractionsPerCrossing"
     run_2 = Histogram(jets_run2[variable], label="Run 2 MC", bins=np.linspace(10, 70, 60), norm=True)
@@ -924,12 +933,14 @@ For this task, you will:
     from puma import Histogram, HistogramPlot
     from ftag.utils import get_discriminant
     from ftag import Flavours
+    from ftag.hdf5 import H5Reader
 
     # load the "jets" dataset from the h5 file
     filepath = "/path/to/tutorial/data/ttbar.h5"
-    with h5py.File(filepath, "r") as h5file:
-        jets = h5file["jets"][:]
-        jets = pd.DataFrame(jets)
+    reader = H5Reader(filepath, batch_size=100)
+    data = reader.load()
+    jets = data["jets"]
+    jets_df = pd.DataFrame(jets)
 
 
     # defining boolean arrays to select the different flavour classes
@@ -940,7 +951,7 @@ For this task, you will:
 
     # Calculate discriminant scores for RNNIP and flipped tagger, and add them to the dataframe
     
-    jets["disc_rnnip"] = get_discriminant(
+    jets_df["disc_rnnip"] = get_discriminant(
         jets=jets,
         tagger="rnnip",
         signal=Flavours["bjets"],
@@ -952,7 +963,7 @@ For this task, you will:
         },
     )
 
-    jets["disc_rnnipflip"] = get_discriminant(
+    jets_df["disc_rnnipflip"] = get_discriminant(
         jets=jets,
         tagger="rnnipflip",
         signal=Flavours["bjets"],
@@ -981,48 +992,54 @@ For this task, you will:
     # plot score and discriminantdistributions
     for v in variables:
         rnnip_light = Histogram(
-            jets[is_light][v[0]],
+            jets_df[is_light][v[0]],
             flavour="ujets",
             label="RNNIP",
+            ratio_group="ujet",
             bins=np.linspace(-10, 10, 40) if v[0] == "disc_rnnip" else np.linspace(0, 1, 20),
             norm=False,
         )
         rnnip_c = Histogram(
-            jets[is_c][v[0]],
+            jets_df[is_c][v[0]],
             flavour="cjets",
             label="RNNIP",
+            ratio_group="cjet",
             bins=np.linspace(-10, 10, 40) if v[0] == "disc_rnnip" else np.linspace(0, 1, 20),
             norm=False,
         )
         rnnip_b = Histogram(
-            jets[is_b][v[0]],
+            jets_df[is_b][v[0]],
             flavour="bjets",
             label="RNNIP",
+            ratio_group="bjet",
             bins=np.linspace(-10, 10, 40) if v[0] == "disc_rnnip" else np.linspace(0, 1, 20),
             norm=False,
         )
 
         rnnip_light_flip = Histogram(
-            jets[is_light][v[1]],
+            jets_df[is_light][v[1]],
             linestyle="dashed",
             flavour="ujets",
             label="RNNIP (flip)",
+            ratio_group="ujet",
             bins=np.linspace(-10, 10, 40) if v[0] == "disc_rnnip" else np.linspace(0, 1, 20),
             norm=False,
         )
         rnnip_c_flip = Histogram(
-            jets[is_c][v[1]],
+            jets_df[is_c][v[1]],
             linestyle="dashed",
             flavour="cjets",
             label="RNNIP (flip)",
+            ratio_group="cjet",
             bins=np.linspace(-10, 10, 40) if v[0] == "disc_rnnip" else np.linspace(0, 1, 20),
             norm=False,
         )
         rnnip_b_flip = Histogram(
-            jets[is_b][v[1]],
+            jets_df[is_b][v[1]],
             linestyle="dashed",
             flavour="bjets",
             label="RNNIP (flip)",
+            ratio_group="bjet",
             bins=np.linspace(-10, 10, 40) if v[0] == "disc_rnnip" else np.linspace(0, 1, 20),
             norm=False,
         )
