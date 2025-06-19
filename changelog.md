@@ -2,6 +2,9 @@
 
 ### [Latest]
 
+
+### [v0.4.8] (2025/06/19)
+
 - Bumping atlas-ftag-tools version to v0.2.13 [!329](https://github.com/umami-hep/puma/pull/329)
 - Puma Tutorial Fixes [!328](https://github.com/umami-hep/puma/pull/328)
 - Update Puma Tutorial to newest Standards [!327](https://github.com/umami-hep/puma/pull/327)
