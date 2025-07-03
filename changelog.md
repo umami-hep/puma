@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Update Repository Metadata [#331](https://github.com/umami-hep/puma/pull/331)
 
 ### [v0.4.9](https://github.com/umami-hep/puma/releases/tag/v0.4.8) (2025/07/02)
 
