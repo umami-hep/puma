@@ -23,7 +23,7 @@ A clear and concise description of what you expected to happen.
 What actually happens, including full error trace if applicable.
 
 ### Environment
-- **atlas-ftag-tools** version: `<output of \`atlas-ftag --version\`>`
+- **puma** version: `<output of puma --version>`
 - **Python** version: `python -V`
 - **OS**: e.g. Ubuntu 22.04 / macOS Sonoma / Windows 11
 - **Additional packages**: (if relevant)
