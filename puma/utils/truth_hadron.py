@@ -1,16 +1,31 @@
-# Hadron processing functions
+"""Hadron processing functions."""
+
 from __future__ import annotations
 
 import numpy as np
 
 
-def GetOrderedHadrons(hadron_barcode, hadron_parent, n_max_showers=2):
-    # This function orderes the hadron indices inside each jet in different showers
-    # INPUTS:  f["truth_hadrons"]["barcode"], f["truth_hadrons"]["ftagTruthParentBarcode"]
-    # n_showers max would be n_hadrons if there were 5 unrelated showers (not likely)
+def GetOrderedHadrons(
+    hadron_barcode: np.ndarray,
+    hadron_parent: np.ndarray,
+    n_max_showers: int = 2,
+) -> np.ndarray:
+    """Orderes the hadron indices inside each jet in different showers.
 
-    # Output: Padded array of indices with shape (n_jets, n_showers, n_hadrons)
+    Parameters
+    ----------
+    hadron_barcode : np.ndarray
+        Array with the hadron barcode
+    hadron_parent : np.ndarray
+        Array with the truth parent barcodes
+    n_max_showers : int, optional
+        Maximum number of showers, by default 2
 
+    Returns
+    -------
+    np.ndarray
+        Padded array of indices with shape (n_jets, n_showers, n_hadrons)
+    """
     n_jets, n_hadrons = hadron_barcode.shape
 
     set_parent_barcodes = [set(row[row > 0]) for row in hadron_parent]
@@ -102,16 +117,28 @@ def GetOrderedHadrons(hadron_barcode, hadron_parent, n_max_showers=2):
     return padded_hadron_indices
 
 
-def AssociateTracksToHadron(track_parent, hadron_barcode, hadron_mask):
-    # INPUTS #####
-    # track_parent         shape (n_jets, n_tracks)
-    # hadron_barcode       shape (n_jets, n_hadrons)
-    # track_hadron_mask    shape (n_hadrons, n_jets, n_tracks)
-    # OUTPUTS #####
-    # track_to_hadron_array           shape (n_jets, n_hadrons, n_tracks)
-    # inclusive_track_first_hadron    shape (n_jets, n_tracks)
-    # inclusive_track_hadron          shape (n_jets, n_tracks)
+def AssociateTracksToHadron(
+    track_parent: np.ndarray,
+    hadron_barcode: np.ndarray,
+    hadron_mask: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Associcate the tracks to the hadrons.
 
+    Parameters
+    ----------
+    track_parent : np.ndarray
+        Array with the track parents
+    hadron_barcode : np.ndarray
+        Array with the hadron barcodes
+    hadron_mask : np.ndarray
+        Array with the hadron mask
+
+    Returns
+    -------
+    tuple[np.ndarray, np.ndarray, np.ndarray]
+        Tuple of arrays with the track_to_hadron, inclusive_track_first_hadron,
+        and the inclusive_track_hadron array
+    """
     n_jets, n_tracks = track_parent.shape
     n_hadrons = hadron_barcode.shape[1]
 
@@ -144,7 +171,21 @@ def AssociateTracksToHadron(track_parent, hadron_barcode, hadron_mask):
     return np.array(track_to_hadron_array), inclusive_track_first_hadron, inclusive_track_hadron
 
 
-def SelectHadron(truth_hadrons, hadron_index):
+def SelectHadron(truth_hadrons: np.ndarray, hadron_index: int) -> np.ndarray:
+    """Select a hadron with the most tracks and apply a mask.
+
+    Parameters
+    ----------
+    truth_hadrons : np.ndarray
+        Array of the truth hadrons
+    hadron_index : int
+        Index of the hadron
+
+    Returns
+    -------
+    np.ndarray
+        Copy of the selected hadron
+    """
     invalid_jet_mask = hadron_index < 0
 
     # Select hadron with most tracks
@@ -159,6 +200,22 @@ def SelectHadron(truth_hadrons, hadron_index):
     return selected_hadron_copy
 
 
-def select_tracks(track_hadron, index, element=0):
+def select_tracks(track_hadron: np.ndarray, index: int, element: int = 0) -> np.ndarray:
+    """Select the correct tracks for the hadron.
+
+    Parameters
+    ----------
+    track_hadron : np.ndarray
+        Array of the hadron tracks
+    index : int
+        Index of the hadron
+    element : int, optional
+        Element that is to be chosen, by default 0
+
+    Returns
+    -------
+    np.ndarray
+        Tracks of the hadron
+    """
     rows = np.arange(track_hadron.shape[1])
     return track_hadron[index[rows, element], rows, :]

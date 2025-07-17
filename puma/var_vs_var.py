@@ -115,7 +115,19 @@ class VarVsVar(PlotLineObject):
             **extra_kwargs,
         }
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
+        """Handles a == check with the class.
+
+        Parameters
+        ----------
+        other : obj
+            Other object that this class is tested against
+
+        Returns
+        -------
+        bool
+            If this object and the other are equal
+        """
         if isinstance(other, self.__class__):
             return (
                 np.all(self.x_var == other.x_var)

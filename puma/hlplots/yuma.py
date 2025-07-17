@@ -1,3 +1,5 @@
+"""Yuma interface for PUMA."""
+
 from __future__ import annotations
 
 import argparse
@@ -16,6 +18,18 @@ ALL_PLOTS = ["roc", "scan", "disc", "probs", "peff"]
 
 
 def get_args(args):
+    """Get the arguments from the command line as an argparser.
+
+    Parameters
+    ----------
+    args :
+        Command line argument
+
+    Returns
+    -------
+    argparse.ArgumentParser
+        Parsed arguments.
+    """
     parser = argparse.ArgumentParser(description="YUMA: Plotting from Yaml in pUMA")
     parser.add_argument("-c", "--config", required=True, type=str, help="Path to config")
 
@@ -40,6 +54,8 @@ def get_args(args):
 
 @dataclass
 class YumaConfig:
+    """Class for the YUMA config."""
+
     config_path: Path
     plot_dir: Path
 
@@ -54,6 +70,7 @@ class YumaConfig:
     plots: dict[list[dict[str, dict[str, str]]]] = field(default_factory=list)
 
     def __post_init__(self):
+        """Post init checks of the inputs."""
         # Define a plot directory based on the plot config file name, and a date time
         plot_dir_name = self.config_path.stem
         if self.timestamp:
@@ -69,6 +86,23 @@ class YumaConfig:
 
     @classmethod
     def load_config(cls, path: Path, **kwargs) -> YumaConfig:
+        """Load the config and return a YumaConfig object.
+
+        Parameters
+        ----------
+        path : Path
+            Path to the Yuma config file.
+
+        Returns
+        -------
+        YumaConfig
+            Initalized YumaConfig object.
+
+        Raises
+        ------
+        FileNotFoundError
+            If under the given path, no config was found.
+        """
         if not path.exists():
             raise FileNotFoundError(f"Config at {path} does not exist")
         with open(path) as f:
@@ -164,6 +198,20 @@ class YumaConfig:
 
 
 def main(args=None):
+    """Run Yuma and make plots.
+
+    Parameters
+    ----------
+    args : args, optional
+        Command line arguments, by default None
+
+    Raises
+    ------
+    ValueError
+        If unsupported plot types were given.
+    ValueError
+        If unknown signals were given.
+    """
     args = get_args(args)
 
     config_path = Path(args.config)

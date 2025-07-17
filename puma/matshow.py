@@ -1,3 +1,5 @@
+"""Matshow plot functions."""
+
 from __future__ import annotations
 
 import math as m

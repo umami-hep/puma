@@ -54,6 +54,7 @@ class Tagger:
     yaml_name: str = None
 
     def __post_init__(self):
+        """Run post init checks of the inputs."""
         if self.label is None:
             self.label = self.name
         if isinstance(self.cuts, list):
@@ -89,10 +90,17 @@ class Tagger:
                 )
                 self.fxs[iter_ref_flav.frac_str] = 0
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """Return the name and label of the tagger.
+
+        Returns
+        -------
+        str
+            Name and label of the tagger.
+        """
         return f"{self.name} ({self.label})"
 
-    def is_flav(self, flavour: Label | str):
+    def is_flav(self, flavour: Label | str) -> np.ndarray:
         """Return indices of jets of given flavour.
 
         Parameters
@@ -109,7 +117,7 @@ class Tagger:
         return flavour.cuts(self.labels).idx
 
     @property
-    def probabilities(self):
+    def probabilities(self) -> list:
         """Return the probabilities of the tagger.
 
         Returns
@@ -120,7 +128,7 @@ class Tagger:
         return [flav.px for flav in self.output_flavours]
 
     @property
-    def variables(self):
+    def variables(self) -> list:
         """Return a list of the outputs of the tagger.
 
         Returns
@@ -131,7 +139,7 @@ class Tagger:
         return [f"{self.name}_{prob}" for prob in self.probabilities]
 
     @property
-    def aux_variables(self):
+    def aux_variables(self) -> dict:
         """Return a dict of the auxiliary outputs of the tagger for each task.
 
         Returns

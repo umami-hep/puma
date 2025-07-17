@@ -1,3 +1,5 @@
+"""Created customized matshow plot."""
+
 from __future__ import annotations
 
 import numpy as np

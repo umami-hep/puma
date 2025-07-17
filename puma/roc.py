@@ -15,6 +15,18 @@ from puma.utils import get_good_colours, get_good_linestyles, logger
 
 
 def can_hide(ax) -> bool:
+    """Check if the label is hideable.
+
+    Parameters
+    ----------
+    ax : Axes
+        Axes object which is to be tested.
+
+    Returns
+    -------
+    bool
+        Returns a bool about the hideablility of the object.
+    """
     num_labels = 0
     ax_bbox = ax.get_window_extent()
     for label in ax.get_yticklabels():

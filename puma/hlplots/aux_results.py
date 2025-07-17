@@ -39,6 +39,7 @@ class AuxResults:
     remove_nan: bool = False
 
     def __post_init__(self):
+        """Run post init checks of the inputs."""
         if isinstance(self.output_dir, str):
             self.output_dir = Path(self.output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -249,6 +250,32 @@ class AuxResults:
         vertex_match_requirement: dict | None = None,
         **kwargs,
     ):
+        """Plot the variable vs vertex performance.
+
+        Parameters
+        ----------
+        vtx_flavours : list[Label] | list[str] | None, optional
+            List of the flavours where vertices are expected, by default None
+        no_vtx_flavours : list[Label] | list[str] | None, optional
+            List of the flavours where vertices are not expected, by default None
+        suffix : str | None, optional
+            Suffix for the output plot names, by default None
+        xlabel : str, optional
+            x-axis label, by default r"p_{T}$ [GeV]"
+        perf_var : str, optional
+            Variable against which the performance is plotted, by default "pt"
+        incl_vertexing : bool, optional
+            Decide, if the inclusive vertexing is plotted, by default False
+        vertex_match_requirement : dict | None, optional
+            Dict with matching requirements for the vertices, by default None
+
+        Raises
+        ------
+        ValueError
+            If neither vtx_flavours nor no_vtx_flavours are given.
+        ValueError
+            If no taggers with vertexing aux task were added.
+        """
         # Get good linestyles for plotting
         line_styles = get_good_linestyles()
 
