@@ -47,6 +47,7 @@ class Results:
     label_var: str = "HadronConeExclTruthLabelID"
 
     def __post_init__(self):
+        """Run post init checks of the inputs."""
         self.set_signal(self.signal)
         if isinstance(self.output_dir, str):
             self.output_dir = Path(self.output_dir)

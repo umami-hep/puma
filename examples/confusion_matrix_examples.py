@@ -1,3 +1,5 @@
+"""Produce the confusion matrix for a tagger output."""
+
 from __future__ import annotations
 
 import numpy as np

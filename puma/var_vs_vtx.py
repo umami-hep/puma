@@ -238,6 +238,18 @@ class VarVsVtx(VarVsVar):  # pylint: disable=too-many-instance-attributes
         return np.array(total_reco)[:, 0], np.array(total_reco)[:, 1]
 
     def __eq__(self, other):
+        """Handles a == check with the class.
+
+        Parameters
+        ----------
+        other : obj
+            Other object that this class is tested against
+
+        Returns
+        -------
+        bool
+            If this object and the other are equal
+        """
         if isinstance(other, self.__class__):
             return (
                 np.all(self.x_var == other.x_var)
@@ -282,6 +294,8 @@ class VarVsVtx(VarVsVar):  # pylint: disable=too-many-instance-attributes
 
 
 class VarVsVtxPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attributes
+    """var_vs_vtx plot class."""
+
     mode_options: ClassVar[list[str]] = [
         "efficiency",
         "purity",

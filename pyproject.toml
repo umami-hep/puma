@@ -24,7 +24,7 @@ line-length = 100
 preview = true
 lint.select = ["ALL"]
 lint.ignore = [
-    "COM", "D100", "D101", "D102", "D103", "D104", "D105", "D205", "D401", "EM", "FIX", "FBT",
+    "COM", "D205", "D401", "EM", "FIX", "FBT",
     "S101", "S404", "S602", "PLR2004", "PLR0912", "PLR0913", "PLR0914", "PLR0915", "PLR0917",
     "PLC0415", "G004", "PD901", "N802", "C901", "DTZ005", "DTZ007", "INP", "EXE002", "TD002", 
     "ANN001", "ANN002", "ANN003", "ANN101", "ANN201", "ANN202", "ANN204", "CPY001", "TRY003",
@@ -32,6 +32,9 @@ lint.ignore = [
     "PT027", "NPY002", "PT009", "PTH120", "PLW1641", "PTH118", "PLR0904", "N817", "PTH103", "PTH107", "S603",
     "PTH113", "S113", "TCH", "ANN205"
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"puma/tests/**" = ["D100", "D101", "D102", "D103", "D104", "D105"]
 
 [tool.ruff.lint.flake8-pytest-style]
 fixture-parentheses = false

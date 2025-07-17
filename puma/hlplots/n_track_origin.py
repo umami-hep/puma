@@ -1,3 +1,5 @@
+"""Plot the number of tracks per track origin as a function of pT."""
+
 from __future__ import annotations
 
 import os

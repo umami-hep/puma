@@ -1,3 +1,5 @@
+"""Helper functions for the confusion matrix."""
+
 from __future__ import annotations
 
 import numpy as np
