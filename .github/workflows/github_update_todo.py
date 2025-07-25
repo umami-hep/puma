@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from pylint import epylint as lint
 
 
@@ -57,10 +59,10 @@ if __name__ == "__main__":
 
     # write the output to a txt file which can be used when posting the comment
     output_filename = "todo_comment_body.txt"
-    with open(output_filename, "w") as comment_file:
-        # the substitution below is necessary such that the text is understood by
-        # the github action that posts the comment
-        # https://github.com/marketplace/actions/create-or-update-comment#setting-the-comment-body-from-a-file
-        issue_description = issue_description.replace("\n", "%0A")
-        print(f"writing output to {output_filename}")
-        comment_file.write(issue_description)
+
+    # the substitution below is necessary such that the text is understood by
+    # the github action that posts the comment
+    # https://github.com/marketplace/actions/create-or-update-comment#setting-the-comment-body-from-a-file
+    issue_description = issue_description.replace("\n", "%0A")
+    print(f"writing output to {output_filename}")
+    Path(output_filename).write_text(issue_description)

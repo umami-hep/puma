@@ -76,6 +76,8 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             Using disc_cut and working_point together
         ValueError
             disc_cut (if an array) has a different length than the number of bins given
+        TypeError
+            If "working_point" is neither a list nor a float
         """
         if len(x_var_sig) != len(disc_sig):
             raise ValueError(
@@ -172,7 +174,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         )
 
         # Calculate all efficiencies/rejections possible to make them easily available and storable
-        self.results = {"normal": {}, "inverse": {}}
+        self.results: dict[str, dict] = {"normal": {}, "inverse": {}}
 
         # Iterate over inverse and normal setup
         for iter_key in self.results:
@@ -228,7 +230,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         # Get the bins for the histogram
         self.x_bin_centres = (self.bin_edges[:-1] + self.bin_edges[1:]) / 2.0
         self.bin_widths = (self.bin_edges[1:] - self.bin_edges[:-1]) / 2.0
-        self.n_bins = self.bin_edges.size - 1
+        self.n_bins = self.bin_edges.size - 1  # type: ignore[attr-defined]
         logger.debug("N bins: %i", self.n_bins)
 
     def _apply_binning(self):
@@ -291,6 +293,11 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             Efficiency
         float
             Efficiency error
+
+        Raises
+        ------
+        TypeError
+            If the cut parameter type is not supported
         """
         if len(arr) == 0:
             return 0, 0
@@ -325,6 +332,11 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             Rejection
         float
             Rejection error
+
+        Raises
+        ------
+        TypeError
+            If the cut parameter type is not supported
         """
         if self.inverse_cut:
             rej = save_divide(len(arr), sum(arr < cut), default=np.inf)

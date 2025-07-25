@@ -113,6 +113,16 @@ class AuxResults:
             ----------
             data : ndarray
                 Data to filter
+
+            Returns
+            -------
+            np.ndarray
+                The data without NaNs
+
+            Raises
+            ------
+            ValueError
+                If NaN values were found in the loaded data and the removal is off
             """
             mask = np.ones(len(data), dtype=bool)
             for name in data.dtype.names:
@@ -300,7 +310,7 @@ class AuxResults:
         purity_req = round(vertex_match_requirement["purity_req"] * 100, 1)
         vtx_match_str = rf"Recall $\geq {eff_req}\%$, Purity $\geq {purity_req}\%$"
         vtx_string = "\nInclusive vertexing" if incl_vertexing else "\nExclusive vertexing"
-        atlas_second_tag = self.atlas_second_tag if self.atlas_second_tag else ""
+        atlas_second_tag = self.atlas_second_tag or ""
         atlas_second_tag += vtx_string
 
         # calculate vertexing information for each tagger

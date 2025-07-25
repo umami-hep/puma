@@ -1,6 +1,6 @@
 """puma framework - Plotting UMami Api."""
 
-# flake8: noqa
+from __future__ import annotations
 
 __version__ = "0.4.9"
 
@@ -17,6 +17,8 @@ from puma.var_vs_vtx import VarVsVtx, VarVsVtxPlot
 __all__ = [
     "Histogram",
     "HistogramPlot",
+    "IntegratedEfficiency",
+    "IntegratedEfficiencyPlot",
     "Line2D",
     "Line2DPlot",
     "PiePlot",
@@ -31,6 +33,4 @@ __all__ = [
     "VarVsVarPlot",
     "VarVsVtx",
     "VarVsVtxPlot",
-    "IntegratedEfficiency",
-    "IntegratedEfficiencyPlot",
 ]

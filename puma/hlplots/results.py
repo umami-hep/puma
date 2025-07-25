@@ -72,11 +72,6 @@ class Results:
         ----------
         signal : Flavour
             Flavour which is the signal
-
-        Raises
-        ------
-        ValueError
-            If the signal class is not supported
         """
         if isinstance(signal, str):
             signal = Flavours[signal]
@@ -389,7 +384,7 @@ class Results:
             # Loop over the taggers
             for counter, tagger in enumerate(self.taggers.values()):
                 # Append labels if existing else the name
-                tagger_labels.append(tagger.label if tagger.label else tagger.name)
+                tagger_labels.append(tagger.label or tagger.name)
 
                 # Add the probability output of the given tagger for each flavour
                 for flav_class in flavours:
@@ -462,7 +457,7 @@ class Results:
             # Loop over the taggers
             for counter, tagger in enumerate(self.taggers.values()):
                 # Append labels if existing else the name
-                tagger_labels.append(tagger.label if tagger.label else tagger.name)
+                tagger_labels.append(tagger.label or tagger.name)
 
                 # Add the probability output of the given tagger for each flavour
                 for flav_prob in flavours:
@@ -625,7 +620,7 @@ class Results:
                     hist.add(histogram=histo_object, reference=tagger.reference)
 
             # Add the tagger label or name to the label list
-            tagger_labels.append(tagger.label if tagger.label else tagger.name)
+            tagger_labels.append(tagger.label or tagger.name)
 
         # Finalise the plot and draw it
         hist.draw()
@@ -798,6 +793,12 @@ class Results:
             out of [working_point, disc_cut, fixed_rejections] can be set
         **kwargs : kwargs
             key word arguments for `puma.VarVsEff`
+
+        Raises
+        ------
+        ValueError
+            If more than one of working_point, disc_cut, or fixed_rejections is set
+            If neither working_point nor disc_cut is set
         """
         # Check correct setting of working_point, disc_cut and fixed_rejections
         if sum([bool(working_point), bool(disc_cut), bool(fixed_rejections)]) > 1:
@@ -962,6 +963,13 @@ class Results:
             draws a horizonatal line in the signal efficiency plot
         **kwargs : kwargs
             key word arguments for `puma.VarVsEff`
+
+        Raises
+        ------
+        ValueError
+            If invalid background flavours are given
+            If disc_cut is set when executing this plot
+            If working_point is set when executing this plot
         """
         # Check for invalid inputs
         if inv_bkg := set(fixed_rejections.keys()) - {str(b) for b in self.backgrounds}:
@@ -1085,6 +1093,11 @@ class Results:
             List of background flavours, by default None, will use self.backgrounds
         **kwargs
             Keyword arguments for `puma.Line2DPlot
+
+        Raises
+        ------
+        ValueError
+            If more than two background flavours are given
         """
         # Get the background flavours in a list
         backgrounds = [Flavours[b] for b in backgrounds_to_plot]
@@ -1173,7 +1186,7 @@ class Results:
                         f"(${backgrounds[0].frac_str}={tagger_fx:.3f}$, "
                         f"${backgrounds[1].frac_str}={1 - tagger_fx:.3f}$)"
                     ),
-                    colour=tagger.colour if tagger.colour else colours[counter],
+                    colour=tagger.colour or colours[counter],
                 )
             )
 
@@ -1236,6 +1249,11 @@ class Results:
             Type of plot
         kwargs : dict
             Keyword arguments for the plot
+
+        Raises
+        ------
+        ValueError
+            If an unknown plot type is given
         """
         if plot_type not in self.plot_funcs:
             raise ValueError(f"Unknown plot type {plot_type}, choose from {self.plot_funcs.keys()}")

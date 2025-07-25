@@ -67,7 +67,7 @@ class YumaConfig:
     base_path: Path = None
 
     # dict like {roc : [list of roc plots], scan: [list of scan plots], ...}
-    plots: dict[list[dict[str, dict[str, str]]]] = field(default_factory=list)
+    plots: dict[str, list[dict[str, dict[str, str]]]] = field(default_factory=list)
 
     def __post_init__(self):
         """Post init checks of the inputs."""
@@ -112,8 +112,19 @@ class YumaConfig:
         config.check_config()
         return config
 
-    def check_config(self):
-        """Checks the config for any issues, raises an error if any are found."""
+    def check_config(self) -> bool:
+        """Checks the config for any issues, raises an error if any are found.
+
+        Returns
+        -------
+        Bool
+            True if the config is ok
+
+        Raises
+        ------
+        ValueError
+            If an unkown key is found in the plot config
+        """
         allowed_keys = ["signal", "plot_kwargs", "include_taggers", "exclude_taggers", "reference"]
         for plots in self.plots.values():
             for p in plots:
@@ -127,10 +138,16 @@ class YumaConfig:
         return True
 
     def get_results(self):
-        """
+        """Create the high-level "Results" object.
+
         Create the high-level 'Results' object from the config file, using the
         previously set signal and sample. Iterates and loads all models in the config
         file, and adds them.
+
+        Raises
+        ------
+        ValueError
+            If no sample path are given for a tagger
         """
         kwargs = self.results_config
         kwargs["signal"] = self.signal
@@ -221,12 +238,12 @@ def main(args=None):
     yuma = YumaConfig.load_config(config_path, base_path=args.dir)
 
     # select and check plots
-    plots = args.plots if args.plots else ALL_PLOTS
+    plots = args.plots or ALL_PLOTS
     if missing := [p for p in plots if p not in ALL_PLOTS]:
         raise ValueError(f"Unknown plot types {missing}, choose from {ALL_PLOTS}")
 
     # select and check signals
-    signals = args.signals if args.signals else yuma.signals
+    signals = args.signals or yuma.signals
     if missing := [s for s in signals if s not in yuma.signals]:
         raise ValueError(f"Unknown signals {missing}, choose from {yuma.signals}")
 
