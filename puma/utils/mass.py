@@ -43,9 +43,9 @@ def calculate_vertex_mass(pt, eta, phi, vtx_idx, particle_mass=0.13957):
         comparison_ids = np.tile(unique_idx, (vtx_idx_i.size, 1)).T
         vertices = (vertices == comparison_ids).astype(int)
 
-        pt_i *= vertices
-        eta_i *= vertices
-        phi_i *= vertices
+        pt_i = pt_i * vertices  # noqa: PLR6104
+        eta_i = eta_i * vertices  # noqa: PLR6104
+        phi_i = phi_i * vertices  # noqa: PLR6104
         m_i = particle_mass * vertices
 
         px_i = pt_i * np.cos(phi_i)
