@@ -107,9 +107,7 @@ def get_dummy_2_taggers(
     df_gen["n_truth_promptLepton"] = 0
 
     if return_file:
-        fname = NamedTemporaryFile(  # pylint: disable=R1732
-            mode="w", suffix=".h5", delete=False
-        ).name
+        fname = NamedTemporaryFile(mode="w", suffix=".h5", delete=False).name  # noqa: SIM115
         file = h5py.File(fname, "w")
         file.create_dataset(name="jets", data=df_gen.to_records())
         return file
@@ -199,9 +197,7 @@ def get_dummy_tagger_aux(
         dtype=aux_dtype,
     )
 
-    fname = NamedTemporaryFile(  # pylint: disable=R1732
-        mode="w", suffix=".h5", delete=False
-    ).name
+    fname = NamedTemporaryFile(mode="w", suffix=".h5", delete=False).name  # noqa: SIM115
     file = h5py.File(fname, "w")
     file.create_dataset(name="jets", data=df_gen.to_records())
     file.create_dataset(name="tracks", data=aux_info)

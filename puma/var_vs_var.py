@@ -197,10 +197,9 @@ class VarVsVarPlot(PlotBase):
         """
         super().__init__(grid=grid, **kwargs)
 
-        self.plot_objects = {}
-        self.add_order = []
-        self.ratios_objects = {}
-        self.reference_object = None
+        self.plot_objects: dict[str, VarVsVar] = {}
+        self.add_order: list[str] = []
+        self.reference_object: list[str] = None
         self.x_var_min = np.inf
         self.x_var_max = -np.inf
         self.inverse_cut = False

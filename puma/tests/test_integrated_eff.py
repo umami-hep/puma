@@ -14,7 +14,7 @@ from matplotlib.testing.compare import compare_images
 
 from puma import IntegratedEfficiency, IntegratedEfficiencyPlot
 from puma.utils import get_dummy_2_taggers
-from puma.utils.logging import logger, set_log_level
+from puma.utils.logger import logger, set_log_level
 
 set_log_level(logger, "DEBUG")
 

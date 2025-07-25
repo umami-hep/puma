@@ -1,10 +1,17 @@
 repos:
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: "v0.2.2"
+    rev: "v0.6.2"
     hooks:
       - id: ruff
         args: [--fix, --show-fixes, --exit-non-zero-on-fix]
       - id: ruff-format
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: "v1.11.2"
+    hooks:
+      - id: mypy
+        args: [--ignore-missing-imports]
+        additional_dependencies: ["types-requests", "types-PyYAML"]
 
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.32.0
@@ -12,9 +19,3 @@ repos:
       - id: yamllint
         args: ["-d", "{extends: relaxed, rules: {line-length: disable}}"]
 
-  #- repo: https://github.com/pre-commit/mirrors-mypy
-  #  rev: "v1.1.1"
-  #  hooks:
-  #    - id: mypy
-  #      args: [--ignore-missing-imports]
-  #      additional_dependencies: ["types-requests", "types-PyYAML"]

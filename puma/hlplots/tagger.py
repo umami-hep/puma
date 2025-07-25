@@ -54,7 +54,13 @@ class Tagger:
     yaml_name: str = None
 
     def __post_init__(self):
-        """Run post init checks of the inputs."""
+        """Run post init checks of the inputs.
+
+        Raises
+        ------
+        ValueError
+            If a given output flavour is not supported by the label category
+        """
         if self.label is None:
             self.label = self.name
         if isinstance(self.cuts, list):
@@ -169,7 +175,7 @@ class Tagger:
 
     def extract_tagger_scores(
         self,
-        source: object,
+        source: pd.DataFrame | np.ndarray,
         source_type: str = "data_frame",
         key: str | None = None,
     ):
@@ -177,7 +183,7 @@ class Tagger:
 
         Parameters
         ----------
-        source : object
+        source : pd.DataFrame | np.ndarray
             pd.DataFrame or file path to h5 file containing pd.DataFrame or structured
             numpy array
         source_type : str, optional
@@ -269,6 +275,11 @@ class Tagger:
         -------
         np.ndarray
             Discriminant for given signal class
+
+        Raises
+        ------
+        ValueError
+            If the given signal flavour is not available in the given output flavours
         """
         # Ensure Label instance
         if isinstance(signal, str):
@@ -336,6 +347,13 @@ class Tagger:
             Cleaned truth vertex indices for the tagger.
         reco_indices : np.ndarray
             Cleaned reco vertex indices for the tagger.
+
+        Raises
+        ------
+        ValueError
+            If the vertexing aux task is not available for a given tagger
+            If the vertexing labels weren't found
+            If the track origin labels weren't found
         """
         if "vertexing" not in self.aux_tasks:
             raise ValueError("Vertexing aux task not available for this tagger.")

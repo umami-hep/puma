@@ -171,14 +171,14 @@ def AssociateTracksToHadron(
     return np.array(track_to_hadron_array), inclusive_track_first_hadron, inclusive_track_hadron
 
 
-def SelectHadron(truth_hadrons: np.ndarray, hadron_index: int) -> np.ndarray:
+def SelectHadron(truth_hadrons: np.ndarray, hadron_index: np.ndarray) -> np.ndarray:
     """Select a hadron with the most tracks and apply a mask.
 
     Parameters
     ----------
     truth_hadrons : np.ndarray
         Array of the truth hadrons
-    hadron_index : int
+    hadron_index : np.ndarray
         Index of the hadron
 
     Returns
@@ -200,14 +200,14 @@ def SelectHadron(truth_hadrons: np.ndarray, hadron_index: int) -> np.ndarray:
     return selected_hadron_copy
 
 
-def select_tracks(track_hadron: np.ndarray, index: int, element: int = 0) -> np.ndarray:
+def select_tracks(track_hadron: np.ndarray, index: np.ndarray, element: int = 0) -> np.ndarray:
     """Select the correct tracks for the hadron.
 
     Parameters
     ----------
     track_hadron : np.ndarray
         Array of the hadron tracks
-    index : int
+    index : np.ndarray
         Index of the hadron
     element : int, optional
         Element that is to be chosen, by default 0

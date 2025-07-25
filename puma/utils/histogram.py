@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from puma.utils.logging import logger
+from puma.utils.logger import logger
 
 
 def save_divide(
@@ -226,7 +226,8 @@ def hist_ratio(
     ------
     AssertionError
         If inputs don't have the same shape.
-
+    ValueError
+        If the method is netiher "divide" nor "root_square_diff"
     """
     numerator, denominator, numerator_unc = (
         np.array(numerator),
