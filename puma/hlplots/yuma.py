@@ -10,8 +10,9 @@ from pathlib import Path
 import yaml
 from yamlinclude import YamlIncludeConstructor
 
-from puma.hlplots import Results, Tagger, get_included_taggers
-from puma.hlplots.yutils import combine_suffixes, get_tagger_name
+from puma.hlplots.results import Results
+from puma.hlplots.tagger import Tagger
+from puma.hlplots.yutils import combine_suffixes, get_included_taggers, get_tagger_name
 from puma.utils import logger
 
 ALL_PLOTS = ["roc", "scan", "disc", "probs", "peff"]
