@@ -6,6 +6,7 @@ from puma.hlplots.aux_results import AuxResults
 from puma.hlplots.n_track_origin import n_tracks_per_origin
 from puma.hlplots.results import Results
 from puma.hlplots.tagger import Tagger
+from puma.hlplots.yuma import YumaConfig
 from puma.hlplots.yutils import combine_suffixes, get_included_taggers
 
 __all__ = [

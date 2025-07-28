@@ -6,7 +6,7 @@ import json
 import tkinter as tk
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import atlasify
 import numpy as np
@@ -22,6 +22,9 @@ from matplotlib.ticker import MaxNLocator
 from puma.utils import logger, set_xaxis_ticklabels_invisible
 
 atlasify.LINE_SPACING = 1.3  # overwrite the default, which is 1.2
+
+if TYPE_CHECKING:  # pragma: no cover
+    from matplotlib.axes import Axes
 
 
 @dataclass
@@ -91,8 +94,19 @@ class PlotLineObject:
         }
 
     @staticmethod
-    def encode(obj):
-        """Return a JSON/YAML-safe version of obj, tagging special types."""
+    def encode(obj: Any) -> Any:
+        """Return a JSON/YAML-safe version of obj, tagging special types.
+
+        Parameters
+        ----------
+        obj : Any
+            Object that is to be encoded
+
+        Returns
+        -------
+        Any
+            The encoded object
+        """
         # Encode special cases which can't be easily stored in json and yaml
         if isinstance(obj, np.ndarray):
             return {"__ndarray__": obj.tolist(), "dtype": str(obj.dtype)}
@@ -111,8 +125,19 @@ class PlotLineObject:
         return obj
 
     @staticmethod
-    def decode(obj):
-        """Inverse of encode, turning tags back into real objects."""
+    def decode(obj: Any) -> Any:
+        """Inverse of encode, turning tags back into real objects.
+
+        Parameters
+        ----------
+        obj : Any
+            Object that is to be decoded
+
+        Returns
+        -------
+        Any
+            The decoded object
+        """
         # If a dict was used, go through and check for types
         if isinstance(obj, dict):
             if "__ndarray__" in obj:
@@ -141,6 +166,11 @@ class PlotLineObject:
         ----------
         path : str | Path
             Path to which the class object attributes are written.
+
+        Raises
+        ------
+        ValueError
+            If an unknown file extension was given
         """
         # Ensure path is a path object
         path = Path(path)
@@ -450,10 +480,10 @@ class PlotBase(PlotObject):
             Keyword arguments from `puma.PlotObject`
         """
         super().__init__(**kwargs)
-        self.axis_top = None
-        self.ratio_axes = []
-        self.axis_leg = None
-        self.fig = None
+        self.axis_top: Axes = None
+        self.ratio_axes: list[Axes] = []
+        self.axis_leg: Axes = None
+        self.fig: Figure = None
 
     def initialise_figure(self):
         """
@@ -738,8 +768,14 @@ class PlotBase(PlotObject):
             **kwargs,
         )
 
-    def is_running_in_jupyter(self):
-        """Detect if running inside a Jupyter notebook."""
+    def is_running_in_jupyter(self) -> bool:
+        """Detect if running inside a Jupyter notebook.
+
+        Returns
+        -------
+        bool
+            If the code is run inside a jupyter notebook
+        """
         try:
             shell = get_ipython()
 
@@ -790,6 +826,11 @@ class PlotBase(PlotObject):
         ----------
         auto_close_after : int | None, optional
             After how many milliseconds, the window is automatically closed, by default None
+
+        Raises
+        ------
+        ValueError
+            If the figure is not initalized yet
         """
         if self.is_running_in_jupyter():
             logger.debug("Detected Jupyter Notebook, displaying inline.")

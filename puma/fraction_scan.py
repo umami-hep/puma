@@ -66,8 +66,8 @@ def get_optimal_fraction_value(
     """
     # normalise x- and y-axes
     xs, ys = fraction_scan[:, 0], fraction_scan[:, 1]
-    xs = xs / max(xs)
-    ys = ys / max(ys)
+    xs /= max(xs)
+    ys /= max(ys)
 
     # if rej=True get maximum distance to origin
     opt_idx = np.argmax(xs**2 + ys**2) if rej else np.argmin(xs**2 + ys**2)

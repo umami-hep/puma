@@ -11,7 +11,7 @@ import numpy as np
 from matplotlib.testing.compare import compare_images
 
 from puma import Roc, RocPlot
-from puma.utils.logging import logger, set_log_level
+from puma.utils.logger import logger, set_log_level
 
 set_log_level(logger, "DEBUG")
 

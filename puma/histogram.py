@@ -109,6 +109,8 @@ class Histogram(PlotLineObject):
             If input data is not of type np.ndarray or list
         ValueError
             If weights are specified but have different length as the input values
+        TypeError
+            If the input data for the histogram are invalid
         """
         super().__init__(**kwargs)
 
@@ -294,6 +296,11 @@ class Histogram(PlotLineObject):
         -------
         tuple
             Tuple of the ratios and ratio uncertaintes for the bins
+
+        Raises
+        ------
+        ValueError
+            If the binning of the two histograms doesn't match
         """
         try:
             self.hist + ref_hist
@@ -391,9 +398,8 @@ class HistogramPlot(PlotBase):
         self.bin_width_in_ylabel = bin_width_in_ylabel
         self.stacked = stacked
         self.histtype = histtype
-        self.plot_objects = {}
-        self.add_order = []
-        self.ratios_objects = {}
+        self.plot_objects: dict[str, Histogram] = {}
+        self.add_order: list[str] = []
         self.reference_object = None
 
         if self.n_ratio_panels > 1:

@@ -11,7 +11,7 @@ from puma.hlplots import n_tracks_per_origin
 
 # Download test h5 sample
 urlretrieve(
-    "https://umami-ci-provider.web.cern.ch/" "plot_input_vars/plot_input_vars_r22_check.h5",
+    "https://umami-ci-provider.web.cern.ch/plot_input_vars/plot_input_vars_r22_check.h5",
     "testfile.h5",
 )
 

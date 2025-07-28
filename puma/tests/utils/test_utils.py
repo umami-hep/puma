@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-import shutil  # noqa: F401
+import shutil
 import tempfile
 import unittest
 
@@ -11,7 +11,13 @@ import numpy as np
 from matplotlib.testing.compare import compare_images
 
 from puma import Line2D, Line2DPlot
-from puma.utils import get_good_linestyles, logger, set_log_level
+from puma.utils import (
+    get_good_colours,
+    get_good_linestyles,
+    get_good_pie_colours,
+    logger,
+    set_log_level,
+)
 
 set_log_level(logger, "DEBUG")
 
@@ -88,3 +94,67 @@ class LinestylesTestCase(unittest.TestCase):
                 tol=1,
             )
         )
+
+    def test_colours_accepted_by_mpl(self):
+        """Test if all the colours are supported."""
+        test_plot = Line2DPlot()
+        for i, colour in enumerate(get_good_colours()):
+            test_plot.add(
+                Line2D(
+                    np.linspace(0, 10, 10),
+                    i * np.linspace(0, 10, 10),
+                    colour=colour,
+                )
+            )
+        test_plot.draw()
+        name = "test_colours.png"
+        test_plot.savefig(f"{self.actual_plots_dir}/{name}")
+        # Uncomment line below to update expected image
+        shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
+                tol=1,
+            )
+        )
+
+    def test_colours_accepted_by_mpl_dark2p8(self):
+        """Test if all the dark2.8 colours are supported."""
+        test_plot = Line2DPlot()
+        for i, colour in enumerate(get_good_colours(colour_scheme="Dark2_8")):
+            test_plot.add(
+                Line2D(
+                    np.linspace(0, 10, 10),
+                    i * np.linspace(0, 10, 10),
+                    colour=colour,
+                )
+            )
+        test_plot.draw()
+        name = "test_colours_dark2p8.png"
+        test_plot.savefig(f"{self.actual_plots_dir}/{name}")
+        # Uncomment line below to update expected image
+        shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
+                tol=1,
+            )
+        )
+
+    def test_colours_ValueError(self):
+        """Test the ValueError if an unsupported colour scheme is called."""
+        with self.assertRaises(ValueError):
+            _ = get_good_colours(colour_scheme="Not supported scheme")
+
+    def test_get_good_pie_colours(self):
+        """Test that all colour schemes are working as expected."""
+        for colour_scheme in ["red", "blue", "green", "yellow"]:
+            colours = get_good_pie_colours(colour_scheme=colour_scheme)
+            self.assertEqual(len(colours), 7)
+
+    def test_get_good_pie_colours_unsupported_scheme(self):
+        """Test KeyError if unsupported colour scheme is used."""
+        with self.assertRaises(KeyError):
+            _ = get_good_pie_colours(colour_scheme="Not supported scheme")
