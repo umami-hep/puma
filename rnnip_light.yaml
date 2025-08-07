@@ -8,6 +8,7 @@ disc_cut:
 - -0.6499388217926025
 - -0.6499388217926025
 fill: true
+fixed_bkg_rej: null
 flat_per_bin: false
 key: null
 label: RNNIP
