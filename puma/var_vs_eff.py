@@ -251,12 +251,12 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             self.bin_edges = np.linspace(xmin, xmax, bins + 1)
         elif isinstance(bins, (list, np.ndarray)):
             self.bin_edges = np.array(bins)
-        logger.debug("Retrieved bin edges %s}", self.bin_edges)
+        logger.debug(f"Retrieved bin edges: {self.bin_edges}")
         # Get the bins for the histogram
         self.x_bin_centres = (self.bin_edges[:-1] + self.bin_edges[1:]) / 2.0
         self.bin_widths = (self.bin_edges[1:] - self.bin_edges[:-1]) / 2.0
         self.n_bins = self.bin_edges.size - 1
-        logger.debug("N bins: %i", self.n_bins)
+        logger.debug(f"N bins: {self.n_bins}")
 
     def _apply_binning(self):
         """Get binned distributions for the signal and background."""
@@ -310,7 +310,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             self.disc_cut = [
                 float(np.percentile(self.disc_sig, (1 - self.working_point) * 100))
             ] * self.n_bins
-        logger.debug("Discriminant cut: %.3f", self.disc_cut)
+        logger.debug(f"Discriminant cut: {self.disc_cut}")
 
     def efficiency(self, arr: np.ndarray, cut: float | np.ndarray):
         """Calculate efficiency and the associated error.
@@ -424,7 +424,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         logger.debug("Calculating signal efficiency.")
         eff = np.array(list(map(self.efficiency, self.disc_binned_bkg, self.disc_cut)))[:, 0]
         err = np.array(list(map(self.efficiency, self.disc_binned_sig, self.disc_cut)))[:, 1]
-        logger.debug("Retrieved signal efficiencies: %s", eff)
+        logger.debug(f"Retrieved signal efficiencies: {eff}")
         return eff, err
 
     @property
@@ -440,7 +440,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         """
         logger.debug("Calculating signal efficiency.")
         eff = list(map(self.efficiency, self.disc_binned_sig, self.disc_cut))
-        logger.debug("Retrieved signal efficiencies: %s", eff)
+        logger.debug(f"Retrieved signal efficiencies: {eff}")
         return np.array(eff)[:, 0], np.array(eff)[:, 1]
 
     @property
@@ -456,7 +456,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         """
         logger.debug("Calculating background efficiency.")
         eff = list(map(self.efficiency, self.disc_binned_bkg, self.disc_cut))
-        logger.debug("Retrieved background efficiencies: %.2f", eff)
+        logger.debug(f"Retrieved background efficiencies: {eff}")
         return np.array(eff)[:, 0], np.array(eff)[:, 1]
 
     @property
@@ -472,7 +472,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         """
         logger.debug("Calculating signal rejection.")
         rej = list(map(self.rejection, self.disc_binned_sig, self.disc_cut))
-        logger.debug("Retrieved signal rejections: %.1f", rej)
+        logger.debug(f"Retrieved signal rejections: {rej}")
         return np.array(rej)[:, 0], np.array(rej)[:, 1]
 
     @property
@@ -488,7 +488,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         """
         logger.debug("Calculating background rejection.")
         rej = list(map(self.rejection, self.disc_binned_bkg, self.disc_cut))
-        logger.debug("Retrieved background rejections: %s", rej)
+        logger.debug(f"Retrieved background rejections: {rej}")
         return np.array(rej)[:, 0], np.array(rej)[:, 1]
 
     def get(self, mode: str, inverse_cut: bool = False):
@@ -648,6 +648,6 @@ class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
         Line2D
             matplotlib Line2D object
         """
-        logger.debug("Plotting curves with mode %s", self.mode)
+        logger.debug(f"Plotting curves with mode {self.mode}")
         self._setup_curves()
         return super().plot(**kwargs)
