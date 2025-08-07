@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Adding Support for VarVsEff Plots with Fixed Background Rejections [#334](https://github.com/umami-hep/puma/pull/334)
 - Updating Docstrings and skipped pre-commit checks [#332](https://github.com/umami-hep/puma/pull/332)
 - Update Repository Metadata [#331](https://github.com/umami-hep/puma/pull/331)
 

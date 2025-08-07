@@ -430,6 +430,66 @@ class VarVsEffTestCase(unittest.TestCase):
         self.assertIsNotNone(eff)
         self.assertIsNotNone(err)
 
+    def test_fixed_bkg_rej_wrong_type(self):
+        """Test the raised TypeError if fixed_bkg_rej is not an int or a float."""
+        x_var_sig = np.random.uniform(0, 1, 100)
+        disc_sig = np.random.uniform(0, 1, 100)
+        x_var_bkg = np.random.uniform(0, 1, 100)
+        disc_bkg = np.random.uniform(0, 1, 100)
+
+        with self.assertRaises(TypeError) as ctx:
+            _ = VarVsEff(
+                x_var_sig=x_var_sig,
+                disc_sig=disc_sig,
+                x_var_bkg=x_var_bkg,
+                disc_bkg=disc_bkg,
+                bins=2,
+                fixed_bkg_rej="Error",
+            )
+        self.assertEqual(
+            "`fixed_bkg_rej` must be an int or a float! You gave <class 'str'>",
+            str(ctx.exception),
+        )
+
+    def test_fixed_bkg_rej(self):
+        """Test the default behaviour of fixed_bkg_rej."""
+        x_var_sig = np.random.uniform(0, 1, 100)
+        disc_sig = np.random.uniform(0, 1, 100)
+        x_var_bkg = np.random.uniform(0, 1, 100)
+        disc_bkg = np.random.uniform(0, 1, 100)
+
+        obj = VarVsEff(
+            x_var_sig=x_var_sig,
+            disc_sig=disc_sig,
+            x_var_bkg=x_var_bkg,
+            disc_bkg=disc_bkg,
+            bins=2,
+            fixed_bkg_rej=2,
+        )
+        eff, err = obj.get("sig_eff")
+        self.assertIsNotNone(eff)
+        self.assertIsNotNone(err)
+
+    def test_fixed_bkg_rej_fixed_per_bin(self):
+        """Test the default behaviour of fixed_bkg_rej for flat_per_bin."""
+        x_var_sig = np.random.uniform(0, 1, 100)
+        disc_sig = np.random.uniform(0, 1, 100)
+        x_var_bkg = np.random.uniform(0, 1, 100)
+        disc_bkg = np.random.uniform(0, 1, 100)
+
+        obj = VarVsEff(
+            x_var_sig=x_var_sig,
+            disc_sig=disc_sig,
+            x_var_bkg=x_var_bkg,
+            disc_bkg=disc_bkg,
+            bins=2,
+            fixed_bkg_rej=2,
+            flat_per_bin=True,
+        )
+        eff, err = obj.get("sig_eff")
+        self.assertIsNotNone(eff)
+        self.assertIsNotNone(err)
+
 
 class VarVsEffIOTestCase(unittest.TestCase):
     """Collection of I/O tests for VarVsEff."""
@@ -827,4 +887,34 @@ class VarVsEffOutputTestCase(unittest.TestCase):
 
         flat_wp_plot.apply_modified_atlas_second_tag(signal=signal, disc_cut=3.0)
         expected_tag = "$D_{b}$ > 3.0"
+        self.assertEqual(flat_wp_plot.atlas_second_tag, expected_tag)
+
+    def test_var_vs_eff_info_str_fixed_bkg_rej(self):
+        """
+        Test that apply_modified_atlas_second_tag() produces the correct text
+        when a fixed_bkg_rej is specified.
+        """
+        flat_wp_plot = VarVsEffPlot(
+            mode="bkg_eff",
+        )
+        background = Flavours["ujets"]
+
+        flat_wp_plot.apply_modified_atlas_second_tag(background=background, fixed_bkg_rej=2)
+        expected_tag = "2 Light-jet rejection"
+        self.assertEqual(flat_wp_plot.atlas_second_tag, expected_tag)
+
+    def test_var_vs_eff_info_str_fixed_bkg_rej_flat_per_bin(self):
+        """
+        Test that apply_modified_atlas_second_tag() produces the correct text
+        when a fixed_bkg_rej is specified with flat_per_bin.
+        """
+        flat_wp_plot = VarVsEffPlot(
+            mode="bkg_eff",
+        )
+        background = Flavours["ujets"]
+
+        flat_wp_plot.apply_modified_atlas_second_tag(
+            background=background, fixed_bkg_rej=2, flat_per_bin=True
+        )
+        expected_tag = "Flat 2 Light-jet rejection per bin"
         self.assertEqual(flat_wp_plot.atlas_second_tag, expected_tag)
