@@ -52,9 +52,10 @@ pt = df["pt"] / 1e3
 # defining target efficiency
 sig_eff = np.linspace(0.49, 1, 20)
 # defining boolean arrays to select the different flavour classes
-is_light = df["HadronConeExclTruthLabelID"] == 0
-is_c = df["HadronConeExclTruthLabelID"] == 4
-is_b = df["HadronConeExclTruthLabelID"] == 5
+is_b = Flavours["bjets"].cuts(df).idx
+is_c = Flavours["cjets"].cuts(df).idx
+is_light = Flavours["ujets"].cuts(df).idx
+it_tau = Flavours["taujets"].cuts(df).idx
 
 # here the plotting starts
 
@@ -66,6 +67,7 @@ rnnip_light = VarVsEff(
     disc_bkg=discs_rnnip[is_light],
     bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
     working_point=0.7,
+    fixed_bkg_rej=None,
     disc_cut=None,
     flat_per_bin=False,
     label="RNNIP",
@@ -77,6 +79,7 @@ dips_light = VarVsEff(
     disc_bkg=discs_dips[is_light],
     bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
     working_point=0.7,
+    fixed_bkg_rej=None,
     disc_cut=None,
     flat_per_bin=False,
     label="DIPS",
