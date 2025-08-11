@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import os
-import shutil
+import shutil  # noqa: F401
 import tempfile
 import unittest
 from pathlib import Path
@@ -366,6 +366,7 @@ class VarVsVarPlotTestCase(unittest.TestCase):
             n_ratio_panels=1,
             figsize=(9, 6),
             ratio_method="subtract",
+            ylabel_ratio="Difference",
         )
         test_plot.add(self.test, reference=True)
         test_plot.add(self.test_2, reference=False)
@@ -373,10 +374,10 @@ class VarVsVarPlotTestCase(unittest.TestCase):
         test_plot.draw_hline(4)
         test_plot.draw()
 
-        name = "test_var_vs_var.png"
+        name = "test_var_vs_var_subtracted.png"
         test_plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertEqual(
             None,
             compare_images(
