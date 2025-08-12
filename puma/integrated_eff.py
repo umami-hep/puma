@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 import matplotlib as mpl
 import numpy as np
 from ftag import Flavours, Label
@@ -106,8 +108,7 @@ class IntegratedEfficiencyPlot(PlotBase):
         KeyError
             If unique identifier key is used twice
         """
-        if key is None:
-            key = len(self.int_effs) + 1
+        key = cast(str, key if key is not None else f"{len(self.int_effs) + 1}")
         if key in self.int_effs:
             raise KeyError(f"Duplicated key {key} already used for roc unique identifier.")
 

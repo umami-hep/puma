@@ -18,7 +18,7 @@ def n_tracks_per_origin(
     flavour_list: list[Label],
     files: dict[str, dict[str, Any]],
     plot_type: str,
-    plot_path: str | None = None,
+    plot_path: str = "./",
     track_origin_dict: dict | None = None,
     plot_format: str = "pdf",
     plot_name: str | None = None,
@@ -55,7 +55,7 @@ def n_tracks_per_origin(
         or "one_sample_all_flavour".
     plot_path : str, optional
         Path to the folder where the plots will be stored. If None, plot is saved to current
-        directory. By default None
+        directory. By default ./
     track_origin_dict : dict | None, optional
         Dict with the track origin names as keys and their origin value(s) as a list.
         With this, you can combine different origins and give them a new name. See the
@@ -93,7 +93,7 @@ def n_tracks_per_origin(
         }
 
     # Init a default kwargs dict for the VarVsVarPlot
-    VarVsVarPlot_kwargs = {
+    VarVsVarPlot_kwargs: dict[str, Any] = {
         "xlabel": "$p_T$ [GeV]",
         "ylabel": "Average $N_\\mathrm{Tracks}$ per Origin",
         "figsize": (7.0, 4.5),

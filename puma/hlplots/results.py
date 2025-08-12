@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 from ftag import Cuts, Flavours, Label
@@ -34,10 +35,10 @@ class Results:
     signal: Label | str
     sample: str
     category: str = "single-btag"
-    atlas_first_tag: str = "Simulation Internal"
-    atlas_second_tag: str = None
-    atlas_third_tag: str = None
-    taggers: dict = field(default_factory=dict)
+    atlas_first_tag: str | None = "Simulation Internal"
+    atlas_second_tag: str | None = None
+    atlas_third_tag: str | None = None
+    taggers: dict[str, Tagger] = field(default_factory=dict)
     perf_vars: str | tuple | list = "pt"
     output_dir: str | Path = "."
     extension: str = "pdf"
@@ -345,7 +346,7 @@ class Results:
         ]
 
         # Init a default kwargs dict for the HistogramPlot
-        histo_plot_kwargs = {
+        histo_plot_kwargs: dict[str, Any] = {
             "ylabel": "Normalised number of jets",
             "figsize": (7.0, 4.5),
             "n_ratio_panels": 1,
@@ -358,7 +359,7 @@ class Results:
             histo_plot_kwargs.update(kwargs)
 
         # Remove the kwargs that need to go to the Histogram objects
-        histo_kwargs = {"bins": 40, "bins_range": (0, 1)}
+        histo_kwargs: dict[str, Any] = {"bins": 40, "bins_range": (0, 1)}
         for iter_kwarg in list(histo_plot_kwargs):
             if iter_kwarg in {
                 "bins",
@@ -522,7 +523,7 @@ class Results:
         line_styles = get_good_linestyles()
 
         # Init histo_plot_kwargs
-        histo_plot_kwargs = {
+        histo_plot_kwargs: dict[str, Any] = {
             "n_ratio_panels": 0,
             "xlabel": xlabel,
             "ylabel": "Normalised number of jets",
@@ -536,7 +537,7 @@ class Results:
             histo_plot_kwargs.update(kwargs)
 
         # Remove the kwargs that need to go to the Histogram objects
-        histo_kwargs = {"bins": 40}
+        histo_kwargs: dict[str, Any] = {"bins": 40}
         for iter_kwarg in list(histo_plot_kwargs):
             if iter_kwarg in {
                 "bins",
@@ -762,7 +763,7 @@ class Results:
         xlabel: str = r"$p_{\mathrm{T}}$ [GeV]",
         perf_var: str = "pt",
         h_line: float | None = None,
-        working_point: float | None = None,
+        working_point: float | list | None = None,
         disc_cut: float | None = None,
         fixed_rejections: dict[Label, float] | None = None,
         **kwargs,
@@ -818,7 +819,7 @@ class Results:
             return
 
         # Split the kwargs according to if they are used for the plot or the curve
-        var_perf_plot_kwargs = {
+        var_perf_plot_kwargs: dict[str, Any] = {
             "xlabel": xlabel,
             "n_ratio_panels": 1,
             "atlas_first_tag": self.atlas_first_tag,
@@ -980,7 +981,7 @@ class Results:
             raise ValueError("working_point should not be set for this plot")
 
         # Split the kwargs according to if they are used for the plot or the curve
-        var_perf_plot_kwargs = {
+        var_perf_plot_kwargs: dict[str, Any] = {
             "xlabel": r"$p_{\mathrm{T}}$ [GeV]",
             "n_ratio_panels": 1,
             "atlas_first_tag": self.atlas_first_tag,

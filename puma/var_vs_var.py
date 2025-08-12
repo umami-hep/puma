@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 import matplotlib as mpl
 import numpy as np
@@ -211,16 +211,16 @@ class VarVsVarPlot(PlotBase):
 
         self.plot_objects: dict[str, VarVsVar] = {}
         self.add_order: list[str] = []
-        self.reference_object: list[str] = None
+        self.reference_object: list[str] | None = None
         self.x_var_min = np.inf
         self.x_var_max = -np.inf
-        self.inverse_cut = False
+        self.inverse_cut: bool = False
         if self.n_ratio_panels > 1:
             raise ValueError("Not more than one ratio panel supported.")
         self.ratio_method = ratio_method
         self.initialise_figure()
 
-    def add(self, curve: VarVsVar, key: str | None = None, reference: bool = False):
+    def add(self, curve: VarVsVar, key: str | None = None, reference: bool = False) -> None:
         """Adding VarVsVar object to figure.
 
         Parameters
@@ -237,8 +237,8 @@ class VarVsVarPlot(PlotBase):
         KeyError
             If unique identifier key is used twice
         """
-        if key is None:
-            key = len(self.plot_objects) + 1
+        key = cast(str, key if key is not None else f"{len(self.plot_objects) + 1}")
+
         if key in self.plot_objects:
             raise KeyError(f"Duplicated key {key} already used for unique identifier.")
 

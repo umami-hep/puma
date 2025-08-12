@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 from ftag import Cuts, Flavours, Label
@@ -27,11 +28,11 @@ class AuxResults:
 
     sample: str
     atlas_first_tag: str = "Simulation Internal"
-    atlas_second_tag: str = None
-    atlas_third_tag: str = None
+    atlas_second_tag: str | None = None
+    atlas_third_tag: str | None = None
     taggers: dict = field(default_factory=dict)
     perf_vars: str | tuple | list = "pt"
-    aux_perf_vars: str | tuple | list = None
+    aux_perf_vars: str | tuple | list | None = None
     output_dir: str | Path = "."
     extension: str = "pdf"
     global_cuts: Cuts | list | None = None
@@ -500,7 +501,7 @@ class AuxResults:
             suffix = "excl"
 
         # Init a default kwargs dict for the HistogramPlot
-        histo_plot_kwargs = {
+        histo_plot_kwargs: dict[str, Any] = {
             "ylabel": "Normalised number of vertices",
             "atlas_first_tag": self.atlas_first_tag,
             "atlas_second_tag": self.atlas_second_tag + f"\n{vertexing_text} vertexing",
@@ -515,7 +516,7 @@ class AuxResults:
             histo_plot_kwargs.update(kwargs)
 
         # Remove the kwargs that need to go to the Histogram objects
-        histo_kwargs = {"bins": 40, "bins_range": mass_range}
+        histo_kwargs: dict[str, Any] = {"bins": 40, "bins_range": mass_range}
         for iter_kwarg in list(histo_plot_kwargs):
             if iter_kwarg in {
                 "bins",

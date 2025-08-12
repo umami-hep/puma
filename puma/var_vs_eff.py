@@ -226,7 +226,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
                     ) = (None, None)
 
         # Set inverse_cut back to false
-        self.inverse_cut = None
+        self.inverse_cut = False
 
     def _set_bin_edges(self, bins: int | list | np.ndarray):
         """Calculate bin edges, centres and width and save them as class variables.

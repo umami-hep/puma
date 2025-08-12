@@ -99,14 +99,14 @@ def initialise_logger(
     logger
         logger object with new level set
     """
-    log_level = get_log_level(
+    int_log_level = get_log_level(
         os.environ.get("LOG_LEVEL", "INFO") if log_level is None else log_level
     )
 
     puma_logger = logging.getLogger("puma")
-    puma_logger.setLevel(log_level)
+    puma_logger.setLevel(int_log_level)
     ch_handler = logging.StreamHandler()
-    ch_handler.setLevel(log_level)
+    ch_handler.setLevel(int_log_level)
     ch_handler.setFormatter(CustomFormatter())
 
     puma_logger.addHandler(ch_handler)
@@ -115,7 +115,7 @@ def initialise_logger(
 
 
 def set_log_level(
-    puma_logger,
+    puma_logger: logging.Logger,
     log_level: str,
 ):
     """Setting log level.

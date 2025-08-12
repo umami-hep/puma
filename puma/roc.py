@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -63,7 +63,7 @@ def adjust_ylabels(fig, axes, min_distance=1) -> None:
 class Roc(PlotLineObject):
     """Represent a single ROC curve and allows to calculate ratio w.r.t other ROCs."""
 
-    _ARRAY_FIELDS: ClassVar[str] = {
+    _ARRAY_FIELDS: ClassVar[set[str]] = {
         "sig_eff",
         "bkg_rej",
     }
@@ -269,7 +269,7 @@ class RocPlot(PlotBase):
         self.rej_class_ls: dict[str, str] = {}
         self.label_colours: dict[str, str] = {}
         self.leg_rej_labels: dict[str, str] = {}
-        self.reference_roc = None
+        self.reference_roc: dict[Label, dict[str, str]] = {}
         self.initialise_figure()
         self.fig.get_layout_engine().set(h_pad=0, hspace=0)
         self.eff_min, self.eff_max = (1, 0)
@@ -282,7 +282,7 @@ class RocPlot(PlotBase):
         roc_curve: Roc,
         key: str | None = None,
         reference: bool = False,
-    ):
+    ) -> None:
         """Adding puma.Roc object to figure.
 
         Parameters
@@ -299,8 +299,8 @@ class RocPlot(PlotBase):
         KeyError
             If unique identifier key is used twice
         """
-        if key is None:
-            key = len(self.rocs) + 1
+        key = cast(str, key if key is not None else f"{len(self.rocs) + 1}")
+
         if key in self.rocs:
             raise KeyError(f"Duplicated key {key} already used for roc unique identifier.")
 
@@ -345,14 +345,18 @@ class RocPlot(PlotBase):
 
         if reference:
             logger.debug("Setting roc %s as reference for %s.", key, roc_curve.rej_class)
-            self.set_roc_reference(key, roc_curve.rej_class, roc_curve.ratio_group)
+            self.set_roc_reference(
+                key=key,
+                rej_class=roc_curve.rej_class,
+                ratio_group=roc_curve.ratio_group,
+            )
             self.reference_label = roc_curve.label
 
     def set_roc_reference(
         self,
         key: str,
         rej_class: Label,
-        ratio_group: str | None = None,
+        ratio_group: str,
     ):
         """Setting the reference roc curves used in the ratios.
 
@@ -363,18 +367,15 @@ class RocPlot(PlotBase):
         rej_class : str
             Rejection class encoded in roc curve
         ratio_group : str
-            Ratio group this roc is reference for, by default None
+            Ratio group this roc is reference for
 
         Raises
         ------
         ValueError
             If more rejection classes are set than actual ratio panels available.
         """
-        if self.reference_roc is None:
-            self.reference_roc = {}
-            self.reference_roc[rej_class] = {ratio_group: key}
-        elif rej_class not in self.reference_roc:
-            if len(self.reference_roc) >= self.n_ratio_panels:
+        if rej_class not in self.reference_roc:
+            if len(self.reference_roc) > self.n_ratio_panels:
                 raise ValueError(
                     "You cannot set more rejection classes than available ratio panels."
                 )

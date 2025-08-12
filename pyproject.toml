@@ -48,4 +48,4 @@ convention = "numpy" # Accepts: "google", "numpy", or "pep257".
 
 [tool.mypy]
 ignore_missing_imports = "True"
-disable_error_code = ["assignment", "index", "arg-type", "union-attr", "override", "operator"]
+disable_error_code = ["index", "union-attr", "override", "operator"]

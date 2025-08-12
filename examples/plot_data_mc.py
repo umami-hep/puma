@@ -26,7 +26,7 @@ data_mc_plot.add(
     Histogram(
         mc1,
         bins=40,
-        bins_range=[-2, 2],
+        bins_range=(-2, 2),
         label="MC Process 1",
         norm=False,
     )
@@ -35,7 +35,7 @@ data_mc_plot.add(
     Histogram(
         mc2,
         bins=40,
-        bins_range=[-2, 2],
+        bins_range=(-2, 2),
         label="MC Process 2",
         norm=False,
     )
@@ -46,7 +46,7 @@ data_mc_plot.add(
     Histogram(
         data,
         bins=40,
-        bins_range=[-2, 2],
+        bins_range=(-2, 2),
         label="Data",
         is_data=True,
         colour="k",

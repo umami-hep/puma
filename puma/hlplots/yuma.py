@@ -65,10 +65,10 @@ class YumaConfig:
     taggers: list[str] | list[Tagger] | None = None
 
     timestamp: bool = False
-    base_path: Path = None
+    base_path: Path | None = None
 
     # dict like {roc : [list of roc plots], scan: [list of scan plots], ...}
-    plots: dict[str, list[dict[str, dict[str, str]]]] = field(default_factory=list)
+    plots: dict[str, list[dict[str, dict[str, str]]]] = field(default_factory=dict)
 
     def __post_init__(self):
         """Post init checks of the inputs."""

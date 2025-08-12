@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import matplotlib as mpl
 import numpy as np
@@ -91,7 +91,7 @@ class Line2D(PlotLineObject):
         self.y_values = y_values
 
         # Set key to None. Will be defined when plotting starts
-        self.key = None
+        self.key: str | None = None
 
 
 class Line2DPlot(PlotBase):
@@ -130,7 +130,7 @@ class Line2DPlot(PlotBase):
         curve: Line2D,
         key: str | None = None,
         is_marker: bool = False,
-    ):
+    ) -> None:
         """Adding `puma.Line2D` object to figure.
 
         Parameters
@@ -148,8 +148,7 @@ class Line2DPlot(PlotBase):
             If unique identifier key is used twice
         """
         # If key not defined, set it to a numerical value
-        if key is None:
-            key = len(self.plot_objects) + 1
+        key = cast(str, key if key is not None else f"{len(self.plot_objects) + 1}")
 
         # Check that key is not double used
         if key in self.plot_objects:
@@ -179,7 +178,7 @@ class Line2DPlot(PlotBase):
             curve.is_marker = True
             # Set colour of the marker the same as the last line plotted
             if curve.colour is None:
-                curve.colour = self.plot_objects[len(self.plot_objects)].colour
+                curve.colour = self.plot_objects[f"{len(self.plot_objects)}"].colour
             # Set markerstyle
             if curve.marker is None:
                 curve.marker = get_good_markers()[len(self.plot_objects)]

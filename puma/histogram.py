@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 import matplotlib as mpl
 import numpy as np
@@ -158,11 +158,11 @@ class Histogram(PlotLineObject):
         self.norm = norm
         self.underoverflow = underoverflow
         self.is_data = is_data
-        self.discrete_vals = discrete_vals
+        self.discrete_vals = cast(list, discrete_vals)
 
         # Define the key (like a name) for the Histogram object. Will be set later
         # by the actual histogram plot
-        self.key = None
+        self.key: str | None = None
 
         # Set the label
         label = kwargs["label"] if "label" in kwargs and kwargs["label"] is not None else ""
@@ -333,6 +333,7 @@ class Histogram(PlotLineObject):
             If the number of bins is set to 1 such that no values can be
             distinguished
         """
+        assert self.discrete_vals is not None
         if len(self.bin_edges) > 1:
             if abs(self.bin_edges[1] - self.bin_edges[0]) <= 1:
                 indice = [
@@ -400,7 +401,7 @@ class HistogramPlot(PlotBase):
         self.histtype = histtype
         self.plot_objects: dict[str, Histogram] = {}
         self.add_order: list[str] = []
-        self.reference_object = None
+        self.reference_object: list[str] = []
 
         if self.n_ratio_panels > 1:
             raise ValueError("Not more than one ratio panel supported.")
@@ -411,7 +412,7 @@ class HistogramPlot(PlotBase):
         histogram: Histogram,
         key: str | None = None,
         reference: bool = False,
-    ):
+    ) -> None:
         """Adding histogram object to figure.
 
         Parameters
@@ -429,8 +430,10 @@ class HistogramPlot(PlotBase):
         KeyError
             If unique identifier key is used twice
         """
-        if key is None:
-            key = len(self.plot_objects) + 1
+        # If key not defined, set it to a numerical value
+        key = cast(str, key if key is not None else f"{len(self.plot_objects) + 1}")
+
+        # Check that key is not double used
         if key in self.plot_objects:
             raise KeyError(f"Duplicated key {key} already used for unique identifier.")
 
@@ -476,10 +479,7 @@ class HistogramPlot(PlotBase):
         key : str
             Unique identifier of histogram object
         """
-        if self.reference_object is None:
-            self.reference_object = [key]
-        else:
-            self.reference_object.append(key)
+        self.reference_object.append(key)
         logger.debug("Adding '%s' to reference histogram(s)", key)
 
     def plot(self, **kwargs):
@@ -773,7 +773,7 @@ class HistogramPlot(PlotBase):
                 )
 
             else:
-                if self.reference_object is None:
+                if len(self.reference_object) == 0:
                     raise ValueError("Please specify a reference curve.")
 
                 ratio, ratio_unc = elem.divide(self.get_reference_histo(elem))
