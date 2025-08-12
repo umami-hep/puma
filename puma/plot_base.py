@@ -409,6 +409,8 @@ class PlotObject:
 
         if self.ylabel_ratio is None:
             self.ylabel_ratio = ["Ratio"] * self.n_ratio_panels
+        elif isinstance(self.ylabel_ratio, str):
+            self.ylabel_ratio = [self.ylabel_ratio]
         if len(self.ylabel_ratio) != self.n_ratio_panels:
             raise ValueError(
                 f"You passed `ylabel_ratio` of length {len(self.ylabel_ratio)}, "

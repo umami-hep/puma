@@ -2,10 +2,16 @@
 
 ### [Latest]
 
+- Adding `subtract` Method in `VarVsVar` class [#336](https://github.com/umami-hep/puma/pull/336)
+
+### [v0.4.10](https://github.com/umami-hep/puma/releases/tag/v0.4.10) (2025/08/07)
+
+- Update atlas-ftag-tools Version to v0.2.15 [#335](https://github.com/umami-hep/puma/pull/335)
+- Adding Support for VarVsEff Plots with Fixed Background Rejections [#334](https://github.com/umami-hep/puma/pull/334)
 - Updating Docstrings and skipped pre-commit checks [#332](https://github.com/umami-hep/puma/pull/332)
 - Update Repository Metadata [#331](https://github.com/umami-hep/puma/pull/331)
 
-### [v0.4.9](https://github.com/umami-hep/puma/releases/tag/v0.4.8) (2025/07/02)
+### [v0.4.9](https://github.com/umami-hep/puma/releases/tag/v0.4.9) (2025/07/02)
 
 - Updating atlas-ftag-tools to v0.2.14 [#330](https://github.com/umami-hep/puma/pull/330)
 

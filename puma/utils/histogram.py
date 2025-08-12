@@ -210,8 +210,9 @@ def hist_ratio(
     method : str
         Selects the method by which the ratio should be calculated.
         "divide" calculates the ratio as the division of the numerator by the denominator.
-        "root_square_diff" calculates the Root Square Difference
-        between the numerator and the denominator.
+        "root_square_diff" calculates the Root Square Difference between the numerator and the
+        denominator.
+        "subtract" calculates the difference between the numerator and the denominator
         by default "divide"
 
 
@@ -254,6 +255,9 @@ def hist_ratio(
             np.sqrt(np.abs(numerator**2 - denominator**2)),
             where=(numerator - denominator != 0),
         )
+    elif method == "subtract":
+        step_ratio = np.subtract(numerator, denominator)
+        step_unc = numerator_unc
     else:
         raise ValueError("'method' can only be 'divide' or 'root_square_diff'.")
 

@@ -89,6 +89,17 @@ class VarVsVarTestCase(unittest.TestCase):
         )
         np.testing.assert_array_almost_equal(var_plot.divide(var_plot)[0], np.ones(20))
 
+    def test_var_vs_var_divide_subtract(self):
+        """Test VarVsVar divide but with subtract."""
+        var_plot = VarVsVar(
+            x_var=self.x_var,
+            y_var_mean=self.y_var_mean,
+            y_var_std=self.y_var_std,
+        )
+        np.testing.assert_array_almost_equal(
+            var_plot.divide(var_plot, method="subtract")[0], np.zeros(20)
+        )
+
     def test_var_vs_var_divide_different_shapes(self):
         """Test var_vs_eff divide."""
         var_plot = VarVsVar(
@@ -330,6 +341,40 @@ class VarVsVarPlotTestCase(unittest.TestCase):
         test_plot.draw()
 
         name = "test_var_vs_var.png"
+        test_plot.savefig(f"{self.actual_plots_dir}/{name}")
+        # Uncomment line below to update expected image
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
+        self.assertEqual(
+            None,
+            compare_images(
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
+                tol=5,
+            ),
+        )
+
+    def test_output_plot_subtract(self):
+        """Test output plot with the subtract method."""
+        # define the curves
+
+        test_plot = VarVsVarPlot(
+            ylabel=r"$\overline{N}_{trk}$",
+            xlabel=r"$p_{T}$ [GeV]",
+            grid=True,
+            logy=False,
+            atlas_second_tag="Unit test plot based on exponential decay.",
+            n_ratio_panels=1,
+            figsize=(9, 6),
+            ratio_method="subtract",
+            ylabel_ratio="Difference",
+        )
+        test_plot.add(self.test, reference=True)
+        test_plot.add(self.test_2, reference=False)
+
+        test_plot.draw_hline(4)
+        test_plot.draw()
+
+        name = "test_var_vs_var_subtracted.png"
         test_plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
         # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
