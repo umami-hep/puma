@@ -358,3 +358,26 @@ plot_bkg_rej.draw()
 
 # Save the plot as png
 plot_bkg_rej.savefig("pt_light_rej_rej_100_per_bin.png")
+
+# Another nice feature for efficiencies where the rejection is fixed, is to show the absolute
+# difference. This can be done with the ratio_method "subtract"
+plot_sig_eff = VarVsEffPlot(
+    mode="sig_eff",
+    ylabel="$b$-jets efficiency",
+    xlabel=r"$p_{T}$ [GeV]",
+    logy=False,
+    atlas_second_tag="$\\sqrt{s}=13$ TeV, dummy jets, \ndummy sample, $f_{c}=0.018$",
+    n_ratio_panels=1,
+    ratio_method="subtract",
+    ylabel_ratio="Difference",
+)
+
+# Adding now the two already-defined curves and set RNNIP to be the reference
+plot_sig_eff.add(rnnip_light, reference=True)
+plot_sig_eff.add(dips_light)
+
+# Draw the actual curves in the plot object
+plot_sig_eff.draw()
+
+# Save the plot as png
+plot_sig_eff.savefig("pt_light_rej_rej_100_per_bin_subtracted.png")

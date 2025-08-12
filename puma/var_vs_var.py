@@ -137,22 +137,29 @@ class VarVsVar(PlotLineObject):
             )
         return False
 
-    def divide(self, other, inverse: bool = False, method: str = "divide"):
+    def divide(
+        self,
+        other: VarVsVar,
+        inverse: bool = False,
+        method: str = "divide",
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Calculate ratio between two class objects.
 
         Parameters
         ----------
-        other : VarVsVar class
+        other : VarVsVar
             Second VarVsVar object to calculate ratio with
-        inverse : bool
+        inverse : bool, optional
             If False the ratio is calculated `this / other`,
-            if True the inverse is calculated
+            if True the inverse is calculated. By default False.
+        method : str, optional
+            Define which method is used for ratio calculation. By default "divide".
+            Other possibility is "root_square_diff" and "subtract".
 
         Returns
         -------
-        np.ndarray
-            Ratio
-        np.ndarray
+        tuple[np.ndarray, np.ndarray]
+            Ratio and ratio error
             Ratio error
 
         Raises
@@ -160,11 +167,15 @@ class VarVsVar(PlotLineObject):
         ValueError
             If binning is not identical between 2 objects
         """
+        # Check that both x variables match
         if not np.array_equal(self.x_var, other.x_var):
             raise ValueError("The x variables of the two given objects do not match.")
+
+        # Get the nominator/denominator + uncertainty
         nom, nom_err = self.y_var_mean, self.y_var_std
         denom, denom_err = other.y_var_mean, other.y_var_std
 
+        # Calculate the ratio/difference between the the actual and other VarVsVar object
         ratio, ratio_err = hist_ratio(
             numerator=denom if inverse else nom,
             denominator=nom if inverse else denom,
@@ -186,7 +197,8 @@ class VarVsVarPlot(PlotBase):
         grid : bool, optional
             Set the grid for the plots.
         ratio_method:
-            Method for ratio calculations. Accepted values: "divide", "root_square_diff".
+            Method for ratio calculations. Accepted values: "divide", "root_square_diff",
+            "subtract".
         **kwargs : kwargs
             Keyword arguments from `puma.PlotObject`
 
