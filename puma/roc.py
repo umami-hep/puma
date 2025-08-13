@@ -267,7 +267,7 @@ class RocPlot(PlotBase):
         self.roc_ratios: dict[str, tuple] = {}
         self.rej_axes: dict[str, Axes] = {}
         self.rej_class_ls: dict[str, str] = {}
-        self.label_colours: dict[str, str] = {}
+        self.label_colours: dict[Any, str] = {}
         self.leg_rej_labels: dict[str, str] = {}
         self.reference_roc: dict[Label, dict[str, str]] = {}
         self.initialise_figure()

@@ -49,7 +49,7 @@ class IntegratedEfficiency(PlotLineObject):
         self.disc_sig = np.asarray(disc_sig)
         self.disc_bkg = np.asarray(disc_bkg)
         self.n_vals = n_vals
-        self.tagger = tagger
+        self.tagger = cast(str, tagger)
         self.key = key
         self.flavour = Flavours[flavour] if isinstance(flavour, str) else flavour
         if self.label is None and self.flavour is not None:
@@ -131,6 +131,7 @@ class IntegratedEfficiencyPlot(PlotBase):
             int_eff.linestyle = self.tagger_ls[int_eff.tagger]
 
         # set colours
+        assert isinstance(int_eff.label, str)
         if int_eff.label not in self.label_colours:
             if int_eff.flavour is not None:
                 self.label_colours[int_eff.label] = int_eff.flavour.colour

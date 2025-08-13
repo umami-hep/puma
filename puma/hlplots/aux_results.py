@@ -170,7 +170,7 @@ class AuxResults:
         if cuts:
             idx, data = cuts(data)
             aux_data = aux_data[idx]
-            if perf_vars is not None:
+            if isinstance(perf_vars, dict):
                 for name, array in perf_vars.items():
                     perf_vars[name] = array[idx]
 
@@ -184,11 +184,13 @@ class AuxResults:
             if tagger.cuts:
                 idx, sel_data = tagger.cuts(data)
                 sel_aux_data = aux_data[idx]
-                if perf_vars is not None:
+                if isinstance(sel_perf_vars, dict):
                     for name, array in sel_perf_vars.items():
                         sel_perf_vars[name] = array[idx]
 
             # attach data to tagger objects
+            assert isinstance(tagger.aux_scores, dict)
+            assert isinstance(tagger.aux_labels, dict)
             tagger.labels = np.array(sel_data[label_var], dtype=[(label_var, "i4")])
             for task in tagger.aux_tasks:
                 tagger.aux_scores[task] = sel_aux_data[tagger.aux_variables[task]]

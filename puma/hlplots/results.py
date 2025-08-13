@@ -390,8 +390,7 @@ class Results:
                 # Add the probability output of the given tagger for each flavour
                 for flav_class in flavours:
                     # Check if tagger.prob_path is already a dict or not
-                    if tagger.prob_path is None:
-                        tagger.prob_path = {}
+                    tagger.prob_path = tagger.prob_path or {}
 
                     # Add the path to the dict
                     tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"] = (
@@ -462,6 +461,9 @@ class Results:
 
                 # Add the probability output of the given tagger for each flavour
                 for flav_prob in flavours:
+                    # Check if tagger.prob_path is already a dict or not
+                    tagger.prob_path = tagger.prob_path or {}
+
                     # Add the path to the dict
                     tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"] = (
                         self.output_directory(plot_type="prob")
@@ -875,6 +877,9 @@ class Results:
             discs = tagger.discriminant(self.signal)
             is_signal = tagger.is_flav(self.signal)
 
+            # Ensure that tagger.perf_vars is a dict
+            assert isinstance(tagger.perf_vars, dict)
+
             # Assure that the variable is in the data for the given tagger
             assert perf_var in tagger.perf_vars, f"{perf_var} not in tagger {tagger.name} data!"
 
@@ -1028,12 +1033,15 @@ class Results:
             discs = tagger.discriminant(self.signal)
             is_signal = tagger.is_flav(self.signal)
 
+            # Ensure that tagger.perf_vars is a dict
+            assert isinstance(tagger.perf_vars, dict)
+
+            # Check that variable is present in tagger data
+            assert perf_var in tagger.perf_vars, f"{perf_var} not in tagger {tagger.name} data!"
+
             # Loop over the backgrounds
             for counter, bkg in enumerate(backgrounds):
                 is_bkg = tagger.is_flav(bkg)
-
-                # Check that variable is present in tagger data
-                assert perf_var in tagger.perf_vars, f"{perf_var} not in tagger {tagger.name} data!"
 
                 # We want x bins to all have the same background rejection, so we
                 # select the plot mode as 'bkg_eff', and then treat the signal as

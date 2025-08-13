@@ -876,6 +876,7 @@ class HistogramPlot(PlotBase):
         self.set_ylabel(self.axis_top)
 
         if self.n_ratio_panels > 0:
+            assert isinstance(self.ylabel_ratio, list)
             self.set_ylabel(
                 self.ratio_axes[0],
                 self.ylabel_ratio[0],

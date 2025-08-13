@@ -253,6 +253,10 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             self.bin_edges = np.linspace(xmin, xmax, bins + 1)
         elif isinstance(bins, (list, np.ndarray)):
             self.bin_edges = np.array(bins)
+
+        # Check that the bin edges are now an array
+        assert isinstance(self.bin_edges, np.ndarray)
+
         logger.debug(f"Retrieved bin edges: {self.bin_edges}")
         # Get the bins for the histogram
         self.x_bin_centres = (self.bin_edges[:-1] + self.bin_edges[1:]) / 2.0
