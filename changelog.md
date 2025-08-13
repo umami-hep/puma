@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Reneable `mypy` [#333](https://github.com/umami-hep/puma/pull/333)
 - Adding `subtract` Method in `VarVsVar` class [#336](https://github.com/umami-hep/puma/pull/336)
 
 ### [v0.4.10](https://github.com/umami-hep/puma/releases/tag/v0.4.10) (2025/08/07)
