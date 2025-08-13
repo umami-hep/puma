@@ -1,36 +1,43 @@
 """Module for usefule tools in puma."""
 
-# flake8: noqa
+from __future__ import annotations
 
-import numpy as np
-import pandas as pd
 from palettable.colorbrewer.qualitative import Dark2_8
 
 from puma.utils.aux import get_aux_labels
 from puma.utils.generate import (
     get_dummy_2_taggers,
-    get_dummy_tagger_aux,
     get_dummy_multiclass_scores,
+    get_dummy_tagger_aux,
 )
-from puma.utils.logging import logger, set_log_level
+from puma.utils.logger import logger, set_log_level
+
+__all__ = [
+    "get_aux_labels",
+    "get_dummy_2_taggers",
+    "get_dummy_multiclass_scores",
+    "get_dummy_tagger_aux",
+    "logger",
+    "set_log_level",
+]
 
 
 def set_xaxis_ticklabels_invisible(ax):
-    """Helper function to set the ticklabels of the xaxis invisible
+    """Helper function to set the ticklabels of the xaxis invisible.
 
     Parameters
     ----------
     ax : matplotlib.axes.Axes
         Axis you want to modify
     """
-
     for label in ax.get_xticklabels():
         label.set_visible(False)
 
 
 def get_good_pie_colours(colour_scheme=None):
-    """Helper function to get good colours for a pie chart. You can
-    choose between a specific colour scheme or use the default colours
+    """Helper function to get good colours for a pie chart.
+
+    You can choose between a specific colour scheme or use the default colours
     for a pie chart
 
     Parameters
@@ -108,8 +115,8 @@ def get_good_pie_colours(colour_scheme=None):
     )
 
 
-def get_good_colours(colour_scheme: str | None = None):
-    """List of colours adequate for plotting
+def get_good_colours(colour_scheme: str | None = None) -> list:
+    """List of colours adequate for plotting.
 
     Parameters
     ----------
@@ -120,8 +127,12 @@ def get_good_colours(colour_scheme: str | None = None):
     -------
     list
         list with colours
-    """
 
+    Raises
+    ------
+    ValueError
+        If the given colour scheme is not supported
+    """
     # If no colour scheme is selected, return colour-blind friendly colours
     # See https://arxiv.org/pdf/2107.02270 Page 15 (10 colours)
     if colour_scheme is None:
@@ -136,14 +147,17 @@ def get_good_colours(colour_scheme: str | None = None):
             "#b9ac70",
             "#717581",
             "#92dadd",
-        ] + Dark2_8.mpl_colors
+            *Dark2_8.mpl_colors,
+        ]
 
-    elif colour_scheme == "Dark2_8":
+    if colour_scheme == "Dark2_8":
         return Dark2_8.mpl_colors
+
+    raise ValueError("Given colour_scheme is not supported!")
 
 
 def get_good_markers():
-    """List of markers adequate for plotting
+    """List of markers adequate for plotting.
 
     Returns
     -------
@@ -162,7 +176,7 @@ def get_good_markers():
 
 
 def get_good_linestyles(names=None):
-    """Returns a list of good linestyles
+    """Returns a list of good linestyles.
 
     Parameters
     ----------

@@ -83,6 +83,8 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             Using disc_cut and working_point together
         ValueError
             disc_cut (if an array) has a different length than the number of bins given
+        TypeError
+            If "working_point" is neither a list nor a float
         """
         if len(x_var_sig) != len(disc_sig):
             raise ValueError(
@@ -199,7 +201,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         )
 
         # Calculate all efficiencies/rejections possible to make them easily available and storable
-        self.results = {"normal": {}, "inverse": {}}
+        self.results: dict[str, dict] = {"normal": {}, "inverse": {}}
 
         # Iterate over inverse and normal setup
         for iter_key in self.results:
@@ -224,7 +226,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
                     ) = (None, None)
 
         # Set inverse_cut back to false
-        self.inverse_cut = None
+        self.inverse_cut = False
 
     def _set_bin_edges(self, bins: int | list | np.ndarray):
         """Calculate bin edges, centres and width and save them as class variables.
@@ -251,11 +253,15 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             self.bin_edges = np.linspace(xmin, xmax, bins + 1)
         elif isinstance(bins, (list, np.ndarray)):
             self.bin_edges = np.array(bins)
+
+        # Check that the bin edges are now an array
+        assert isinstance(self.bin_edges, np.ndarray)
+
         logger.debug(f"Retrieved bin edges: {self.bin_edges}")
         # Get the bins for the histogram
         self.x_bin_centres = (self.bin_edges[:-1] + self.bin_edges[1:]) / 2.0
         self.bin_widths = (self.bin_edges[1:] - self.bin_edges[:-1]) / 2.0
-        self.n_bins = self.bin_edges.size - 1
+        self.n_bins = self.bin_edges.size - 1  # type: ignore[attr-defined]
         logger.debug(f"N bins: {self.n_bins}")
 
     def _apply_binning(self):
@@ -329,6 +335,11 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             Efficiency
         float
             Efficiency error
+
+        Raises
+        ------
+        TypeError
+            If the cut parameter type is not supported
         """
         if len(arr) == 0:
             return 0, 0
@@ -363,6 +374,11 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             Rejection
         float
             Rejection error
+
+        Raises
+        ------
+        TypeError
+            If the cut parameter type is not supported
         """
         if self.inverse_cut:
             rej = save_divide(len(arr), sum(arr < cut), default=np.inf)

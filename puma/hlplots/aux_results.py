@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 from ftag import Cuts, Flavours, Label
@@ -27,11 +28,11 @@ class AuxResults:
 
     sample: str
     atlas_first_tag: str = "Simulation Internal"
-    atlas_second_tag: str = None
-    atlas_third_tag: str = None
+    atlas_second_tag: str | None = None
+    atlas_third_tag: str | None = None
     taggers: dict = field(default_factory=dict)
     perf_vars: str | tuple | list = "pt"
-    aux_perf_vars: str | tuple | list = None
+    aux_perf_vars: str | tuple | list | None = None
     output_dir: str | Path = "."
     extension: str = "pdf"
     global_cuts: Cuts | list | None = None
@@ -113,6 +114,16 @@ class AuxResults:
             ----------
             data : ndarray
                 Data to filter
+
+            Returns
+            -------
+            np.ndarray
+                The data without NaNs
+
+            Raises
+            ------
+            ValueError
+                If NaN values were found in the loaded data and the removal is off
             """
             mask = np.ones(len(data), dtype=bool)
             for name in data.dtype.names:
@@ -159,7 +170,7 @@ class AuxResults:
         if cuts:
             idx, data = cuts(data)
             aux_data = aux_data[idx]
-            if perf_vars is not None:
+            if isinstance(perf_vars, dict):
                 for name, array in perf_vars.items():
                     perf_vars[name] = array[idx]
 
@@ -173,11 +184,13 @@ class AuxResults:
             if tagger.cuts:
                 idx, sel_data = tagger.cuts(data)
                 sel_aux_data = aux_data[idx]
-                if perf_vars is not None:
+                if isinstance(sel_perf_vars, dict):
                     for name, array in sel_perf_vars.items():
                         sel_perf_vars[name] = array[idx]
 
             # attach data to tagger objects
+            assert isinstance(tagger.aux_scores, dict)
+            assert isinstance(tagger.aux_labels, dict)
             tagger.labels = np.array(sel_data[label_var], dtype=[(label_var, "i4")])
             for task in tagger.aux_tasks:
                 tagger.aux_scores[task] = sel_aux_data[tagger.aux_variables[task]]
@@ -300,7 +313,7 @@ class AuxResults:
         purity_req = round(vertex_match_requirement["purity_req"] * 100, 1)
         vtx_match_str = rf"Recall $\geq {eff_req}\%$, Purity $\geq {purity_req}\%$"
         vtx_string = "\nInclusive vertexing" if incl_vertexing else "\nExclusive vertexing"
-        atlas_second_tag = self.atlas_second_tag if self.atlas_second_tag else ""
+        atlas_second_tag = self.atlas_second_tag or ""
         atlas_second_tag += vtx_string
 
         # calculate vertexing information for each tagger
@@ -490,7 +503,7 @@ class AuxResults:
             suffix = "excl"
 
         # Init a default kwargs dict for the HistogramPlot
-        histo_plot_kwargs = {
+        histo_plot_kwargs: dict[str, Any] = {
             "ylabel": "Normalised number of vertices",
             "atlas_first_tag": self.atlas_first_tag,
             "atlas_second_tag": self.atlas_second_tag + f"\n{vertexing_text} vertexing",
@@ -505,7 +518,7 @@ class AuxResults:
             histo_plot_kwargs.update(kwargs)
 
         # Remove the kwargs that need to go to the Histogram objects
-        histo_kwargs = {"bins": 40, "bins_range": mass_range}
+        histo_kwargs: dict[str, Any] = {"bins": 40, "bins_range": mass_range}
         for iter_kwarg in list(histo_plot_kwargs):
             if iter_kwarg in {
                 "bins",

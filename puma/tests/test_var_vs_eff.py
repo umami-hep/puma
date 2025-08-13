@@ -15,7 +15,7 @@ from ftag import Flavours
 from matplotlib.testing.compare import compare_images
 
 from puma import VarVsEff, VarVsEffPlot
-from puma.utils.logging import logger, set_log_level
+from puma.utils.logger import logger, set_log_level
 
 set_log_level(logger, "DEBUG")
 
@@ -499,9 +499,15 @@ class VarVsEffIOTestCase(unittest.TestCase):
     # ------------------------------------------------------------------
     @staticmethod
     def _make_curve() -> VarVsEff:
-        """
+        """Create a VarVsEff object.
+
         Create a small VarVsEff with four bins and a single working
-        point.  The numbers are fixed so failures are reproducible.
+        point. The numbers are fixed so failures are reproducible.
+
+        Returns
+        -------
+        VarVsEff
+            Object with four bins and a signle working point
         """
         return VarVsEff(
             x_var_sig=np.linspace(0.0, 1.0, 20),

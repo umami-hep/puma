@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 from ftag import Cuts, Flavours, Label
@@ -34,10 +35,10 @@ class Results:
     signal: Label | str
     sample: str
     category: str = "single-btag"
-    atlas_first_tag: str = "Simulation Internal"
-    atlas_second_tag: str = None
-    atlas_third_tag: str = None
-    taggers: dict = field(default_factory=dict)
+    atlas_first_tag: str | None = "Simulation Internal"
+    atlas_second_tag: str | None = None
+    atlas_third_tag: str | None = None
+    taggers: dict[str, Tagger] = field(default_factory=dict)
     perf_vars: str | tuple | list = "pt"
     output_dir: str | Path = "."
     extension: str = "pdf"
@@ -72,11 +73,6 @@ class Results:
         ----------
         signal : Flavour
             Flavour which is the signal
-
-        Raises
-        ------
-        ValueError
-            If the signal class is not supported
         """
         if isinstance(signal, str):
             signal = Flavours[signal]
@@ -350,7 +346,7 @@ class Results:
         ]
 
         # Init a default kwargs dict for the HistogramPlot
-        histo_plot_kwargs = {
+        histo_plot_kwargs: dict[str, Any] = {
             "ylabel": "Normalised number of jets",
             "figsize": (7.0, 4.5),
             "n_ratio_panels": 1,
@@ -363,7 +359,7 @@ class Results:
             histo_plot_kwargs.update(kwargs)
 
         # Remove the kwargs that need to go to the Histogram objects
-        histo_kwargs = {"bins": 40, "bins_range": (0, 1)}
+        histo_kwargs: dict[str, Any] = {"bins": 40, "bins_range": (0, 1)}
         for iter_kwarg in list(histo_plot_kwargs):
             if iter_kwarg in {
                 "bins",
@@ -389,13 +385,12 @@ class Results:
             # Loop over the taggers
             for counter, tagger in enumerate(self.taggers.values()):
                 # Append labels if existing else the name
-                tagger_labels.append(tagger.label if tagger.label else tagger.name)
+                tagger_labels.append(tagger.label or tagger.name)
 
                 # Add the probability output of the given tagger for each flavour
                 for flav_class in flavours:
                     # Check if tagger.prob_path is already a dict or not
-                    if tagger.prob_path is None:
-                        tagger.prob_path = {}
+                    tagger.prob_path = tagger.prob_path or {}
 
                     # Add the path to the dict
                     tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"] = (
@@ -462,10 +457,13 @@ class Results:
             # Loop over the taggers
             for counter, tagger in enumerate(self.taggers.values()):
                 # Append labels if existing else the name
-                tagger_labels.append(tagger.label if tagger.label else tagger.name)
+                tagger_labels.append(tagger.label or tagger.name)
 
                 # Add the probability output of the given tagger for each flavour
                 for flav_prob in flavours:
+                    # Check if tagger.prob_path is already a dict or not
+                    tagger.prob_path = tagger.prob_path or {}
+
                     # Add the path to the dict
                     tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"] = (
                         self.output_directory(plot_type="prob")
@@ -527,7 +525,7 @@ class Results:
         line_styles = get_good_linestyles()
 
         # Init histo_plot_kwargs
-        histo_plot_kwargs = {
+        histo_plot_kwargs: dict[str, Any] = {
             "n_ratio_panels": 0,
             "xlabel": xlabel,
             "ylabel": "Normalised number of jets",
@@ -541,7 +539,7 @@ class Results:
             histo_plot_kwargs.update(kwargs)
 
         # Remove the kwargs that need to go to the Histogram objects
-        histo_kwargs = {"bins": 40}
+        histo_kwargs: dict[str, Any] = {"bins": 40}
         for iter_kwarg in list(histo_plot_kwargs):
             if iter_kwarg in {
                 "bins",
@@ -625,7 +623,7 @@ class Results:
                     hist.add(histogram=histo_object, reference=tagger.reference)
 
             # Add the tagger label or name to the label list
-            tagger_labels.append(tagger.label if tagger.label else tagger.name)
+            tagger_labels.append(tagger.label or tagger.name)
 
         # Finalise the plot and draw it
         hist.draw()
@@ -767,7 +765,7 @@ class Results:
         xlabel: str = r"$p_{\mathrm{T}}$ [GeV]",
         perf_var: str = "pt",
         h_line: float | None = None,
-        working_point: float | None = None,
+        working_point: float | list | None = None,
         disc_cut: float | None = None,
         fixed_rejections: dict[Label, float] | None = None,
         **kwargs,
@@ -798,6 +796,12 @@ class Results:
             out of [working_point, disc_cut, fixed_rejections] can be set
         **kwargs : kwargs
             key word arguments for `puma.VarVsEff`
+
+        Raises
+        ------
+        ValueError
+            If more than one of working_point, disc_cut, or fixed_rejections is set
+            If neither working_point nor disc_cut is set
         """
         # Check correct setting of working_point, disc_cut and fixed_rejections
         if sum([bool(working_point), bool(disc_cut), bool(fixed_rejections)]) > 1:
@@ -817,7 +821,7 @@ class Results:
             return
 
         # Split the kwargs according to if they are used for the plot or the curve
-        var_perf_plot_kwargs = {
+        var_perf_plot_kwargs: dict[str, Any] = {
             "xlabel": xlabel,
             "n_ratio_panels": 1,
             "atlas_first_tag": self.atlas_first_tag,
@@ -872,6 +876,9 @@ class Results:
             # Load the discriminant values and check if
             discs = tagger.discriminant(self.signal)
             is_signal = tagger.is_flav(self.signal)
+
+            # Ensure that tagger.perf_vars is a dict
+            assert isinstance(tagger.perf_vars, dict)
 
             # Assure that the variable is in the data for the given tagger
             assert perf_var in tagger.perf_vars, f"{perf_var} not in tagger {tagger.name} data!"
@@ -962,6 +969,13 @@ class Results:
             draws a horizonatal line in the signal efficiency plot
         **kwargs : kwargs
             key word arguments for `puma.VarVsEff`
+
+        Raises
+        ------
+        ValueError
+            If invalid background flavours are given
+            If disc_cut is set when executing this plot
+            If working_point is set when executing this plot
         """
         # Check for invalid inputs
         if inv_bkg := set(fixed_rejections.keys()) - {str(b) for b in self.backgrounds}:
@@ -972,7 +986,7 @@ class Results:
             raise ValueError("working_point should not be set for this plot")
 
         # Split the kwargs according to if they are used for the plot or the curve
-        var_perf_plot_kwargs = {
+        var_perf_plot_kwargs: dict[str, Any] = {
             "xlabel": r"$p_{\mathrm{T}}$ [GeV]",
             "n_ratio_panels": 1,
             "atlas_first_tag": self.atlas_first_tag,
@@ -1019,12 +1033,15 @@ class Results:
             discs = tagger.discriminant(self.signal)
             is_signal = tagger.is_flav(self.signal)
 
+            # Ensure that tagger.perf_vars is a dict
+            assert isinstance(tagger.perf_vars, dict)
+
+            # Check that variable is present in tagger data
+            assert perf_var in tagger.perf_vars, f"{perf_var} not in tagger {tagger.name} data!"
+
             # Loop over the backgrounds
             for counter, bkg in enumerate(backgrounds):
                 is_bkg = tagger.is_flav(bkg)
-
-                # Check that variable is present in tagger data
-                assert perf_var in tagger.perf_vars, f"{perf_var} not in tagger {tagger.name} data!"
 
                 # We want x bins to all have the same background rejection, so we
                 # select the plot mode as 'bkg_eff', and then treat the signal as
@@ -1085,6 +1102,11 @@ class Results:
             List of background flavours, by default None, will use self.backgrounds
         **kwargs
             Keyword arguments for `puma.Line2DPlot
+
+        Raises
+        ------
+        ValueError
+            If more than two background flavours are given
         """
         # Get the background flavours in a list
         backgrounds = [Flavours[b] for b in backgrounds_to_plot]
@@ -1173,7 +1195,7 @@ class Results:
                         f"(${backgrounds[0].frac_str}={tagger_fx:.3f}$, "
                         f"${backgrounds[1].frac_str}={1 - tagger_fx:.3f}$)"
                     ),
-                    colour=tagger.colour if tagger.colour else colours[counter],
+                    colour=tagger.colour or colours[counter],
                 )
             )
 
@@ -1236,6 +1258,11 @@ class Results:
             Type of plot
         kwargs : dict
             Keyword arguments for the plot
+
+        Raises
+        ------
+        ValueError
+            If an unknown plot type is given
         """
         if plot_type not in self.plot_funcs:
             raise ValueError(f"Unknown plot type {plot_type}, choose from {self.plot_funcs.keys()}")
