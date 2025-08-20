@@ -20,11 +20,13 @@ histo = Histogram(
 )
 histo.save("test_histo.yaml")
 
+# Create the HistogramPlot and add the still-loaded Histogram object
 plot = HistogramPlot()
 plot.add(histo)
 plot.draw()
 plot.savefig("fresh_histogram.png")
 
+# Load the Histogram and create a new plot with it
 loaded_histo = Histogram.load("test_histo.yaml")
 loaded_histo_plot = HistogramPlot()
 loaded_histo_plot.add(loaded_histo)

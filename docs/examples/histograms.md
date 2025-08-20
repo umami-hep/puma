@@ -2,7 +2,7 @@
 
 The following examples use the dummy data which is described [here](./dummy_data.md)
 
-## _b_-tagging discriminant plot
+## _b_-tagging Discriminant Plot
 
 <img src=https://github.com/umami-hep/puma/raw/examples-material/histogram_discriminant.png width=500>
 
@@ -10,7 +10,7 @@ The following examples use the dummy data which is described [here](./dummy_data
 --8<-- "examples/plot_discriminant_scores.py"
 ```
 
-## Flavour probabilities plot
+## Flavour Probabilities Plot
 
 <img src=https://github.com/umami-hep/puma/raw/examples-material/histogram_bjets_probability.png width=500>
 
@@ -18,7 +18,7 @@ The following examples use the dummy data which is described [here](./dummy_data
 --8<-- "examples/plot_flavour_probabilities.py"
 ```
 
-## More general example
+## More General Example
 
 In most cases you probably want to plot histograms with the different flavours
 like in the examples above.
@@ -31,7 +31,7 @@ could also produce a `MC` vs `data` plot with the following example code:
 --8<-- "examples/plot_basic_histogram.py"
 ```
 
-## Weighted histograms
+## Weighted Histograms
 
 `puma` also supports weighted histograms by specifying the optional argument `weights`.
 An example is given below:
@@ -42,7 +42,7 @@ An example is given below:
 --8<-- "examples/plot_weighted_histograms.py"
 ```
 
-## Underflow/overflow bins
+## Underflow/Overflow Bins
 
 Underflow and overflow bins are enabled by default, but can be deactivated using the
 `underoverflow` attribute of `puma.HistogramPlot`.
@@ -56,7 +56,18 @@ underflow/overflow bins.
 --8<-- "examples/plot_histogram_underoverflow.py"
 ```
 
-## Data/MC histograms
+## Iteratively Filling a Histogram
+
+Sometimes, the amount of data/jets you want to histogram, is too large to fit in your RAM. To avoid issues here,
+you can use the `update()` function of the `Histogram` class.
+
+<img src=https://github.com/umami-hep/puma/raw/examples-material/Iterative_histogram.png width=500>
+
+```py
+--8<-- "examples/plot_iterative_histogram.py"
+```
+
+## Data/MC Histograms
 
 To visualize the agreement of the Monte-Carlo with data, `puma` is also able to produce
 so-called Data/MC histograms. They show the data as a dot histogram while the MC is still
