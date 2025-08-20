@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Adding Iterative Filling for Histogram Class [#337]
 - Reneable `mypy` [#333](https://github.com/umami-hep/puma/pull/333)
 - Adding `subtract` Method in `VarVsVar` class [#336](https://github.com/umami-hep/puma/pull/336)
 
