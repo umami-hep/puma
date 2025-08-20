@@ -162,6 +162,64 @@ class HistogramTestCase(unittest.TestCase):
             "Expected warning not found",
         )
 
+    def test_update_behaviour_without_weights_no_norm(self):
+        """Test the default behaviour of update without weights and no norm."""
+        hist = Histogram(
+            values=[1, 1, 1, 2, 2],
+            bins=np.array([1, 2, 3]),
+            norm=False,
+        )
+        hist.update(values=np.array([2, 2, 2]))
+        np.testing.assert_array_equal(hist.hist, np.array([3, 5]))
+        np.testing.assert_array_almost_equal(hist.unc, np.sqrt(np.array([3, 5])))
+        np.testing.assert_array_almost_equal(
+            hist.band, np.array([3, 5]) - np.sqrt(np.array([3, 5]))
+        )
+
+    def test_update_behaviour_without_weights_with_norm(self):
+        """Test the default behaviour of update without weights and with norm."""
+        hist = Histogram(
+            values=[1, 1, 1, 2, 2],
+            bins=np.array([1, 2, 3]),
+            norm=True,
+        )
+        hist.update(values=np.array([2, 2, 2]))
+        np.testing.assert_array_equal(hist.hist, np.array([0.375, 0.625]))
+        np.testing.assert_array_almost_equal(hist.unc, np.sqrt(np.array([3, 5])) / 8)
+        np.testing.assert_array_almost_equal(
+            hist.band, np.array([0.375, 0.625]) - (np.sqrt(np.array([3, 5])) / 8)
+        )
+
+    def test_update_behaviour_with_weights_no_norm(self):
+        """Test the default behaviour of update with weights and no norm."""
+        hist = Histogram(
+            values=[1, 1, 1, 2, 2],
+            bins=np.array([1, 2, 3]),
+            weights=np.array([2, 3, 1, 1, 10]),
+            norm=False,
+        )
+        hist.update(values=np.array([2, 2, 2]))
+        np.testing.assert_array_equal(hist.hist, np.array([6, 14]))
+        np.testing.assert_array_almost_equal(hist.unc, np.array([3.741657, 10.198039]))
+        np.testing.assert_array_almost_equal(
+            hist.band, np.array([6, 14]) - np.array([3.741657, 10.198039])
+        )
+
+    def test_update_behaviour_with_weights_with_norm(self):
+        """Test the default behaviour of update with weights and with norm."""
+        hist = Histogram(
+            values=[1, 1, 1, 2, 2],
+            bins=np.array([1, 2, 3]),
+            weights=np.array([2, 3, 1, 1, 10]),
+            norm=True,
+        )
+        hist.update(values=np.array([2, 2, 2]))
+        np.testing.assert_array_equal(hist.hist, np.array([0.3, 0.7]))
+        np.testing.assert_array_almost_equal(hist.unc, np.array([0.187083, 0.509902]))
+        np.testing.assert_array_almost_equal(
+            hist.band, np.array([0.3, 0.7]) - np.array([0.187083, 0.509902])
+        )
+
 
 class HistogramIOTestCase(unittest.TestCase):
     """

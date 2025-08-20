@@ -151,8 +151,8 @@ class Histogram(PlotLineObject):
         self.flavour = Flavours[flavour] if isinstance(flavour, str) else flavour
 
         # Set the inputs as attributes
-        self.weights = weights or np.ones_like(values)
-        self.sum_of_weights = float(np.sum(weights))
+        self.weights = weights if weights is not None else np.ones_like(values)
+        self.sum_of_weights = float(np.sum(self.weights))
         self.ratio_group = ratio_group
         self.add_flavour_label = add_flavour_label
         self.histtype = histtype
