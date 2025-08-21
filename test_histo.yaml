@@ -138,6 +138,7 @@ key: null
 label: Gaussian($\mu=0$, $\sigma=1$)
 norm: true
 ratio_group: null
+sum_of_weights: 10000.0
 unc:
   __ndarray__:
   - 0.0007280109889280518
