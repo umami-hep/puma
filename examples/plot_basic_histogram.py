@@ -16,7 +16,7 @@ measurement = np.concatenate((
     rng.normal(loc=2, scale=0.2, size=N_SIG),
 ))
 expectation_hist = Histogram(
-    expectation,
+    values=expectation,
     bins=50,
     bins_range=(1.1, 4),
     norm=False,
@@ -25,7 +25,7 @@ expectation_hist = Histogram(
     alpha=1,
 )
 measurement_hist = Histogram(
-    measurement,
+    values=measurement,
     bins=50,
     bins_range=(1.1, 4),
     norm=False,

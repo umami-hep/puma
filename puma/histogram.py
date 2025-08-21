@@ -126,23 +126,23 @@ class Histogram(PlotLineObject):
         if weights is not None and len(values) != len(weights):
             raise ValueError("`values` and `weights` are not of same length.")
 
-        self.bins = bins
-        self.bins_range = bins_range
-        self.bin_edges = bin_edges
-        self.sum_squared_weights = sum_squared_weights
-        self.kwargs = kwargs
-
-        if self.bin_edges is None and self.sum_squared_weights is not None:
+        if bin_edges is None and sum_squared_weights is not None:
             logger.warning(
                 "The Histogram has no bin edges defined and is thus not considered filled. "
                 "Parameter `sum_squared_weights` is ignored."
             )
 
-        elif self.bin_edges is not None and self.bins is not None:
+        elif bin_edges is not None and bins is not None:
             logger.warning("When bin_edges are provided, bins are not considered!")
 
-        elif self.bin_edges is None and self.bins is None:
+        elif bin_edges is None and bins is None:
             raise ValueError("You need to define either `bins` or `bin_edges`!")
+
+        self.bins = bins
+        self.bins_range = bins_range
+        self.bin_edges = bin_edges
+        self.sum_squared_weights = sum_squared_weights
+        self.kwargs = kwargs
 
         # This attribute allows to know how to histogram it
         self.filled = self.bin_edges is not None
@@ -151,7 +151,8 @@ class Histogram(PlotLineObject):
         self.flavour = Flavours[flavour] if isinstance(flavour, str) else flavour
 
         # Set the inputs as attributes
-        self.weights = weights
+        self.weights = weights if weights is not None else np.ones_like(values)
+        self.sum_of_weights = float(np.sum(self.weights))
         self.ratio_group = ratio_group
         self.add_flavour_label = add_flavour_label
         self.histtype = histtype
@@ -231,8 +232,59 @@ class Histogram(PlotLineObject):
             "label": self.label,
             "norm": self.norm,
             "discrete_vals": self.discrete_vals,
+            "sum_of_weights": self.sum_of_weights,
             **extra_kwargs,
         }
+
+    def update(self, values: np.ndarray, weights: np.ndarray | None = None) -> None:
+        """Update the existing histogram with new values.
+
+        Parameters
+        ----------
+        values : np.ndarray
+            New values that are to be added.
+        weights : np.ndarray | None, optional
+            Weights for each entry in values. Must be the same shape/size as values.
+            If None, each value in values will be weighted the same, by default None
+        """
+        # Replace the weights if None
+        if weights is None:
+            weights = np.ones_like(values)
+
+        # Check that the weights are a np.ndarray
+        assert isinstance(weights, np.ndarray)
+
+        # Call the hist_w_unc function for the new values
+        _, incoming_hist, incoming_unc, _ = hist_w_unc(
+            arr=values,
+            bins=self.bins,
+            filled=self.filled,
+            bins_range=self.bins_range,
+            normed=self.norm,
+            weights=weights,
+            bin_edges=self.bin_edges,
+            sum_squared_weights=self.sum_squared_weights,
+            underoverflow=self.underoverflow,
+        )
+
+        # Get the new sum_of_weights
+        incoming_sum_of_weights = float(np.sum(weights))
+
+        if self.norm:
+            self.hist = (
+                self.hist * self.sum_of_weights + incoming_hist * incoming_sum_of_weights
+            ) / (self.sum_of_weights + incoming_sum_of_weights)
+            self.unc = np.sqrt(
+                (self.unc * self.sum_of_weights) ** 2
+                + (incoming_unc * incoming_sum_of_weights) ** 2
+            ) / (self.sum_of_weights + incoming_sum_of_weights)
+
+        else:
+            self.hist += incoming_hist
+            self.unc = np.sqrt(self.unc**2 + incoming_unc**2)
+
+        self.sum_of_weights += incoming_sum_of_weights
+        self.band = self.hist - self.unc
 
     def divide(self, other):
         """Calculate ratio between two class objects.
