@@ -55,13 +55,19 @@ def separate_kwargs(
     classes_defaults: list[dict[str, Any]] = []
 
     # 1) Gather class defaults (dataclass fields + __init__ params)
-    for cls in classes:
+    for iter_class in classes:
         class_vars: dict[str, Any] = {}
 
-        if is_dataclass(cls):
-            for f in fields(cls):
+        # Check if the class is a dataclass
+        if is_dataclass(iter_class):
+            # If yes, get the attributes from the dataclass
+            for f in fields(iter_class):
+                # If the attribute has a default value, store it
                 if f.default is not MISSING:
                     class_vars[f.name] = f.default
+
+                # If there is an issue with the default value (for example a list)
+                # Store it differently using Callable
                 else:
                     df = getattr(f, "default_factory", MISSING)
                     if df is not MISSING:  # type: ignore[comparison-overlap]
@@ -69,20 +75,30 @@ def separate_kwargs(
                     else:
                         class_vars[f.name] = None  # required: placeholder
 
-        sig = inspect.signature(cls.__init__)
-        for name, p in sig.parameters.items():
+        # Inspect the __init__ function of the class and check for arguments
+        args = inspect.signature(iter_class.__init__)
+
+        # Loop over the arguments and check if they are optional
+        for name, p in args.parameters.items():
+            # Skip self variables and keywords
             if name == "self" or p.kind in {
                 inspect.Parameter.VAR_POSITIONAL,
                 inspect.Parameter.VAR_KEYWORD,
             }:
                 continue
+
+            # If it's an argument from the dataclass, the dataclass get prio
             if name in class_vars:
-                continue  # dataclass field wins
+                continue
+
+            # If it's a proper argument, store the default value
             if p.default is not inspect.Parameter.empty:
                 class_vars[name] = p.default
+
             else:
                 class_vars[name] = None
 
+        # Append the dict with the attributes and arguments to the classes_defaults list
         classes_defaults.append(class_vars)
 
     # 2) Track updated keys (either via provided defaults or kwargs)
@@ -986,6 +1002,10 @@ class Results:
                     curve=VarVsEff(**var_perf_kwargs),
                     reference=tagger.reference,
                 )
+
+                # Remove the bkg variables
+                var_perf_kwargs.pop("x_var_bkg")
+                var_perf_kwargs.pop("disc_bkg")
 
         # Finalise the plot and draw it
         plot_sig_eff.draw()
