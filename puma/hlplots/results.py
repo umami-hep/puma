@@ -413,11 +413,11 @@ class Results:
 
         # group by output probability
         for flav_prob in flavours:
+            # Set xlabel correctly to the flavour probability
+            histo_plot_kwargs["xlabel"] = flav_prob.px
+
             # Create a new histogram plot
-            hist = HistogramPlot(
-                xlabel=flav_prob.px,
-                **histo_plot_kwargs,
-            )
+            hist = HistogramPlot(**histo_plot_kwargs)
 
             # Init a new list for the tagger labels
             tagger_labels = []
@@ -438,16 +438,19 @@ class Results:
                         / f"{tagger.name}_{flav_prob.px}_{flav_class.name}.yaml"
                     )
 
+                    # Add the args for the Histogram to the kwargs, otherwise we
+                    # would provide the args twice
+                    histo_kwargs["path"] = (
+                        tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"],
+                    )
+                    histo_kwargs["ratio_group"] = flav_class
+                    histo_kwargs["label"] = flav_class.label if counter == 0 else None
+                    histo_kwargs["colour"] = flav_class.colour
+                    histo_kwargs["linestyle"] = line_styles[counter]
+
                     # Try to load the Histogram object from file
                     try:
-                        histo_object = Histogram.load(
-                            path=tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"],
-                            ratio_group=flav_class,
-                            label=flav_class.label if counter == 0 else None,
-                            colour=flav_class.colour,
-                            linestyle=line_styles[counter],
-                            **histo_kwargs,
-                        )
+                        histo_object = Histogram.load(**histo_kwargs)
 
                     except FileNotFoundError:
                         logger.warning(
@@ -456,15 +459,12 @@ class Results:
                             "Making from scratch..."
                         )
 
+                        # Pop the path and replace it with values
+                        histo_kwargs.pop("path")
+                        histo_kwargs["values"] = tagger.probs(flav_prob, flav_class)
+
                         # Init the Histogram object
-                        histo_object = Histogram(
-                            values=tagger.probs(flav_prob, flav_class),
-                            ratio_group=flav_class,
-                            label=flav_class.label if counter == 0 else None,
-                            colour=flav_class.colour,
-                            linestyle=line_styles[counter],
-                            **histo_kwargs,
-                        )
+                        histo_object = Histogram(**histo_kwargs)
 
                         # Save the histo object to file
                         histo_object.save(
@@ -485,11 +485,11 @@ class Results:
 
         # group by flavour
         for flav_class in flavours:
+            # Set xlabel correctly to the flavour probability
+            histo_plot_kwargs["xlabel"] = flav_class.label
+
             # Create a new histogram plot
-            hist = HistogramPlot(
-                xlabel=flav_class.label,
-                **histo_plot_kwargs,
-            )
+            hist = HistogramPlot(**histo_plot_kwargs)
 
             # Init a new list for the tagger labels
             tagger_labels = []
@@ -510,16 +510,19 @@ class Results:
                         / f"{tagger.name}_{flav_prob.px}_{flav_class.name}.yaml"
                     )
 
+                    # Add the args for the Histogram to the kwargs, otherwise we
+                    # would provide the args twice
+                    histo_kwargs["path"] = (
+                        tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"],
+                    )
+                    histo_kwargs["ratio_group"] = flav_prob
+                    histo_kwargs["label"] = flav_prob.px if counter == 0 else None
+                    histo_kwargs["colour"] = flav_prob.colour
+                    histo_kwargs["linestyle"] = line_styles[counter]
+
                     # Load Histogram object with probabilites. They must already exist
                     # due to their creation and usage in the previous HistogramPlot
-                    histo_object = Histogram.load(
-                        path=tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"],
-                        ratio_group=flav_prob,
-                        label=flav_prob.px if counter == 0 else None,
-                        colour=flav_prob.colour,
-                        linestyle=line_styles[counter],
-                        **histo_kwargs,
-                    )
+                    histo_object = Histogram.load(**histo_kwargs)
 
                     # Add the histogram loaded from the correct file and add it
                     hist.add(histogram=histo_object, reference=tagger.reference)
@@ -622,12 +625,17 @@ class Results:
                         / f"{tagger.name}_discs_{flav.name}.yaml"
                     )
 
+                    # Add the args for the Histogram to the kwargs, otherwise we
+                    # would provide the args twice
+                    histo_kwargs["path"] = tagger.disc_path[flav.name]
+                    histo_kwargs["ratio_group"] = flav
+                    histo_kwargs["label"] = flav.label if counter == 0 else None
+                    histo_kwargs["colour"] = flav.colour
+                    histo_kwargs["linestyle"] = line_styles[counter]
+
                     # Try to load the Histogram object from file
                     try:
-                        histo_object = Histogram.load(
-                            path=tagger.disc_path[flav.name],
-                            **histo_kwargs,
-                        )
+                        histo_object = Histogram.load(**histo_kwargs)
 
                     except FileNotFoundError:
                         logger.warning(
@@ -636,15 +644,12 @@ class Results:
                             "Making from scratch..."
                         )
 
+                        # Pop the path and replace it with values
+                        histo_kwargs.pop("path")
+                        histo_kwargs["values"] = discs[tagger.is_flav(flav)]
+
                         # Init the Histogram object
-                        histo_object = Histogram(
-                            values=discs[tagger.is_flav(flav)],
-                            ratio_group=flav,
-                            label=flav.label if counter == 0 else None,
-                            colour=flav.colour,
-                            linestyle=line_styles[counter],
-                            **histo_kwargs,
-                        )
+                        histo_object = Histogram(**histo_kwargs)
 
                         # Save the histo object to file
                         histo_object.save(path=tagger.disc_path[flav.name])
@@ -766,17 +771,18 @@ class Results:
                         smooth=True,
                     )
 
+                    # Add the args to the kwargs, otherwise we would provide them twice
+                    # (kwargs already has the args with defaults)
+                    roc_kwargs["sig_eff"] = sig_effs
+                    roc_kwargs["bkg_rej"] = rej
+                    roc_kwargs["n_test"] = tagger.n_jets(background)
+                    roc_kwargs["rej_class"] = background
+                    roc_kwargs["signal_class"] = self.signal
+                    roc_kwargs["label"] = tagger.label
+                    roc_kwargs["colour"] = tagger.colour
+
                     # Init the ROC object
-                    roc_object = Roc(
-                        sig_eff=sig_effs,
-                        bkg_rej=rej,
-                        n_test=tagger.n_jets(background),
-                        rej_class=background,
-                        signal_class=self.signal,
-                        label=tagger.label,
-                        colour=tagger.colour,
-                        **roc_kwargs,
-                    )
+                    roc_object = Roc(**roc_kwargs)
 
                     # Save the ROC object to file
                     roc_object.save(path=tagger.roc_path[background.name])
@@ -860,6 +866,8 @@ class Results:
             classes=[VarVsEffPlot, VarVsEff],
             defaults=[
                 {
+                    "mode": "sig_eff",
+                    "ylabel": self.signal.eff_str,
                     "xlabel": xlabel,
                     "n_ratio_panels": 1,
                     "atlas_first_tag": self.atlas_first_tag,
@@ -872,15 +880,11 @@ class Results:
         )
 
         # Init new var vs eff plot
-        plot_sig_eff = VarVsEffPlot(
-            mode="sig_eff",
-            ylabel=self.signal.eff_str,
-            **var_perf_plot_kwargs,
-        )
+        plot_sig_eff = VarVsEffPlot(**var_perf_plot_kwargs)
 
         # Adapt the atlas second tag
         plot_sig_eff.apply_modified_atlas_second_tag(
-            self.signal,
+            signal=self.signal,
             working_point=working_point,
             disc_cut=disc_cut,
             flat_per_bin=kwargs.get("flat_per_bin", False),
@@ -891,14 +895,16 @@ class Results:
 
         # Loop over all backgrounds
         for background in self.backgrounds:
+            # Reset some kwargs for the background plots
+            var_perf_plot_kwargs["mode"] = "bkg_rej"
+            var_perf_plot_kwargs["ylabel"] = background.rej_str
+
             # Init and append new background plot to the list
-            plot_bkg.append(
-                VarVsEffPlot(mode="bkg_rej", ylabel=background.rej_str, **var_perf_plot_kwargs)
-            )
+            plot_bkg.append(VarVsEffPlot(**var_perf_plot_kwargs))
 
             # Adapt the atlas second label accordingly
             plot_bkg[-1].apply_modified_atlas_second_tag(
-                self.signal,
+                signal=self.signal,
                 working_point=working_point,
                 disc_cut=disc_cut,
                 flat_per_bin=kwargs.get("flat_per_bin", False),
@@ -916,35 +922,40 @@ class Results:
             # Assure that the variable is in the data for the given tagger
             assert perf_var in tagger.perf_vars, f"{perf_var} not in tagger {tagger.name} data!"
 
+            # Add the args to the kwargs, otherwise we would provide them twice
+            # (kwargs already has the args with defaults)
+            var_perf_kwargs["x_var_sig"] = tagger.perf_vars[perf_var][is_signal]
+            var_perf_kwargs["disc_sig"] = discs[is_signal]
+            var_perf_kwargs["label"] = tagger.label
+            var_perf_kwargs["colour"] = tagger.colour
+            var_perf_kwargs["working_point"] = working_point
+            var_perf_kwargs["disc_cut"] = disc_cut
+
             # Add the variable to the plot
             plot_sig_eff.add(
-                VarVsEff(
-                    x_var_sig=tagger.perf_vars[perf_var][is_signal],
-                    disc_sig=discs[is_signal],
-                    label=tagger.label,
-                    colour=tagger.colour,
-                    working_point=working_point,
-                    disc_cut=disc_cut,
-                    **var_perf_kwargs,
-                ),
+                curve=VarVsEff(**var_perf_kwargs),
                 reference=tagger.reference,
             )
 
             # Loop over the background plots and add the variables
             for counter, background in enumerate(self.backgrounds):
+                # Define background
                 is_bkg = tagger.is_flav(background)
+
+                # Add the args to the kwargs, otherwise we would provide them twice
+                # (kwargs already has the args with defaults)
+                var_perf_kwargs["x_var_sig"] = tagger.perf_vars[perf_var][is_signal]
+                var_perf_kwargs["disc_sig"] = discs[is_signal]
+                var_perf_kwargs["x_var_bkg"] = tagger.perf_vars[perf_var][is_bkg]
+                var_perf_kwargs["disc_bkg"] = discs[is_bkg]
+                var_perf_kwargs["label"] = tagger.label
+                var_perf_kwargs["colour"] = tagger.colour
+                var_perf_kwargs["working_point"] = working_point
+                var_perf_kwargs["disc_cut"] = disc_cut
+
+                # Add plot
                 plot_bkg[counter].add(
-                    VarVsEff(
-                        x_var_sig=tagger.perf_vars[perf_var][is_signal],
-                        disc_sig=discs[is_signal],
-                        x_var_bkg=tagger.perf_vars[perf_var][is_bkg],
-                        disc_bkg=discs[is_bkg],
-                        label=tagger.label,
-                        colour=tagger.colour,
-                        working_point=working_point,
-                        disc_cut=disc_cut,
-                        **var_perf_kwargs,
-                    ),
+                    curve=VarVsEff(**var_perf_kwargs),
                     reference=tagger.reference,
                 )
 
@@ -1048,14 +1059,12 @@ class Results:
                 f" {fixed_rejections[bkg.name]} per bin"
             )
 
+            # Reset some kwargs for the background plots
+            var_perf_plot_kwargs["mode"] = "bkg_eff_sig_err"
+            var_perf_plot_kwargs["ylabel"] = self.signal.eff_str
+
             # Init and append the background plot to the list
-            plot_bkg.append(
-                VarVsEffPlot(
-                    mode="bkg_eff_sig_err",
-                    ylabel=self.signal.eff_str,
-                    **var_perf_plot_kwargs,
-                )
-            )
+            plot_bkg.append(VarVsEffPlot(**var_perf_plot_kwargs))
 
         # After all plots are created, loop over the taggers
         for tagger in self.taggers.values():
@@ -1073,6 +1082,17 @@ class Results:
             for counter, bkg in enumerate(backgrounds):
                 is_bkg = tagger.is_flav(bkg)
 
+                # Add the args to the kwargs, otherwise we would provide them twice
+                # (kwargs already has the args with defaults)
+                var_perf_kwargs["x_var_sig"] = tagger.perf_vars[perf_var][is_bkg]
+                var_perf_kwargs["disc_sig"] = discs[is_bkg]
+                var_perf_kwargs["x_var_bkg"] = tagger.perf_vars[perf_var][is_signal]
+                var_perf_kwargs["disc_bkg"] = discs[is_signal]
+                var_perf_kwargs["label"] = tagger.label
+                var_perf_kwargs["colour"] = tagger.colour
+                var_perf_kwargs["working_point"] = 1 / fixed_rejections[bkg.name]
+                var_perf_kwargs["flat_per_bin"] = True
+
                 # We want x bins to all have the same background rejection, so we
                 # select the plot mode as 'bkg_eff', and then treat the signal as
                 # the background here. I.e, the API plots 'bkg_eff' on the y axis,
@@ -1080,17 +1100,7 @@ class Results:
                 # pass the signal as the background, and the background as the
                 # signal.
                 plot_bkg[counter].add(
-                    VarVsEff(
-                        x_var_sig=tagger.perf_vars[perf_var][is_bkg],
-                        disc_sig=discs[is_bkg],
-                        x_var_bkg=tagger.perf_vars[perf_var][is_signal],
-                        disc_bkg=discs[is_signal],
-                        label=tagger.label,
-                        colour=tagger.colour,
-                        working_point=1 / fixed_rejections[bkg.name],
-                        flat_per_bin=True,
-                        **var_perf_kwargs,
-                    ),
+                    curve=VarVsEff(**var_perf_kwargs),
                     reference=tagger.reference,
                 )
 
