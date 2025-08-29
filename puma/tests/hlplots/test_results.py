@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+import inspect
 import tempfile
 import unittest
-from dataclasses import MISSING, fields
+from dataclasses import fields, is_dataclass
 from pathlib import Path
 from typing import Any
 
@@ -602,56 +603,196 @@ class ResultsPlotsTestCase(unittest.TestCase):
             results.make_plot(plot_type="crash", kwargs={})
 
 
+def _class_known_keys(cls: type[Any]) -> set[str]:
+    """Return all valid option names for a class from dataclass fields and __init__ params.
+
+    Parameters
+    ----------
+    cls : type[Any]
+        Class for which to return the known keys
+
+    Returns
+    -------
+    set[str]
+        Set of strings of the known keys
+    """
+    """"""
+    keys: set[str] = set()
+
+    if is_dataclass(cls):
+        keys.update(f.name for f in fields(cls))
+
+    sig = inspect.signature(cls.__init__)
+    for name, p in sig.parameters.items():
+        if name == "self" or p.kind in {
+            inspect.Parameter.VAR_POSITIONAL,
+            inspect.Parameter.VAR_KEYWORD,
+        }:
+            continue
+        keys.add(name)
+
+    return keys
+
+
+def _apply_expected_for_class(
+    provided_defaults: dict[str, Any],
+    kwargs: dict[str, Any] | None,
+    class_keys: set[str],
+) -> dict[str, Any]:
+    """Build expected output for one class.
+
+    - Take only keys that belong to the class.
+    - Start with provided defaults for those keys.
+    - Overlay kwargs (if any) for those keys (kwargs win).
+
+    Parameters
+    ----------
+    provided_defaults : dict[str, Any]
+        Provided defaults for the class
+    kwargs : dict[str, Any] | None
+        kwargs provided
+    class_keys : set[str]
+        Class keys
+
+    Returns
+    -------
+    dict[str, Any]
+        Expected output for one class
+    """
+    expected = {k: v for k, v in provided_defaults.items() if k in class_keys}
+    if kwargs:
+        expected |= {k: v for k, v in kwargs.items() if k in class_keys}
+    return expected
+
+
 class SeparateKwargsTestCase(unittest.TestCase):
-    """Test separate_kwargs function."""
+    """Tests for separate_kwargs with data-driven expectations."""
 
     def setUp(self) -> None:
-        """Set up for unit tests."""
-        self.defaults: list[dict[str, Any]] = [{"xlabel": "xlabel"}, {"xmin": 15}]
+        self.separate_kwargs = separate_kwargs
         self.classes = [HistogramPlot, Histogram]
-        self.kwargs = {"ylabel": "ylabel", "ymin": 5}
-        self.maxDiff = None
+
+        # Provided defaults (per-class) and incoming kwargs.
+        # NOTE: keys that aren't part of a class will be ignored automatically.
+        self.defaults: list[dict[str, Any]] = [
+            {"xlabel": "X label", "bins_range": (1.0, 2.0), "unknown_plot": "ignored"},
+            {"xmin": 15, "unknown_curve": "ignored"},
+        ]
+        self.kwargs = {
+            "ylabel": "Y label",
+            "ymin": 5,
+            "bins_range": (0.5, 3.0),  # will override default if 'bins_range' exists in class 0
+            "ghost": "ignored",
+            "xmin": 999,  # will override default if 'xmin' exists in class 1
+        }
+
+        # Precompute class key sets
+        self.class_keys = [_class_known_keys(cls) for cls in self.classes]
 
     def test_default_behaviour(self) -> None:
-        """Test default behaviour."""
-        plot_kwargs, curve_kwargs = separate_kwargs(
+        """With kwargs, return only updated keys; kwargs override provided defaults."""
+        out = self.separate_kwargs(
             kwargs=self.kwargs,
             classes=self.classes,
             defaults=self.defaults,
         )
 
-        expected_plot_kwargs = {
-            f.name: (f.default if f.default is not MISSING else None) for f in fields(HistogramPlot)
-        }
-        expected_plot_kwargs["xlabel"] = "xlabel"
-        expected_plot_kwargs["ylabel"] = "ylabel"
-        expected_plot_kwargs["ymin"] = 5
+        # Build expected per class from the rules,
+        # but only keep keys that were actually updated (provided defaults or kwargs).
+        expected = []
+        for i, keys in enumerate(self.class_keys):
+            exp = _apply_expected_for_class(self.defaults[i], self.kwargs, keys)
+            expected.append(exp)
 
-        expected_curve_kwargs = {
-            f.name: (f.default if f.default is not MISSING else None) for f in fields(Histogram)
-        }
-        expected_curve_kwargs["xmin"] = 15
-
-        self.assertDictEqual(plot_kwargs, expected_plot_kwargs)
-        self.assertDictEqual(curve_kwargs, expected_curve_kwargs)
+        self.assertEqual(len(out), len(expected))
+        for got, exp in zip(out, expected):
+            self.assertDictEqual(got, exp)
 
     def test_kwargs_none(self) -> None:
-        """Test behaviour with kwargs is None."""
-        plot_kwargs, curve_kwargs = separate_kwargs(
+        """With None, keep only keys overridden by provided defaults (no untouched defaults)."""
+        out = self.separate_kwargs(
             kwargs=None,
             classes=self.classes,
             defaults=self.defaults,
         )
 
-        expected_plot_kwargs = {
-            f.name: (f.default if f.default is not MISSING else None) for f in fields(HistogramPlot)
-        }
-        expected_plot_kwargs["xlabel"] = "xlabel"
+        expected = []
+        for i, keys in enumerate(self.class_keys):
+            exp = _apply_expected_for_class(self.defaults[i], None, keys)
+            expected.append(exp)
 
-        expected_curve_kwargs = {
-            f.name: (f.default if f.default is not MISSING else None) for f in fields(Histogram)
-        }
-        expected_curve_kwargs["xmin"] = 15
+        self.assertEqual(len(out), len(expected))
+        for got, exp in zip(out, expected):
+            self.assertDictEqual(got, exp)
 
-        self.assertDictEqual(plot_kwargs, expected_plot_kwargs)
-        self.assertDictEqual(curve_kwargs, expected_curve_kwargs)
+    def test_ignores_unknown_keys(self) -> None:
+        """Unknown keys in provided defaults or kwargs must be ignored."""
+        defaults: list[dict[str, Any]] = [
+            {"nope1": 123, "xlabel": "XL"},  # only 'xlabel' might belong to class 0
+            {"nope2": 456, "xmin": 1},  # only 'xmin' might belong to class 1
+        ]
+        kwargs = {"nope3": 789}  # should be ignored everywhere
+
+        out = self.separate_kwargs(
+            kwargs=kwargs,
+            classes=self.classes,
+            defaults=defaults,
+        )
+
+        expected = []
+        for i, keys in enumerate(self.class_keys):
+            exp = _apply_expected_for_class(defaults[i], kwargs, keys)
+            expected.append(exp)
+
+        self.assertEqual(len(out), len(expected))
+        for got, exp in zip(out, expected):
+            self.assertDictEqual(got, exp)
+
+    def test_no_updates_returns_empty(self) -> None:
+        """If neither provided defaults nor kwargs touch a class key, that class dict is empty."""
+        # Choose keys you believe won't exist in either class
+        defaults = [{"__nothing__": 1}, {"__still_nothing__": 2}]
+        kwargs = {"__ghost__": 3}
+
+        out = self.separate_kwargs(
+            kwargs=kwargs,
+            classes=self.classes,
+            defaults=defaults,
+        )
+
+        # Expect empty dicts for any class whose keys weren't updated at all
+        for i, got in enumerate(out):
+            # Build expected using helper; should be empty if no overlap
+            exp = _apply_expected_for_class(defaults[i], kwargs, self.class_keys[i])
+            self.assertDictEqual(got, exp)  # likely {}
+
+    def test_kwargs_take_precedence_when_overlap_exists(self) -> None:
+        """
+        If both provided defaults and kwargs set the same key for a class, kwargs should win.
+        Only checks the rule when such a key actually exists in the class.
+        """
+        # For each class, find a key present in both provided defaults and kwargs and in the class.
+        new_defaults = [dict(d) for d in self.defaults]
+        new_kwargs = dict(self.kwargs)
+
+        for i, keys in enumerate(self.class_keys):
+            # find a candidate overlap key
+            overlap = (keys & new_defaults[i].keys()) & new_kwargs.keys()
+            if not overlap:
+                # If none exists, try to force one by duplicating a defaults key into kwargs
+                for k in keys & new_defaults[i].keys():
+                    new_kwargs[k] = "__KWARGS_WINS__"
+                    overlap = {k}
+                    break
+
+            # If we still have no overlap for this class, skip the check for this class
+            if not overlap:
+                continue
+
+            # Run the function
+            out = self.separate_kwargs(new_kwargs, self.classes, new_defaults)
+
+            # Assert precedence for each overlapping key we created/found
+            for k in overlap:
+                self.assertIn(k, out[i])
+                self.assertEqual(out[i][k], new_kwargs[k])

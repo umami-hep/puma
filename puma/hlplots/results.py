@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from dataclasses import MISSING, dataclass, field, fields
+import inspect
+from dataclasses import MISSING, dataclass, field, fields, is_dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable, cast
 
 import numpy as np
 from ftag import Cuts, Flavours, Label
@@ -51,31 +52,62 @@ def separate_kwargs(
         List with the separated kwargs. The first entry are the kwargs
         for the first class in the classes list etc.
     """
-    # Get the default attributes and their values from the classes
-    classes_defaults = [
-        {f.name: (f.default if f.default is not MISSING else None) for f in fields(i)}
-        for i in classes
+    classes_defaults: list[dict[str, Any]] = []
+
+    # 1) Gather class defaults (dataclass fields + __init__ params)
+    for cls in classes:
+        class_vars: dict[str, Any] = {}
+
+        if is_dataclass(cls):
+            for f in fields(cls):
+                if f.default is not MISSING:
+                    class_vars[f.name] = f.default
+                else:
+                    df = getattr(f, "default_factory", MISSING)
+                    if df is not MISSING:  # type: ignore[comparison-overlap]
+                        class_vars[f.name] = cast(Callable[[], Any], df)()  # realize factory
+                    else:
+                        class_vars[f.name] = None  # required: placeholder
+
+        sig = inspect.signature(cls.__init__)
+        for name, p in sig.parameters.items():
+            if name == "self" or p.kind in {
+                inspect.Parameter.VAR_POSITIONAL,
+                inspect.Parameter.VAR_KEYWORD,
+            }:
+                continue
+            if name in class_vars:
+                continue  # dataclass field wins
+            if p.default is not inspect.Parameter.empty:
+                class_vars[name] = p.default
+            else:
+                class_vars[name] = None
+
+        classes_defaults.append(class_vars)
+
+    # 2) Track updated keys (either via provided defaults or kwargs)
+    updated_keys_per_class: list[set[str]] = [set() for _ in classes]
+
+    # 3) Apply provided defaults (count as "updated")
+    for i, (base, override) in enumerate(zip(classes_defaults, defaults)):
+        for k, v in override.items():
+            if k in base:
+                base[k] = v
+                updated_keys_per_class[i].add(k)
+
+    # 4) Apply kwargs with highest precedence (also "updated")
+    if kwargs is not None and kwargs:
+        kset = kwargs.keys()
+        for i, base in enumerate(classes_defaults):
+            overlap = base.keys() & kset
+            for k in overlap:
+                base[k] = kwargs[k]  # kwargs win
+            updated_keys_per_class[i].update(overlap)
+
+    # 5) Return only keys that were actually updated
+    return [
+        {k: base[k] for k in updated_keys_per_class[i]} for i, base in enumerate(classes_defaults)
     ]
-
-    # Fill in the given defaults for the classes
-    for iter_class_defaults, iter_inc_defaults in zip(classes_defaults, defaults):
-        iter_class_defaults.update(iter_inc_defaults)
-
-    # Separate the kwargs lists for each of the classes
-    if kwargs is not None:
-        output_kwargs_list = [
-            {
-                **iter_class_defaults,
-                **{k: kwargs[k] for k in iter_class_defaults.keys() & kwargs.keys()},
-            }
-            for iter_class_defaults in classes_defaults
-        ]
-
-    else:
-        output_kwargs_list = classes_defaults
-
-    # Return the separated kwargs
-    return output_kwargs_list
 
 
 @dataclass
@@ -440,9 +472,7 @@ class Results:
 
                     # Add the args for the Histogram to the kwargs, otherwise we
                     # would provide the args twice
-                    histo_kwargs["path"] = (
-                        tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"],
-                    )
+                    histo_kwargs["path"] = tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"]
                     histo_kwargs["ratio_group"] = flav_class
                     histo_kwargs["label"] = flav_class.label if counter == 0 else None
                     histo_kwargs["colour"] = flav_class.colour
@@ -512,9 +542,7 @@ class Results:
 
                     # Add the args for the Histogram to the kwargs, otherwise we
                     # would provide the args twice
-                    histo_kwargs["path"] = (
-                        tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"],
-                    )
+                    histo_kwargs["path"] = tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"]
                     histo_kwargs["ratio_group"] = flav_prob
                     histo_kwargs["label"] = flav_prob.px if counter == 0 else None
                     histo_kwargs["colour"] = flav_prob.colour
