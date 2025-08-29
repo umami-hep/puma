@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import MISSING, dataclass, field, fields
 from pathlib import Path
 from typing import Any
 
@@ -26,6 +26,56 @@ from puma import (
 from puma.hlplots.tagger import Tagger
 from puma.hlplots.yutils import combine_suffixes
 from puma.utils import get_good_colours, get_good_linestyles, logger
+
+
+def separate_kwargs(
+    kwargs: dict[str, Any] | None,
+    classes: list[Any],
+    defaults: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Separate the provided kwargs to the classes they belong.
+
+    Parameters
+    ----------
+    kwargs : dict[str, Any] | None
+        Dict with the kwargs
+    classes : list[Any]
+        Classes to which the kwargs are sorted
+    defaults : list[dict[str, Any]]
+        Default values for the classes, if not defined in kwargs,
+        which overwrite the defaults from the class definition
+
+    Returns
+    -------
+    list[dict[str, Any]]
+        List with the separated kwargs. The first entry are the kwargs
+        for the first class in the classes list etc.
+    """
+    # Get the default attributes and their values from the classes
+    classes_defaults = [
+        {f.name: (f.default if f.default is not MISSING else None) for f in fields(i)}
+        for i in classes
+    ]
+
+    # Fill in the given defaults for the classes
+    for iter_class_defaults, iter_inc_defaults in zip(classes_defaults, defaults):
+        iter_class_defaults.update(iter_inc_defaults)
+
+    # Separate the kwargs lists for each of the classes
+    if kwargs is not None:
+        output_kwargs_list = [
+            {
+                **iter_class_defaults,
+                **{k: kwargs[k] for k in iter_class_defaults.keys() & kwargs.keys()},
+            }
+            for iter_class_defaults in classes_defaults
+        ]
+
+    else:
+        output_kwargs_list = classes_defaults
+
+    # Return the separated kwargs
+    return output_kwargs_list
 
 
 @dataclass
@@ -330,7 +380,7 @@ class Results:
         suffix : str, optional
             Suffix to add to output file name, by default None
         **kwargs : kwargs
-            key word arguments for `puma.HistogramPlot`
+            key word arguments for `puma.HistogramPlot` and `puma.Histogram`
         """
         # Get good linestyles for plotting
         line_styles = get_good_linestyles()
@@ -345,31 +395,21 @@ class Results:
             if all(flav in tagger.output_flavours for tagger in self.taggers.values())
         ]
 
-        # Init a default kwargs dict for the HistogramPlot
-        histo_plot_kwargs: dict[str, Any] = {
-            "ylabel": "Normalised number of jets",
-            "figsize": (7.0, 4.5),
-            "n_ratio_panels": 1,
-            "atlas_first_tag": self.atlas_first_tag,
-            "atlas_second_tag": self.atlas_second_tag,
-        }
-
-        # If kwargs are given, update the histo_plot_kwargs dict
-        if kwargs is not None:
-            histo_plot_kwargs.update(kwargs)
-
-        # Remove the kwargs that need to go to the Histogram objects
-        histo_kwargs: dict[str, Any] = {"bins": 40, "bins_range": (0, 1)}
-        for iter_kwarg in list(histo_plot_kwargs):
-            if iter_kwarg in {
-                "bins",
-                "bins_range",
-                "bin_edges",
-                "norm",
-                "underoverflow",
-                "discrete_vals",
-            }:
-                histo_kwargs[iter_kwarg] = histo_plot_kwargs.pop(iter_kwarg)
+        # Separate the kwargs for the curve and plot objects
+        histo_plot_kwargs, histo_kwargs = separate_kwargs(
+            kwargs=kwargs,
+            classes=[HistogramPlot, Histogram],
+            defaults=[
+                {
+                    "ylabel": "Normalised number of jets",
+                    "figsize": (7.0, 4.5),
+                    "n_ratio_panels": 1,
+                    "atlas_first_tag": self.atlas_first_tag,
+                    "atlas_second_tag": self.atlas_second_tag,
+                },
+                {"bins": 40, "bins_range": (0, 1)},
+            ],
+        )
 
         # group by output probability
         for flav_prob in flavours:
@@ -524,32 +564,22 @@ class Results:
         # Get good linestyles for plotting
         line_styles = get_good_linestyles()
 
-        # Init histo_plot_kwargs
-        histo_plot_kwargs: dict[str, Any] = {
-            "n_ratio_panels": 0,
-            "xlabel": xlabel,
-            "ylabel": "Normalised number of jets",
-            "figsize": (7.0, 4.5),
-            "atlas_first_tag": self.atlas_first_tag,
-            "atlas_second_tag": self.atlas_second_tag,
-        }
-
-        # Check if kwargs are given and update the histo_plot_kwargs accordingly
-        if kwargs is not None:
-            histo_plot_kwargs.update(kwargs)
-
-        # Remove the kwargs that need to go to the Histogram objects
-        histo_kwargs: dict[str, Any] = {"bins": 40}
-        for iter_kwarg in list(histo_plot_kwargs):
-            if iter_kwarg in {
-                "bins",
-                "bins_range",
-                "bin_edges",
-                "norm",
-                "underoverflow",
-                "discrete_vals",
-            }:
-                histo_kwargs[iter_kwarg] = histo_plot_kwargs.pop(iter_kwarg)
+        # Separate the kwargs for the curve and plot objects
+        histo_plot_kwargs, histo_kwargs = separate_kwargs(
+            kwargs=kwargs,
+            classes=[HistogramPlot, Histogram],
+            defaults=[
+                {
+                    "n_ratio_panels": 0,
+                    "xlabel": xlabel,
+                    "ylabel": "Normalised number of jets",
+                    "figsize": (7.0, 4.5),
+                    "atlas_first_tag": self.atlas_first_tag,
+                    "atlas_second_tag": self.atlas_second_tag,
+                },
+                {"bins": 40},
+            ],
+        )
 
         # Create a new histogram plot
         hist = HistogramPlot(**histo_plot_kwargs)
@@ -676,23 +706,26 @@ class Results:
             if is_present:
                 n_ratio_panels += 1
 
-        # Init a default kwargs dict for roc plots
-        roc_kwargs = {
-            "n_ratio_panels": n_ratio_panels,
-            "ylabel": "Background rejection",
-            "xlabel": self.signal.eff_str,
-            "atlas_first_tag": self.atlas_first_tag,
-            "atlas_second_tag": self.atlas_second_tag,
-            "y_scale": 1.3,
-            "ymin": 1,
-        }
-
-        # If kwargs are given, update the default kwargs accordingly
-        if kwargs is not None:
-            kwargs.update(roc_kwargs)
+        # Separate the kwargs for the curve and plot objects
+        roc_plot_kwargs, roc_kwargs = separate_kwargs(
+            kwargs=kwargs,
+            classes=[RocPlot, Roc],
+            defaults=[
+                {
+                    "n_ratio_panels": n_ratio_panels,
+                    "ylabel": "Background rejection",
+                    "xlabel": self.signal.eff_str,
+                    "atlas_first_tag": self.atlas_first_tag,
+                    "atlas_second_tag": self.atlas_second_tag,
+                    "y_scale": 1.3,
+                    "ymin": 1,
+                },
+                {},
+            ],
+        )
 
         # Init a new ROC plot using the given/default kwargs
-        roc = RocPlot(**kwargs)
+        roc = RocPlot(**roc_plot_kwargs)
 
         # Iterate over the taggers
         for tagger in self.taggers.values():
@@ -742,6 +775,7 @@ class Results:
                         signal_class=self.signal,
                         label=tagger.label,
                         colour=tagger.colour,
+                        **roc_kwargs,
                     )
 
                     # Save the ROC object to file
@@ -820,29 +854,28 @@ class Results:
             )
             return
 
-        # Split the kwargs according to if they are used for the plot or the curve
-        var_perf_plot_kwargs: dict[str, Any] = {
-            "xlabel": xlabel,
-            "n_ratio_panels": 1,
-            "atlas_first_tag": self.atlas_first_tag,
-            "atlas_second_tag": self.atlas_second_tag,
-            "y_scale": 1.5,
-            "logy": False,
-        }
-
-        # Update the default plot kwargs if present in kwargs and remove it from kwargs
-        if kwargs is not None:
-            # Init a list to loop over
-            iter_kwargs_list = list(kwargs.keys())
-
-            # Loop over the kwargs list
-            for key in iter_kwargs_list:
-                if key in var_perf_plot_kwargs:
-                    var_perf_plot_kwargs[key] = kwargs.pop(key)
+        # Separate the kwargs for the curve and plot objects
+        var_perf_plot_kwargs, var_perf_kwargs = separate_kwargs(
+            kwargs=kwargs,
+            classes=[VarVsEffPlot, VarVsEff],
+            defaults=[
+                {
+                    "xlabel": xlabel,
+                    "n_ratio_panels": 1,
+                    "atlas_first_tag": self.atlas_first_tag,
+                    "atlas_second_tag": self.atlas_second_tag,
+                    "y_scale": 1.5,
+                    "logy": False,
+                },
+                {},
+            ],
+        )
 
         # Init new var vs eff plot
         plot_sig_eff = VarVsEffPlot(
-            mode="sig_eff", ylabel=self.signal.eff_str, **var_perf_plot_kwargs
+            mode="sig_eff",
+            ylabel=self.signal.eff_str,
+            **var_perf_plot_kwargs,
         )
 
         # Adapt the atlas second tag
@@ -892,7 +925,7 @@ class Results:
                     colour=tagger.colour,
                     working_point=working_point,
                     disc_cut=disc_cut,
-                    **kwargs,
+                    **var_perf_kwargs,
                 ),
                 reference=tagger.reference,
             )
@@ -910,7 +943,7 @@ class Results:
                         colour=tagger.colour,
                         working_point=working_point,
                         disc_cut=disc_cut,
-                        **kwargs,
+                        **var_perf_kwargs,
                     ),
                     reference=tagger.reference,
                 )
@@ -985,25 +1018,22 @@ class Results:
         if "working_point" in kwargs:
             raise ValueError("working_point should not be set for this plot")
 
-        # Split the kwargs according to if they are used for the plot or the curve
-        var_perf_plot_kwargs: dict[str, Any] = {
-            "xlabel": r"$p_{\mathrm{T}}$ [GeV]",
-            "n_ratio_panels": 1,
-            "atlas_first_tag": self.atlas_first_tag,
-            "atlas_second_tag": self.atlas_second_tag,
-            "y_scale": 1.5,
-            "logy": False,
-        }
-
-        # Update the default plot kwargs if present in kwargs and remove it from kwargs
-        if kwargs is not None:
-            # Init a list to loop over
-            iter_kwargs_list = list(kwargs.keys())
-
-            # Loop over the kwargs list
-            for key in iter_kwargs_list:
-                if key in var_perf_plot_kwargs:
-                    var_perf_plot_kwargs[key] = kwargs.pop(key)
+        # Separate the kwargs for the curve and plot objects
+        var_perf_plot_kwargs, var_perf_kwargs = separate_kwargs(
+            kwargs=kwargs,
+            classes=[VarVsEffPlot, VarVsEff],
+            defaults=[
+                {
+                    "xlabel": r"$p_{\mathrm{T}}$ [GeV]",
+                    "n_ratio_panels": 1,
+                    "atlas_first_tag": self.atlas_first_tag,
+                    "atlas_second_tag": self.atlas_second_tag,
+                    "y_scale": 1.5,
+                    "logy": False,
+                },
+                {},
+            ],
+        )
 
         # Get a list of all backgrounds
         backgrounds = [Flavours[b] for b in fixed_rejections]
@@ -1059,7 +1089,7 @@ class Results:
                         colour=tagger.colour,
                         working_point=1 / fixed_rejections[bkg.name],
                         flat_per_bin=True,
-                        **kwargs,
+                        **var_perf_kwargs,
                     ),
                     reference=tagger.reference,
                 )

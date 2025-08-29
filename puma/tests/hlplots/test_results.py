@@ -4,14 +4,17 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+from dataclasses import MISSING, fields
 from pathlib import Path
+from typing import Any
 
 import h5py
 import numpy as np
 from ftag import Flavours, get_mock_file
 from ftag.hdf5 import structured_from_dict
 
-from puma.hlplots import Results
+from puma.histogram import Histogram, HistogramPlot
+from puma.hlplots import Results, separate_kwargs
 from puma.hlplots.tagger import Tagger
 from puma.utils import logger, set_log_level
 
@@ -597,3 +600,58 @@ class ResultsPlotsTestCase(unittest.TestCase):
         results = Results(signal="bjets", sample="test")
         with self.assertRaises(ValueError):
             results.make_plot(plot_type="crash", kwargs={})
+
+
+class SeparateKwargsTestCase(unittest.TestCase):
+    """Test separate_kwargs function."""
+
+    def setUp(self) -> None:
+        """Set up for unit tests."""
+        self.defaults: list[dict[str, Any]] = [{"xlabel": "xlabel"}, {"xmin": 15}]
+        self.classes = [HistogramPlot, Histogram]
+        self.kwargs = {"ylabel": "ylabel", "ymin": 5}
+        self.maxDiff = None
+
+    def test_default_behaviour(self) -> None:
+        """Test default behaviour."""
+        plot_kwargs, curve_kwargs = separate_kwargs(
+            kwargs=self.kwargs,
+            classes=self.classes,
+            defaults=self.defaults,
+        )
+
+        expected_plot_kwargs = {
+            f.name: (f.default if f.default is not MISSING else None) for f in fields(HistogramPlot)
+        }
+        expected_plot_kwargs["xlabel"] = "xlabel"
+        expected_plot_kwargs["ylabel"] = "ylabel"
+        expected_plot_kwargs["ymin"] = 5
+
+        expected_curve_kwargs = {
+            f.name: (f.default if f.default is not MISSING else None) for f in fields(Histogram)
+        }
+        expected_curve_kwargs["xmin"] = 15
+
+        self.assertDictEqual(plot_kwargs, expected_plot_kwargs)
+        self.assertDictEqual(curve_kwargs, expected_curve_kwargs)
+
+    def test_kwargs_none(self) -> None:
+        """Test behaviour with kwargs is None."""
+        plot_kwargs, curve_kwargs = separate_kwargs(
+            kwargs=None,
+            classes=self.classes,
+            defaults=self.defaults,
+        )
+
+        expected_plot_kwargs = {
+            f.name: (f.default if f.default is not MISSING else None) for f in fields(HistogramPlot)
+        }
+        expected_plot_kwargs["xlabel"] = "xlabel"
+
+        expected_curve_kwargs = {
+            f.name: (f.default if f.default is not MISSING else None) for f in fields(Histogram)
+        }
+        expected_curve_kwargs["xmin"] = 15
+
+        self.assertDictEqual(plot_kwargs, expected_plot_kwargs)
+        self.assertDictEqual(curve_kwargs, expected_curve_kwargs)
