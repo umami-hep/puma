@@ -5,7 +5,7 @@ from __future__ import annotations
 import inspect
 import tempfile
 import unittest
-from dataclasses import fields, is_dataclass
+from dataclasses import dataclass, field, fields, is_dataclass
 from pathlib import Path
 from typing import Any
 
@@ -665,6 +665,14 @@ def _apply_expected_for_class(
     return expected
 
 
+@dataclass
+class _FactoryDataclass:
+    # Required: no default -> should go through the "else: ... = None" path
+    a: int
+    # Has default_factory -> should go through the "df is not MISSING" path
+    b: list[int] = field(default_factory=list)
+
+
 class SeparateKwargsTestCase(unittest.TestCase):
     """Tests for separate_kwargs with data-driven expectations."""
 
@@ -796,3 +804,32 @@ class SeparateKwargsTestCase(unittest.TestCase):
             for k in overlap:
                 self.assertIn(k, out[i])
                 self.assertEqual(out[i][k], new_kwargs[k])
+
+    def test_required_and_factory_both_exercised_and_overridden(self) -> None:
+        """
+        - 'a' (required) initially becomes None in class_vars, then overridden by provided defaults.
+        - 'b' is realized via default_factory(), then overridden by kwargs.
+        Only updated keys are returned.
+        """
+        classes = [_FactoryDataclass]
+        defaults: list[dict[str, Any]] = [{"a": 123}]  # overrides required field
+        kwargs: dict[str, Any] = {"b": [7, 8, 9]}  # overrides factory-produced list
+
+        (out,) = separate_kwargs(kwargs=kwargs, classes=classes, defaults=defaults)
+
+        # Both keys should appear because both were updated (by defaults/kwargs, respectively).
+        self.assertDictEqual(out, {"a": 123, "b": [7, 8, 9]})
+
+    def test_factory_value_is_dropped_when_not_updated(self) -> None:
+        """
+        If no provided defaults and no kwargs touch the class keys,
+        the result is empty—even though default_factory() and the 'a' None path ran.
+        """
+        classes = [_FactoryDataclass]
+        defaults: list[dict[str, Any]] = [{}]
+        kwargs: dict[str, Any] | None = None
+
+        (out,) = separate_kwargs(kwargs=kwargs, classes=classes, defaults=defaults)
+
+        # Nothing was updated, so nothing is returned.
+        self.assertDictEqual(out, {})
