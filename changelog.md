@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Fixing kwargs Separation in High-Level Plots [#339](https://github.com/umami-hep/puma/pull/339)
 - Update `atlas-ftag-tools` to `0.2.16` [#338](https://github.com/umami-hep/puma/pull/338)
 - Adding Iterative Filling for Histogram Class [#337]
 - Reneable `mypy` [#333](https://github.com/umami-hep/puma/pull/333)
