@@ -8,6 +8,7 @@ from typing import Any
 import matplotlib as mpl
 import numpy as np
 from ftag import Label
+from ftag.cuts import Cuts
 from ftag.hdf5 import H5Reader
 
 from puma.utils import get_good_colours, get_good_linestyles
@@ -177,6 +178,15 @@ def n_tracks_per_origin(
             shuffle=False,
         )
 
+        # Get the pT cuts that are to be applied
+        kinematic_cuts = Cuts.from_list([
+            f"{jet_pt_variable} > {pt_bins[0]}",
+            f"{jet_pt_variable} < {pt_bins[-1]}",
+        ])
+
+        # Check if this file should be the reference
+        reference_bool = file_value.get("reference", False)
+
         # Iterate over the flavour and load them from the file
         for flavour_counter, flavour in enumerate(flavour_list):
             # Get the iterator to correctly choose the plot to add to
@@ -189,7 +199,7 @@ def n_tracks_per_origin(
                     tracks_name: [track_truth_variable],
                 },
                 num_jets=file_value.get("n_jets", None),
-                cuts=flavour.cuts,
+                cuts=kinematic_cuts + flavour.cuts,
             )
 
             # Loop over the different track origins
@@ -206,9 +216,12 @@ def n_tracks_per_origin(
                 )
 
                 # Bin it in pT
-                bin_indices = np.digitize(
-                    data[jets_name][jet_pt_variable],
-                    pt_bins,
+                bin_indices = (
+                    np.digitize(
+                        data[jets_name][jet_pt_variable],
+                        pt_bins,
+                    )
+                    - 1
                 )
 
                 # Calculate mean n_trks for the given origin in pT bins
@@ -249,7 +262,9 @@ def n_tracks_per_origin(
                         markersize="4",
                         colour=get_good_colours()[trk_origin_counter],
                         label=None if all_flav_plot else file_value["process_label"],
-                    )
+                        ratio_group=trk_origin_key,
+                    ),
+                    reference=reference_bool,
                 )
 
                 # Append the track origin labels only once
