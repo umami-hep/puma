@@ -496,7 +496,7 @@ class HistogramPlot(PlotBase):
         # Set linestyle
         if histogram.linestyle is None:
             if histogram.is_data is True:
-                histogram.linestyle = ""
+                histogram.linestyle = "None"
             else:
                 histogram.linestyle = "-"
         # Set marker

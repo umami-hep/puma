@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import os
-import shutil
 import tempfile
 import unittest
 
@@ -110,7 +109,7 @@ class LinestylesTestCase(unittest.TestCase):
         name = "test_colours.png"
         test_plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
                 f"{self.actual_plots_dir}/{name}",
@@ -134,7 +133,7 @@ class LinestylesTestCase(unittest.TestCase):
         name = "test_colours_dark2p8.png"
         test_plot.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
         self.assertIsNone(
             compare_images(
                 f"{self.actual_plots_dir}/{name}",
