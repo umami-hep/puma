@@ -9,7 +9,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.testing.compare import compare_images
 
-from puma.matshow import MatshowPlot
+from puma.matshow import MatrixComparison, MatshowPlot
 from puma.utils import logger, set_log_level
 
 set_log_level(logger, "DEBUG")
@@ -125,6 +125,47 @@ class TestMatshowPlot(unittest.TestCase):
         name = "test_matrix_fully_customized_no_entries.png"
         plot_mat.draw(mat)
         plot_mat.savefig(f"{self.actual_plots_dir}/{name}")
+        # Uncomment line below to update expected image
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
+
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
+                tol=1,
+            )
+        )
+
+    def test_matrix_comparison(self):
+        # test matrices
+        mat1 = np.array([
+            [0.55136792, 0.58809975, 0.43140183],
+            [0.83374029, 0.24685411, 0.87419068],
+            [0.08393056, 0.3477517, 0.81477693],
+            [0.39839215, 0.54854937, 0.48571167],
+        ])
+
+        mat2 = np.array([
+            [0.55136792, 0.58809975, 0.43140183],
+            [0.83374029, 0.24685411, 0.87419068],
+            [0.08393056, 0.3477517, 0.81477693],
+            [0.39839215, 0.54854937, 0.48571167],
+        ]) + 0.1
+
+        x_ticks = ["a", "b", "c"]
+        y_ticks = ["d", "e", "f", "g"]
+
+        plot_matrix_comp = MatrixComparison(
+            x_ticklabels=x_ticks,
+            x_ticks_rotation=45,
+            y_ticklabels=y_ticks,
+            show_percentage=True,
+            text_color_threshold=0.6,
+            atlas_tag_outside=True,
+        )
+        name = "test_matrix_comparison.png"
+        plot_matrix_comp.draw(mat1, mat2)
+        plot_matrix_comp.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
         # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
