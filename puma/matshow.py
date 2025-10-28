@@ -109,7 +109,7 @@ class MatshowPlot(PlotBase):
 
         # If using percentage values, make the colormap in range [0,1]
         if self.show_percentage:
-            im = self.axis_top.matshow(matrix, vmin=0, vmax=1, cmap=self.colormap)
+            im = self.axis_top.matshow(matrix * 100, vmin=0, vmax=100, cmap=self.colormap)
         else:
             im = self.axis_top.matshow(matrix, cmap=self.colormap)
 
