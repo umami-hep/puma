@@ -220,14 +220,14 @@ class MatshowPlot(PlotBase):
         """
         # Checking size consistency of ticklabels
         if self.x_ticklabels is not None:
-            assert len(self.x_ticklabels) == matrix.shape[1], (
-                "MatshowPlot: mismatch between x_tickslabels and number of columns in the matrix."
-            )
+            assert (
+                len(self.x_ticklabels) == matrix.shape[1]
+            ), "MatshowPlot: mismatch between x_tickslabels and number of columns in the matrix."
 
         if self.y_ticklabels is not None:
-            assert len(self.y_ticklabels) == matrix.shape[0], (
-                "MatshowPlot: mismatch between y_tickslabels and number of rows in the matrix."
-            )
+            assert (
+                len(self.y_ticklabels) == matrix.shape[0]
+            ), "MatshowPlot: mismatch between y_tickslabels and number of rows in the matrix."
 
         self.__plot(matrix)
 
@@ -437,13 +437,13 @@ class MatrixComparison(MatshowPlot):
         assert matrix1.shape == matrix2.shape, "MatrixComparison: matrices have different shapes."
         # Checking size consistency of ticklabels
         if self.x_ticklabels is not None:
-            assert len(self.x_ticklabels) == matrix1.shape[1], (
-                "MatshowPlot: mismatch between x_tickslabels and number of columns in the matrix."
-            )
+            assert (
+                len(self.x_ticklabels) == matrix1.shape[1]
+            ), "MatshowPlot: mismatch between x_tickslabels and number of columns in the matrix."
 
         if self.y_ticklabels is not None:
-            assert len(self.y_ticklabels) == matrix1.shape[0], (
-                "MatshowPlot: mismatch between y_tickslabels and number of rows in the matrix."
-            )
+            assert (
+                len(self.y_ticklabels) == matrix1.shape[0]
+            ), "MatshowPlot: mismatch between y_tickslabels and number of rows in the matrix."
 
         self.__plot(matrix1, matrix2)
