@@ -120,6 +120,8 @@ class MatshowPlot(PlotBase):
             # Mapping mat values in [0,1], as it's done by matplotlib
             # to associate them to the colors of the colormap
             normMat = matrix - np.min(matrix)
+            # Casting to float64 in case the matrix is of integer type
+            normMat = normMat.astype(np.float64)
             normMat /= np.max(matrix) - np.min(matrix)
 
             # Adding text values in the matrix pixels
@@ -268,7 +270,8 @@ class MatrixComparison(MatshowPlot):
         if self.show_cbar:
             cax = divider.append_axes("right", size="5%", pad=0.1)
         if self.show_legend:
-            legend_ax = divider.append_axes("right", size="20%", pad=0.6)
+            padding = 1.2 if self.cbar_label is not None else 0.6
+            legend_ax = divider.append_axes("right", size="20%", pad=padding)
             legend_ax.set_box_aspect(1)
 
         # Matrix plotting: Plotting triangles for m1 and m2

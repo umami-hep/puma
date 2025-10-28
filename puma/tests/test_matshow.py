@@ -45,6 +45,29 @@ class TestMatshowPlot(unittest.TestCase):
             )
         )
 
+    def test_matrix_of_integers(self):
+        # test matrix
+        mat = np.array([
+            [1, 2, 3],
+            [4, 5, 6],
+            [7, 8, 9],
+            [10, 11, 12],
+        ])
+        plot_mat = MatshowPlot(colormap=plt.cm.PiYG, x_ticks_rotation=0)
+        name = "test_matrix_of_integers.png"
+        plot_mat.draw(mat)
+        plot_mat.savefig(f"{self.actual_plots_dir}/{name}")
+        # Uncomment line below to update expected image
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
+
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
+                tol=1,
+            )
+        )
+
     def test_matrix_nocbar(self):
         # test matrix
         mat = np.array([
@@ -162,11 +185,51 @@ class TestMatshowPlot(unittest.TestCase):
             x_ticklabels=x_ticks,
             x_ticks_rotation=45,
             y_ticklabels=y_ticks,
-            show_percentage=True,
+            show_percentage=False,
             text_color_threshold=0.6,
             atlas_tag_outside=True,
         )
         name = "test_matrix_comparison.png"
+        plot_matrix_comp.draw(mat1, mat2)
+        plot_matrix_comp.savefig(f"{self.actual_plots_dir}/{name}")
+        # Uncomment line below to update expected image
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
+
+        self.assertIsNone(
+            compare_images(
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
+                tol=1,
+            )
+        )
+
+    def test_matrix_comparison_percentage(self):
+        # test matrices
+        mat1 = np.array([
+            [0.55136792, 0.58809975, 0.43140183],
+            [0.83374029, 0.24685411, 0.87419068],
+            [0.08393056, 0.3477517, 0.81477693],
+            [0.39839215, 0.54854937, 0.48571167],
+        ])
+
+        mat2 = (
+            np.array([
+                [0.55136792, 0.58809975, 0.43140183],
+                [0.83374029, 0.24685411, 0.87419068],
+                [0.08393056, 0.3477517, 0.81477693],
+                [0.39839215, 0.54854937, 0.48571167],
+            ])
+            + 0.1
+        )
+
+        plot_matrix_comp = MatrixComparison(
+            x_ticks_rotation=45,
+            show_percentage=True,
+            text_color_threshold=0.6,
+            atlas_tag_outside=True,
+            cbar_label="Percentage",
+        )
+        name = "test_matrix_comparison_percentage.png"
         plot_matrix_comp.draw(mat1, mat2)
         plot_matrix_comp.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
