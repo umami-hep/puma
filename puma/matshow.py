@@ -1,3 +1,5 @@
+"""Matrix plotting with matplotlib matshow."""
+
 from __future__ import annotations
 
 import math as m
