@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+- Adding `MatrixComparison` code, to compare two matrices in a single plot [#342](https://github.com/umami-hep/puma/pull/342)
+
 ### [v0.4.11](https://github.com/umami-hep/puma/releases/tag/v0.4.11) (01.10.2025)
 
 - Updating Package Versions [#341](https://github.com/umami-hep/puma/pull/341)

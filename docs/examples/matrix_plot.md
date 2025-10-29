@@ -36,6 +36,12 @@ Example with some customization:
 
 <img src=https://github.com/umami-hep/puma/raw/examples-material/mat_custumized.png width=500>
 
+## Matrix Comparison
+
+The `MatrixComparison` class allows to compare two matrices in a single plot. In the resulting plot, each cell is split into two triangles and each triangle shows the value and color corresponding to one of the matrices. Here is an example:
+
+<img src=https://github.com/umami-hep/puma/raw/examples-material/mat_comparison.png width=500>
+
 Code to obtain previous examples:
 ```py
 --8<-- "examples/plot_matshow.py"
