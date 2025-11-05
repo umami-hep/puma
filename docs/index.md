@@ -47,7 +47,7 @@ is what you want.
 The Docker images are built on GitHub and contain the latest version from the `main` branch.
 
 The container registry with all available tags can be found
-[here](https://gitlab.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images/container_registry/13727).
+[here](https://gitlab.cern.ch/aft/training-images/puma-images/container_registry/13727).
 
 The `puma:latest` image is based on `python:3.11.10-bullseye` and is meant for users who want to use the latest version of `puma`. For each release, there is a corresponding tagged image.
 You can start an interactive shell in a container with your current working directory
@@ -56,13 +56,13 @@ mounted into the container by using one of the commands provided below.
 On a machine with Docker installed:
 
 ```bash
-docker run -it --rm -v $PWD:/puma_container -w /puma_container gitlab-registry.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images/puma:latest bash
+docker run -it --rm -v $PWD:/puma_container -w /puma_container gitlab-registry.cern.ch/aft/training-images/puma-images/puma:latest bash
 ```
 
 On a machine/cluster with singularity installed:
 
 ```bash
-singularity shell -B $PWD docker://gitlab-registry.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images/puma:latest
+singularity shell -B $PWD docker://gitlab-registry.cern.ch/aft/training-images/puma-images/puma:latest
 ```
 
-**The images are automatically updated via GitHub and pushed to this [repository registry](https://gitlab.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images/container_registry).**
+**The images are automatically updated via GitHub and pushed to this [repository registry](https://gitlab.cern.ch/aft/training-images/puma-images/container_registry).**

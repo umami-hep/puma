@@ -9,9 +9,10 @@ on:
       - "main"
     tags:
       - "*"
+  workflow_dispatch:
 
 env:
-  GITLAB_CONTAINER_REGISTRY: gitlab-registry.cern.ch/atlas-flavor-tagging-tools/training-images/puma-images
+  GITLAB_CONTAINER_REGISTRY: gitlab-registry.cern.ch/aft/training-images/puma-images
 
 jobs:
   build_latest:
