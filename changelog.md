@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+### [v0.4.12](https://github.com/umami-hep/puma/releases/tag/v0.4.12) (05.11.2025)
+
 - Adding new URL for Images [#343](https://github.com/umami-hep/puma/pull/343)
 - Adding `MatrixComparison` code, to compare two matrices in a single plot [#342](https://github.com/umami-hep/puma/pull/342)
 
