@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import numpy as np
 from ftag.utils import calculate_efficiency_error, calculate_rejection_error
@@ -10,6 +10,9 @@ from ftag.utils import calculate_efficiency_error, calculate_rejection_error
 from puma.utils import logger
 from puma.utils.histogram import save_divide
 from puma.var_vs_var import VarVsVar, VarVsVarPlot
+
+if TYPE_CHECKING:  # pragma: no cover
+    from ftag.labels import Label
 
 
 class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
@@ -23,6 +26,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         disc_bkg: np.ndarray = None,
         bins: int | list | np.ndarray = 10,
         working_point: float | list | None = None,
+        fixed_bkg_rej: float | None = None,
         disc_cut: int | list | np.ndarray | None = None,
         flat_per_bin: bool = False,
         key: str | None = None,
@@ -47,6 +51,9 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             rightmost edge, allowing for non-uniform bin widths, by default 10
         working_point : float | list | None, optional
             Working point, by default None
+        fixed_bkg_rej : float | None, optional
+            Instead of fixing the signal efficiency (by using working_point), fix the
+            background rejection to a certain value. By default None
         disc_cut : int | list | np.ndarray | None, optional
             Cut value for discriminant, if it is a sequence it has to have the same
             length as number of bins, by default None
@@ -76,6 +83,8 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             Using disc_cut and working_point together
         ValueError
             disc_cut (if an array) has a different length than the number of bins given
+        TypeError
+            If "working_point" is neither a list nor a float
         """
         if len(x_var_sig) != len(disc_sig):
             raise ValueError(
@@ -88,19 +97,6 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
                 f"({len(disc_bkg)}) have to be identical."
             )
 
-        # checking that the given options are compatible
-        # could also think about porting it to a class function insted of passing
-        # the arguments to init e.g. `set_method`
-        if working_point is None and disc_cut is None:
-            raise ValueError("Either `working_point` or `disc_cut` needs to be specified.")
-        if flat_per_bin:
-            if disc_cut is not None:
-                raise ValueError(
-                    "You cannot specify `disc_cut` when `flat_per_bin` is set to True."
-                )
-            if not isinstance(working_point, float):
-                raise ValueError("You can't define PCFT working points when using a `flat_per_bin`")
-
         # Ensure that signal/background variables are arrays
         self.x_var_sig = np.array(x_var_sig)
         self.disc_sig = np.array(disc_sig)
@@ -109,6 +105,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
 
         # Define attributes for the working points
         self.working_point = working_point
+        self.fixed_bkg_rej = fixed_bkg_rej
         self.disc_cut = disc_cut
         self.flat_per_bin = flat_per_bin
 
@@ -131,10 +128,29 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         # Set the bin edges
         self._set_bin_edges(bins)
 
-        # Check that either disc_cut or working_point are defined
-        if disc_cut is not None:
-            if working_point is not None:
-                raise ValueError("You cannot specify `disc_cut` when providing `working_point`.")
+        # Check that either disc_cut, working_point, or fixed_bkg_rej are defined
+        not_none = [
+            name
+            for name, val in (
+                ("disc_cut", self.disc_cut),
+                ("working_point", self.working_point),
+                ("fixed_bkg_rej", self.fixed_bkg_rej),
+            )
+            if val is not None
+        ]
+
+        if len(not_none) != 1:
+            raise ValueError(
+                f"Exactly one of disc_cut, working_point, fixed_bkg_rej must be provided! "
+                f"Got {', '.join(not_none) if not_none else 'none'}."
+            )
+
+        if self.disc_cut is not None:
+            # Ensure that flat_per_bin cannot be set
+            if self.flat_per_bin:
+                raise ValueError(
+                    "You cannot specify `disc_cut` when `flat_per_bin` is set to True."
+                )
 
             # Ensure that disc_cut has the same length as the number of bins if it's used
             if isinstance(disc_cut, (list, np.ndarray)) and self.n_bins != len(disc_cut):
@@ -143,16 +159,29 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
                     " number of bins."
                 )
 
-        # Ensure that the given working points are an array
-        elif isinstance(self.working_point, list):
-            self.working_point = np.asarray(self.working_point)
+        elif self.working_point is not None:
+            # Ensure that only a one float is given to working_point with flat_per_bin
+            if self.flat_per_bin and not isinstance(working_point, float):
+                raise ValueError("working_point must be a float when running with flat_per_bin!")
 
-        # Throw error if the working points are neither a float nor a list
-        elif not isinstance(working_point, float):
-            raise TypeError(
-                "`working_point` must either be a list or a float! "
-                f"You gave {type(self.working_point)}"
-            )
+            # Ensure that the given working points are an array
+            if isinstance(self.working_point, list):
+                self.working_point = np.asarray(self.working_point)
+
+            # Throw error if the working points are neither a float nor a list
+            elif not isinstance(working_point, float):
+                raise TypeError(
+                    "`working_point` must either be a list or a float! "
+                    f"You gave {type(self.working_point)}"
+                )
+
+        elif self.fixed_bkg_rej is not None:
+            # Ensure that fixed_bkg_rej is a float:
+            if not isinstance(fixed_bkg_rej, (int, float)):
+                raise TypeError(
+                    "`fixed_bkg_rej` must be an int or a float!"
+                    f" You gave {type(self.fixed_bkg_rej)}"
+                )
 
         # Apply the binning and get the discriminant value cuts as attributes
         self._apply_binning()
@@ -172,7 +201,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         )
 
         # Calculate all efficiencies/rejections possible to make them easily available and storable
-        self.results = {"normal": {}, "inverse": {}}
+        self.results: dict[str, dict] = {"normal": {}, "inverse": {}}
 
         # Iterate over inverse and normal setup
         for iter_key in self.results:
@@ -197,7 +226,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
                     ) = (None, None)
 
         # Set inverse_cut back to false
-        self.inverse_cut = None
+        self.inverse_cut = False
 
     def _set_bin_edges(self, bins: int | list | np.ndarray):
         """Calculate bin edges, centres and width and save them as class variables.
@@ -224,12 +253,16 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             self.bin_edges = np.linspace(xmin, xmax, bins + 1)
         elif isinstance(bins, (list, np.ndarray)):
             self.bin_edges = np.array(bins)
-        logger.debug("Retrieved bin edges %s}", self.bin_edges)
+
+        # Check that the bin edges are now an array
+        assert isinstance(self.bin_edges, np.ndarray)
+
+        logger.debug(f"Retrieved bin edges: {self.bin_edges}")
         # Get the bins for the histogram
         self.x_bin_centres = (self.bin_edges[:-1] + self.bin_edges[1:]) / 2.0
         self.bin_widths = (self.bin_edges[1:] - self.bin_edges[:-1]) / 2.0
-        self.n_bins = self.bin_edges.size - 1
-        logger.debug("N bins: %i", self.n_bins)
+        self.n_bins = self.bin_edges.size - 1  # type: ignore[attr-defined]
+        logger.debug(f"N bins: {self.n_bins}")
 
     def _apply_binning(self):
         """Get binned distributions for the signal and background."""
@@ -259,20 +292,31 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             self.disc_cut = [self.disc_cut] * self.n_bins
         elif isinstance(self.disc_cut, (list, np.ndarray)):
             self.disc_cut = self.disc_cut
-        elif self.flat_per_bin:
-            self.disc_cut = [
-                np.percentile(x, (1 - self.working_point) * 100) for x in self.disc_binned_sig
-            ]
         elif isinstance(self.working_point, (list, np.ndarray)):
             self.disc_cut = np.column_stack((
                 [np.percentile(self.disc_sig, (1 - self.working_point[0]) * 100)] * self.n_bins,
                 [np.percentile(self.disc_sig, (1 - self.working_point[1]) * 100)] * self.n_bins,
             ))
+        elif self.flat_per_bin:
+            if isinstance(self.working_point, float):
+                self.disc_cut = [
+                    float(np.percentile(x, (1 - self.working_point) * 100))
+                    for x in self.disc_binned_sig
+                ]
+            elif isinstance(self.fixed_bkg_rej, (int, float)):
+                self.disc_cut = [
+                    float(np.percentile(x, (1 - (1 / self.fixed_bkg_rej)) * 100))
+                    for x in self.disc_binned_bkg
+                ]
+        elif isinstance(self.fixed_bkg_rej, (int, float)):
+            self.disc_cut = [
+                float(np.percentile(self.disc_bkg, (1 - (1 / self.fixed_bkg_rej)) * 100))
+            ] * self.n_bins
         else:
             self.disc_cut = [
                 float(np.percentile(self.disc_sig, (1 - self.working_point) * 100))
             ] * self.n_bins
-        logger.debug("Discriminant cut: %.3f", self.disc_cut)
+        logger.debug(f"Discriminant cut: {self.disc_cut}")
 
     def efficiency(self, arr: np.ndarray, cut: float | np.ndarray):
         """Calculate efficiency and the associated error.
@@ -291,6 +335,11 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             Efficiency
         float
             Efficiency error
+
+        Raises
+        ------
+        TypeError
+            If the cut parameter type is not supported
         """
         if len(arr) == 0:
             return 0, 0
@@ -325,6 +374,11 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             Rejection
         float
             Rejection error
+
+        Raises
+        ------
+        TypeError
+            If the cut parameter type is not supported
         """
         if self.inverse_cut:
             rej = save_divide(len(arr), sum(arr < cut), default=np.inf)
@@ -363,6 +417,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         return {
             "results": self.results,
             "working_point": self.working_point,
+            "fixed_bkg_rej": self.fixed_bkg_rej,
             "disc_cut": self.disc_cut,
             "flat_per_bin": self.flat_per_bin,
             "x_var": self.x_var,
@@ -385,7 +440,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         logger.debug("Calculating signal efficiency.")
         eff = np.array(list(map(self.efficiency, self.disc_binned_bkg, self.disc_cut)))[:, 0]
         err = np.array(list(map(self.efficiency, self.disc_binned_sig, self.disc_cut)))[:, 1]
-        logger.debug("Retrieved signal efficiencies: %s", eff)
+        logger.debug(f"Retrieved signal efficiencies: {eff}")
         return eff, err
 
     @property
@@ -401,7 +456,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         """
         logger.debug("Calculating signal efficiency.")
         eff = list(map(self.efficiency, self.disc_binned_sig, self.disc_cut))
-        logger.debug("Retrieved signal efficiencies: %s", eff)
+        logger.debug(f"Retrieved signal efficiencies: {eff}")
         return np.array(eff)[:, 0], np.array(eff)[:, 1]
 
     @property
@@ -417,7 +472,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         """
         logger.debug("Calculating background efficiency.")
         eff = list(map(self.efficiency, self.disc_binned_bkg, self.disc_cut))
-        logger.debug("Retrieved background efficiencies: %.2f", eff)
+        logger.debug(f"Retrieved background efficiencies: {eff}")
         return np.array(eff)[:, 0], np.array(eff)[:, 1]
 
     @property
@@ -433,7 +488,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         """
         logger.debug("Calculating signal rejection.")
         rej = list(map(self.rejection, self.disc_binned_sig, self.disc_cut))
-        logger.debug("Retrieved signal rejections: %.1f", rej)
+        logger.debug(f"Retrieved signal rejections: {rej}")
         return np.array(rej)[:, 0], np.array(rej)[:, 1]
 
     @property
@@ -449,7 +504,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         """
         logger.debug("Calculating background rejection.")
         rej = list(map(self.rejection, self.disc_binned_bkg, self.disc_cut))
-        logger.debug("Retrieved background rejections: %s", rej)
+        logger.debug(f"Retrieved background rejections: {rej}")
         return np.array(rej)[:, 0], np.array(rej)[:, 1]
 
     def get(self, mode: str, inverse_cut: bool = False):
@@ -550,13 +605,32 @@ class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
 
     def apply_modified_atlas_second_tag(
         self,
-        signal,
-        working_point=None,
-        disc_cut=None,
-        flat_per_bin=False,
+        signal: Label | None = None,
+        background: Label | None = None,
+        working_point: float | list | None = None,
+        fixed_bkg_rej: float | None = None,
+        disc_cut: float | None = None,
+        flat_per_bin: bool = False,
     ):
-        """Modifies the atlas_second_tag to include info on the type of p-eff plot
-        being displayed.
+        """Modifies the atlas_second_tag to include info on the type of p-eff plot.
+
+        Parameters
+        ----------
+        signal : Label | None, optional
+            Signal flavour that is used. By default None
+        background : Label | None, optional
+            Background flavour that is used. By default None
+        working_point : float | list | None, optional
+            Working point that was used. When PCFT was used, this is a list of length 2.
+            If disc_cut/fixed_bkg_rej is used, this needs to be None, by default None
+        fixed_bkg_rej : float | None, optional
+            The background rejection to which it was fixed. Must be None when working_point
+            or disc_cut is used. By default None
+        disc_cut : float | None, optional
+            Discriminant cut that was used. If working_point/fixed_bkg_rej is used,
+            this must be None. By default None
+        flat_per_bin : bool, optional
+            If flat_per_bin was used, by default False
         """
         if working_point:
             if isinstance(working_point, list):
@@ -569,6 +643,8 @@ class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
                 mid_str = f"{int(round(working_point * 100, 0))}% " + signal.eff_str
         elif disc_cut:
             mid_str = rf"$D_{{{signal.name.rstrip('jets')}}}$ > {disc_cut}"
+        elif fixed_bkg_rej:
+            mid_str = f"{int(round(fixed_bkg_rej, 0))} " + background.rej_str
         tag = f"Flat {mid_str} per bin" if flat_per_bin else f"{mid_str}"
         if self.atlas_second_tag:
             self.atlas_second_tag = f"{self.atlas_second_tag}\n{tag}"
@@ -588,6 +664,6 @@ class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
         Line2D
             matplotlib Line2D object
         """
-        logger.debug("Plotting curves with mode %s", self.mode)
+        logger.debug(f"Plotting curves with mode {self.mode}")
         self._setup_curves()
         return super().plot(**kwargs)

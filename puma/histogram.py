@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 import matplotlib as mpl
 import numpy as np
@@ -109,6 +109,8 @@ class Histogram(PlotLineObject):
             If input data is not of type np.ndarray or list
         ValueError
             If weights are specified but have different length as the input values
+        TypeError
+            If the input data for the histogram are invalid
         """
         super().__init__(**kwargs)
 
@@ -124,23 +126,23 @@ class Histogram(PlotLineObject):
         if weights is not None and len(values) != len(weights):
             raise ValueError("`values` and `weights` are not of same length.")
 
-        self.bins = bins
-        self.bins_range = bins_range
-        self.bin_edges = bin_edges
-        self.sum_squared_weights = sum_squared_weights
-        self.kwargs = kwargs
-
-        if self.bin_edges is None and self.sum_squared_weights is not None:
+        if bin_edges is None and sum_squared_weights is not None:
             logger.warning(
                 "The Histogram has no bin edges defined and is thus not considered filled. "
                 "Parameter `sum_squared_weights` is ignored."
             )
 
-        elif self.bin_edges is not None and self.bins is not None:
+        elif bin_edges is not None and bins is not None:
             logger.warning("When bin_edges are provided, bins are not considered!")
 
-        elif self.bin_edges is None and self.bins is None:
+        elif bin_edges is None and bins is None:
             raise ValueError("You need to define either `bins` or `bin_edges`!")
+
+        self.bins = bins
+        self.bins_range = bins_range
+        self.bin_edges = bin_edges
+        self.sum_squared_weights = sum_squared_weights
+        self.kwargs = kwargs
 
         # This attribute allows to know how to histogram it
         self.filled = self.bin_edges is not None
@@ -149,18 +151,19 @@ class Histogram(PlotLineObject):
         self.flavour = Flavours[flavour] if isinstance(flavour, str) else flavour
 
         # Set the inputs as attributes
-        self.weights = weights
+        self.weights = weights if weights is not None else np.ones_like(values)
+        self.sum_of_weights = float(np.sum(self.weights))
         self.ratio_group = ratio_group
         self.add_flavour_label = add_flavour_label
         self.histtype = histtype
         self.norm = norm
         self.underoverflow = underoverflow
         self.is_data = is_data
-        self.discrete_vals = discrete_vals
+        self.discrete_vals = cast(list, discrete_vals)
 
         # Define the key (like a name) for the Histogram object. Will be set later
         # by the actual histogram plot
-        self.key = None
+        self.key: str | None = None
 
         # Set the label
         label = kwargs["label"] if "label" in kwargs and kwargs["label"] is not None else ""
@@ -229,8 +232,59 @@ class Histogram(PlotLineObject):
             "label": self.label,
             "norm": self.norm,
             "discrete_vals": self.discrete_vals,
+            "sum_of_weights": self.sum_of_weights,
             **extra_kwargs,
         }
+
+    def update(self, values: np.ndarray, weights: np.ndarray | None = None) -> None:
+        """Update the existing histogram with new values.
+
+        Parameters
+        ----------
+        values : np.ndarray
+            New values that are to be added.
+        weights : np.ndarray | None, optional
+            Weights for each entry in values. Must be the same shape/size as values.
+            If None, each value in values will be weighted the same, by default None
+        """
+        # Replace the weights if None
+        if weights is None:
+            weights = np.ones_like(values)
+
+        # Check that the weights are a np.ndarray
+        assert isinstance(weights, np.ndarray)
+
+        # Call the hist_w_unc function for the new values
+        _, incoming_hist, incoming_unc, _ = hist_w_unc(
+            arr=values,
+            bins=self.bins,
+            filled=self.filled,
+            bins_range=self.bins_range,
+            normed=self.norm,
+            weights=weights,
+            bin_edges=self.bin_edges,
+            sum_squared_weights=self.sum_squared_weights,
+            underoverflow=self.underoverflow,
+        )
+
+        # Get the new sum_of_weights
+        incoming_sum_of_weights = float(np.sum(weights))
+
+        if self.norm:
+            self.hist = (
+                self.hist * self.sum_of_weights + incoming_hist * incoming_sum_of_weights
+            ) / (self.sum_of_weights + incoming_sum_of_weights)
+            self.unc = np.sqrt(
+                (self.unc * self.sum_of_weights) ** 2
+                + (incoming_unc * incoming_sum_of_weights) ** 2
+            ) / (self.sum_of_weights + incoming_sum_of_weights)
+
+        else:
+            self.hist += incoming_hist
+            self.unc = np.sqrt(self.unc**2 + incoming_unc**2)
+
+        self.sum_of_weights += incoming_sum_of_weights
+        self.band = self.hist - self.unc
 
     def divide(self, other):
         """Calculate ratio between two class objects.
@@ -294,6 +348,11 @@ class Histogram(PlotLineObject):
         -------
         tuple
             Tuple of the ratios and ratio uncertaintes for the bins
+
+        Raises
+        ------
+        ValueError
+            If the binning of the two histograms doesn't match
         """
         try:
             self.hist + ref_hist
@@ -326,6 +385,7 @@ class Histogram(PlotLineObject):
             If the number of bins is set to 1 such that no values can be
             distinguished
         """
+        assert self.discrete_vals is not None
         if len(self.bin_edges) > 1:
             if abs(self.bin_edges[1] - self.bin_edges[0]) <= 1:
                 indice = [
@@ -391,10 +451,9 @@ class HistogramPlot(PlotBase):
         self.bin_width_in_ylabel = bin_width_in_ylabel
         self.stacked = stacked
         self.histtype = histtype
-        self.plot_objects = {}
-        self.add_order = []
-        self.ratios_objects = {}
-        self.reference_object = None
+        self.plot_objects: dict[str, Histogram] = {}
+        self.add_order: list[str] = []
+        self.reference_object: list[str] = []
 
         if self.n_ratio_panels > 1:
             raise ValueError("Not more than one ratio panel supported.")
@@ -405,7 +464,7 @@ class HistogramPlot(PlotBase):
         histogram: Histogram,
         key: str | None = None,
         reference: bool = False,
-    ):
+    ) -> None:
         """Adding histogram object to figure.
 
         Parameters
@@ -423,8 +482,10 @@ class HistogramPlot(PlotBase):
         KeyError
             If unique identifier key is used twice
         """
-        if key is None:
-            key = len(self.plot_objects) + 1
+        # If key not defined, set it to a numerical value
+        key = cast(str, key if key is not None else f"{len(self.plot_objects) + 1}")
+
+        # Check that key is not double used
         if key in self.plot_objects:
             raise KeyError(f"Duplicated key {key} already used for unique identifier.")
 
@@ -435,7 +496,7 @@ class HistogramPlot(PlotBase):
         # Set linestyle
         if histogram.linestyle is None:
             if histogram.is_data is True:
-                histogram.linestyle = ""
+                histogram.linestyle = "None"
             else:
                 histogram.linestyle = "-"
         # Set marker
@@ -470,10 +531,7 @@ class HistogramPlot(PlotBase):
         key : str
             Unique identifier of histogram object
         """
-        if self.reference_object is None:
-            self.reference_object = [key]
-        else:
-            self.reference_object.append(key)
+        self.reference_object.append(key)
         logger.debug("Adding '%s' to reference histogram(s)", key)
 
     def plot(self, **kwargs):
@@ -767,7 +825,7 @@ class HistogramPlot(PlotBase):
                 )
 
             else:
-                if self.reference_object is None:
+                if len(self.reference_object) == 0:
                     raise ValueError("Please specify a reference curve.")
 
                 ratio, ratio_unc = elem.divide(self.get_reference_histo(elem))
@@ -870,6 +928,7 @@ class HistogramPlot(PlotBase):
         self.set_ylabel(self.axis_top)
 
         if self.n_ratio_panels > 0:
+            assert isinstance(self.ylabel_ratio, list)
             self.set_ylabel(
                 self.ratio_axes[0],
                 self.ylabel_ratio[0],

@@ -4,76 +4,127 @@ from __future__ import annotations
 
 import copy
 from pathlib import Path
+from typing import TYPE_CHECKING, Any, cast
 
 from ftag import Label
 from ftag.hdf5 import H5Reader
 
+from puma.hlplots.results import Tagger
 from puma.utils import logger
 
+if TYPE_CHECKING:  # pragma: no cover
+    from puma.hlplots.results import Results
 
-def combine_suffixes(suffixes):
-    """Combines a list of suffixes into a single suffix."""
+
+def combine_suffixes(suffixes: list) -> str:
+    """Combines a list of suffixes into a single suffix.
+
+    Parameters
+    ----------
+    suffixes : list
+        List of suffixes
+
+    Returns
+    -------
+    str
+        Combined suffix string
+    """
     clean_suffixes = [s for s in suffixes if s not in {"", None}]
     if len(clean_suffixes) == 0:
-        return None
+        return ""
     return "_".join([s for s in suffixes if s not in {"", None}])
 
 
-def get_include_exclude_str(include_taggers, all_taggers):
-    """Generates the name of the plot, based on the included taggers."""
+def get_include_exclude_str(include_taggers: dict, all_taggers: dict) -> str:
+    """Generates the name of the plot, based on the included taggers.
+
+    Parameters
+    ----------
+    include_taggers : dict
+        Taggers that are to included
+    all_taggers : dict
+        All taggers
+
+    Returns
+    -------
+    str
+        Name of the plot based on the included taggers
+    """
     if len(include_taggers) == len(all_taggers):
         return ""
 
     return "taggers_" + "_".join([t.yaml_name for t in include_taggers.values()])
 
 
-def get_included_taggers(results, plot_config):
-    """Converts 'include_taggers' or 'exclude_taggers' into a list of the taggers
-    to include.
+def get_included_taggers(
+    results: Results,
+    plot_config: dict[str, Any],
+) -> tuple[dict[str, Tagger], dict[str, Tagger], str]:
+    """Converts 'include_taggers' or 'exclude_taggers' into the taggers to include.
+
+    Parameters
+    ----------
+    results : Results
+        Results object from which the taggers are taken
+    plot_config : dict
+        Plot config dict
+
+    Returns
+    -------
+    tuple[dict | Any | None, dict, str]
+        The included taggers as dict, all taggers as dict and the include_exclude string
+
+    Raises
+    ------
+    ValueError
+        If no tagger is left in the include taggers
+        If the reference is not in the included taggers
     """
-    all_taggers = results.taggers
+    # Make the type explicit for mypy
+    all_taggers = cast(dict[str, Tagger], results.taggers)
     all_tagger_names = [t.yaml_name for t in all_taggers.values()]
-    if "include_taggers" not in plot_config and "exclude_taggers" not in plot_config:
-        include_taggers = results.taggers
-    elif include_taggers := plot_config.get("include_taggers", None):
+
+    # Read config into separate, typed locals
+    incl = cast(list[str] | None, plot_config.get("include_taggers"))
+    excl = cast(list[str] | None, plot_config.get("exclude_taggers"))
+
+    include_taggers: dict[str, Tagger]
+    if not incl and not excl:
+        include_taggers = dict(all_taggers)  # copy to avoid mutating upstream
+    elif incl:
         assert all(
-            t in all_tagger_names for t in include_taggers
-        ), f"Not all taggers are in the results: {include_taggers}"
-
-        include_taggers = {
-            t: v for t, v in results.taggers.items() if v.yaml_name in include_taggers
-        }
-
-    elif exclude_taggers := plot_config.get("exclude_taggers", None):
-        assert all(t in all_tagger_names for t in exclude_taggers)
-        include_taggers = {
-            t: v for t, v in results.taggers.items() if v.yaml_name not in exclude_taggers
-        }
+            t in all_tagger_names for t in incl
+        ), f"Not all taggers are in the results: {incl}"
+        include_taggers = {k: v for k, v in all_taggers.items() if v.yaml_name in incl}
+    else:
+        assert excl is not None
+        assert all(
+            t in all_tagger_names for t in excl
+        ), f"Not all excluded taggers are in the results: {excl}"
+        include_taggers = {k: v for k, v in all_taggers.items() if v.yaml_name not in excl}
 
     if len(include_taggers) == 0:
         raise ValueError(
             "No taggers included in plot, check that 'exclude_taggers' doesn't exclude "
-            "all taggers, or that atleast 1 tagger is defined in 'include_taggers'"
+            "all taggers, or that at least 1 tagger is defined in 'include_taggers'"
         )
     logger.debug("Include taggers: %s", include_taggers)
 
-    # Set which tagger to use as a reference, if no reference is set, use the first
-    #  tagger.This is only needed for plots with a ratio, but still...
+    # Ensure a reference is set
     if not any(t.reference for t in include_taggers.values()):
-        if reference := plot_config.get("reference", None):
-            if reference not in [t.yaml_name for t in include_taggers.values()]:
+        ref_name = cast(str | None, plot_config.get("reference"))
+        if ref_name is not None:
+            if ref_name not in [t.yaml_name for t in include_taggers.values()]:
                 raise ValueError(
-                    f"Reference {reference} not in included taggers" f" {include_taggers.keys()}"
+                    f"Reference {ref_name} not in included taggers {list(include_taggers.keys())}"
                 )
-            reference = str(next(t for t in include_taggers.values() if t.yaml_name == reference))
-            # Create a copy, and set it as reference, this is the easiest way of doing
-            #  this but might be a bit slow
+            ref_key = next(k for k, t in include_taggers.items() if t.yaml_name == ref_name)
         else:
-            reference = next(iter(include_taggers.keys()))
-            logger.info("No reference set for plot, using " + reference + " as reference")
+            ref_key = next(iter(include_taggers.keys()))
+            logger.info("No reference set for plot, using %s as reference", ref_key)
 
-        include_taggers[reference] = copy.deepcopy(include_taggers[reference])
-        include_taggers[reference].reference = True
+        include_taggers[ref_key] = copy.deepcopy(include_taggers[ref_key])
+        include_taggers[ref_key].reference = True
 
     return (
         include_taggers,
@@ -104,6 +155,11 @@ def get_tagger_name(name: str, sample_path: Path, key: str, flavours: list[Label
     -------
     str
         The name of the tagger to use
+
+    Raises
+    ------
+    ValueError
+        If no valid tagger was found
     """
     if name:
         return name
@@ -112,7 +168,7 @@ def get_tagger_name(name: str, sample_path: Path, key: str, flavours: list[Label
     jet_vars = reader.dtypes()["jets"].names
     req_keys = [f"_p{flav.name[:-4]}" for flav in flavours]
 
-    potential_taggers = {}
+    potential_taggers: dict[str, list] = {}
 
     # Identify potential taggers
     for var in jet_vars:

@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, cast
+
 import matplotlib as mpl
 import numpy as np
 import pandas as pd
 
 from puma.plot_base import PlotBase, PlotLineObject
 from puma.utils import get_good_colours, get_good_markers, logger
+
+if TYPE_CHECKING:  # pragma: no cover
+    from matplotlib.axes import Axes
 
 
 class Line2D(PlotLineObject):
@@ -34,21 +39,18 @@ class Line2D(PlotLineObject):
         ------
         ValueError
             If the dtype of x_values and y_values is different.
-        ValueError
             If provided x_values array is empty.
-        ValueError
             If provided y_values array is empty.
-        ValueError
-            If provided x_values and y_values arrays have different
-            shapes.
-        ValueError
+            If provided x_values and y_values arrays have different shapes.
             If an invalid type was given for x_values
+        TypeError
+            If the type of input data is not supported
         """
         super().__init__(**kwargs)
 
         # Check input dtype
         if isinstance(x_values, (np.ndarray, list, int, float, pd.Series)):
-            if type(x_values) != type(y_values):  # pylint: disable=C0123
+            if type(x_values) is not type(y_values):  # pylint: disable=C0123
                 raise ValueError(
                     "Invalid types of input given! Both must be one of the following: "
                     "numpy.ndarray, list, int, float, pandas.Series \n"
@@ -89,7 +91,7 @@ class Line2D(PlotLineObject):
         self.y_values = y_values
 
         # Set key to None. Will be defined when plotting starts
-        self.key = None
+        self.key: str | None = None
 
 
 class Line2DPlot(PlotBase):
@@ -118,17 +120,17 @@ class Line2DPlot(PlotBase):
         self.logy = logy
 
         # Init needed lists and dicts
-        self.plot_objects = {}
-        self.add_order = []
+        self.plot_objects: dict[str, Axes] = {}
+        self.add_order: list[str] = []
 
         self.initialise_figure()
 
     def add(
         self,
-        curve: object,
+        curve: Line2D,
         key: str | None = None,
         is_marker: bool = False,
-    ):
+    ) -> None:
         """Adding `puma.Line2D` object to figure.
 
         Parameters
@@ -146,8 +148,7 @@ class Line2DPlot(PlotBase):
             If unique identifier key is used twice
         """
         # If key not defined, set it to a numerical value
-        if key is None:
-            key = len(self.plot_objects) + 1
+        key = cast(str, key if key is not None else f"{len(self.plot_objects) + 1}")
 
         # Check that key is not double used
         if key in self.plot_objects:
@@ -177,7 +178,7 @@ class Line2DPlot(PlotBase):
             curve.is_marker = True
             # Set colour of the marker the same as the last line plotted
             if curve.colour is None:
-                curve.colour = self.plot_objects[len(self.plot_objects)].colour
+                curve.colour = self.plot_objects[f"{len(self.plot_objects)}"].colour
             # Set markerstyle
             if curve.marker is None:
                 curve.marker = get_good_markers()[len(self.plot_objects)]

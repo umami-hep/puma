@@ -6,7 +6,7 @@ import json
 import tkinter as tk
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any, Sequence
 
 import atlasify
 import numpy as np
@@ -14,14 +14,18 @@ import yaml
 from ftag import Flavours, Label
 from IPython import get_ipython
 from IPython.display import display
-from matplotlib import axis, gridspec, lines
+from matplotlib import gridspec, lines
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from matplotlib.ticker import MaxNLocator
+from typing_extensions import Self
 
 from puma.utils import logger, set_xaxis_ticklabels_invisible
 
 atlasify.LINE_SPACING = 1.3  # overwrite the default, which is 1.2
+
+if TYPE_CHECKING:  # pragma: no cover
+    from matplotlib.axes import Axes
 
 
 @dataclass
@@ -54,17 +58,17 @@ class PlotLineObject:
         By default None
     """
 
-    xmin: float = None
-    xmax: float = None
-    colour: str = None
-    label: str = None
-    linestyle: str = None
-    linewidth: str = None
-    alpha: float = None
-    marker: str = None
-    markersize: int = None
-    markeredgewidth: int = None
-    is_marker: bool = None
+    xmin: float | None = None
+    xmax: float | None = None
+    colour: str | None = None
+    label: str | None = None
+    linestyle: str | None = None
+    linewidth: float | None = None
+    alpha: float | None = None
+    marker: str | None = None
+    markersize: int | None = None
+    markeredgewidth: int | None = None
+    is_marker: bool | None = None
 
     @property
     def args_to_store(self) -> dict[str, Any]:
@@ -91,8 +95,19 @@ class PlotLineObject:
         }
 
     @staticmethod
-    def encode(obj):
-        """Return a JSON/YAML-safe version of obj, tagging special types."""
+    def encode(obj: Any) -> Any:
+        """Return a JSON/YAML-safe version of obj, tagging special types.
+
+        Parameters
+        ----------
+        obj : Any
+            Object that is to be encoded
+
+        Returns
+        -------
+        Any
+            The encoded object
+        """
         # Encode special cases which can't be easily stored in json and yaml
         if isinstance(obj, np.ndarray):
             return {"__ndarray__": obj.tolist(), "dtype": str(obj.dtype)}
@@ -111,8 +126,19 @@ class PlotLineObject:
         return obj
 
     @staticmethod
-    def decode(obj):
-        """Inverse of encode, turning tags back into real objects."""
+    def decode(obj: Any) -> Any:
+        """Inverse of encode, turning tags back into real objects.
+
+        Parameters
+        ----------
+        obj : Any
+            Object that is to be decoded
+
+        Returns
+        -------
+        Any
+            The decoded object
+        """
         # If a dict was used, go through and check for types
         if isinstance(obj, dict):
             if "__ndarray__" in obj:
@@ -133,7 +159,7 @@ class PlotLineObject:
         return obj
 
     def save(self, path: str | Path) -> None:
-        """Store class attributes in a file.
+        """Store class attributes in a file (json or yaml).
 
         Saving can be performed to a yaml and a json file.
 
@@ -141,6 +167,11 @@ class PlotLineObject:
         ----------
         path : str | Path
             Path to which the class object attributes are written.
+
+        Raises
+        ------
+        ValueError
+            If an unknown file extension was given
         """
         # Ensure path is a path object
         path = Path(path)
@@ -163,8 +194,8 @@ class PlotLineObject:
             raise ValueError("Unknown file extension. Use '.json', '.yaml' or '.yml'!")
 
     @classmethod
-    def load(cls, path: str | Path, **extra_kwargs) -> object:
-        """Load the needed attributes for the class from file and init.
+    def load(cls, path: str | Path, **extra_kwargs: Any) -> Self:
+        """Load attributes from file and construct the object without __init__.
 
         Parameters
         ----------
@@ -205,12 +236,11 @@ class PlotLineObject:
         data.update(extra_kwargs)
 
         # Init the class without running __init__
-        obj = cls.__new__(cls)
+        obj: Self = cls.__new__(cls)
 
         # Set attributes verbatim
         for key, val in data.items():
             setattr(obj, key, val)
-
         return obj
 
 
@@ -308,25 +338,25 @@ class PlotObject:
     title: str = ""
     draw_errors: bool = True
 
-    xmin: float = None
-    xmax: float = None
-    ymin: float = None
-    ymax: float = None
-    ymin_ratio: list = None
-    ymax_ratio: list = None
+    xmin: float | None = None
+    xmax: float | None = None
+    ymin: float | None = None
+    ymax: float | None = None
+    ymin_ratio: list[float | None] | None = None
+    ymax_ratio: list[float | None] | None = None
     y_scale: float = 1.3
     logx: bool = False
     logy: bool = True
-    xlabel: str = None
-    ylabel: str = None
-    ylabel_ratio: list = None
+    xlabel: str | None = None
+    ylabel: str | None = None
+    ylabel_ratio: list[str] | None = None
     label_fontsize: int = 12
     fontsize: int = 10
 
     n_ratio_panels: int = 0
     vertical_split: bool = False
 
-    figsize: tuple = None
+    figsize: tuple[float, float] | None = None
     dpi: int = 400
     transparent: bool = False
 
@@ -334,7 +364,7 @@ class PlotObject:
     figure_layout: str = "constrained"
 
     # legend settings
-    leg_fontsize: int = None
+    leg_fontsize: int | None = None
     leg_loc: str = "upper right"
     leg_linestyle_loc: str = "upper center"
     leg_ncol: int = 1
@@ -343,17 +373,17 @@ class PlotObject:
     apply_atlas_style: bool = True
     use_atlas_tag: bool = True
     atlas_first_tag: str = "Simulation Internal"
-    atlas_second_tag: str = None
-    atlas_fontsize: int = None
+    atlas_second_tag: str | None = None
+    atlas_fontsize: int | None = None
     atlas_vertical_offset: float = 7
     atlas_horizontal_offset: float = 8
-    atlas_brand: str = "ATLAS"
+    atlas_brand: str | None = "ATLAS"
     atlas_tag_outside: bool = False
     atlas_second_tag_distance: float = 0
 
     plotting_done: bool = False
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Check for allowed values.
 
         Raises
@@ -379,6 +409,8 @@ class PlotObject:
 
         if self.ylabel_ratio is None:
             self.ylabel_ratio = ["Ratio"] * self.n_ratio_panels
+        elif isinstance(self.ylabel_ratio, str):
+            self.ylabel_ratio = [self.ylabel_ratio]
         if len(self.ylabel_ratio) != self.n_ratio_panels:
             raise ValueError(
                 f"You passed `ylabel_ratio` of length {len(self.ylabel_ratio)}, "
@@ -389,7 +421,7 @@ class PlotObject:
             self.leg_fontsize = self.fontsize
         if self.atlas_fontsize is None:
             self.atlas_fontsize = self.fontsize
-        if self.apply_atlas_style is False and (
+        if not self.apply_atlas_style and (
             self.atlas_first_tag is not None or self.atlas_second_tag is not None
         ):
             logger.warning(
@@ -397,8 +429,8 @@ class PlotObject:
                 "Tag will therefore not be shown on plot."
             )
 
-    def __check_figsize(self):
-        """Check `figsize`.
+    def __check_figsize(self) -> None:
+        """Check `figsize` is a tuple/list of length 2.
 
         Raises
         ------
@@ -415,8 +447,8 @@ class PlotObject:
                 "Either a tuple or a list of size 2 is allowed"
             )
 
-    def __check_yratio(self, yratio):
-        """Check `yratio`.
+    def __check_yratio(self, yratio: Sequence[float | None] | None) -> None:
+        """Check `yratio` is a sequence of length n_ratio_panels.
 
         Parameters
         ----------
@@ -441,8 +473,8 @@ class PlotObject:
 class PlotBase(PlotObject):
     """Base class for plotting."""
 
-    def __init__(self, **kwargs) -> None:
-        """Initialise class.
+    def __init__(self, **kwargs: Any) -> None:
+        """Initialise class with PlotObject kwargs.
 
         Parameters
         ----------
@@ -450,16 +482,13 @@ class PlotBase(PlotObject):
             Keyword arguments from `puma.PlotObject`
         """
         super().__init__(**kwargs)
-        self.axis_top = None
-        self.ratio_axes = []
-        self.axis_leg = None
-        self.fig = None
+        self.axis_top: Axes | None = None
+        self.ratio_axes: list[Axes] = []
+        self.axis_leg: Axes | None = None
+        self.fig: Figure | None = None
 
-    def initialise_figure(self):
-        """
-        Initialising matplotlib.figure.Figure for different scenarios depending on how
-        many ratio panels are requested.
-        """
+    def initialise_figure(self) -> None:
+        """Create matplotlib Figure and subplots based on layout options."""
         if self.vertical_split:  # split figure vertically instead of horizonally
             if self.n_ratio_panels >= 1:
                 logger.warning(
@@ -497,6 +526,10 @@ class PlotBase(PlotObject):
                         set_xaxis_ticklabels_invisible(sub_axis)
                     self.ratio_axes.append(sub_axis)
 
+        # type-narrowing: required before any use
+        assert self.axis_top is not None
+        assert self.fig is not None
+
         # Add the locator to all axes
         self.axis_top.yaxis.set_major_locator(
             locator=MaxNLocator(
@@ -521,15 +554,15 @@ class PlotBase(PlotObject):
 
     def draw_vlines(
         self,
-        xs: list,
-        labels: list | None = None,
-        ys: list | None = None,
+        xs: Sequence[float],
+        labels: Sequence[str | None] | None = None,
+        ys: Sequence[float] | None = None,
         same_height: bool = False,
         colour: str = "#000000",
         linestyle: str = "dashed",
         fontsize: int = 10,
-    ):
-        """Drawing working points in plot.
+    ) -> None:
+        """Draw vertical lines and optional labels on the axes.
 
         Parameters
         ----------
@@ -552,6 +585,7 @@ class PlotBase(PlotObject):
         fontsize : int, optional
             Fontsize of the vertical line text. By default 10.
         """
+        assert self.axis_top is not None
         for i, vline_x in enumerate(xs):
             # Set y-point of the WP lines/text
             ytext = (0.65 if same_height else 0.65 - i * 0.07) if ys is None else ys[i]
@@ -568,7 +602,7 @@ class PlotBase(PlotObject):
             self.axis_top.text(
                 x=vline_x - 0.005,
                 y=ytext + 0.005,
-                s=labels[i] if labels else None,
+                s=(labels[i] if labels else None),
                 transform=self.axis_top.get_xaxis_text1_transform(0)[0],
                 fontsize=fontsize,
             )
@@ -576,7 +610,7 @@ class PlotBase(PlotObject):
             for ratio_axis in self.ratio_axes:
                 ratio_axis.axvline(x=vline_x, color=colour, linestyle=linestyle, linewidth=1.0)
 
-    def set_title(self, title: str | None = None, **kwargs):
+    def set_title(self, title: str | None = None, **kwargs: Any) -> None:
         """Set title of top panel.
 
         Parameters
@@ -587,14 +621,12 @@ class PlotBase(PlotObject):
         **kwargs : kwargs
             Keyword arguments passed to `matplotlib.axes.Axes.set_title()`
         """
+        assert self.axis_top is not None
         self.axis_top.set_title(self.title if title is None else title, **kwargs)
 
-    def set_log(self):
-        """Set log scale of the axes.
-
-        For the y-axis, only the main panel is set. For the x-axes also set the
-        ratio panels.
-        """
+    def set_log(self) -> None:
+        """Set log scale of axes as configured."""
+        assert self.axis_top is not None
         if self.logx:
             self.axis_top.set_xscale("log")
             for ratio_axis in self.ratio_axes:
@@ -605,22 +637,32 @@ class PlotBase(PlotObject):
             ymin, ymax = self.axis_top.get_ylim()
             self.y_scale = ymin * ((ymax / ymin) ** self.y_scale) / ymax
 
-    def set_y_lim(self):
-        """Set limits of y-axis."""
+    def set_y_lim(self) -> None:
+        """Set limits of y-axis (main and ratios)."""
+        assert self.axis_top is not None
         ymin, ymax = self.axis_top.get_ylim()
         self.axis_top.set_ylim(
-            ymin if self.ymin is None else self.ymin,
-            ymin + (ymax - ymin) * self.y_scale if self.ymax is None else self.ymax,
+            self.ymin if self.ymin is not None else ymin,
+            (ymin + (ymax - ymin) * self.y_scale) if self.ymax is None else self.ymax,
         )
+
+        if self.ymin_ratio is None or self.ymax_ratio is None:
+            return
 
         for i, ratio_axis in enumerate(self.ratio_axes):
             if self.ymin_ratio[i] is not None or self.ymax_ratio[i] is not None:
-                ymin, ymax = ratio_axis.get_ylim()
-                ymin = self.ymin_ratio[i] if self.ymin_ratio[i] is not None else ymin
-                ymax = self.ymax_ratio[i] if self.ymax_ratio[i] is not None else ymax
-                ratio_axis.set_ylim(bottom=ymin, top=ymax)
+                ymin_i, ymax_i = ratio_axis.get_ylim()
+                ymin_i = self.ymin_ratio[i] if self.ymin_ratio[i] is not None else ymin_i
+                ymax_i = self.ymax_ratio[i] if self.ymax_ratio[i] is not None else ymax_i
+                ratio_axis.set_ylim(bottom=ymin_i, top=ymax_i)
 
-    def set_ylabel(self, ax_mpl, label: str | None = None, align: str | None = "right", **kwargs):
+    def set_ylabel(
+        self,
+        ax_mpl: Axes,
+        label: str | None = None,
+        align: str | None = "right",
+        **kwargs: Any,
+    ) -> None:
         """Set y-axis label.
 
         Parameters
@@ -634,7 +676,8 @@ class PlotBase(PlotObject):
         **kwargs, kwargs
             Keyword arguments passed to `matplotlib.axes.Axes.set_ylabel()`
         """
-        label_options = {"fontsize": self.label_fontsize}
+        assert self.fig is not None
+        label_options: dict[str, Any] = {"fontsize": self.label_fontsize}
         if align:
             label_options["horizontalalignment"] = align
             if align == "right":
@@ -649,8 +692,8 @@ class PlotBase(PlotObject):
         )
         self.fig.align_labels()
 
-    def set_xlabel(self, label: str | None = None, **kwargs):
-        """Set x-axis label.
+    def set_xlabel(self, label: str | None = None, **kwargs: Any) -> None:
+        """Set x-axis label on the bottom-most axis.
 
         Parameters
         ----------
@@ -659,6 +702,7 @@ class PlotBase(PlotObject):
         **kwargs : kwargs
             Keyword arguments passed to `matplotlib.axes.Axes.set_xlabel()`
         """
+        assert self.axis_top is not None
         xlabel_args = {
             "xlabel": self.xlabel if label is None else label,
             "horizontalalignment": "right",
@@ -667,11 +711,11 @@ class PlotBase(PlotObject):
         }
         if self.n_ratio_panels == 0:
             self.axis_top.set_xlabel(**xlabel_args, **kwargs)
-        if self.n_ratio_panels > 0:
+        else:
             self.ratio_axes[-1].set_xlabel(**xlabel_args, **kwargs)
 
-    def set_tick_params(self, labelsize: int | None = None, **kwargs):
-        """Set x-axis label.
+    def set_tick_params(self, labelsize: int | None = None, **kwargs: Any) -> None:
+        """Set tick params on all relevant axes.
 
         Parameters
         ----------
@@ -681,16 +725,17 @@ class PlotBase(PlotObject):
         **kwargs : kwargs
             Keyword arguments passed to `matplotlib.axes.Axes.set_xlabel()`
         """
-        labelsize = self.fontsize if labelsize is None else labelsize
-        self.axis_top.tick_params(axis="y", labelsize=labelsize, **kwargs)
+        assert self.axis_top is not None
+        labelsize_eff = self.fontsize if labelsize is None else labelsize
+        self.axis_top.tick_params(axis="y", labelsize=labelsize_eff, **kwargs)
         if self.n_ratio_panels == 0:
-            self.axis_top.tick_params(axis="x", labelsize=labelsize, **kwargs)
+            self.axis_top.tick_params(axis="x", labelsize=labelsize_eff, **kwargs)
         for i, ratio_axis in enumerate(self.ratio_axes):
-            ratio_axis.tick_params(axis="y", labelsize=labelsize, **kwargs)
+            ratio_axis.tick_params(axis="y", labelsize=labelsize_eff, **kwargs)
             if i == self.n_ratio_panels - 1:
-                ratio_axis.tick_params(axis="x", labelsize=labelsize, **kwargs)
+                ratio_axis.tick_params(axis="x", labelsize=labelsize_eff, **kwargs)
 
-    def set_xlim(self, xmin: float | None = None, xmax: float | None = None, **kwargs):
+    def set_xlim(self, xmin: float | None = None, xmax: float | None = None, **kwargs: Any) -> None:
         """Set limits of x-axis.
 
         Parameters
@@ -702,6 +747,7 @@ class PlotBase(PlotObject):
         **kwargs : kwargs
             Keyword arguments passed to `matplotlib.axes.Axes.set_xlim()`
         """
+        assert self.axis_top is not None
         self.axis_top.set_xlim(
             self.xmin if xmin is None else xmin,
             self.xmax if xmax is None else xmax,
@@ -713,8 +759,8 @@ class PlotBase(PlotObject):
         plot_name: str,
         transparent: bool | None = None,
         dpi: int | None = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         """Save plot to disk.
 
         Parameters
@@ -728,6 +774,7 @@ class PlotBase(PlotObject):
         **kwargs : kwargs
             Keyword arguments passed to `matplotlib.figure.Figure.savefig()`
         """
+        assert self.fig is not None
         logger.debug("Saving plot to %s", plot_name)
         self.fig.savefig(
             plot_name,
@@ -738,8 +785,14 @@ class PlotBase(PlotObject):
             **kwargs,
         )
 
-    def is_running_in_jupyter(self):
-        """Detect if running inside a Jupyter notebook."""
+    def is_running_in_jupyter(self) -> bool:
+        """Detect if running inside a Jupyter notebook.
+
+        Returns
+        -------
+        bool
+            If the code is run inside a jupyter notebook
+        """
         try:
             shell = get_ipython()
 
@@ -765,7 +818,7 @@ class PlotBase(PlotObject):
             # Other type (?)
             return False
 
-    def close_window(self, root: tk.Tk):
+    def close_window(self, root: tk.Tk | None) -> None:
         """Properly close the Tkinter window and exit the main loop.
 
         Parameters
@@ -783,16 +836,22 @@ class PlotBase(PlotObject):
             # Explicitly delete the root object (optional but helps with garbage collection)
             del root
 
-    def show(self, auto_close_after: int | None = None):
-        """Show the plot using tkinter in command line and detect Jupyter to avoid issues.
+    def show(self, auto_close_after: int | None = None) -> None:
+        """Show the plot using tkinter in CLI and detect Jupyter to avoid issues.
 
         Parameters
         ----------
         auto_close_after : int | None, optional
             After how many milliseconds, the window is automatically closed, by default None
+
+        Raises
+        ------
+        ValueError
+            If the figure is not initalized yet
         """
         if self.is_running_in_jupyter():
             logger.debug("Detected Jupyter Notebook, displaying inline.")
+            assert self.fig is not None
             display(self.fig)
             return
 
@@ -825,7 +884,7 @@ class PlotBase(PlotObject):
         # Start Tkinter event loop
         root.mainloop()
 
-    def atlasify(self, force: bool = False):
+    def atlasify(self, force: bool = False) -> None:
         """Apply ATLAS style to all axes using the atlasify package.
 
         Parameters
@@ -833,7 +892,7 @@ class PlotBase(PlotObject):
         force : bool, optional
             Force ATLAS style also if class variable is False, by default False
         """
-        if self.plotting_done is False and force is False:
+        if not self.plotting_done and not force:
             logger.warning(
                 "`atlasify()` has to be called after plotting --> "
                 "ATLAS style will not be adapted. If you want to do it anyway, "
@@ -842,8 +901,9 @@ class PlotBase(PlotObject):
             return
 
         if self.apply_atlas_style or force:
+            assert self.axis_top is not None
             logger.debug("Initialise ATLAS style using atlasify.")
-            if self.use_atlas_tag is True:
+            if self.use_atlas_tag:
                 atlasify.atlasify(
                     atlas=self.atlas_first_tag,
                     subtext=self.atlas_second_tag,
@@ -860,23 +920,31 @@ class PlotBase(PlotObject):
                 )
             else:
                 atlasify.atlasify(atlas=False, axes=self.axis_top, enlarge=1)
+
             for ratio_axis in self.ratio_axes:
                 atlasify.atlasify(atlas=False, axes=ratio_axis, enlarge=1)
-            if self.vertical_split:
+
+            if self.vertical_split and self.axis_leg is not None:
                 atlasify.atlasify(atlas=False, axes=self.axis_leg, enlarge=1)
+
             if force:
-                if self.apply_atlas_style is False:
+                if not self.apply_atlas_style:
                     logger.warning(
-                        "Initialising ATLAS style even though `apply_atlas_style` is "
-                        " set to False."
+                        "Initialising ATLAS style even though `apply_atlas_style` is set to False."
                     )
-                if self.plotting_done is False:
+                if not self.plotting_done:
                     logger.warning(
-                        "Initialising ATLAS style even though `plotting_done` is set to" " False."
+                        "Initialising ATLAS style even though `plotting_done` is set to False."
                     )
 
-    def make_legend(self, handles: list, ax_mpl: axis, labels: list | None = None, **kwargs):
-        """Drawing legend on axis.
+    def make_legend(
+        self,
+        handles: list[lines.Line2D],
+        ax_mpl: Axes,
+        labels: list[str] | None = None,
+        **kwargs: Any,
+    ) -> None:
+        """Draw legend on a given axis.
 
         Parameters
         ----------
@@ -906,12 +974,12 @@ class PlotBase(PlotObject):
 
     def make_linestyle_legend(
         self,
-        linestyles: list,
-        labels: list,
+        linestyles: Sequence[str],
+        labels: Sequence[str],
         loc: str | None = None,
-        bbox_to_anchor: tuple | None = None,
-        axis_for_legend=None,
-    ):
+        bbox_to_anchor: tuple[float, float] | tuple[float, float, float, float] | None = None,
+        axis_for_legend: Axes | None = None,
+    ) -> None:
         """Create a legend to indicate what different linestyles correspond to.
 
         Parameters
@@ -929,10 +997,10 @@ class PlotBase(PlotObject):
         axis_for_legend : matplotlib.Axes.axis, optional
             Axis on which to draw the legend, by default None
         """
-        if axis_for_legend is None:
-            axis_for_legend = self.axis_top
+        axis_for_legend = self.axis_top if axis_for_legend is None else axis_for_legend
+        assert axis_for_legend is not None
 
-        lines_list = []
+        lines_list: list[lines.Line2D] = []
         for linestyle, label in zip(linestyles, labels):
             lines_list.append(
                 lines.Line2D(
@@ -947,14 +1015,14 @@ class PlotBase(PlotObject):
         linestyle_legend = axis_for_legend.legend(
             handles=lines_list,
             labels=[handle.get_label() for handle in lines_list],
-            loc=loc if loc is not None else self.leg_linestyle_loc,
+            loc=(loc if loc is not None else self.leg_linestyle_loc),
             fontsize=self.leg_fontsize,
             bbox_to_anchor=bbox_to_anchor,
             frameon=False,
         )
         axis_for_legend.add_artist(linestyle_legend)
 
-    def set_ratio_label(self, ratio_panel: int, label: str):
+    def set_ratio_label(self, ratio_panel: int, label: str) -> None:
         """Associate the rejection class to a ratio panel.
 
         Parameters
@@ -971,4 +1039,5 @@ class PlotBase(PlotObject):
         """
         if ratio_panel > self.n_ratio_panels:
             raise ValueError(f"Plot has {self.n_ratio_panels} ratio panels, not {ratio_panel}")
+        assert self.ylabel_ratio is not None
         self.ylabel_ratio[ratio_panel - 1] = label

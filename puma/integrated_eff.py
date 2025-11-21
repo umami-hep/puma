@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 import matplotlib as mpl
 import numpy as np
 from ftag import Flavours, Label
@@ -42,17 +44,12 @@ class IntegratedEfficiency(PlotLineObject):
             Flavour label of the jets, by default None
         **kwargs : kwargs
             Keyword arguments passed to `puma.PlotLineObject`
-
-        Raises
-        ------
-        ValueError
-            If `sig_eff` and `bkg_rej` have a different shape
         """
         super().__init__(**kwargs)
         self.disc_sig = np.asarray(disc_sig)
         self.disc_bkg = np.asarray(disc_bkg)
         self.n_vals = n_vals
-        self.tagger = tagger
+        self.tagger = cast(str, tagger)
         self.key = key
         self.flavour = Flavours[flavour] if isinstance(flavour, str) else flavour
         if self.label is None and self.flavour is not None:
@@ -83,10 +80,10 @@ class IntegratedEfficiencyPlot(PlotBase):
             Keyword arguments from `puma.PlotObject`
         """
         super().__init__(grid=grid, **kwargs)
-        self.int_effs = {}
-        self.tagger_ls = {}
-        self.label_colours = {}
-        self.leg_tagger_labels = {}
+        self.int_effs: dict[str, IntegratedEfficiency] = {}
+        self.tagger_ls: dict[str, str] = {}
+        self.label_colours: dict[str, str] = {}
+        self.leg_tagger_labels: dict[str, str] = {}
         self.initialise_figure()
         self.disc_min, self.disc_max = (1e3, -1e3)
         self.default_linestyles = get_good_linestyles()
@@ -96,7 +93,7 @@ class IntegratedEfficiencyPlot(PlotBase):
         self.ymin = 0
         self.ymax = 1.2
 
-    def add(self, int_eff: object, key: str | None = None):
+    def add(self, int_eff: IntegratedEfficiency, key: str | None = None):
         """Adding puma.Roc object to figure.
 
         Parameters
@@ -111,8 +108,7 @@ class IntegratedEfficiencyPlot(PlotBase):
         KeyError
             If unique identifier key is used twice
         """
-        if key is None:
-            key = len(self.int_effs) + 1
+        key = cast(str, key if key is not None else f"{len(self.int_effs) + 1}")
         if key in self.int_effs:
             raise KeyError(f"Duplicated key {key} already used for roc unique identifier.")
 
@@ -135,6 +131,7 @@ class IntegratedEfficiencyPlot(PlotBase):
             int_eff.linestyle = self.tagger_ls[int_eff.tagger]
 
         # set colours
+        assert isinstance(int_eff.label, str)
         if int_eff.label not in self.label_colours:
             if int_eff.flavour is not None:
                 self.label_colours[int_eff.label] = int_eff.flavour.colour

@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 from matplotlib import pyplot as plt
 
-from puma.matshow import MatshowPlot
+from puma.matshow import MatrixComparison, MatshowPlot
 
 # seeded PRNG for reproducibility
 prng = np.random.default_rng(seed=0)
@@ -41,3 +41,17 @@ matrix_plotter_custom = MatshowPlot(
 matrix_plotter_custom.draw(mat)
 # Saving the plot
 matrix_plotter_custom.savefig("mat_custumized.png")
+
+# Matrix comparison plot
+mat2 = prng.random(size=(4, 3))
+plot_matrix_comp = MatrixComparison(
+    x_ticklabels=x_ticks,
+    x_ticks_rotation=45,
+    y_ticklabels=y_ticks,
+    show_percentage=True,
+    text_color_threshold=0.6,
+    atlas_tag_outside=True,
+)
+plot_matrix_comp.draw(mat, mat2)
+# Saving the plot
+plot_matrix_comp.savefig("mat_comparison.png")

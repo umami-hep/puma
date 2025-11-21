@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+import inspect
+from dataclasses import MISSING, dataclass, field, fields, is_dataclass
 from pathlib import Path
+from typing import Any, Callable, cast
 
 import numpy as np
 from ftag import Cuts, Flavours, Label
@@ -27,6 +29,103 @@ from puma.hlplots.yutils import combine_suffixes
 from puma.utils import get_good_colours, get_good_linestyles, logger
 
 
+def separate_kwargs(
+    kwargs: dict[str, Any] | None,
+    classes: list[Any],
+    defaults: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Separate the provided kwargs to the classes they belong.
+
+    Parameters
+    ----------
+    kwargs : dict[str, Any] | None
+        Dict with the kwargs
+    classes : list[Any]
+        Classes to which the kwargs are sorted
+    defaults : list[dict[str, Any]]
+        Default values for the classes, if not defined in kwargs,
+        which overwrite the defaults from the class definition
+
+    Returns
+    -------
+    list[dict[str, Any]]
+        List with the separated kwargs. The first entry are the kwargs
+        for the first class in the classes list etc.
+    """
+    classes_defaults: list[dict[str, Any]] = []
+
+    # 1) Gather class defaults (dataclass fields + __init__ params)
+    for iter_class in classes:
+        class_vars: dict[str, Any] = {}
+
+        # Check if the class is a dataclass
+        if is_dataclass(iter_class):
+            # If yes, get the attributes from the dataclass
+            for f in fields(iter_class):
+                # If the attribute has a default value, store it
+                if f.default is not MISSING:
+                    class_vars[f.name] = f.default
+
+                # If there is an issue with the default value (for example a list)
+                # Store it differently using Callable
+                else:
+                    df = getattr(f, "default_factory", MISSING)
+                    if df is not MISSING:  # type: ignore[comparison-overlap]
+                        class_vars[f.name] = cast(Callable[[], Any], df)()  # realize factory
+                    else:
+                        class_vars[f.name] = None  # required: placeholder
+
+        # Inspect the __init__ function of the class and check for arguments
+        args = inspect.signature(iter_class.__init__)
+
+        # Loop over the arguments and check if they are optional
+        for name, p in args.parameters.items():
+            # Skip self variables and keywords
+            if name == "self" or p.kind in {
+                inspect.Parameter.VAR_POSITIONAL,
+                inspect.Parameter.VAR_KEYWORD,
+            }:
+                continue
+
+            # If it's an argument from the dataclass, the dataclass get prio
+            if name in class_vars:
+                continue
+
+            # If it's a proper argument, store the default value
+            if p.default is not inspect.Parameter.empty:
+                class_vars[name] = p.default
+
+            else:
+                class_vars[name] = None
+
+        # Append the dict with the attributes and arguments to the classes_defaults list
+        classes_defaults.append(class_vars)
+
+    # 2) Track updated keys (either via provided defaults or kwargs)
+    updated_keys_per_class: list[set[str]] = [set() for _ in classes]
+
+    # 3) Apply provided defaults (count as "updated")
+    for i, (base, override) in enumerate(zip(classes_defaults, defaults)):
+        for k, v in override.items():
+            if k in base:
+                base[k] = v
+                updated_keys_per_class[i].add(k)
+
+    # 4) Apply kwargs with highest precedence (also "updated")
+    if kwargs is not None and kwargs:
+        kset = kwargs.keys()
+        for i, base in enumerate(classes_defaults):
+            overlap = base.keys() & kset
+            for k in overlap:
+                base[k] = kwargs[k]  # kwargs win
+            updated_keys_per_class[i].update(overlap)
+
+    # 5) Return only keys that were actually updated
+    return [
+        {k: base[k] for k in updated_keys_per_class[i]} for i, base in enumerate(classes_defaults)
+    ]
+
+
 @dataclass
 class Results:
     """Store information about several taggers and plot results."""
@@ -34,10 +133,10 @@ class Results:
     signal: Label | str
     sample: str
     category: str = "single-btag"
-    atlas_first_tag: str = "Simulation Internal"
-    atlas_second_tag: str = None
-    atlas_third_tag: str = None
-    taggers: dict = field(default_factory=dict)
+    atlas_first_tag: str | None = "Simulation Internal"
+    atlas_second_tag: str | None = None
+    atlas_third_tag: str | None = None
+    taggers: dict[str, Tagger] = field(default_factory=dict)
     perf_vars: str | tuple | list = "pt"
     output_dir: str | Path = "."
     extension: str = "pdf"
@@ -72,11 +171,6 @@ class Results:
         ----------
         signal : Flavour
             Flavour which is the signal
-
-        Raises
-        ------
-        ValueError
-            If the signal class is not supported
         """
         if isinstance(signal, str):
             signal = Flavours[signal]
@@ -334,7 +428,7 @@ class Results:
         suffix : str, optional
             Suffix to add to output file name, by default None
         **kwargs : kwargs
-            key word arguments for `puma.HistogramPlot`
+            key word arguments for `puma.HistogramPlot` and `puma.Histogram`
         """
         # Get good linestyles for plotting
         line_styles = get_good_linestyles()
@@ -349,39 +443,29 @@ class Results:
             if all(flav in tagger.output_flavours for tagger in self.taggers.values())
         ]
 
-        # Init a default kwargs dict for the HistogramPlot
-        histo_plot_kwargs = {
-            "ylabel": "Normalised number of jets",
-            "figsize": (7.0, 4.5),
-            "n_ratio_panels": 1,
-            "atlas_first_tag": self.atlas_first_tag,
-            "atlas_second_tag": self.atlas_second_tag,
-        }
-
-        # If kwargs are given, update the histo_plot_kwargs dict
-        if kwargs is not None:
-            histo_plot_kwargs.update(kwargs)
-
-        # Remove the kwargs that need to go to the Histogram objects
-        histo_kwargs = {"bins": 40, "bins_range": (0, 1)}
-        for iter_kwarg in list(histo_plot_kwargs):
-            if iter_kwarg in {
-                "bins",
-                "bins_range",
-                "bin_edges",
-                "norm",
-                "underoverflow",
-                "discrete_vals",
-            }:
-                histo_kwargs[iter_kwarg] = histo_plot_kwargs.pop(iter_kwarg)
+        # Separate the kwargs for the curve and plot objects
+        histo_plot_kwargs, histo_kwargs = separate_kwargs(
+            kwargs=kwargs,
+            classes=[HistogramPlot, Histogram],
+            defaults=[
+                {
+                    "ylabel": "Normalised number of jets",
+                    "figsize": (7.0, 4.5),
+                    "n_ratio_panels": 1,
+                    "atlas_first_tag": self.atlas_first_tag,
+                    "atlas_second_tag": self.atlas_second_tag,
+                },
+                {"bins": 40, "bins_range": (0, 1)},
+            ],
+        )
 
         # group by output probability
         for flav_prob in flavours:
+            # Set xlabel correctly to the flavour probability
+            histo_plot_kwargs["xlabel"] = flav_prob.px
+
             # Create a new histogram plot
-            hist = HistogramPlot(
-                xlabel=flav_prob.px,
-                **histo_plot_kwargs,
-            )
+            hist = HistogramPlot(**histo_plot_kwargs)
 
             # Init a new list for the tagger labels
             tagger_labels = []
@@ -389,13 +473,12 @@ class Results:
             # Loop over the taggers
             for counter, tagger in enumerate(self.taggers.values()):
                 # Append labels if existing else the name
-                tagger_labels.append(tagger.label if tagger.label else tagger.name)
+                tagger_labels.append(tagger.label or tagger.name)
 
                 # Add the probability output of the given tagger for each flavour
                 for flav_class in flavours:
                     # Check if tagger.prob_path is already a dict or not
-                    if tagger.prob_path is None:
-                        tagger.prob_path = {}
+                    tagger.prob_path = tagger.prob_path or {}
 
                     # Add the path to the dict
                     tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"] = (
@@ -403,16 +486,17 @@ class Results:
                         / f"{tagger.name}_{flav_prob.px}_{flav_class.name}.yaml"
                     )
 
+                    # Add the args for the Histogram to the kwargs, otherwise we
+                    # would provide the args twice
+                    histo_kwargs["path"] = tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"]
+                    histo_kwargs["ratio_group"] = flav_class
+                    histo_kwargs["label"] = flav_class.label if counter == 0 else None
+                    histo_kwargs["colour"] = flav_class.colour
+                    histo_kwargs["linestyle"] = line_styles[counter]
+
                     # Try to load the Histogram object from file
                     try:
-                        histo_object = Histogram.load(
-                            path=tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"],
-                            ratio_group=flav_class,
-                            label=flav_class.label if counter == 0 else None,
-                            colour=flav_class.colour,
-                            linestyle=line_styles[counter],
-                            **histo_kwargs,
-                        )
+                        histo_object = Histogram.load(**histo_kwargs)
 
                     except FileNotFoundError:
                         logger.warning(
@@ -421,15 +505,12 @@ class Results:
                             "Making from scratch..."
                         )
 
+                        # Pop the path and replace it with values
+                        histo_kwargs.pop("path")
+                        histo_kwargs["values"] = tagger.probs(flav_prob, flav_class)
+
                         # Init the Histogram object
-                        histo_object = Histogram(
-                            values=tagger.probs(flav_prob, flav_class),
-                            ratio_group=flav_class,
-                            label=flav_class.label if counter == 0 else None,
-                            colour=flav_class.colour,
-                            linestyle=line_styles[counter],
-                            **histo_kwargs,
-                        )
+                        histo_object = Histogram(**histo_kwargs)
 
                         # Save the histo object to file
                         histo_object.save(
@@ -450,11 +531,11 @@ class Results:
 
         # group by flavour
         for flav_class in flavours:
+            # Set xlabel correctly to the flavour probability
+            histo_plot_kwargs["xlabel"] = flav_class.label
+
             # Create a new histogram plot
-            hist = HistogramPlot(
-                xlabel=flav_class.label,
-                **histo_plot_kwargs,
-            )
+            hist = HistogramPlot(**histo_plot_kwargs)
 
             # Init a new list for the tagger labels
             tagger_labels = []
@@ -462,26 +543,30 @@ class Results:
             # Loop over the taggers
             for counter, tagger in enumerate(self.taggers.values()):
                 # Append labels if existing else the name
-                tagger_labels.append(tagger.label if tagger.label else tagger.name)
+                tagger_labels.append(tagger.label or tagger.name)
 
                 # Add the probability output of the given tagger for each flavour
                 for flav_prob in flavours:
+                    # Check if tagger.prob_path is already a dict or not
+                    tagger.prob_path = tagger.prob_path or {}
+
                     # Add the path to the dict
                     tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"] = (
                         self.output_directory(plot_type="prob")
                         / f"{tagger.name}_{flav_prob.px}_{flav_class.name}.yaml"
                     )
 
+                    # Add the args for the Histogram to the kwargs, otherwise we
+                    # would provide the args twice
+                    histo_kwargs["path"] = tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"]
+                    histo_kwargs["ratio_group"] = flav_prob
+                    histo_kwargs["label"] = flav_prob.px if counter == 0 else None
+                    histo_kwargs["colour"] = flav_prob.colour
+                    histo_kwargs["linestyle"] = line_styles[counter]
+
                     # Load Histogram object with probabilites. They must already exist
                     # due to their creation and usage in the previous HistogramPlot
-                    histo_object = Histogram.load(
-                        path=tagger.prob_path[f"{flav_prob.name}_{flav_class.name}"],
-                        ratio_group=flav_prob,
-                        label=flav_prob.px if counter == 0 else None,
-                        colour=flav_prob.colour,
-                        linestyle=line_styles[counter],
-                        **histo_kwargs,
-                    )
+                    histo_object = Histogram.load(**histo_kwargs)
 
                     # Add the histogram loaded from the correct file and add it
                     hist.add(histogram=histo_object, reference=tagger.reference)
@@ -526,32 +611,22 @@ class Results:
         # Get good linestyles for plotting
         line_styles = get_good_linestyles()
 
-        # Init histo_plot_kwargs
-        histo_plot_kwargs = {
-            "n_ratio_panels": 0,
-            "xlabel": xlabel,
-            "ylabel": "Normalised number of jets",
-            "figsize": (7.0, 4.5),
-            "atlas_first_tag": self.atlas_first_tag,
-            "atlas_second_tag": self.atlas_second_tag,
-        }
-
-        # Check if kwargs are given and update the histo_plot_kwargs accordingly
-        if kwargs is not None:
-            histo_plot_kwargs.update(kwargs)
-
-        # Remove the kwargs that need to go to the Histogram objects
-        histo_kwargs = {"bins": 40}
-        for iter_kwarg in list(histo_plot_kwargs):
-            if iter_kwarg in {
-                "bins",
-                "bins_range",
-                "bin_edges",
-                "norm",
-                "underoverflow",
-                "discrete_vals",
-            }:
-                histo_kwargs[iter_kwarg] = histo_plot_kwargs.pop(iter_kwarg)
+        # Separate the kwargs for the curve and plot objects
+        histo_plot_kwargs, histo_kwargs = separate_kwargs(
+            kwargs=kwargs,
+            classes=[HistogramPlot, Histogram],
+            defaults=[
+                {
+                    "n_ratio_panels": 0,
+                    "xlabel": xlabel,
+                    "ylabel": "Normalised number of jets",
+                    "figsize": (7.0, 4.5),
+                    "atlas_first_tag": self.atlas_first_tag,
+                    "atlas_second_tag": self.atlas_second_tag,
+                },
+                {"bins": 40},
+            ],
+        )
 
         # Create a new histogram plot
         hist = HistogramPlot(**histo_plot_kwargs)
@@ -594,12 +669,17 @@ class Results:
                         / f"{tagger.name}_discs_{flav.name}.yaml"
                     )
 
+                    # Add the args for the Histogram to the kwargs, otherwise we
+                    # would provide the args twice
+                    histo_kwargs["path"] = tagger.disc_path[flav.name]
+                    histo_kwargs["ratio_group"] = flav
+                    histo_kwargs["label"] = flav.label if counter == 0 else None
+                    histo_kwargs["colour"] = flav.colour
+                    histo_kwargs["linestyle"] = line_styles[counter]
+
                     # Try to load the Histogram object from file
                     try:
-                        histo_object = Histogram.load(
-                            path=tagger.disc_path[flav.name],
-                            **histo_kwargs,
-                        )
+                        histo_object = Histogram.load(**histo_kwargs)
 
                     except FileNotFoundError:
                         logger.warning(
@@ -608,15 +688,12 @@ class Results:
                             "Making from scratch..."
                         )
 
+                        # Pop the path and replace it with values
+                        histo_kwargs.pop("path")
+                        histo_kwargs["values"] = discs[tagger.is_flav(flav)]
+
                         # Init the Histogram object
-                        histo_object = Histogram(
-                            values=discs[tagger.is_flav(flav)],
-                            ratio_group=flav,
-                            label=flav.label if counter == 0 else None,
-                            colour=flav.colour,
-                            linestyle=line_styles[counter],
-                            **histo_kwargs,
-                        )
+                        histo_object = Histogram(**histo_kwargs)
 
                         # Save the histo object to file
                         histo_object.save(path=tagger.disc_path[flav.name])
@@ -625,7 +702,7 @@ class Results:
                     hist.add(histogram=histo_object, reference=tagger.reference)
 
             # Add the tagger label or name to the label list
-            tagger_labels.append(tagger.label if tagger.label else tagger.name)
+            tagger_labels.append(tagger.label or tagger.name)
 
         # Finalise the plot and draw it
         hist.draw()
@@ -678,23 +755,26 @@ class Results:
             if is_present:
                 n_ratio_panels += 1
 
-        # Init a default kwargs dict for roc plots
-        roc_kwargs = {
-            "n_ratio_panels": n_ratio_panels,
-            "ylabel": "Background rejection",
-            "xlabel": self.signal.eff_str,
-            "atlas_first_tag": self.atlas_first_tag,
-            "atlas_second_tag": self.atlas_second_tag,
-            "y_scale": 1.3,
-            "ymin": 1,
-        }
-
-        # If kwargs are given, update the default kwargs accordingly
-        if kwargs is not None:
-            kwargs.update(roc_kwargs)
+        # Separate the kwargs for the curve and plot objects
+        roc_plot_kwargs, roc_kwargs = separate_kwargs(
+            kwargs=kwargs,
+            classes=[RocPlot, Roc],
+            defaults=[
+                {
+                    "n_ratio_panels": n_ratio_panels,
+                    "ylabel": "Background rejection",
+                    "xlabel": self.signal.eff_str,
+                    "atlas_first_tag": self.atlas_first_tag,
+                    "atlas_second_tag": self.atlas_second_tag,
+                    "y_scale": 1.3,
+                    "ymin": 1,
+                },
+                {},
+            ],
+        )
 
         # Init a new ROC plot using the given/default kwargs
-        roc = RocPlot(**kwargs)
+        roc = RocPlot(**roc_plot_kwargs)
 
         # Iterate over the taggers
         for tagger in self.taggers.values():
@@ -735,16 +815,18 @@ class Results:
                         smooth=True,
                     )
 
+                    # Add the args to the kwargs, otherwise we would provide them twice
+                    # (kwargs already has the args with defaults)
+                    roc_kwargs["sig_eff"] = sig_effs
+                    roc_kwargs["bkg_rej"] = rej
+                    roc_kwargs["n_test"] = tagger.n_jets(background)
+                    roc_kwargs["rej_class"] = background
+                    roc_kwargs["signal_class"] = self.signal
+                    roc_kwargs["label"] = tagger.label
+                    roc_kwargs["colour"] = tagger.colour
+
                     # Init the ROC object
-                    roc_object = Roc(
-                        sig_eff=sig_effs,
-                        bkg_rej=rej,
-                        n_test=tagger.n_jets(background),
-                        rej_class=background,
-                        signal_class=self.signal,
-                        label=tagger.label,
-                        colour=tagger.colour,
-                    )
+                    roc_object = Roc(**roc_kwargs)
 
                     # Save the ROC object to file
                     roc_object.save(path=tagger.roc_path[background.name])
@@ -767,7 +849,7 @@ class Results:
         xlabel: str = r"$p_{\mathrm{T}}$ [GeV]",
         perf_var: str = "pt",
         h_line: float | None = None,
-        working_point: float | None = None,
+        working_point: float | list | None = None,
         disc_cut: float | None = None,
         fixed_rejections: dict[Label, float] | None = None,
         **kwargs,
@@ -798,6 +880,12 @@ class Results:
             out of [working_point, disc_cut, fixed_rejections] can be set
         **kwargs : kwargs
             key word arguments for `puma.VarVsEff`
+
+        Raises
+        ------
+        ValueError
+            If more than one of working_point, disc_cut, or fixed_rejections is set
+            If neither working_point nor disc_cut is set
         """
         # Check correct setting of working_point, disc_cut and fixed_rejections
         if sum([bool(working_point), bool(disc_cut), bool(fixed_rejections)]) > 1:
@@ -816,34 +904,31 @@ class Results:
             )
             return
 
-        # Split the kwargs according to if they are used for the plot or the curve
-        var_perf_plot_kwargs = {
-            "xlabel": xlabel,
-            "n_ratio_panels": 1,
-            "atlas_first_tag": self.atlas_first_tag,
-            "atlas_second_tag": self.atlas_second_tag,
-            "y_scale": 1.5,
-            "logy": False,
-        }
-
-        # Update the default plot kwargs if present in kwargs and remove it from kwargs
-        if kwargs is not None:
-            # Init a list to loop over
-            iter_kwargs_list = list(kwargs.keys())
-
-            # Loop over the kwargs list
-            for key in iter_kwargs_list:
-                if key in var_perf_plot_kwargs:
-                    var_perf_plot_kwargs[key] = kwargs.pop(key)
+        # Separate the kwargs for the curve and plot objects
+        var_perf_plot_kwargs, var_perf_kwargs = separate_kwargs(
+            kwargs=kwargs,
+            classes=[VarVsEffPlot, VarVsEff],
+            defaults=[
+                {
+                    "mode": "sig_eff",
+                    "ylabel": self.signal.eff_str,
+                    "xlabel": xlabel,
+                    "n_ratio_panels": 1,
+                    "atlas_first_tag": self.atlas_first_tag,
+                    "atlas_second_tag": self.atlas_second_tag,
+                    "y_scale": 1.5,
+                    "logy": False,
+                },
+                {},
+            ],
+        )
 
         # Init new var vs eff plot
-        plot_sig_eff = VarVsEffPlot(
-            mode="sig_eff", ylabel=self.signal.eff_str, **var_perf_plot_kwargs
-        )
+        plot_sig_eff = VarVsEffPlot(**var_perf_plot_kwargs)
 
         # Adapt the atlas second tag
         plot_sig_eff.apply_modified_atlas_second_tag(
-            self.signal,
+            signal=self.signal,
             working_point=working_point,
             disc_cut=disc_cut,
             flat_per_bin=kwargs.get("flat_per_bin", False),
@@ -854,14 +939,16 @@ class Results:
 
         # Loop over all backgrounds
         for background in self.backgrounds:
+            # Reset some kwargs for the background plots
+            var_perf_plot_kwargs["mode"] = "bkg_rej"
+            var_perf_plot_kwargs["ylabel"] = background.rej_str
+
             # Init and append new background plot to the list
-            plot_bkg.append(
-                VarVsEffPlot(mode="bkg_rej", ylabel=background.rej_str, **var_perf_plot_kwargs)
-            )
+            plot_bkg.append(VarVsEffPlot(**var_perf_plot_kwargs))
 
             # Adapt the atlas second label accordingly
             plot_bkg[-1].apply_modified_atlas_second_tag(
-                self.signal,
+                signal=self.signal,
                 working_point=working_point,
                 disc_cut=disc_cut,
                 flat_per_bin=kwargs.get("flat_per_bin", False),
@@ -873,40 +960,52 @@ class Results:
             discs = tagger.discriminant(self.signal)
             is_signal = tagger.is_flav(self.signal)
 
+            # Ensure that tagger.perf_vars is a dict
+            assert isinstance(tagger.perf_vars, dict)
+
             # Assure that the variable is in the data for the given tagger
             assert perf_var in tagger.perf_vars, f"{perf_var} not in tagger {tagger.name} data!"
 
+            # Add the args to the kwargs, otherwise we would provide them twice
+            # (kwargs already has the args with defaults)
+            var_perf_kwargs["x_var_sig"] = tagger.perf_vars[perf_var][is_signal]
+            var_perf_kwargs["disc_sig"] = discs[is_signal]
+            var_perf_kwargs["label"] = tagger.label
+            var_perf_kwargs["colour"] = tagger.colour
+            var_perf_kwargs["working_point"] = working_point
+            var_perf_kwargs["disc_cut"] = disc_cut
+
             # Add the variable to the plot
             plot_sig_eff.add(
-                VarVsEff(
-                    x_var_sig=tagger.perf_vars[perf_var][is_signal],
-                    disc_sig=discs[is_signal],
-                    label=tagger.label,
-                    colour=tagger.colour,
-                    working_point=working_point,
-                    disc_cut=disc_cut,
-                    **kwargs,
-                ),
+                curve=VarVsEff(**var_perf_kwargs),
                 reference=tagger.reference,
             )
 
             # Loop over the background plots and add the variables
             for counter, background in enumerate(self.backgrounds):
+                # Define background
                 is_bkg = tagger.is_flav(background)
+
+                # Add the args to the kwargs, otherwise we would provide them twice
+                # (kwargs already has the args with defaults)
+                var_perf_kwargs["x_var_sig"] = tagger.perf_vars[perf_var][is_signal]
+                var_perf_kwargs["disc_sig"] = discs[is_signal]
+                var_perf_kwargs["x_var_bkg"] = tagger.perf_vars[perf_var][is_bkg]
+                var_perf_kwargs["disc_bkg"] = discs[is_bkg]
+                var_perf_kwargs["label"] = tagger.label
+                var_perf_kwargs["colour"] = tagger.colour
+                var_perf_kwargs["working_point"] = working_point
+                var_perf_kwargs["disc_cut"] = disc_cut
+
+                # Add plot
                 plot_bkg[counter].add(
-                    VarVsEff(
-                        x_var_sig=tagger.perf_vars[perf_var][is_signal],
-                        disc_sig=discs[is_signal],
-                        x_var_bkg=tagger.perf_vars[perf_var][is_bkg],
-                        disc_bkg=discs[is_bkg],
-                        label=tagger.label,
-                        colour=tagger.colour,
-                        working_point=working_point,
-                        disc_cut=disc_cut,
-                        **kwargs,
-                    ),
+                    curve=VarVsEff(**var_perf_kwargs),
                     reference=tagger.reference,
                 )
+
+                # Remove the bkg variables
+                var_perf_kwargs.pop("x_var_bkg")
+                var_perf_kwargs.pop("disc_bkg")
 
         # Finalise the plot and draw it
         plot_sig_eff.draw()
@@ -962,6 +1061,13 @@ class Results:
             draws a horizonatal line in the signal efficiency plot
         **kwargs : kwargs
             key word arguments for `puma.VarVsEff`
+
+        Raises
+        ------
+        ValueError
+            If invalid background flavours are given
+            If disc_cut is set when executing this plot
+            If working_point is set when executing this plot
         """
         # Check for invalid inputs
         if inv_bkg := set(fixed_rejections.keys()) - {str(b) for b in self.backgrounds}:
@@ -971,25 +1077,22 @@ class Results:
         if "working_point" in kwargs:
             raise ValueError("working_point should not be set for this plot")
 
-        # Split the kwargs according to if they are used for the plot or the curve
-        var_perf_plot_kwargs = {
-            "xlabel": r"$p_{\mathrm{T}}$ [GeV]",
-            "n_ratio_panels": 1,
-            "atlas_first_tag": self.atlas_first_tag,
-            "atlas_second_tag": self.atlas_second_tag,
-            "y_scale": 1.5,
-            "logy": False,
-        }
-
-        # Update the default plot kwargs if present in kwargs and remove it from kwargs
-        if kwargs is not None:
-            # Init a list to loop over
-            iter_kwargs_list = list(kwargs.keys())
-
-            # Loop over the kwargs list
-            for key in iter_kwargs_list:
-                if key in var_perf_plot_kwargs:
-                    var_perf_plot_kwargs[key] = kwargs.pop(key)
+        # Separate the kwargs for the curve and plot objects
+        var_perf_plot_kwargs, var_perf_kwargs = separate_kwargs(
+            kwargs=kwargs,
+            classes=[VarVsEffPlot, VarVsEff],
+            defaults=[
+                {
+                    "xlabel": r"$p_{\mathrm{T}}$ [GeV]",
+                    "n_ratio_panels": 1,
+                    "atlas_first_tag": self.atlas_first_tag,
+                    "atlas_second_tag": self.atlas_second_tag,
+                    "y_scale": 1.5,
+                    "logy": False,
+                },
+                {},
+            ],
+        )
 
         # Get a list of all backgrounds
         backgrounds = [Flavours[b] for b in fixed_rejections]
@@ -1004,14 +1107,12 @@ class Results:
                 f" {fixed_rejections[bkg.name]} per bin"
             )
 
+            # Reset some kwargs for the background plots
+            var_perf_plot_kwargs["mode"] = "bkg_eff_sig_err"
+            var_perf_plot_kwargs["ylabel"] = self.signal.eff_str
+
             # Init and append the background plot to the list
-            plot_bkg.append(
-                VarVsEffPlot(
-                    mode="bkg_eff_sig_err",
-                    ylabel=self.signal.eff_str,
-                    **var_perf_plot_kwargs,
-                )
-            )
+            plot_bkg.append(VarVsEffPlot(**var_perf_plot_kwargs))
 
         # After all plots are created, loop over the taggers
         for tagger in self.taggers.values():
@@ -1019,12 +1120,26 @@ class Results:
             discs = tagger.discriminant(self.signal)
             is_signal = tagger.is_flav(self.signal)
 
+            # Ensure that tagger.perf_vars is a dict
+            assert isinstance(tagger.perf_vars, dict)
+
+            # Check that variable is present in tagger data
+            assert perf_var in tagger.perf_vars, f"{perf_var} not in tagger {tagger.name} data!"
+
             # Loop over the backgrounds
             for counter, bkg in enumerate(backgrounds):
                 is_bkg = tagger.is_flav(bkg)
 
-                # Check that variable is present in tagger data
-                assert perf_var in tagger.perf_vars, f"{perf_var} not in tagger {tagger.name} data!"
+                # Add the args to the kwargs, otherwise we would provide them twice
+                # (kwargs already has the args with defaults)
+                var_perf_kwargs["x_var_sig"] = tagger.perf_vars[perf_var][is_bkg]
+                var_perf_kwargs["disc_sig"] = discs[is_bkg]
+                var_perf_kwargs["x_var_bkg"] = tagger.perf_vars[perf_var][is_signal]
+                var_perf_kwargs["disc_bkg"] = discs[is_signal]
+                var_perf_kwargs["label"] = tagger.label
+                var_perf_kwargs["colour"] = tagger.colour
+                var_perf_kwargs["working_point"] = 1 / fixed_rejections[bkg.name]
+                var_perf_kwargs["flat_per_bin"] = True
 
                 # We want x bins to all have the same background rejection, so we
                 # select the plot mode as 'bkg_eff', and then treat the signal as
@@ -1033,17 +1148,7 @@ class Results:
                 # pass the signal as the background, and the background as the
                 # signal.
                 plot_bkg[counter].add(
-                    VarVsEff(
-                        x_var_sig=tagger.perf_vars[perf_var][is_bkg],
-                        disc_sig=discs[is_bkg],
-                        x_var_bkg=tagger.perf_vars[perf_var][is_signal],
-                        disc_bkg=discs[is_signal],
-                        label=tagger.label,
-                        colour=tagger.colour,
-                        working_point=1 / fixed_rejections[bkg.name],
-                        flat_per_bin=True,
-                        **kwargs,
-                    ),
+                    curve=VarVsEff(**var_perf_kwargs),
                     reference=tagger.reference,
                 )
 
@@ -1085,6 +1190,11 @@ class Results:
             List of background flavours, by default None, will use self.backgrounds
         **kwargs
             Keyword arguments for `puma.Line2DPlot
+
+        Raises
+        ------
+        ValueError
+            If more than two background flavours are given
         """
         # Get the background flavours in a list
         backgrounds = [Flavours[b] for b in backgrounds_to_plot]
@@ -1173,7 +1283,7 @@ class Results:
                         f"(${backgrounds[0].frac_str}={tagger_fx:.3f}$, "
                         f"${backgrounds[1].frac_str}={1 - tagger_fx:.3f}$)"
                     ),
-                    colour=tagger.colour if tagger.colour else colours[counter],
+                    colour=tagger.colour or colours[counter],
                 )
             )
 
@@ -1236,6 +1346,11 @@ class Results:
             Type of plot
         kwargs : dict
             Keyword arguments for the plot
+
+        Raises
+        ------
+        ValueError
+            If an unknown plot type is given
         """
         if plot_type not in self.plot_funcs:
             raise ValueError(f"Unknown plot type {plot_type}, choose from {self.plot_funcs.keys()}")

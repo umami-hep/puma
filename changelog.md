@@ -2,20 +2,39 @@
 
 ### [Latest]
 
+### [v0.4.12](https://github.com/umami-hep/puma/releases/tag/v0.4.12) (05.11.2025)
+
+- Adding new URL for Images [#343](https://github.com/umami-hep/puma/pull/343)
+- Adding `MatrixComparison` code, to compare two matrices in a single plot [#342](https://github.com/umami-hep/puma/pull/342)
+
+### [v0.4.11](https://github.com/umami-hep/puma/releases/tag/v0.4.11) (01.10.2025)
+
+- Updating Package Versions [#341](https://github.com/umami-hep/puma/pull/341)
+- Fixing Binning Issue in the `n_tracks_per_origin` Plot [#340](https://github.com/umami-hep/puma/pull/340)
+- Fixing kwargs Separation in High-Level Plots [#339](https://github.com/umami-hep/puma/pull/339)
+- Update `atlas-ftag-tools` to `0.2.16` [#338](https://github.com/umami-hep/puma/pull/338)
+- Adding Iterative Filling for Histogram Class [#337]
+- Reneable `mypy` [#333](https://github.com/umami-hep/puma/pull/333)
+- Adding `subtract` Method in `VarVsVar` class [#336](https://github.com/umami-hep/puma/pull/336)
+
+### [v0.4.10](https://github.com/umami-hep/puma/releases/tag/v0.4.10) (07.08.2025)
+
+- Update atlas-ftag-tools Version to v0.2.15 [#335](https://github.com/umami-hep/puma/pull/335)
+- Adding Support for VarVsEff Plots with Fixed Background Rejections [#334](https://github.com/umami-hep/puma/pull/334)
 - Updating Docstrings and skipped pre-commit checks [#332](https://github.com/umami-hep/puma/pull/332)
 - Update Repository Metadata [#331](https://github.com/umami-hep/puma/pull/331)
 
-### [v0.4.9](https://github.com/umami-hep/puma/releases/tag/v0.4.8) (2025/07/02)
+### [v0.4.9](https://github.com/umami-hep/puma/releases/tag/v0.4.9) (02.07.2025)
 
 - Updating atlas-ftag-tools to v0.2.14 [#330](https://github.com/umami-hep/puma/pull/330)
 
-### [v0.4.8](https://github.com/umami-hep/puma/releases/tag/v0.4.8) (2025/06/19)
+### [v0.4.8](https://github.com/umami-hep/puma/releases/tag/v0.4.8) (19.06.2025)
 
 - Bumping atlas-ftag-tools version to v0.2.13 [#329](https://github.com/umami-hep/puma/pull/329)
 - Puma Tutorial Fixes [#328](https://github.com/umami-hep/puma/pull/328)
 - Update Puma Tutorial to newest Standards [#327](https://github.com/umami-hep/puma/pull/327)
 
-### [v0.4.7](https://github.com/umami-hep/puma/releases/tag/v0.4.7) (2025/06/17)
+### [v0.4.7](https://github.com/umami-hep/puma/releases/tag/v0.4.7) (17.06.2025)
 
 - Update atlas-ftag-tools package [#326](https://github.com/umami-hep/puma/pull/326)
 - Adding save/load functionality to VarVsVar and VarVsEff [#324](https://github.com/umami-hep/puma/pull/324)
@@ -24,14 +43,14 @@
 - Enable Storage of Histogram Objects [#319](https://github.com/umami-hep/puma/pull/319)
 - Update atlas-ftag-tools package to v0.2.11 [#321](https://github.com/umami-hep/puma/pull/321)
 
-### [v0.4.6](https://github.com/umami-hep/puma/releases/tag/v0.4.6) (2025/05/23)
+### [v0.4.6](https://github.com/umami-hep/puma/releases/tag/v0.4.6) (23.05.2025)
 
 - Minor updates and fixes to results class [#316](https://github.com/umami-hep/puma/pull/316)
 - Minor changes to make aux plotting style consistent with GN2 paper [#313](https://github.com/umami-hep/puma/pull/313)
 - Adding support for ratio_group for VarVsVar plots [#311](https://github.com/umami-hep/puma/pull/311)
 - Fix unintended gap between the last and second-last ratio plots [#312](https://github.com/umami-hep/puma/pull/312)
 
-### [v0.4.5](https://github.com/umami-hep/puma/releases/tag/v0.4.5) (2025/04/09)
+### [v0.4.5](https://github.com/umami-hep/puma/releases/tag/v0.4.5) (09.04.2025)
 
 - Adding support for PCFT VarVsEff plots [#309](https://github.com/umami-hep/puma/pull/309)
 - Bump tools version & adapt to it [#310](https://github.com/umami-hep/puma/pull/310)
@@ -40,7 +59,7 @@
 - Fixing Coverage [#308](https://github.com/umami-hep/puma/pull/308)
 - Bump atlas-ftag-tools to v0.2.9 [#307](https://github.com/umami-hep/puma/pull/307)
 
-### [v0.4.4](https://github.com/umami-hep/puma/releases/tag/v0.4.4) (2025/02/17)
+### [v0.4.4](https://github.com/umami-hep/puma/releases/tag/v0.4.4) (17.02.2025)
 
 - Adding show() function support [#304](https://github.com/umami-hep/puma/pull/304)
 - Added ability to modify ATLAS tag in track origin plots [#303](https://github.com/umami-hep/puma/pull/303)
@@ -48,22 +67,22 @@
 - Update y-axis label to accomodate british english [#300](https://github.com/umami-hep/puma/pull/300)
 - Use pdf plots by default in the HLAPI [#299](https://github.com/umami-hep/puma/pull/299)
 
-### [v0.4.3](https://github.com/umami-hep/puma/releases/tag/v0.4.3) (2025/01/31)
+### [v0.4.3](https://github.com/umami-hep/puma/releases/tag/v0.4.3) (31.01.2025)
 
 - Fixing ratio/uncertainty calculation issue for Data/MC histograms [#298](https://github.com/umami-hep/puma/pull/298)
 
-### [v0.4.2](https://github.com/umami-hep/puma/releases/tag/v0.4.2) (2025/01/27)
+### [v0.4.2](https://github.com/umami-hep/puma/releases/tag/v0.4.2) (27.01.2025)
 
 - Upgrade atlas-ftag-tools version [#297](https://github.com/umami-hep/puma/pull/297)
 
-### [v0.4.1](https://github.com/umami-hep/puma/releases/tag/v0.4.1) (2024/11/18)
+### [v0.4.1](https://github.com/umami-hep/puma/releases/tag/v0.4.1) (18.11.2024)
 - Update tools package version [#296](https://github.com/umami-hep/puma/pull/296)
 - Adding functions to process truth hadron information and associate tracks to hadrons [#285](https://github.com/umami-hep/puma/pull/285)
 - Adding new n_tracks_origin plots [#294](https://github.com/umami-hep/puma/pull/294)
 - Adding missing unit tests [#295](https://github.com/umami-hep/puma/pull/295)
 - Removing hardcoded kwargs from high-level plotting [#293](https://github.com/umami-hep/puma/pull/293)
 
-### [v0.4.0](https://github.com/umami-hep/puma/releases/tag/v0.4.0) (2024/10/24)
+### [v0.4.0](https://github.com/umami-hep/puma/releases/tag/v0.4.0) (24.10.2024)
 
 - Clean up the docs a bit [#290](https://github.com/umami-hep/puma/pull/290)
 - Add autohide for ROC ratio y-axis labels [#289](https://github.com/umami-hep/puma/pull/289)
@@ -74,7 +93,7 @@
 - Added functionality to plot secondary vertex mass histograms using a pion mass hypothesis [#265](https://github.com/umami-hep/puma/pull/265)
 - Fixed error bars on stacked histograms to be a distinct pattern, rather than just the last colour plotted [#281](https://github.com/umami-hep/puma/pull/281)
 
-### [v0.3.6](https://github.com/umami-hep/puma/releases/tag/v0.3.6) (2024/08/27)
+### [v0.3.6](https://github.com/umami-hep/puma/releases/tag/v0.3.6) (27.08.2024)
 
 - Updated variable names for aux task outputs to be consistent with Salt [#270](https://github.com/umami-hep/puma/pull/270)
 - Merged precision and recall in one single function [#276](https://github.com/umami-hep/puma/pull/276)
@@ -85,14 +104,14 @@
 - Removed padded tracks from consideration when generating track origin classification CM [#267](https://github.com/umami-hep/puma/pull/267)
 - Confusion Matrix: added per-class fake rates plus minor appearance changes [#266](https://github.com/umami-hep/puma/pull/266)
 
-### [v0.3.5](https://github.com/umami-hep/puma/releases/tag/v0.3.5) (2024/04/23)
+### [v0.3.5](https://github.com/umami-hep/puma/releases/tag/v0.3.5) (23.04.2024)
 
 - Fixed a problem in the Confusion Matrix normalization, and adopted a more clear naming convention; removed decimals from the matrix plot if the entry is an integer (useful for raw counts confusion matrix) [#262](https://github.com/umami-hep/puma/pull/262)
 - Added matrix plot API, confusion matrix function, and Track Origin confusion matrix plot [#258](https://github.com/umami-hep/puma/pull/258)
 - Fix setting ymin_ratio (and ymax_ratio) in PlotBase if it is zero [#261](https://github.com/umami-hep/puma/pull/261)
 - Fixed shuffling bug in aux_results and modified treatment of single-track vertices [#259](https://github.com/umami-hep/puma/pull/259)
 
-### [v0.3.4](https://github.com/umami-hep/puma/releases/tag/v0.3.4) (2024/02/26)
+### [v0.3.4](https://github.com/umami-hep/puma/releases/tag/v0.3.4) (26.02.2024)
 
 - Better filenames when using HLAPI [#256](https://github.com/umami-hep/puma/pull/256)
 - Switch to MkDocs for documentation [#254](https://github.com/umami-hep/puma/pull/254)
@@ -106,7 +125,7 @@
 - Allow yuma base path to work with tagger sample dir [#246](https://github.com/umami-hep/puma/pull/246)
 - Fix marker resizing in VarVsVar [#243](https://github.com/umami-hep/puma/pull/243)
 
-### [v0.3.3](https://github.com/umami-hep/puma/releases/tag/v0.3.3) (2024/02/26)
+### [v0.3.3](https://github.com/umami-hep/puma/releases/tag/v0.3.3) (26.02.2024)
 
 - Load ptau in Results class [#242](https://github.com/umami-hep/puma/pull/242)
 - Update ruff, improve coverage [#241](https://github.com/umami-hep/puma/pull/241)
@@ -117,7 +136,7 @@
 - More improvements to Yuma configuration [#237](https://github.com/umami-hep/puma/pull/237)
 - Autoinstall deps and steamline yuma config [#236](https://github.com/umami-hep/puma/pull/236)
 
-### [v0.3.2](https://github.com/umami-hep/puma/releases/tag/v0.3.2) (2024/02/13)
+### [v0.3.2](https://github.com/umami-hep/puma/releases/tag/v0.3.2) (13.02.2024)
 
 - Minor fixes and improvements to yaml plotting interface [#235](https://github.com/umami-hep/puma/pull/235)
 - Added ability to plot from yaml configs [#204](https://github.com/umami-hep/puma/pull/204)
@@ -127,7 +146,7 @@
 - Consistent fc scan colours [#228](https://github.com/umami-hep/puma/pull/228)
 - Add tools for plotting vertexing performance. [#216](https://github.com/umami-hep/puma/pull/216)
 
-### [v0.3.1](https://github.com/umami-hep/puma/releases/tag/v0.3.1) (2023/11/27)
+### [v0.3.1](https://github.com/umami-hep/puma/releases/tag/v0.3.1) (27.11.2023)
 
 - Update versions and add vscode settings [#226](https://github.com/umami-hep/puma/pull/226)
 - Update ratio uncertainty calculation [#225](https://github.com/umami-hep/puma/pull/225)
@@ -135,7 +154,7 @@
 - Add NaN filtering for HL plots. Bump atlas-ftag-tools version to 0.1.11. [#220](https://github.com/umami-hep/puma/pull/220)
 - Making Under- and Overflow bins default in histograms [#218](https://github.com/umami-hep/puma/pull/218)
 
-### [v0.3.0](https://github.com/umami-hep/puma/releases/tag/v0.3.0) (2023/10/03)
+### [v0.3.0](https://github.com/umami-hep/puma/releases/tag/v0.3.0) (03.10.2023)
 
 - Fix publish workflow, update tools package
 - Fix docs build [#215](https://github.com/umami-hep/puma/pull/215)
@@ -148,7 +167,7 @@
 - Add tagger specific cuts to results [#205](https://github.com/umami-hep/puma/pull/205)
 - Generalise ROC curve ratio grouping [#202](https://github.com/umami-hep/puma/pull/202)
 
-### [v0.2.8](https://github.com/umami-hep/puma/releases/tag/v0.2.8) (2023/08/09)
+### [v0.2.8](https://github.com/umami-hep/puma/releases/tag/v0.2.8) (09.08.2023)
 
 - HL fraction scan plot bugfix [#201](https://github.com/umami-hep/puma/pull/201)
 - Support for custom ROC ratio reference [#200](https://github.com/umami-hep/puma/pull/200)
@@ -157,17 +176,17 @@
 - Add efficiency string to fc plots [#193](https://github.com/umami-hep/puma/pull/193)
 - Add option to deterime optimal fc [#188](https://github.com/umami-hep/puma/pull/188)
 
-### [v0.2.7](https://github.com/umami-hep/puma/releases/tag/v0.2.7) (2023/07/17)
+### [v0.2.7](https://github.com/umami-hep/puma/releases/tag/v0.2.7) (17.07.2023)
 
 - Updating ATLAS-FTAG-Tools package [#190](https://github.com/umami-hep/puma/pull/190)
 - Adding Data/MC Plots capabilities to the histogram classes [#187](https://github.com/umami-hep/puma/pull/187)
 
-### [v0.2.6](https://github.com/umami-hep/puma/releases/tag/v0.2.6) (2023/06/01)
+### [v0.2.6](https://github.com/umami-hep/puma/releases/tag/v0.2.6) (01.06.2023)
 
 - Fixing issue in use_atlas_tag [#184](https://github.com/umami-hep/puma/pull/184)
 - Add probability plots to HLAPI and support WP vlines [#183](https://github.com/umami-hep/puma/pull/183)
 
-### [v0.2.5](https://github.com/umami-hep/puma/releases/tag/v0.2.5) (2023/05/12)
+### [v0.2.5](https://github.com/umami-hep/puma/releases/tag/v0.2.5) (12.05.2023)
 
 - Update requirements to include atlas-ftag-tools v0.1.3 [#180](https://github.com/umami-hep/puma/pull/180)
 - Use `VarVsVar` as a base class for `VarVsEff` [#179](https://github.com/umami-hep/puma/pull/179)
@@ -177,17 +196,17 @@
 - Fix bug in ratio axis limits [#175](https://github.com/umami-hep/puma/pull/175)
 - Add `VarVsVar` plot [#172](https://github.com/umami-hep/puma/pull/172)
 
-### [v0.2.4](https://github.com/umami-hep/puma/releases/tag/v0.2.4) (2023/04/06)
+### [v0.2.4](https://github.com/umami-hep/puma/releases/tag/v0.2.4) (06.04.2023)
 
 - Replace `dijets` category with `QCD` category [#170](https://github.com/umami-hep/puma/pull/170)
 
-### [v0.2.3](https://github.com/umami-hep/puma/releases/tag/v0.2.3) (2023/03/28)
+### [v0.2.3](https://github.com/umami-hep/puma/releases/tag/v0.2.3) (28.03.2023)
 
 - Integrate [atlas-ftag-tools](https://github.com/umami-hep/atlas-ftag-tools/) package [#168](https://github.com/umami-hep/puma/pull/168)
 - HLAPI and CI Updates [#165](https://github.com/umami-hep/puma/pull/165)
 - Extend format saving options [#160](https://github.com/umami-hep/puma/pull/160)
 
-### [v0.2.2](https://github.com/umami-hep/puma/releases/tag/v0.2.2) (2023/02/28)
+### [v0.2.2](https://github.com/umami-hep/puma/releases/tag/v0.2.2) (28.02.2023)
 
 - Cast scores to full precision [#159](https://github.com/umami-hep/puma/pull/159)
 - Add Xbb Support [#157](https://github.com/umami-hep/puma/pull/157)
@@ -196,15 +215,15 @@
 - Improve ROC format [#146](https://github.com/umami-hep/puma/pull/149)
 - Fix for CI [#152](https://github.com/umami-hep/puma/pull/152)
 
-### [v0.2.1](https://github.com/umami-hep/puma/releases/tag/v0.2.1) (2022/12/15)
+### [v0.2.1](https://github.com/umami-hep/puma/releases/tag/v0.2.1) (15.12.2022)
 
 - Change legend label of `dijets` [#146](https://github.com/umami-hep/puma/pull/146)
 
-### [v0.2.0](https://github.com/umami-hep/puma/releases/tag/v0.2.0) (2022/12/09)
+### [v0.2.0](https://github.com/umami-hep/puma/releases/tag/v0.2.0) (09.12.2022)
 
 - Adding new high level API [#128](https://github.com/umami-hep/puma/pull/128)
 
-### [v0.1.9](https://github.com/umami-hep/puma/releases/tag/v0.1.9) (2022/11/30)
+### [v0.1.9](https://github.com/umami-hep/puma/releases/tag/v0.1.9) (30.11.2022)
 
 - Adding boosted categories for Xbb to utils [#138](https://github.com/umami-hep/puma/pull/138)
 - Running pylint also for tests [#133](https://github.com/umami-hep/puma/pull/133)
@@ -212,7 +231,7 @@
 - Adding support for under- and overflow bins in `puma.HistogramPlot` [#124](https://github.com/umami-hep/puma/pull/124)
 - (Documentation) Adding copy-button to code cells in documentation [#131](https://github.com/umami-hep/puma/pull/131)
 
-### [v0.1.8](https://github.com/umami-hep/puma/releases/tag/v0.1.8) (2022/08/30)
+### [v0.1.8](https://github.com/umami-hep/puma/releases/tag/v0.1.8) (30.08.2022)
 
 - Fix `set_ylim` in `puma.PlotBase` such that y-limits are correctly modified in cases with a y-offset [#119](https://github.com/umami-hep/puma/pull/119)
 - Adding example for `puma.Line2DPlot` to the docs [#117](https://github.com/umami-hep/puma/pull/117)
@@ -221,23 +240,23 @@
 - Adding new function `puma.utils.get_good_linestyles()` for easier linestyle management [#116](https://github.com/umami-hep/puma/pull/116)
 - Adding the method `make_linestyle_legend()` which allows to specify an additional legend for linestyles [#113](https://github.com/umami-hep/puma/pull/113)
 
-### [v0.1.7](https://github.com/umami-hep/puma/releases/tag/v0.1.7) (2022/08/10)
+### [v0.1.7](https://github.com/umami-hep/puma/releases/tag/v0.1.7) (10.08.2022)
 
 - Adding new option to place rejection label legend in ROC plots [#109](https://github.com/umami-hep/puma/pull/109)
 
-### [v0.1.6](https://github.com/umami-hep/puma/releases/tag/v0.1.6) (2022/07/26)
+### [v0.1.6](https://github.com/umami-hep/puma/releases/tag/v0.1.6) (26.07.2022)
 
 - Adding support for weighted histograms (`puma.Histogram` now has an optional argument `weights`) [#86](https://github.com/umami-hep/puma/pull/86)
 - Fixing bug where code crashed when histograms with discrete values + ratio panel were drawn [#99](https://github.com/umami-hep/puma/pull/99)
 - Adding `h5py` to the Docker images [#97](https://github.com/umami-hep/puma/pull/97)
 - Adding `transparent` attribute to `PlotObject` class. This allows to specify transparent background when initialising the plot [#96](https://github.com/umami-hep/puma/pull/96)
 
-### [v0.1.5](https://github.com/umami-hep/puma/releases/tag/v0.1.5) (2022/07/05)
+### [v0.1.5](https://github.com/umami-hep/puma/releases/tag/v0.1.5) (05.07.2022)
 
 - Add `linewidth` and `alpha` to legend handles + set `alpha=1` by default (in `puma.Histogram`) [#92](https://github.com/umami-hep/puma/pull/92)
 - Decreased default `figsize` for plots with zero or one ratio panels [#90](https://github.com/umami-hep/puma/pull/90)
 
-### [v0.1.4](https://github.com/umami-hep/puma/releases/tag/v0.1.4) (2022/06/30)
+### [v0.1.4](https://github.com/umami-hep/puma/releases/tag/v0.1.4) (30.06.2022)
 
 - Renamed the `puma.FractionScan` and `puma.FractionScanPlot` classes to more general `puma.Line2DPlot` and `pumal.Line2D` [#84](https://github.com/umami-hep/puma/pull/84)
 - Splitting `force` argument of `set_log()` method into `force_x` and `force_y` [#83](https://github.com/umami-hep/puma/pull/83)
@@ -245,7 +264,7 @@
 - Change default labels of `singlebjets` and `singlecjets` [#82](https://github.com/umami-hep/puma/pull/82)
 - Support linestyles for variable vs. efficiency plots [#78](https://github.com/umami-hep/puma/pull/78)
 
-### [v0.1.3](https://github.com/umami-hep/puma/releases/tag/v0.1.3) (2022/06/23)
+### [v0.1.3](https://github.com/umami-hep/puma/releases/tag/v0.1.3) (23.06.2022)
 
 - Adding more flavours to the global config  [#73](https://github.com/umami-hep/puma/pull/73)
 - `ratio_group` in `puma.Histogram` objects can no longer be set via `flavour` argument [#74](https://github.com/umami-hep/puma/pull/74)
@@ -256,12 +275,12 @@
 - Adding `calc_separation()` to `puma.metrics`, which allows to calculate the separation between two distributions [#27](https://github.com/umami-hep/puma/pull/27)
 - Adding Zenodo link
 
-### [v0.1.2](https://github.com/umami-hep/puma/releases/tag/v0.1.2) (2022/06/02/02)
+### [v0.1.2](https://github.com/umami-hep/puma/releases/tag/v0.1.2) (02.06.2022)
 
 - Adding automated coverage comment for pull request [#58](https://github.com/umami-hep/puma/pull/58)
 - Fix that colour and legend label can be individually modified in case of flavoured histogram [#57](https://github.com/umami-hep/puma/pull/57)
 
-### [v0.1.1](https://github.com/umami-hep/puma/releases/tag/v0.1.1) (2022/05/30)
+### [v0.1.1](https://github.com/umami-hep/puma/releases/tag/v0.1.1) (30.05.2022)
 
 - Adding documentation for updating the version switcher in the docs [#49](https://github.com/umami-hep/puma/pull/49)
 - Adding version support in docs [#42](https://github.com/umami-hep/puma/pull/42)[#45](https://github.com/umami-hep/puma/pull/45)
@@ -273,7 +292,7 @@
 - Remove warning when adding more than one reference histogram is case is allowed [#32](https://github.com/umami-hep/puma/pull/32)
 - Update documentation [#24](https://github.com/umami-hep/puma/pull/24)
 
-### [v0.1.0](https://github.com/umami-hep/puma/releases/tag/v0.1.0) (2022/05/16)
+### [v0.1.0](https://github.com/umami-hep/puma/releases/tag/v0.1.0) (16.05.2022)
 
 - Set default number of ratio panels to 0 [#17](https://github.com/umami-hep/puma/pull/17)
 - Adding uncertainties to Roc main plots and improving dummy data generator [#14](https://github.com/umami-hep/puma/pull/14)

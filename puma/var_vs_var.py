@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 import matplotlib as mpl
 import numpy as np
@@ -137,22 +137,29 @@ class VarVsVar(PlotLineObject):
             )
         return False
 
-    def divide(self, other, inverse: bool = False, method: str = "divide"):
+    def divide(
+        self,
+        other: VarVsVar,
+        inverse: bool = False,
+        method: str = "divide",
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Calculate ratio between two class objects.
 
         Parameters
         ----------
-        other : VarVsVar class
+        other : VarVsVar
             Second VarVsVar object to calculate ratio with
-        inverse : bool
+        inverse : bool, optional
             If False the ratio is calculated `this / other`,
-            if True the inverse is calculated
+            if True the inverse is calculated. By default False.
+        method : str, optional
+            Define which method is used for ratio calculation. By default "divide".
+            Other possibility is "root_square_diff" and "subtract".
 
         Returns
         -------
-        np.ndarray
-            Ratio
-        np.ndarray
+        tuple[np.ndarray, np.ndarray]
+            Ratio and ratio error
             Ratio error
 
         Raises
@@ -160,11 +167,15 @@ class VarVsVar(PlotLineObject):
         ValueError
             If binning is not identical between 2 objects
         """
+        # Check that both x variables match
         if not np.array_equal(self.x_var, other.x_var):
             raise ValueError("The x variables of the two given objects do not match.")
+
+        # Get the nominator/denominator + uncertainty
         nom, nom_err = self.y_var_mean, self.y_var_std
         denom, denom_err = other.y_var_mean, other.y_var_std
 
+        # Calculate the ratio/difference between the the actual and other VarVsVar object
         ratio, ratio_err = hist_ratio(
             numerator=denom if inverse else nom,
             denominator=nom if inverse else denom,
@@ -186,7 +197,8 @@ class VarVsVarPlot(PlotBase):
         grid : bool, optional
             Set the grid for the plots.
         ratio_method:
-            Method for ratio calculations. Accepted values: "divide", "root_square_diff".
+            Method for ratio calculations. Accepted values: "divide", "root_square_diff",
+            "subtract".
         **kwargs : kwargs
             Keyword arguments from `puma.PlotObject`
 
@@ -197,19 +209,18 @@ class VarVsVarPlot(PlotBase):
         """
         super().__init__(grid=grid, **kwargs)
 
-        self.plot_objects = {}
-        self.add_order = []
-        self.ratios_objects = {}
-        self.reference_object = None
+        self.plot_objects: dict[str, VarVsVar] = {}
+        self.add_order: list[str] = []
+        self.reference_object: list[str] | None = None
         self.x_var_min = np.inf
         self.x_var_max = -np.inf
-        self.inverse_cut = False
+        self.inverse_cut: bool = False
         if self.n_ratio_panels > 1:
             raise ValueError("Not more than one ratio panel supported.")
         self.ratio_method = ratio_method
         self.initialise_figure()
 
-    def add(self, curve: VarVsVar, key: str | None = None, reference: bool = False):
+    def add(self, curve: VarVsVar, key: str | None = None, reference: bool = False) -> None:
         """Adding VarVsVar object to figure.
 
         Parameters
@@ -226,8 +237,8 @@ class VarVsVarPlot(PlotBase):
         KeyError
             If unique identifier key is used twice
         """
-        if key is None:
-            key = len(self.plot_objects) + 1
+        key = cast(str, key if key is not None else f"{len(self.plot_objects) + 1}")
+
         if key in self.plot_objects:
             raise KeyError(f"Duplicated key {key} already used for unique identifier.")
 
@@ -499,6 +510,7 @@ class VarVsVarPlot(PlotBase):
         self.set_ylabel(self.axis_top)
 
         if self.n_ratio_panels > 0:
+            assert isinstance(self.ylabel_ratio, list)
             self.set_ylabel(
                 self.ratio_axes[0],
                 self.ylabel_ratio[0],

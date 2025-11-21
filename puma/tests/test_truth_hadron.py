@@ -4,7 +4,7 @@ import unittest
 
 import numpy as np
 
-from puma.utils.logging import logger, set_log_level
+from puma.utils.logger import logger, set_log_level
 from puma.utils.truth_hadron import AssociateTracksToHadron, GetOrderedHadrons, SelectHadron
 
 set_log_level(logger, "DEBUG")

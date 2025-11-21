@@ -1,9 +1,41 @@
 [project]
 name = "puma-hep"
-description = "ATLAS Flavour Tagging Plotting Code"
-dynamic = ["version", "dependencies"]
+description = "ATLAS Flavour Tagging Plotting - Plotting Umami API (PUMA)"
+authors = [{name="Joschka Birk"}, {name="Alexander Froch"}, {name="Manuel Guth"}]
+dynamic = ["version"]
+license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.10,<3.12"
+
+dependencies = [
+    "atlas-ftag-tools==0.2.17",
+    "atlasify>=0.8.0",
+    "h5py>=3.14.0",
+    "ipython>=8.37.0",
+    "matplotlib>=3.10.6",
+    "numpy>=2.2.6",
+    "palettable>=3.3.0",
+    "pandas>=2.3.2",
+    "pydot>=4.0.1",
+    "pyyaml-include==1.3",
+    "scipy>=1.15.3",
+    "tables>=3.10.1",
+    "testfixtures>=8.3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "coverage>=7.10.6",
+    "ipykernel>=6.30.1",
+    "mypy>=1.18.1",
+    "pre-commit>=4.3.0",
+    "pydoclint>=0.7.3",
+    "pytest_notebook>=0.10.0",
+    "pytest-cov>=7.0.0",
+    "pytest-randomly>=4.0.1",
+    "pytest>=8.4.2",
+    "ruff>=0.13.0",
+]
 
 [project.urls]
 "Homepage" = "https://github.com/umami-hep/puma"
@@ -13,10 +45,11 @@ requires-python = ">=3.10,<3.12"
 yuma = "puma.hlplots.yuma:main"
 
 [tool.setuptools.dynamic]
-dependencies = { file = ["requirements.txt"] }
+version = {attr = "puma.__version__"}
 
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=62"]
+build-backend = "setuptools.build_meta"
 
 [tool.ruff]
 target-version = "py38"
@@ -30,7 +63,7 @@ lint.ignore = [
     "ANN001", "ANN002", "ANN003", "ANN101", "ANN201", "ANN202", "ANN204", "CPY001", "TRY003",
     "N803", "N806", "N812", "T201", "PLW1514", "PTH123", "RUF015", "RUF017", "PLR6301", "ERA", "ISC001", 
     "PT027", "NPY002", "PT009", "PTH120", "PLW1641", "PTH118", "PLR0904", "N817", "PTH103", "PTH107", "S603",
-    "PTH113", "S113", "TCH", "ANN205"
+    "PTH113", "S113", "TCH", "ANN205", "C419", "ANN401"
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -46,5 +79,6 @@ required-imports = ["from __future__ import annotations"]
 [tool.ruff.lint.pydocstyle]
 convention = "numpy" # Accepts: "google", "numpy", or "pep257".
 
-[mypy]
+[tool.mypy]
 ignore_missing_imports = "True"
+disable_error_code = ["union-attr", "override", "operator"]

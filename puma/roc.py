@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -12,6 +12,9 @@ from ftag.utils import calculate_efficiency_error, calculate_rejection_error
 
 from puma.plot_base import PlotBase, PlotLineObject
 from puma.utils import get_good_colours, get_good_linestyles, logger
+
+if TYPE_CHECKING:  # pragma: no cover
+    from matplotlib.axes import Axes
 
 
 def can_hide(ax) -> bool:
@@ -60,7 +63,7 @@ def adjust_ylabels(fig, axes, min_distance=1) -> None:
 class Roc(PlotLineObject):
     """Represent a single ROC curve and allows to calculate ratio w.r.t other ROCs."""
 
-    _ARRAY_FIELDS: ClassVar[str] = {
+    _ARRAY_FIELDS: ClassVar[set[str]] = {
         "sig_eff",
         "bkg_rej",
     }
@@ -120,7 +123,7 @@ class Roc(PlotLineObject):
         self.signal_class = signal_class
         self.rej_class = Flavours[rej_class] if isinstance(rej_class, str) else rej_class
         self.key = key
-        self.ratio_group = ratio_group if ratio_group else str(rej_class)
+        self.ratio_group = ratio_group or str(rej_class)
         self.use_bkg_eff = use_bkg_eff
         self.kwargs = kwargs
 
@@ -154,12 +157,16 @@ class Roc(PlotLineObject):
         else:
             return calculate_rejection_error(self.bkg_rej[self.non_zero_mask], n_test, norm=norm)
 
-    def divide(self, roc_comp, inverse: bool = False):
+    def divide(
+        self,
+        roc_comp: Roc,
+        inverse: bool = False,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Calculate ratio between the roc curve and another roc.
 
         Parameters
         ----------
-        roc_comp : roc class
+        roc_comp : Roc
             Second roc curve to calculate ratio with
         inverse : bool
             If False the ratio is calculated `this_roc / roc_comp`,
@@ -167,13 +174,16 @@ class Roc(PlotLineObject):
 
         Returns
         -------
-        np.array
-            Signal efficiency used for the ratio calculation which is the overlapping
+        tuple[np.ndarray, np.ndarray, np.ndarray]
+            The signal efficiency used for the ratio calculation which is the overlapping
             interval of the two roc curves
-        np.array
-            Ratio
-        np.array or None
-            Ratio_err if `n_test` was provided to class
+            The ratio between the two ROCs
+            The ratio error between the two ROCs
+
+        Raises
+        ------
+        ValueError
+            If the signal efficiency between the two ROCs do not match
         """
         if not np.array_equal(self.sig_eff, roc_comp.sig_eff):
             raise ValueError("Signal efficiencies of the two ROCs do not match.")
@@ -200,9 +210,9 @@ class Roc(PlotLineObject):
         # Also mask the rejections that are 0
         nonzero = (self.bkg_rej != 0) & (delta_x > 0)
         if self.xmin is not None:
-            nonzero = nonzero & (self.sig_eff >= self.xmin)
+            nonzero &= self.sig_eff >= self.xmin
         if self.xmax is not None:
-            nonzero = nonzero & (self.sig_eff <= self.xmax)
+            nonzero &= self.sig_eff <= self.xmax
         return nonzero
 
     @property
@@ -261,13 +271,13 @@ class RocPlot(PlotBase):
         """
         super().__init__(grid=grid, **kwargs)
         self.test = ""
-        self.rocs = {}
-        self.roc_ratios = {}
-        self.rej_axes = {}
-        self.rej_class_ls = {}
-        self.label_colours = {}
-        self.leg_rej_labels = {}
-        self.reference_roc = None
+        self.rocs: dict[str, Roc] = {}
+        self.roc_ratios: dict[str, tuple] = {}
+        self.rej_axes: dict[str, Axes] = {}
+        self.rej_class_ls: dict[str, str] = {}
+        self.label_colours: dict[Any, str] = {}
+        self.leg_rej_labels: dict[str, str] = {}
+        self.reference_roc: dict[Label, dict[str, str]] = {}
         self.initialise_figure()
         self.fig.get_layout_engine().set(h_pad=0, hspace=0)
         self.eff_min, self.eff_max = (1, 0)
@@ -277,10 +287,10 @@ class RocPlot(PlotBase):
 
     def add_roc(
         self,
-        roc_curve: object,
+        roc_curve: Roc,
         key: str | None = None,
         reference: bool = False,
-    ):
+    ) -> None:
         """Adding puma.Roc object to figure.
 
         Parameters
@@ -297,8 +307,8 @@ class RocPlot(PlotBase):
         KeyError
             If unique identifier key is used twice
         """
-        if key is None:
-            key = len(self.rocs) + 1
+        key = cast(str, key if key is not None else f"{len(self.rocs) + 1}")
+
         if key in self.rocs:
             raise KeyError(f"Duplicated key {key} already used for roc unique identifier.")
 
@@ -343,14 +353,18 @@ class RocPlot(PlotBase):
 
         if reference:
             logger.debug("Setting roc %s as reference for %s.", key, roc_curve.rej_class)
-            self.set_roc_reference(key, roc_curve.rej_class, roc_curve.ratio_group)
+            self.set_roc_reference(
+                key=key,
+                rej_class=roc_curve.rej_class,
+                ratio_group=roc_curve.ratio_group,
+            )
             self.reference_label = roc_curve.label
 
     def set_roc_reference(
         self,
         key: str,
         rej_class: Label,
-        ratio_group: str | None = None,
+        ratio_group: str,
     ):
         """Setting the reference roc curves used in the ratios.
 
@@ -361,18 +375,15 @@ class RocPlot(PlotBase):
         rej_class : str
             Rejection class encoded in roc curve
         ratio_group : str
-            Ratio group this roc is reference for, by default None
+            Ratio group this roc is reference for
 
         Raises
         ------
         ValueError
             If more rejection classes are set than actual ratio panels available.
         """
-        if self.reference_roc is None:
-            self.reference_roc = {}
-            self.reference_roc[rej_class] = {ratio_group: key}
-        elif rej_class not in self.reference_roc:
-            if len(self.reference_roc) >= self.n_ratio_panels:
+        if rej_class not in self.reference_roc:
+            if len(self.reference_roc) > self.n_ratio_panels:
                 raise ValueError(
                     "You cannot set more rejection classes than available ratio panels."
                 )
@@ -396,11 +407,6 @@ class RocPlot(PlotBase):
             Ratio panel either 1 or 2
         rej_class : Labels
             Rejeciton class associated to that panel
-
-        Raises
-        ------
-        ValueError
-            if requested ratio panels and given ratio_panel do not match.
         """
         rej_class = Flavours[rej_class] if isinstance(rej_class, str) else rej_class
         self.rej_axes[rej_class] = self.ratio_axes[ratio_panel - 1]
@@ -651,7 +657,7 @@ class RocPlot(PlotBase):
         """
         plt_handles = []
         for key, elem in self.rocs.items():
-            plt_handles = plt_handles + self.axis_top.plot(
+            plt_handles += self.axis_top.plot(
                 elem.sig_eff[elem.non_zero_mask],
                 elem.bkg_rej[elem.non_zero_mask],
                 linestyle=elem.linestyle,

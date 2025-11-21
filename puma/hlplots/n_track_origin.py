@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import os
+from typing import Any
 
 import matplotlib as mpl
 import numpy as np
 from ftag import Label
+from ftag.cuts import Cuts
 from ftag.hdf5 import H5Reader
 
 from puma.utils import get_good_colours, get_good_linestyles
@@ -15,9 +17,9 @@ from puma.var_vs_var import VarVsVar, VarVsVarPlot
 
 def n_tracks_per_origin(
     flavour_list: list[Label],
-    files: dict[dict[str]],
+    files: dict[str, dict[str, Any]],
     plot_type: str,
-    plot_path: str | None = None,
+    plot_path: str = "./",
     track_origin_dict: dict | None = None,
     plot_format: str = "pdf",
     plot_name: str | None = None,
@@ -54,7 +56,7 @@ def n_tracks_per_origin(
         or "one_sample_all_flavour".
     plot_path : str, optional
         Path to the folder where the plots will be stored. If None, plot is saved to current
-        directory. By default None
+        directory. By default ./
     track_origin_dict : dict | None, optional
         Dict with the track origin names as keys and their origin value(s) as a list.
         With this, you can combine different origins and give them a new name. See the
@@ -92,7 +94,7 @@ def n_tracks_per_origin(
         }
 
     # Init a default kwargs dict for the VarVsVarPlot
-    VarVsVarPlot_kwargs = {
+    VarVsVarPlot_kwargs: dict[str, Any] = {
         "xlabel": "$p_T$ [GeV]",
         "ylabel": "Average $N_\\mathrm{Tracks}$ per Origin",
         "figsize": (7.0, 4.5),
@@ -176,6 +178,15 @@ def n_tracks_per_origin(
             shuffle=False,
         )
 
+        # Get the pT cuts that are to be applied
+        kinematic_cuts = Cuts.from_list([
+            f"{jet_pt_variable} > {pt_bins[0]}",
+            f"{jet_pt_variable} < {pt_bins[-1]}",
+        ])
+
+        # Check if this file should be the reference
+        reference_bool = file_value.get("reference", False)
+
         # Iterate over the flavour and load them from the file
         for flavour_counter, flavour in enumerate(flavour_list):
             # Get the iterator to correctly choose the plot to add to
@@ -188,7 +199,7 @@ def n_tracks_per_origin(
                     tracks_name: [track_truth_variable],
                 },
                 num_jets=file_value.get("n_jets", None),
-                cuts=flavour.cuts,
+                cuts=kinematic_cuts + flavour.cuts,
             )
 
             # Loop over the different track origins
@@ -205,9 +216,12 @@ def n_tracks_per_origin(
                 )
 
                 # Bin it in pT
-                bin_indices = np.digitize(
-                    data[jets_name][jet_pt_variable],
-                    pt_bins,
+                bin_indices = (
+                    np.digitize(
+                        data[jets_name][jet_pt_variable],
+                        pt_bins,
+                    )
+                    - 1
                 )
 
                 # Calculate mean n_trks for the given origin in pT bins
@@ -248,7 +262,9 @@ def n_tracks_per_origin(
                         markersize="4",
                         colour=get_good_colours()[trk_origin_counter],
                         label=None if all_flav_plot else file_value["process_label"],
-                    )
+                        ratio_group=trk_origin_key,
+                    ),
+                    reference=reference_bool,
                 )
 
                 # Append the track origin labels only once
@@ -293,20 +309,20 @@ def n_tracks_per_origin(
     tmp_plot_name = "" if plot_name is None else plot_name + "_"
 
     # Iterate over all plots
-    for iter_plot_name in var_plot_dict:
+    for iter_plot_name, iter_plot in var_plot_dict.items():
         # Draw the actual plot
-        var_plot_dict[iter_plot_name].draw()
+        iter_plot.draw()
 
         # Remove initial legend
-        var_plot_dict[iter_plot_name].axis_top.get_legend().remove()
+        iter_plot.axis_top.get_legend().remove()
 
         # Remove the puma legend and call adjust layout
-        var_plot_dict[iter_plot_name].fig.tight_layout()
+        iter_plot.fig.tight_layout()
 
         # Add the flavour or the process legend to the plots
         iter_handles = flavour_handles if all_flav_plot else file_handles
-        var_plot_dict[iter_plot_name].axis_top.add_artist(
-            var_plot_dict[iter_plot_name].axis_top.legend(
+        iter_plot.axis_top.add_artist(
+            iter_plot.axis_top.legend(
                 handles=iter_handles,
                 labels=[handle.get_label() for handle in iter_handles],
                 loc="upper right",
@@ -316,8 +332,8 @@ def n_tracks_per_origin(
         )
 
         # Add the track origin legend to the plots
-        var_plot_dict[iter_plot_name].axis_top.add_artist(
-            var_plot_dict[iter_plot_name].axis_top.legend(
+        iter_plot.axis_top.add_artist(
+            iter_plot.axis_top.legend(
                 handles=trk_origin_handles,
                 labels=[handle.get_label() for handle in trk_origin_handles],
                 loc="upper center",
@@ -327,7 +343,7 @@ def n_tracks_per_origin(
         )
 
         # Safe the figure
-        var_plot_dict[iter_plot_name].savefig(
+        iter_plot.savefig(
             plot_name=os.path.join(
                 plot_path,
                 (
