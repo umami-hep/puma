@@ -101,7 +101,7 @@ class Roc(PlotLineObject):
         ratio_group : str, optional
             Identifies the reference ROC group for ratio calculation, by default None
         use_bkg_eff : bool
-            Correct error calculation for background efficiency ROCs instead of 
+            Correct error calculation for background efficiency ROCs instead of
             background rejection, by default False
         **kwargs : kwargs
             Keyword arguments passed to `puma.PlotLineObject`
@@ -154,8 +154,7 @@ class Roc(PlotLineObject):
             raise ValueError("No `n_test` provided, cannot calculate binomial error!")
         if self.use_bkg_eff:
             return calculate_efficiency_error(self.bkg_rej[self.non_zero_mask], n_test, norm=norm)
-        else:
-            return calculate_rejection_error(self.bkg_rej[self.non_zero_mask], n_test, norm=norm)
+        return calculate_rejection_error(self.bkg_rej[self.non_zero_mask], n_test, norm=norm)
 
     def divide(
         self,
