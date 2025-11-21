@@ -251,6 +251,7 @@ class Roc(PlotLineObject):
             "signal_class": self.signal_class,
             "key": self.key,
             "ratio_group": self.ratio_group,
+            "use_bkg_eff": self.use_bkg_eff,
             **extra_kwargs,
         }
 
