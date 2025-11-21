@@ -8,7 +8,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from ftag import Flavours, Label
-from ftag.utils import calculate_rejection_error
+from ftag.utils import calculate_efficiency_error, calculate_rejection_error
 
 from puma.plot_base import PlotBase, PlotLineObject
 from puma.utils import get_good_colours, get_good_linestyles, logger
@@ -74,6 +74,7 @@ class Roc(PlotLineObject):
         signal_class: str | None = None,
         key: str | None = None,
         ratio_group: str | None = None,
+        use_bkg_eff: bool = False,
         **kwargs,
     ) -> None:
         """Initialise properties of roc curve object.
@@ -96,6 +97,9 @@ class Roc(PlotLineObject):
             Identifier for roc curve e.g. tagger, by default None
         ratio_group : str, optional
             Identifies the reference ROC group for ratio calculation, by default None
+        use_bkg_eff : bool
+            Correct error calculation for background efficiency ROCs instead of 
+            background rejection, by default False
         **kwargs : kwargs
             Keyword arguments passed to `puma.PlotLineObject`
 
@@ -117,6 +121,7 @@ class Roc(PlotLineObject):
         self.rej_class = Flavours[rej_class] if isinstance(rej_class, str) else rej_class
         self.key = key
         self.ratio_group = ratio_group if ratio_group else str(rej_class)
+        self.use_bkg_eff = use_bkg_eff
         self.kwargs = kwargs
 
     def binomial_error(self, norm: bool = False, n_test: int | None = None) -> np.ndarray:
@@ -144,7 +149,10 @@ class Roc(PlotLineObject):
             n_test = self.n_test
         if n_test is None:
             raise ValueError("No `n_test` provided, cannot calculate binomial error!")
-        return calculate_rejection_error(self.bkg_rej[self.non_zero_mask], n_test, norm=norm)
+        if self.use_bkg_eff:
+            return calculate_efficiency_error(self.bkg_rej[self.non_zero_mask], n_test, norm=norm)
+        else:
+            return calculate_rejection_error(self.bkg_rej[self.non_zero_mask], n_test, norm=norm)
 
     def divide(self, roc_comp, inverse: bool = False):
         """Calculate ratio between the roc curve and another roc.
