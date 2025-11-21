@@ -99,11 +99,12 @@ class VarVsVar(PlotLineObject):
         dict[str, Any]
             Dict with the arguments
         """
-        # Copy the kwargs to remove safely stuff
-        extra_kwargs = dict(getattr(self, "kwargs", {}))
+        # Start with the base PlotLineObject fields (incl. label, colour, etc.)
+        base_args = PlotLineObject.args_to_store.fget(self)  # type: ignore[attr-defined]
+        data: dict[str, Any] = dict(base_args)
 
-        # Create the dict with the args to store/load
-        return {
+        # VarVsVar-specific fields
+        data.update({
             "x_var": self.x_var,
             "y_var_mean": self.y_var_mean,
             "y_var_std": self.y_var_std,
@@ -112,8 +113,14 @@ class VarVsVar(PlotLineObject):
             "fill": self.fill,
             "plot_y_std": self.plot_y_std,
             "ratio_group": self.ratio_group,
-            **extra_kwargs,
-        }
+        })
+
+        # Optionally also include any extra kwargs stored on instances
+        extra_kwargs = getattr(self, "kwargs", None)
+        if extra_kwargs:
+            data.update(extra_kwargs)
+
+        return data
 
     def __eq__(self, other) -> bool:
         """Handles a == check with the class.

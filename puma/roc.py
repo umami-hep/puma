@@ -229,14 +229,12 @@ class Roc(PlotLineObject):
         dict[str, Any]
             Dict with the arguments
         """
-        # Copy the kwargs to remove safely stuff
-        extra_kwargs = dict(getattr(self, "kwargs", {}))
+        # Get the base PlotLineObject fields (incl. label, colour, etc.)
+        base_args = PlotLineObject.args_to_store.fget(self)  # type: ignore[attr-defined]
+        data: dict[str, Any] = dict(base_args)
 
-        # Remove label
-        extra_kwargs.pop("label", None)
-
-        # Create the dict with the args to store/load
-        return {
+        # ROC-specific fields
+        data.update({
             "sig_eff": self.sig_eff,
             "bkg_rej": self.bkg_rej,
             "n_test": self.n_test,
@@ -244,8 +242,14 @@ class Roc(PlotLineObject):
             "signal_class": self.signal_class,
             "key": self.key,
             "ratio_group": self.ratio_group,
-            **extra_kwargs,
-        }
+        })
+
+        # Optionally also include any extra kwargs stored on instances
+        extra_kwargs = getattr(self, "kwargs", None)
+        if extra_kwargs:
+            data.update(extra_kwargs)
+
+        return data
 
 
 class RocPlot(PlotBase):

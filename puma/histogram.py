@@ -176,9 +176,8 @@ class Histogram(PlotLineObject):
                 logger.debug("Histogram colour was set to %s", self.colour)
 
             # Add globally defined flavour label if not suppressed
-            if self.add_flavour_label:
-                global_flavour_label = self.flavour.label
-                self.label = f"{global_flavour_label} {label}"
+            if self.add_flavour_label and not self.label.startswith(f"{self.flavour.label}"):
+                self.label = f"{self.flavour.label} {label}"
 
             else:
                 self.label = label
@@ -210,14 +209,12 @@ class Histogram(PlotLineObject):
         dict[str, Any]
             Dict with the arguments
         """
-        # Copy the kwargs to remove safely stuff
-        extra_kwargs = dict(getattr(self, "kwargs", {}))
+        # Start with the base PlotLineObject fields (xmin, xmax, colour, label, ...)
+        base_args = PlotLineObject.args_to_store.fget(self)  # type: ignore[attr-defined]
+        data: dict[str, Any] = dict(base_args)
 
-        # Remove label
-        extra_kwargs.pop("label", None)
-
-        # Create the dict with the args to store/load
-        return {
+        # Histogram-specific fields
+        data.update({
             "bin_edges": self.bin_edges,
             "hist": self.hist,
             "unc": self.unc,
@@ -229,12 +226,17 @@ class Histogram(PlotLineObject):
             "is_data": self.is_data,
             "filled": self.filled,
             "key": self.key,
-            "label": self.label,
             "norm": self.norm,
             "discrete_vals": self.discrete_vals,
             "sum_of_weights": self.sum_of_weights,
-            **extra_kwargs,
-        }
+        })
+
+        # Optionally also include any extra kwargs stored on instances
+        extra_kwargs = getattr(self, "kwargs", None)
+        if extra_kwargs:
+            data.update(extra_kwargs)
+
+        return data
 
     def update(self, values: np.ndarray, weights: np.ndarray | None = None) -> None:
         """Update the existing histogram with new values.
