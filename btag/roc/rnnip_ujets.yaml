@@ -112,3 +112,4 @@ sig_eff:
   dtype: float64
 signal_class:
   __label__: bjets
+use_bkg_eff: false

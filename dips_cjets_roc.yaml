@@ -50,3 +50,4 @@ sig_eff:
   - 1.0
   dtype: float64
 signal_class: bjets
+use_bkg_eff: false
