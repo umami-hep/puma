@@ -14,7 +14,7 @@ from puma import Histogram, HistogramPlot
 from puma.hlplots.tagger import Tagger
 from puma.matshow import MatshowPlot
 from puma.utils import get_good_linestyles, logger
-from puma.utils.aux import get_aux_labels, get_trackOrigin_classNames
+from puma.utils.auxiliary import get_aux_labels, get_trackOrigin_classNames
 from puma.utils.confusion_matrix import confusion_matrix
 from puma.utils.mass import calculate_vertex_mass
 from puma.utils.precision_recall_scores import precision_recall_scores_per_class

@@ -13,7 +13,7 @@ from ftag import Cuts, Flavours, Label
 from ftag.utils import get_discriminant
 
 from puma.utils import logger
-from puma.utils.aux import get_aux_labels
+from puma.utils.auxiliary import get_aux_labels
 from puma.utils.vertexing import clean_reco_vertices, clean_truth_vertices
 
 

@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+- Rename aux.py -> auxiliary.py [#346](https://github.com/umami-hep/puma/pull/346)
+
 ### [v0.4.12](https://github.com/umami-hep/puma/releases/tag/v0.4.12) (05.11.2025)
 
 - Adding new URL for Images [#343](https://github.com/umami-hep/puma/pull/343)

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from palettable.colorbrewer.qualitative import Dark2_8
 
-from puma.utils.aux import get_aux_labels
+from puma.utils.auxiliary import get_aux_labels
 from puma.utils.generate import (
     get_dummy_2_taggers,
     get_dummy_multiclass_scores,
