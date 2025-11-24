@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Adding Support for Weights to VarVsEff [#348](https://github.com/umami-hep/puma/pull/348)
 - Add option to use background efficiency instead of rejection for ROC curve errors [#345](https://github.com/umami-hep/puma/pull/345)
 - Rename aux.py -> auxiliary.py [#346](https://github.com/umami-hep/puma/pull/346)
 
