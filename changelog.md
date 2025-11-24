@@ -3,6 +3,7 @@
 ### [Latest]
 
 - Add option to use background efficiency instead of rejection for ROC curve errors [#345](https://github.com/umami-hep/puma/pull/345)
+- Rename aux.py -> auxiliary.py [#346](https://github.com/umami-hep/puma/pull/346)
 
 ### [v0.4.12](https://github.com/umami-hep/puma/releases/tag/v0.4.12) (05.11.2025)
 
