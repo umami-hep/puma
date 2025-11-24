@@ -552,6 +552,97 @@ class VarVsEffTestCase(unittest.TestCase):
                 working_point=0.5,
             )
 
+    def test_negative_denominator(self):
+        """Test negative total weights."""
+        x_var_sig = np.array([0, 1])
+        disc_sig = np.array([0.2, 0.8])
+        x_var_bkg = np.array([0, 1])
+        disc_bkg = np.array([0.3, 0.7])
+        weights_sig = np.array([-2, -4])
+        weights_bkg = np.array([-3, -1])
+
+        VarVsEff(
+            x_var_sig=x_var_sig,
+            disc_sig=disc_sig,
+            x_var_bkg=x_var_bkg,
+            disc_bkg=disc_bkg,
+            weights_sig=weights_sig,
+            weights_bkg=weights_bkg,
+            bins=1,
+            working_point=0.5,
+        )
+
+    def test_type_error_rejection(self):
+        """Test negative total weights."""
+        x_var_sig = np.array([0, 1])
+        disc_sig = np.array([0.2, 0.8])
+        x_var_bkg = np.array([0, 1])
+        disc_bkg = np.array([0.3, 0.7])
+        weights_sig = np.array([-2, -4])
+        weights_bkg = np.array([-3, -1])
+
+        obj = VarVsEff(
+            x_var_sig=x_var_sig,
+            disc_sig=disc_sig,
+            x_var_bkg=x_var_bkg,
+            disc_bkg=disc_bkg,
+            weights_sig=weights_sig,
+            weights_bkg=weights_bkg,
+            bins=1,
+            working_point=0.5,
+        )
+
+        with self.assertRaises(TypeError):
+            obj.rejection(arr=np.array([0.2, 0.8]), cut="Wrong cut")
+
+    def test_eff_no_weights(self):
+        """Test efficiency calculation without given weights."""
+        x_var_sig = np.array([0, 1])
+        disc_sig = np.array([0.2, 0.8])
+        x_var_bkg = np.array([0, 1])
+        disc_bkg = np.array([0.3, 0.7])
+        weights_sig = np.array([-2, -4])
+        weights_bkg = np.array([-3, -1])
+
+        obj = VarVsEff(
+            x_var_sig=x_var_sig,
+            disc_sig=disc_sig,
+            x_var_bkg=x_var_bkg,
+            disc_bkg=disc_bkg,
+            weights_sig=weights_sig,
+            weights_bkg=weights_bkg,
+            bins=1,
+            working_point=0.5,
+        )
+
+        eff, eff_err = obj.efficiency(arr=np.array([0.2, 0.8]), cut=0, weights=None)
+        self.assertAlmostEqual(eff, 1)
+        self.assertAlmostEqual(eff_err, 0)
+
+    def test_rej_no_weights(self):
+        """Test rejection calculation without given weights."""
+        x_var_sig = np.array([0, 1])
+        disc_sig = np.array([0.2, 0.8])
+        x_var_bkg = np.array([0, 1])
+        disc_bkg = np.array([0.3, 0.7])
+        weights_sig = np.array([-2, -4])
+        weights_bkg = np.array([-3, -1])
+
+        obj = VarVsEff(
+            x_var_sig=x_var_sig,
+            disc_sig=disc_sig,
+            x_var_bkg=x_var_bkg,
+            disc_bkg=disc_bkg,
+            weights_sig=weights_sig,
+            weights_bkg=weights_bkg,
+            bins=1,
+            working_point=0.5,
+        )
+
+        rej, rej_err = obj.rejection(arr=np.array([0.2, 0.8]), cut=0, weights=None)
+        self.assertAlmostEqual(rej, 1)
+        self.assertAlmostEqual(rej_err, 0)
+
 
 class VarVsEffIOTestCase(unittest.TestCase):
     """Collection of I/O tests for VarVsEff."""

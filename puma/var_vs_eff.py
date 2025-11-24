@@ -534,7 +534,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         # Else return an error that this type of cut is not supported
         else:
             raise TypeError(
-                f"`cut` parameter type {type(cut)} is not supported! Must be float or np.ndarray!"
+                f"cut parameter type {type(cut)} is not supported! Must be float or np.ndarray"
             )
 
         # Get the total weight for passing jets
