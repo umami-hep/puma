@@ -154,22 +154,22 @@ class PlotLineObject:
         if isinstance(obj, dict):
             if "__ndarray__" in obj:
                 decoded = np.asarray(obj["__ndarray__"], dtype=obj["dtype"])
-            if "__label__" in obj:
+            elif "__label__" in obj:
                 decoded = Label(**{
                     k: PlotLineObject.decode(v) for k, v in obj["__label__"].items()
                 })
-            if "__tuple__" in obj:
+            elif "__tuple__" in obj:
                 decoded = tuple(PlotLineObject.decode(v) for v in obj["__tuple__"])
-            if "__cuts__" in obj:
+            elif "__cuts__" in obj:
                 decoded = Cuts(**{k: PlotLineObject.decode(v) for k, v in obj["__cuts__"].items()})
-            if "__cut__" in obj:
+            elif "__cut__" in obj:
                 decoded = Cut(**{k: PlotLineObject.decode(v) for k, v in obj["__cut__"].items()})
 
             # If it's a regular dict, walk down the keys
             decoded = {k: PlotLineObject.decode(v) for k, v in obj.items()}
 
         # If a list was used, check that all sub-objects are correctly loaded
-        if isinstance(obj, list):
+        elif isinstance(obj, list):
             decoded = [PlotLineObject.decode(v) for v in obj]
 
         # If no decoding is needed, return the object
