@@ -761,3 +761,37 @@ class RocOutputTestCase(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             plot.set_ratio_class(ratio_panel=1, rej_class="ujets", rej_class_label=2)
+
+    def test_set_roc_reference_value_error(self):
+        """Test ValueError from set_roc_reference."""
+        plot = RocPlot(
+            n_ratio_panels=1,
+            ylabel="Light-jet rejection",
+            xlabel="$b$-jet efficiency",
+            atlas_second_tag=(
+                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
+            ),
+            y_scale=1.5,
+            # logy=False,
+        )
+
+        with self.assertRaises(ValueError):
+            plot.set_roc_reference(key="1", rej_class=Flavours["bjets"], ratio_group="bjets")
+            plot.set_roc_reference(key="2", rej_class=Flavours["cjets"], ratio_group="cjets")
+            plot.set_roc_reference(key="3", rej_class=Flavours["ujets"], ratio_group="ujets")
+
+    def test_set_roc_reference(self):
+        """Test behaviour for existing ROC reference curves."""
+        plot = RocPlot(
+            n_ratio_panels=1,
+            ylabel="Light-jet rejection",
+            xlabel="$b$-jet efficiency",
+            atlas_second_tag=(
+                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
+            ),
+            y_scale=1.5,
+            # logy=False,
+        )
+
+        plot.set_roc_reference(key="1", rej_class=Flavours["bjets"], ratio_group="bjets")
+        plot.set_roc_reference(key="2", rej_class=Flavours["bjets"], ratio_group="bjets")
