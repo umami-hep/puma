@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, ClassVar
 
 import numpy as np
-from ftag.utils import calculate_efficiency_error, calculate_rejection_error
+from ftag.utils import calculate_efficiency_error, calculate_rejection_error, weighted_percentile
 
 from puma.utils import logger
 from puma.utils.histogram import save_divide
@@ -22,8 +22,10 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         self,
         x_var_sig: np.ndarray,
         disc_sig: np.ndarray,
+        weights_sig: np.ndarray | None = None,
         x_var_bkg: np.ndarray = None,
         disc_bkg: np.ndarray = None,
+        weights_bkg: np.ndarray | None = None,
         bins: int | list | np.ndarray = 10,
         working_point: float | list | None = None,
         fixed_bkg_rej: float | None = None,
@@ -40,10 +42,16 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             Values for x-axis variable for signal
         disc_sig : np.ndarray
             Discriminant values for signal
+        weights_sig : np.ndarray, optional
+            Weights for the signal. If not provided, equal weights will be used.
+            By default None
         x_var_bkg : np.ndarray, optional
             Values for x-axis variable for background, by default None
         disc_bkg : np.ndarray, optional
             Discriminant values for background, by default None
+        weights_bkg : np.ndarray, optional
+            Weights for the background. If not provided, equal weights will be used.
+            By default None
         bins : int, optional
             If bins is an int, it defines the number of equal-width bins in the
             given range (10, by default). If bins is a sequence, it defines a
@@ -103,6 +111,36 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         self.x_var_bkg = None if x_var_bkg is None else np.array(x_var_bkg)
         self.disc_bkg = None if disc_bkg is None else np.array(disc_bkg)
 
+        # Check the signal weights and use ones if not given
+        if weights_sig is None:
+            self.weights_sig = np.ones_like(self.disc_sig, dtype=float)
+
+        # Else ensure that they have the same size as the discriminants
+        else:
+            self.weights_sig = np.asarray(weights_sig, dtype=float)
+            if self.weights_sig.shape != self.disc_sig.shape:
+                raise ValueError(
+                    "Length of 'weights_sig' "
+                    f"({self.weights_sig.shape}) must match 'disc_sig' ({self.disc_sig.shape})."
+                )
+
+        # If not bkg discs are given, don't use bkg weights
+        if self.disc_bkg is None:
+            self.weights_bkg = None
+
+        # If no weights but discs are given, use ones
+        elif weights_bkg is None:
+            self.weights_bkg = np.ones_like(self.disc_bkg, dtype=float)
+
+        # Else ensure that they have the same size as the discs
+        else:
+            self.weights_bkg = np.asarray(weights_bkg, dtype=float)
+            if self.weights_bkg.shape != self.disc_bkg.shape:
+                raise ValueError(
+                    "Length of 'weights_bkg' "
+                    f"({self.weights_bkg.shape}) must match 'disc_bkg' ({self.disc_bkg.shape})."
+                )
+
         # Define attributes for the working points
         self.working_point = working_point
         self.fixed_bkg_rej = fixed_bkg_rej
@@ -119,8 +157,10 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         # Binned distributions
         self.bin_indices_sig = None
         self.disc_binned_sig = None
+        self.weights_binned_sig = None
         self.bin_indices_bkg = None
         self.disc_binned_bkg = None
+        self.weights_binned_bkg = None
 
         # Kwargs
         self.kwargs = kwargs
@@ -276,10 +316,18 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             self.disc_sig[np.where(self.bin_indices_sig == x)[0]]
             for x in range(1, len(self.bin_edges))
         ]
+        self.weights_binned_sig = [
+            self.weights_sig[np.where(self.bin_indices_sig == x)[0]]
+            for x in range(1, len(self.bin_edges))
+        ]
         if self.x_var_bkg is not None:
             self.bin_indices_bkg = np.digitize(self.x_var_bkg, self.bin_edges)
             self.disc_binned_bkg = [
                 self.disc_bkg[np.where(self.bin_indices_bkg == x)[0]]
+                for x in range(1, len(self.bin_edges))
+            ]
+            self.weights_binned_bkg = [
+                self.weights_bkg[np.where(self.bin_indices_bkg == x)[0]]
                 for x in range(1, len(self.bin_edges))
             ]
 
@@ -294,31 +342,74 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             self.disc_cut = self.disc_cut
         elif isinstance(self.working_point, (list, np.ndarray)):
             self.disc_cut = np.column_stack((
-                [np.percentile(self.disc_sig, (1 - self.working_point[0]) * 100)] * self.n_bins,
-                [np.percentile(self.disc_sig, (1 - self.working_point[1]) * 100)] * self.n_bins,
+                [
+                    weighted_percentile(
+                        arr=self.disc_sig,
+                        percentile=1.0 - self.working_point[0],
+                        weights=self.weights_sig,
+                    )
+                ]
+                * self.n_bins,
+                [
+                    weighted_percentile(
+                        arr=self.disc_sig,
+                        percentile=1.0 - self.working_point[1],
+                        weights=self.weights_sig,
+                    )
+                ]
+                * self.n_bins,
             ))
         elif self.flat_per_bin:
             if isinstance(self.working_point, float):
                 self.disc_cut = [
-                    float(np.percentile(x, (1 - self.working_point) * 100))
-                    for x in self.disc_binned_sig
+                    float(
+                        weighted_percentile(
+                            arr=iter_val,
+                            percentile=1.0 - self.working_point,
+                            weights=iter_weights,
+                        )
+                    )
+                    for iter_val, iter_weights in zip(self.disc_binned_sig, self.weights_binned_sig)
                 ]
             elif isinstance(self.fixed_bkg_rej, (int, float)):
                 self.disc_cut = [
-                    float(np.percentile(x, (1 - (1 / self.fixed_bkg_rej)) * 100))
-                    for x in self.disc_binned_bkg
+                    float(
+                        weighted_percentile(
+                            arr=iter_val,
+                            percentile=(1.0 - (1.0 / self.fixed_bkg_rej)),
+                            weights=iter_weights,
+                        )
+                    )
+                    for iter_val, iter_weights in zip(self.disc_binned_bkg, self.weights_binned_bkg)
                 ]
         elif isinstance(self.fixed_bkg_rej, (int, float)):
             self.disc_cut = [
-                float(np.percentile(self.disc_bkg, (1 - (1 / self.fixed_bkg_rej)) * 100))
+                float(
+                    weighted_percentile(
+                        arr=self.disc_bkg,
+                        percentile=(1.0 - (1.0 / self.fixed_bkg_rej)),
+                        weights=self.weights_bkg,
+                    )
+                )
             ] * self.n_bins
         else:
             self.disc_cut = [
-                float(np.percentile(self.disc_sig, (1 - self.working_point) * 100))
+                float(
+                    weighted_percentile(
+                        arr=self.disc_sig,
+                        percentile=(1.0 - self.working_point),
+                        weights=self.weights_sig,
+                    )
+                )
             ] * self.n_bins
         logger.debug(f"Discriminant cut: {self.disc_cut}")
 
-    def efficiency(self, arr: np.ndarray, cut: float | np.ndarray):
+    def efficiency(
+        self,
+        arr: np.ndarray,
+        cut: float | np.ndarray,
+        weights: np.ndarray | None = None,
+    ):
         """Calculate efficiency and the associated error.
 
         Parameters
@@ -328,6 +419,9 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         cut : float | np.ndarray
             Cut value. If you want to use PCFT, two values are provided.
             The lower and the upper cut.
+        weights : np.ndarray, optional
+            Weights to use for the array. Must be same length as arr!
+            When None is given, equal weights are used. By default None
 
         Returns
         -------
@@ -341,32 +435,63 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         TypeError
             If the cut parameter type is not supported
         """
+        # If no values are given, return 0 for eff and eff_err
         if len(arr) == 0:
-            return 0, 0
+            return 0.0, 0.0
 
-        if isinstance(cut, (int, float, np.int32, np.float32)):
-            eff = sum(arr < cut) / len(arr) if self.inverse_cut else sum(arr > cut) / len(arr)
+        # Fall back if no weights are used
+        if weights is None:
+            weights = np.ones_like(arr, dtype=float)
 
+        # If the cut is a single value, this is a non-PCFT WP
+        if isinstance(cut, (int, float, np.integer, np.floating)):
+            # Check for the inverse cut
+            mask = arr < cut if self.inverse_cut else arr > cut
+
+        # If the cut is an array, this is a PCFT-style two-sided cut
+        # Keep values between cut[1] and cut[0]
         elif isinstance(cut, np.ndarray):
-            eff = sum((arr < cut[0]) & (arr > cut[1])) / len(arr)
+            mask = (arr < cut[0]) & (arr > cut[1])
 
+        # Else return an error that this type of cut is not supported
         else:
             raise TypeError(
                 f"cut parameter type {type(cut)} is not supported! Must be float or np.ndarray"
             )
 
-        eff_error = calculate_efficiency_error(eff, len(arr))
+        # With the given mask, calculate the sum of the weights
+        numerator = float(weights[mask].sum())
+        denominator = float(weights.sum())
+
+        # Check if the denominator is > 0
+        # If not, return 0 as eff and eff_err
+        if denominator <= 0:
+            return 0.0, 0.0
+
+        # Calculate the efficiency and the error
+        eff = save_divide(numerator=numerator, denominator=denominator)
+        eff_error = calculate_efficiency_error(eff, denominator)
+
         return eff, eff_error
 
-    def rejection(self, arr: np.ndarray, cut: float):
+    def rejection(
+        self,
+        arr: np.ndarray,
+        cut: float | np.ndarray,
+        weights: np.ndarray | None = None,
+    ):
         """Calculate rejection and the associated error.
 
         Parameters
         ----------
         arr : np.ndarray
             Array with discriminants
-        cut : float
-            Cut value
+        cut : float | np.ndarray
+            Cut value used for the given working point. Ndarray
+            when PCFT-style cuts are used
+        weights : np.ndarray, optional
+            Weights to use for the array. Must be same length as arr!
+            When None is given, equal weights are used. By default None
 
         Returns
         -------
@@ -380,25 +505,52 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         TypeError
             If the cut parameter type is not supported
         """
-        if self.inverse_cut:
-            rej = save_divide(len(arr), sum(arr < cut), default=np.inf)
+        # If no values are given, return 0 for eff and eff_err
+        if len(arr) == 0:
+            return 0.0, 0.0
 
-        elif isinstance(cut, (int, float, np.int32, np.float32)):
-            rej = save_divide(len(arr), sum(arr > cut), default=np.inf)
+        # Fall back if no weights are used
+        if weights is None:
+            weights = np.ones_like(arr, dtype=float)
 
+        # Get the denominator from the total sum of weights
+        denominator = float(weights.sum())
+
+        # Return NaN if total weights is <= 0
+        if denominator <= 0:
+            logger.warning("Total weight in bin is <= 0. Setting rejection to NaN.")
+            return np.nan, np.nan
+
+        # If the cut is a single value, this is a non-PCFT WP
+        if isinstance(cut, (int, float, np.integer, np.floating)):
+            # Check for the inverse cut
+            mask = arr < cut if self.inverse_cut else arr > cut
+
+        # If the cut is an array, this is a PCFT-style two-sided cut
+        # Keep values between cut[1] and cut[0]
         elif isinstance(cut, np.ndarray):
-            rej = save_divide(len(arr), sum((arr < cut[0]) & (arr > cut[1])), default=np.inf)
+            mask = (arr < cut[0]) & (arr > cut[1])
 
+        # Else return an error that this type of cut is not supported
         else:
             raise TypeError(
                 f"`cut` parameter type {type(cut)} is not supported! Must be float or np.ndarray!"
             )
 
+        # Get the total weight for passing jets
+        numerator = float(weights[mask].sum())
+
+        # Calculate the rejection by using the inverse of the effciency (1 / eff)
+        # To do so with less calculation, flip numerator and denominator
+        rej = save_divide(numerator=denominator, denominator=numerator, default=np.inf)
+
+        # If the rejection is infinite, print a warning and return NaN
         if rej == np.inf:
             logger.warning("Your rejection is infinity -> setting it to np.nan.")
             return np.nan, np.nan
 
-        rej_error = calculate_rejection_error(rej, len(arr))
+        # Calculate the error
+        rej_error = calculate_rejection_error(rej, denominator)
         return rej, rej_error
 
     @property
@@ -438,10 +590,27 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         background error per bin.
         """
         logger.debug("Calculating signal efficiency.")
-        eff = np.array(list(map(self.efficiency, self.disc_binned_bkg, self.disc_cut)))[:, 0]
-        err = np.array(list(map(self.efficiency, self.disc_binned_sig, self.disc_cut)))[:, 1]
-        logger.debug(f"Retrieved signal efficiencies: {eff}")
-        return eff, err
+        effs: list[float] = []
+        errs: list[float] = []
+
+        for disc_bkg, disc_sig, cut, w_bkg, w_sig in zip(
+            self.disc_binned_bkg,
+            self.disc_binned_sig,
+            self.disc_cut,
+            self.weights_binned_bkg,
+            self.weights_binned_sig,
+        ):
+            eff, _ = self.efficiency(disc_bkg, cut, w_bkg)
+            _, err = self.efficiency(disc_sig, cut, w_sig)
+            effs.append(eff)
+            errs.append(err)
+
+        eff_arr = np.array(effs)
+        err_arr = np.array(errs)
+
+        logger.debug(f"Retrieved signal efficiencies: {eff_arr}")
+        logger.debug(f"Retrieved signal efficiency errors: {err_arr}")
+        return eff_arr, err_arr
 
     @property
     def sig_eff(self):
@@ -455,9 +624,23 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             Efficiency_error
         """
         logger.debug("Calculating signal efficiency.")
-        eff = list(map(self.efficiency, self.disc_binned_sig, self.disc_cut))
-        logger.debug(f"Retrieved signal efficiencies: {eff}")
-        return np.array(eff)[:, 0], np.array(eff)[:, 1]
+        effs: list[float] = []
+        errs: list[float] = []
+
+        for disc_sig, cut, w_sig in zip(
+            self.disc_binned_sig,
+            self.disc_cut,
+            self.weights_binned_sig,
+        ):
+            eff, err = self.efficiency(disc_sig, cut, w_sig)
+            effs.append(eff)
+            errs.append(err)
+
+        eff_arr = np.array(effs)
+        err_arr = np.array(errs)
+        logger.debug(f"Retrieved signal efficiencies: {eff_arr}")
+        logger.debug(f"Retrieved signal efficiency errors: {err_arr}")
+        return eff_arr, err_arr
 
     @property
     def bkg_eff(self):
@@ -471,9 +654,23 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             Efficiency_error
         """
         logger.debug("Calculating background efficiency.")
-        eff = list(map(self.efficiency, self.disc_binned_bkg, self.disc_cut))
-        logger.debug(f"Retrieved background efficiencies: {eff}")
-        return np.array(eff)[:, 0], np.array(eff)[:, 1]
+        effs: list[float] = []
+        errs: list[float] = []
+
+        for disc_bkg, cut, w_bkg in zip(
+            self.disc_binned_bkg,
+            self.disc_cut,
+            self.weights_binned_bkg,
+        ):
+            eff, err = self.efficiency(disc_bkg, cut, w_bkg)
+            effs.append(eff)
+            errs.append(err)
+
+        eff_arr = np.array(effs)
+        err_arr = np.array(errs)
+        logger.debug(f"Retrieved background efficiencies: {eff_arr}")
+        logger.debug(f"Retrieved background efficiency errors: {err_arr}")
+        return eff_arr, err_arr
 
     @property
     def sig_rej(self):
@@ -487,9 +684,23 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             Rejection_error
         """
         logger.debug("Calculating signal rejection.")
-        rej = list(map(self.rejection, self.disc_binned_sig, self.disc_cut))
-        logger.debug(f"Retrieved signal rejections: {rej}")
-        return np.array(rej)[:, 0], np.array(rej)[:, 1]
+        rejs: list[float] = []
+        errs: list[float] = []
+
+        for disc_sig, cut, w_sig in zip(
+            self.disc_binned_sig,
+            self.disc_cut,
+            self.weights_binned_sig,
+        ):
+            rej, err = self.rejection(disc_sig, cut, w_sig)
+            rejs.append(rej)
+            errs.append(err)
+
+        rej_arr = np.array(rejs)
+        err_arr = np.array(errs)
+        logger.debug(f"Retrieved signal rejections: {rej_arr}")
+        logger.debug(f"Retrieved signal rejection errors: {err_arr}")
+        return rej_arr, err_arr
 
     @property
     def bkg_rej(self):
@@ -503,9 +714,23 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             Rejection_error
         """
         logger.debug("Calculating background rejection.")
-        rej = list(map(self.rejection, self.disc_binned_bkg, self.disc_cut))
-        logger.debug(f"Retrieved background rejections: {rej}")
-        return np.array(rej)[:, 0], np.array(rej)[:, 1]
+        rejs: list[float] = []
+        errs: list[float] = []
+
+        for disc_bkg, cut, w_bkg in zip(
+            self.disc_binned_bkg,
+            self.disc_cut,
+            self.weights_binned_bkg,
+        ):
+            rej, err = self.rejection(disc_bkg, cut, w_bkg)
+            rejs.append(rej)
+            errs.append(err)
+
+        rej_arr = np.array(rejs)
+        err_arr = np.array(errs)
+        logger.debug(f"Retrieved background rejections: {rej_arr}")
+        logger.debug(f"Retrieved background rejection errors: {err_arr}")
+        return rej_arr, err_arr
 
     def get(self, mode: str, inverse_cut: bool = False):
         """Wrapper around rejection and efficiency functions.

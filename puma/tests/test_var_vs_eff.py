@@ -490,6 +490,68 @@ class VarVsEffTestCase(unittest.TestCase):
         self.assertIsNotNone(eff)
         self.assertIsNotNone(err)
 
+    def test_correct_weights(self):
+        """Test the correct usage of weights."""
+        x_var_sig = np.array([0, 1])
+        disc_sig = np.array([0.2, 0.8])
+        x_var_bkg = np.array([0, 1])
+        disc_bkg = np.array([0.3, 0.7])
+        weights_sig = np.array([2, 4])
+        weights_bkg = np.array([3, 1])
+
+        obj = VarVsEff(
+            x_var_sig=x_var_sig,
+            disc_sig=disc_sig,
+            x_var_bkg=x_var_bkg,
+            disc_bkg=disc_bkg,
+            weights_sig=weights_sig,
+            weights_bkg=weights_bkg,
+            bins=1,
+            working_point=0.5,
+        )
+
+        self.assertAlmostEqual(obj.bkg_eff_sig_err[0][0], 0.25)
+        self.assertAlmostEqual(obj.bkg_eff_sig_err[1][0], 0.19245008972987526)
+        self.assertAlmostEqual(obj.sig_eff[0][0], 0.6666666666666666)
+        self.assertAlmostEqual(obj.sig_eff[1][0], 0.19245008972987526)
+        self.assertAlmostEqual(obj.sig_rej[0][0], 1.5)
+        self.assertAlmostEqual(obj.sig_rej[1][0], 0.43301270189221935)
+        self.assertAlmostEqual(obj.bkg_eff[0][0], 0.25)
+        self.assertAlmostEqual(obj.bkg_eff[1][0], 0.21650635094610965)
+        self.assertAlmostEqual(obj.bkg_rej[0][0], 4.0)
+        self.assertAlmostEqual(obj.bkg_rej[1][0], 3.4641016151377544)
+
+    def test_unequal_sized_weights(self):
+        """Test the error when the weights are not the size of the discs."""
+        x_var_sig = np.array([0, 1])
+        disc_sig = np.array([0.2, 0.8])
+        x_var_bkg = np.array([0, 1])
+        disc_bkg = np.array([0.3, 0.7])
+        weights_sig = np.array([1, 2, 3])
+        weights_bkg = np.array([1, 2, 3])
+
+        # Signal weights
+        with self.assertRaises(ValueError):
+            VarVsEff(
+                x_var_sig=x_var_sig,
+                disc_sig=disc_sig,
+                x_var_bkg=x_var_bkg,
+                disc_bkg=disc_bkg,
+                weights_sig=weights_sig,
+                working_point=0.5,
+            )
+
+        # Background weights
+        with self.assertRaises(ValueError):
+            VarVsEff(
+                x_var_sig=x_var_sig,
+                disc_sig=disc_sig,
+                x_var_bkg=x_var_bkg,
+                disc_bkg=disc_bkg,
+                weights_bkg=weights_bkg,
+                working_point=0.5,
+            )
+
 
 class VarVsEffIOTestCase(unittest.TestCase):
     """Collection of I/O tests for VarVsEff."""
