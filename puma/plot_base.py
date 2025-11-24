@@ -11,7 +11,8 @@ from typing import TYPE_CHECKING, Any, Sequence
 import atlasify
 import numpy as np
 import yaml
-from ftag import Flavours, Label
+from ftag.cuts import Cut, Cuts
+from ftag.labels import Label
 from IPython import get_ipython
 from IPython.display import display
 from matplotlib import gridspec, lines
@@ -108,22 +109,29 @@ class PlotLineObject:
         Any
             The encoded object
         """
+        # Setup the object so that it can be returned if no encoding is needed
+        encoded: Any = obj
+
         # Encode special cases which can't be easily stored in json and yaml
         if isinstance(obj, np.ndarray):
-            return {"__ndarray__": obj.tolist(), "dtype": str(obj.dtype)}
-        if isinstance(obj, Label):
-            return {"__label__": obj.name}
-        if isinstance(obj, tuple):
-            return {"__tuple__": [PlotLineObject.encode(v) for v in obj]}
+            encoded = {"__ndarray__": obj.tolist(), "dtype": str(obj.dtype)}
+        elif isinstance(obj, Label):
+            encoded = {"__label__": {k: PlotLineObject.encode(v) for k, v in obj.__dict__.items()}}
+        elif isinstance(obj, tuple):
+            encoded = {"__tuple__": [PlotLineObject.encode(v) for v in obj]}
+        elif isinstance(obj, Cuts):
+            encoded = {"__cuts__": {k: PlotLineObject.encode(v) for k, v in obj.__dict__.items()}}
+        elif isinstance(obj, Cut):
+            encoded = {"__cut__": {k: PlotLineObject.encode(v) for k, v in obj.__dict__.items()}}
 
         # For lists and dicts, walk through them and ensure correct encoding for sub-objects
-        if isinstance(obj, list):
-            return [PlotLineObject.encode(v) for v in obj]
-        if isinstance(obj, dict):
-            return {k: PlotLineObject.encode(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            encoded = [PlotLineObject.encode(v) for v in obj]
+        elif isinstance(obj, dict):
+            encoded = {k: PlotLineObject.encode(v) for k, v in obj.items()}
 
         # If no encoding is needed, return the object
-        return obj
+        return encoded
 
     @staticmethod
     def decode(obj: Any) -> Any:
@@ -139,24 +147,33 @@ class PlotLineObject:
         Any
             The decoded object
         """
+        # Setup the object so that it can be returned if no decoding is needed
+        decoded: Any = obj
+
         # If a dict was used, go through and check for types
         if isinstance(obj, dict):
             if "__ndarray__" in obj:
-                return np.asarray(obj["__ndarray__"], dtype=obj["dtype"])
+                decoded = np.asarray(obj["__ndarray__"], dtype=obj["dtype"])
             if "__label__" in obj:
-                return Flavours[obj["__label__"]]
+                decoded = Label(**{
+                    k: PlotLineObject.decode(v) for k, v in obj["__label__"].items()
+                })
             if "__tuple__" in obj:
-                return tuple(PlotLineObject.decode(v) for v in obj["__tuple__"])
+                decoded = tuple(PlotLineObject.decode(v) for v in obj["__tuple__"])
+            if "__cuts__" in obj:
+                decoded = Cuts(**{k: PlotLineObject.decode(v) for k, v in obj["__cuts__"].items()})
+            if "__cut__" in obj:
+                decoded = Cut(**{k: PlotLineObject.decode(v) for k, v in obj["__cut__"].items()})
 
             # If it's a regular dict, walk down the keys
-            return {k: PlotLineObject.decode(v) for k, v in obj.items()}
+            decoded = {k: PlotLineObject.decode(v) for k, v in obj.items()}
 
         # If a list was used, check that all sub-objects are correctly loaded
         if isinstance(obj, list):
-            return [PlotLineObject.decode(v) for v in obj]
+            decoded = [PlotLineObject.decode(v) for v in obj]
 
         # If no decoding is needed, return the object
-        return obj
+        return decoded
 
     def save(self, path: str | Path) -> None:
         """Store class attributes in a file (json or yaml).

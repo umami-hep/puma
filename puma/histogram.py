@@ -7,7 +7,7 @@ from typing import Any, cast
 import matplotlib as mpl
 import numpy as np
 import pandas as pd
-from ftag import Flavours, Label
+from ftag import Label
 
 from puma.plot_base import PlotBase, PlotLineObject
 from puma.utils import get_good_colours, logger
@@ -29,7 +29,7 @@ class Histogram(PlotLineObject):
         weights: np.ndarray = None,
         sum_squared_weights: np.ndarray = None,
         ratio_group: str | None = None,
-        flavour: str | Label = None,
+        flavour: Label | None = None,
         add_flavour_label: bool = True,
         histtype: str = "step",
         norm: bool = True,
@@ -72,7 +72,7 @@ class Histogram(PlotLineObject):
             Name of the ratio group this histogram is compared with. The ratio group
             allows you to compare different groups of histograms within one plot.
             By default None
-        flavour: str | Label, optional
+        flavour: Label, optional
             If set, the correct colour and a label prefix will be extracted from
             `puma.utils.global_config` set for this histogram.
             Allowed values are e.g. "bjets", "cjets", "ujets", "bbjets", ...
@@ -148,7 +148,7 @@ class Histogram(PlotLineObject):
         self.filled = self.bin_edges is not None
 
         # Ensure that the flavour is an instance of Flavour
-        self.flavour = Flavours[flavour] if isinstance(flavour, str) else flavour
+        self.flavour = flavour
 
         # Set the inputs as attributes
         self.weights = weights if weights is not None else np.ones_like(values)
@@ -170,13 +170,22 @@ class Histogram(PlotLineObject):
 
         # If flavour was specified, extract configuration from global config
         if self.flavour is not None:
+            if not isinstance(self.flavour, Label):
+                raise ValueError(
+                    f"'flavour' must be an instance of Label! You gave {type(self.flavour)}"
+                )
+
             # Use globally defined flavour colour if not specified
             if self.colour is None:
                 self.colour = self.flavour.colour
                 logger.debug("Histogram colour was set to %s", self.colour)
 
             # Add globally defined flavour label if not suppressed
-            if self.add_flavour_label and not self.label.startswith(f"{self.flavour.label}"):
+            if (
+                self.add_flavour_label
+                and self.label
+                and not self.label.startswith(f"{self.flavour.label}")
+            ):
                 self.label = f"{self.flavour.label} {label}"
 
             else:
