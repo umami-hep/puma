@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import numpy as np
+from ftag import Flavours
 
 from puma import Histogram, HistogramPlot
 from puma.utils import get_dummy_2_taggers
@@ -28,13 +29,13 @@ u_jets = df[df["HadronConeExclTruthLabelID"] == 0]
 c_jets = df[df["HadronConeExclTruthLabelID"] == 4]
 b_jets = df[df["HadronConeExclTruthLabelID"] == 5]
 
-# the "flavour" argument will add a "light-flavour jets" (or other) prefix to the label
-# + set the colour to the one that is defined in puma.utils.global_config
+# The 'flavour' option here takes an instance of Label (coming from the atlas-ftag-tools package)
+# as input. You can use default flavours by importing Flavours from the ftag package
 plot_histo.add(
     Histogram(
         u_jets["dips_pb"],
         bins=np.linspace(0, 1, 30),
-        flavour="ujets",
+        flavour=Flavours["ujets"],
         linestyle="dashed",
     )
 )
@@ -42,7 +43,7 @@ plot_histo.add(
     Histogram(
         c_jets["dips_pb"],
         bins=np.linspace(0, 1, 30),
-        flavour="cjets",
+        flavour=Flavours["cjets"],
         linestyle="dashdot",
     )
 )
@@ -50,7 +51,7 @@ plot_histo.add(
     Histogram(
         b_jets["dips_pb"],
         bins=np.linspace(0, 1, 30),
-        flavour="bjets",
+        flavour=Flavours["bjets"],
     )
 )
 
