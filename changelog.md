@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+- Add option to use background efficiency instead of rejection for ROC curve errors [#345](https://github.com/umami-hep/puma/pull/345)
+
 ### [v0.4.12](https://github.com/umami-hep/puma/releases/tag/v0.4.12) (05.11.2025)
 
 - Adding new URL for Images [#343](https://github.com/umami-hep/puma/pull/343)
