@@ -171,7 +171,7 @@ class Histogram(PlotLineObject):
         # If flavour was specified, extract configuration from global config
         if self.flavour is not None:
             if not isinstance(self.flavour, Label):
-                raise ValueError(
+                raise TypeError(
                     f"'flavour' must be an instance of Label! You gave {type(self.flavour)}"
                 )
 

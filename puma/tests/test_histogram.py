@@ -156,6 +156,15 @@ class HistogramTestCase(unittest.TestCase):
             "Expected warning not found",
         )
 
+    def test_flavour_type_error(self):
+        """Test the TypeError raised if a wrong instance of flavour is given."""
+        with self.assertRaises(TypeError):
+            Histogram(
+                values=[1, 1, 1, 2, 2],
+                bins=np.array([1, 2, 3]),
+                flavour="This is not a Label!",
+            )
+
     def test_update_behaviour_without_weights_no_norm(self):
         """Test the default behaviour of update without weights and no norm."""
         hist = Histogram(

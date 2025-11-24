@@ -366,7 +366,7 @@ class RocPlot(PlotBase):
     def set_roc_reference(
         self,
         key: str,
-        rej_class: str,
+        rej_class: str | Label,
         ratio_group: str,
     ):
         """Setting the reference roc curves used in the ratios.
@@ -375,7 +375,7 @@ class RocPlot(PlotBase):
         ----------
         key : str
             Unique identifier of roc object
-        rej_class : str
+        rej_class : str | Label
             Rejection class encoded in roc curve
         ratio_group : str
             Ratio group this roc is reference for
@@ -385,21 +385,24 @@ class RocPlot(PlotBase):
         ValueError
             If more rejection classes are set than actual ratio panels available.
         """
-        if rej_class not in self.reference_roc:
+        # Ensure that rej_class is not an instance of label
+        rej_class_str = rej_class.name if isinstance(rej_class, Label) else rej_class
+
+        if rej_class_str not in self.reference_roc:
             if len(self.reference_roc) > self.n_ratio_panels:
                 raise ValueError(
                     "You cannot set more rejection classes than available ratio panels."
                 )
-            self.reference_roc[rej_class] = {ratio_group: key}
+            self.reference_roc[rej_class_str] = {ratio_group: key}
         else:
-            if self.reference_roc[rej_class].get(ratio_group):
+            if self.reference_roc[rej_class_str].get(ratio_group):
                 logger.warning(
                     "You specified a second roc curve %s as reference for ratio. "
                     "Using it as new reference instead of %s.",
                     key,
-                    self.reference_roc[rej_class][ratio_group],
+                    self.reference_roc[rej_class_str][ratio_group],
                 )
-            self.reference_roc[rej_class][ratio_group] = key
+            self.reference_roc[rej_class_str][ratio_group] = key
 
     def set_ratio_class(
         self,

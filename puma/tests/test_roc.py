@@ -102,7 +102,7 @@ class RocTestCase(unittest.TestCase):
 
     def test_roc_wrong_flavour_instance(self):
         """Test init of ROC with a wrong flavour instance."""
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ValueError):
             Roc(np.array([0.1, 0.2, 0.3]), np.array([20, 50, 100]), rej_class=5)
 
 
@@ -737,3 +737,19 @@ class RocOutputTestCase(unittest.TestCase):
                 tol=2.5,
             )
         )
+
+    def test_set_ratio_class_type_error(self):
+        """Test the TypeError raised if the rej_class is a string and the label is not a string."""
+        plot = RocPlot(
+            n_ratio_panels=1,
+            ylabel="Light-jet rejection",
+            xlabel="$b$-jet efficiency",
+            atlas_second_tag=(
+                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
+            ),
+            y_scale=1.5,
+            # logy=False,
+        )
+
+        with self.assertRaises(TypeError):
+            plot.set_ratio_class(ratio_panel=1, rej_class="ujets", rej_class_label=2)

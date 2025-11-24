@@ -58,7 +58,7 @@ rnnip_ujets_roc = Roc(
     sig_eff=sig_eff,
     bkg_rej=rnnip_ujets_rej,
     n_test=n_jets_light,
-    rej_class="ujets",
+    rej_class=Flavours["ujets"],
     signal_class="bjets",
     label="RNNIP",
 )
@@ -66,7 +66,7 @@ dips_ujets_roc = Roc(
     sig_eff=sig_eff,
     bkg_rej=dips_ujets_rej,
     n_test=n_jets_light,
-    rej_class="ujets",
+    rej_class=Flavours["ujets"],
     signal_class="bjets",
     label="DIPS r22",
 )
@@ -74,7 +74,7 @@ rnnip_cjets_roc = Roc(
     sig_eff=sig_eff,
     bkg_rej=rnnip_cjets_rej,
     n_test=n_jets_c,
-    rej_class="cjets",
+    rej_class=Flavours["cjets"],
     signal_class="bjets",
     label="RNNIP",
 )
@@ -82,7 +82,7 @@ dips_cjets_roc = Roc(
     sig_eff=sig_eff,
     bkg_rej=dips_cjets_rej,
     n_test=n_jets_c,
-    rej_class="cjets",
+    rej_class=Flavours["cjets"],
     signal_class="bjets",
     label="DIPS r22",
 )
