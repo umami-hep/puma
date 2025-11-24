@@ -87,7 +87,9 @@ class RocTestCase(unittest.TestCase):
     def test_binomial_error_example_bkg_eff(self):
         """Test roc binomial_error function."""
         error_eff = np.array([0.02179449, 0.014, 0.00994987])
-        roc_curve = Roc(np.array([0.1, 0.2, 0.3]), np.array([0.05, 0.02, 0.01]), n_test=100, use_bkg_eff=True)
+        roc_curve = Roc(
+            np.array([0.1, 0.2, 0.3]), np.array([0.05, 0.02, 0.01]), n_test=100, use_bkg_eff=True
+        )
         np.testing.assert_array_almost_equal(roc_curve.binomial_error(), error_eff)
 
     def test_binomial_error_example_norm(self):
