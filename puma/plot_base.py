@@ -164,9 +164,9 @@ class PlotLineObject:
                 decoded = Cuts(**{k: PlotLineObject.decode(v) for k, v in obj["__cuts__"].items()})
             elif "__cut__" in obj:
                 decoded = Cut(**{k: PlotLineObject.decode(v) for k, v in obj["__cut__"].items()})
-
-            # If it's a regular dict, walk down the keys
-            decoded = {k: PlotLineObject.decode(v) for k, v in obj.items()}
+            else:
+                # If it's a regular dict, walk down the keys
+                decoded = {k: PlotLineObject.decode(v) for k, v in obj.items()}
 
         # If a list was used, check that all sub-objects are correctly loaded
         elif isinstance(obj, list):
