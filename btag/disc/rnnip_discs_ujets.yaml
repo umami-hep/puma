@@ -1,4 +1,5 @@
 add_flavour_label: true
+alpha: null
 band:
   __ndarray__:
   - 0.0
@@ -135,6 +136,7 @@ hist:
   dtype: float64
 histtype: step
 is_data: false
+is_marker: null
 key: null
 label: null
 linestyle:
@@ -145,9 +147,26 @@ linestyle:
     - 1
     - 1
     - 1
+linewidth: null
+marker: null
+markeredgewidth: null
+markersize: null
 norm: true
 ratio_group:
-  __label__: ujets
+  __label__:
+    _px: pu
+    category: single-btag
+    colour: tab:green
+    cuts:
+      __cuts__:
+        cuts:
+          __tuple__:
+          - __cut__:
+              _value: '0'
+              operator: ==
+              variable: HadronConeExclTruthLabelID
+    label: Light-jets
+    name: ujets
 sum_of_weights: 3333.0
 unc:
   __ndarray__:
@@ -192,3 +211,5 @@ unc:
   - 0.0
   - 0.0
   dtype: float64
+xmax: null
+xmin: null

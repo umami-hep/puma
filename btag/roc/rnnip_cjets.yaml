@@ -1,3 +1,4 @@
+alpha: null
 bkg_rej:
   __ndarray__:
   - 3.1181980690459685
@@ -52,11 +53,17 @@ bkg_rej:
   - 1.035013467079264
   dtype: float64
 colour: '#4477AA'
+is_marker: null
 key: null
+label: dummy RNNIP ($f_{c}=0.07$)
+linestyle: null
+linewidth: null
+marker: null
+markeredgewidth: null
+markersize: null
 n_test: 3333
 ratio_group: cjets
-rej_class:
-  __label__: cjets
+rej_class: cjets
 sig_eff:
   __ndarray__:
   - 0.5
@@ -111,5 +118,20 @@ sig_eff:
   - 1.0
   dtype: float64
 signal_class:
-  __label__: bjets
+  __label__:
+    _px: pb
+    category: single-btag
+    colour: tab:blue
+    cuts:
+      __cuts__:
+        cuts:
+          __tuple__:
+          - __cut__:
+              _value: '5'
+              operator: ==
+              variable: HadronConeExclTruthLabelID
+    label: $b$-jets
+    name: bjets
 use_bkg_eff: false
+xmax: null
+xmin: null

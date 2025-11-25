@@ -1,4 +1,5 @@
 add_flavour_label: true
+alpha: null
 band:
   __ndarray__:
   - 0.14858696842566133
@@ -135,12 +136,30 @@ hist:
   dtype: float64
 histtype: step
 is_data: false
+is_marker: null
 key: null
 label: $c$-jets
 linestyle: solid
+linewidth: null
+marker: null
+markeredgewidth: null
+markersize: null
 norm: true
 ratio_group:
-  __label__: cjets
+  __label__:
+    _px: pc
+    category: single-btag
+    colour: tab:orange
+    cuts:
+      __cuts__:
+        cuts:
+          __tuple__:
+          - __cut__:
+              _value: '4'
+              operator: ==
+              variable: HadronConeExclTruthLabelID
+    label: $c$-jets
+    name: cjets
 sum_of_weights: 3333.0
 unc:
   __ndarray__:
@@ -185,3 +204,5 @@ unc:
   - 0.0036868304014205933
   - 0.0054171825759112835
   dtype: float64
+xmax: null
+xmin: null

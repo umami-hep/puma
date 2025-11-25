@@ -1,3 +1,4 @@
+alpha: null
 bkg_rej:
   __ndarray__:
   - 3.010840108401084
@@ -21,11 +22,18 @@ bkg_rej:
   - 1.10989010989011
   - 1.015848826577263
   dtype: float64
+colour: null
+is_marker: null
 key: null
+label: RNNIP
+linestyle: null
+linewidth: null
+marker: null
+markeredgewidth: null
+markersize: null
 n_test: 3333
 ratio_group: cjets
-rej_class:
-  __label__: cjets
+rej_class: cjets
 sig_eff:
   __ndarray__:
   - 0.49
@@ -51,3 +59,5 @@ sig_eff:
   dtype: float64
 signal_class: bjets
 use_bkg_eff: false
+xmax: null
+xmin: null
