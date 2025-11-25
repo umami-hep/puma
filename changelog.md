@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Update Storage of Plot Objects to Support Custom Flavour Labels [#347](https://github.com/umami-hep/puma/pull/347)
 - Add option to use background efficiency instead of rejection for ROC curve errors [#345](https://github.com/umami-hep/puma/pull/345)
 - Rename aux.py -> auxiliary.py [#346](https://github.com/umami-hep/puma/pull/346)
 

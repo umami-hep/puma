@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, cast
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-from ftag import Flavours, Label
+from ftag import Label
 from ftag.utils import calculate_efficiency_error, calculate_rejection_error
 
 from puma.plot_base import PlotBase, PlotLineObject
@@ -121,11 +121,18 @@ class Roc(PlotLineObject):
         self.bkg_rej = bkg_rej
         self.n_test = None if n_test is None else int(n_test)
         self.signal_class = signal_class
-        self.rej_class = Flavours[rej_class] if isinstance(rej_class, str) else rej_class
+        self.rej_class = rej_class.name if isinstance(rej_class, Label) else rej_class
         self.key = key
         self.ratio_group = ratio_group or str(rej_class)
         self.use_bkg_eff = use_bkg_eff
         self.kwargs = kwargs
+
+        # Check that the rejection class is a string
+        if self.rej_class and not isinstance(self.rej_class, str):
+            raise ValueError(
+                "'rej_class' must either be a string or a Label! "
+                f"You gave {type(self.rej_class)}"
+            )
 
     def binomial_error(self, norm: bool = False, n_test: int | None = None) -> np.ndarray:
         """Calculate binomial error of roc curve.
@@ -236,14 +243,12 @@ class Roc(PlotLineObject):
         dict[str, Any]
             Dict with the arguments
         """
-        # Copy the kwargs to remove safely stuff
-        extra_kwargs = dict(getattr(self, "kwargs", {}))
+        # Get the base PlotLineObject fields (incl. label, colour, etc.)
+        base_args = PlotLineObject.args_to_store.fget(self)  # type: ignore[attr-defined]
+        data: dict[str, Any] = dict(base_args)
 
-        # Remove label
-        extra_kwargs.pop("label", None)
-
-        # Create the dict with the args to store/load
-        return {
+        # ROC-specific fields
+        data.update({
             "sig_eff": self.sig_eff,
             "bkg_rej": self.bkg_rej,
             "n_test": self.n_test,
@@ -252,8 +257,14 @@ class Roc(PlotLineObject):
             "key": self.key,
             "ratio_group": self.ratio_group,
             "use_bkg_eff": self.use_bkg_eff,
-            **extra_kwargs,
-        }
+        })
+
+        # Optionally also include any extra kwargs stored on instances
+        extra_kwargs = getattr(self, "kwargs", None)
+        if extra_kwargs:
+            data.update(extra_kwargs)
+
+        return data
 
 
 class RocPlot(PlotBase):
@@ -363,7 +374,7 @@ class RocPlot(PlotBase):
     def set_roc_reference(
         self,
         key: str,
-        rej_class: Label,
+        rej_class: str | Label,
         ratio_group: str,
     ):
         """Setting the reference roc curves used in the ratios.
@@ -372,7 +383,7 @@ class RocPlot(PlotBase):
         ----------
         key : str
             Unique identifier of roc object
-        rej_class : str
+        rej_class : str | Label
             Rejection class encoded in roc curve
         ratio_group : str
             Ratio group this roc is reference for
@@ -382,37 +393,63 @@ class RocPlot(PlotBase):
         ValueError
             If more rejection classes are set than actual ratio panels available.
         """
-        if rej_class not in self.reference_roc:
+        # Ensure that rej_class is not an instance of label
+        rej_class_str = rej_class.name if isinstance(rej_class, Label) else rej_class
+
+        if rej_class_str not in self.reference_roc:
             if len(self.reference_roc) > self.n_ratio_panels:
                 raise ValueError(
                     "You cannot set more rejection classes than available ratio panels."
                 )
-            self.reference_roc[rej_class] = {ratio_group: key}
+            self.reference_roc[rej_class_str] = {ratio_group: key}
         else:
-            if self.reference_roc[rej_class].get(ratio_group):
+            if self.reference_roc[rej_class_str].get(ratio_group):
                 logger.warning(
                     "You specified a second roc curve %s as reference for ratio. "
                     "Using it as new reference instead of %s.",
                     key,
-                    self.reference_roc[rej_class][ratio_group],
+                    self.reference_roc[rej_class_str][ratio_group],
                 )
-            self.reference_roc[rej_class][ratio_group] = key
+            self.reference_roc[rej_class_str][ratio_group] = key
 
-    def set_ratio_class(self, ratio_panel: int, rej_class: str | Label):
+    def set_ratio_class(
+        self,
+        ratio_panel: int,
+        rej_class: str | Label,
+        rej_class_label: str | None = None,
+    ):
         """Associate the rejection class to a ratio panel adn set the legend label.
 
         Parameters
         ----------
         ratio_panel : int
             Ratio panel either 1 or 2
-        rej_class : Labels
-            Rejeciton class associated to that panel
+        rej_class : str | Label
+            Rejection class associated to that panel. Either a Label instance or a string
+        rej_class_label : str, optional
+            If rej_class is not a Label, this label must be given
+
+        Raises
+        ------
+        TypeError
+            If the rej_class is a string and rej_class_label is not defined
         """
-        rej_class = Flavours[rej_class] if isinstance(rej_class, str) else rej_class
-        self.rej_axes[rej_class] = self.ratio_axes[ratio_panel - 1]
-        label = rej_class.label.replace("jets", "jet")
+        if isinstance(rej_class, Label):
+            rej_class_label_str = rej_class.label
+            rej_class_name = rej_class.name
+
+        else:
+            if not isinstance(rej_class_label, str):
+                raise TypeError(
+                    "'rej_class_label' must be a string when 'rej_class' is not a Label!"
+                )
+            rej_class_label_str = rej_class_label
+            rej_class_name = rej_class
+
+        self.rej_axes[rej_class_name] = self.ratio_axes[ratio_panel - 1]
+        label = rej_class_label_str.replace("jets", "jet")
         self.set_ratio_label(ratio_panel, f"{label} ratio")
-        self.leg_rej_labels[rej_class] = rej_class.label
+        self.leg_rej_labels[rej_class_name] = rej_class_label_str
 
     def add_ratios(self):
         """Calculating ratios.
