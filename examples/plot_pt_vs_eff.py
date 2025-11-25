@@ -36,6 +36,11 @@ discs_rnnip = get_discriminant(
     },
 )
 
+# We can also use weights from the H5 files if needed
+# The weights we used here are all ones and simply for the purpose of showing how
+# you need to feed this to the VarVsEff class.
+mc_weights = df["mcEventWeight"]
+
 # Getting jet pt in GeV
 pt = df["pt"] / 1e3
 
@@ -55,8 +60,10 @@ it_tau = Flavours["taujets"].cuts(df).idx
 rnnip_light = VarVsEff(
     x_var_sig=pt[is_b],
     disc_sig=discs_rnnip[is_b],
+    weights_sig=mc_weights[is_b],
     x_var_bkg=pt[is_light],
     disc_bkg=discs_rnnip[is_light],
+    weights_bkg=mc_weights[is_light],
     bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
     working_point=0.7,
     fixed_bkg_rej=None,
@@ -67,8 +74,10 @@ rnnip_light = VarVsEff(
 dips_light = VarVsEff(
     x_var_sig=pt[is_b],
     disc_sig=discs_dips[is_b],
+    weights_sig=mc_weights[is_b],
     x_var_bkg=pt[is_light],
     disc_bkg=discs_dips[is_light],
+    weights_bkg=mc_weights[is_light],
     bins=[20, 30, 40, 60, 85, 110, 140, 175, 250],
     working_point=0.7,
     fixed_bkg_rej=None,
