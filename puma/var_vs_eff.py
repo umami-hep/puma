@@ -124,7 +124,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
                     f"({self.weights_sig.shape}) must match 'disc_sig' ({self.disc_sig.shape})."
                 )
 
-        # If not bkg discs are given, don't use bkg weights
+        # If no bkg discs are given, don't use bkg weights
         if self.disc_bkg is None:
             self.weights_bkg = None
 
@@ -540,7 +540,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         # Get the total weight for passing jets
         numerator = float(weights[mask].sum())
 
-        # Calculate the rejection by using the inverse of the effciency (1 / eff)
+        # Calculate the rejection by using the inverse of the efficiency (1 / eff)
         # To do so with less calculation, flip numerator and denominator
         rej = save_divide(numerator=denominator, denominator=numerator, default=np.inf)
 

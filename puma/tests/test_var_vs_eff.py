@@ -573,7 +573,7 @@ class VarVsEffTestCase(unittest.TestCase):
         )
 
     def test_type_error_rejection(self):
-        """Test negative total weights."""
+        """Test TypeError for invalid cut type in rejection method."""
         x_var_sig = np.array([0, 1])
         disc_sig = np.array([0.2, 0.8])
         x_var_bkg = np.array([0, 1])
