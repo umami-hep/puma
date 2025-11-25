@@ -1,5 +1,42 @@
 # Good coding practices
 
+## Development Setup
+
+### Installing for development
+
+For development, we recommend using [`uv`](https://docs.astral.sh/uv/), a fast Python package installer and resolver written in Rust. It provides significantly faster dependency resolution and installation compared to traditional tools.
+
+#### Install uv
+
+```bash
+# On macOS and Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# On Windows
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+# Or with pip (If installing from PyPI, we recommend installing uv into an isolated environment)
+pip install uv
+```
+
+#### Install puma in development mode
+
+```bash
+git clone https://github.com/umami-hep/puma.git
+cd puma
+uv sync --extra dev
+```
+
+This installs `puma` in editable mode with all development dependencies including testing frameworks, linters, formatters, etc.
+
+#### Alternative: Using pip
+
+If you prefer to use `pip`, you can still install with:
+
+```bash
+python -m pip install -e ".[dev]"
+```
+
 ## Test-Driven Development
 
 The `puma` framework uses unit tests to reduce the risk for bugs being undetected.
