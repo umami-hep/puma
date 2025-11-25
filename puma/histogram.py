@@ -7,7 +7,7 @@ from typing import Any, cast
 import matplotlib as mpl
 import numpy as np
 import pandas as pd
-from ftag import Flavours, Label
+from ftag import Label
 
 from puma.plot_base import PlotBase, PlotLineObject
 from puma.utils import get_good_colours, logger
@@ -29,7 +29,7 @@ class Histogram(PlotLineObject):
         weights: np.ndarray = None,
         sum_squared_weights: np.ndarray = None,
         ratio_group: str | None = None,
-        flavour: str | Label = None,
+        flavour: Label | None = None,
         add_flavour_label: bool = True,
         histtype: str = "step",
         norm: bool = True,
@@ -72,7 +72,7 @@ class Histogram(PlotLineObject):
             Name of the ratio group this histogram is compared with. The ratio group
             allows you to compare different groups of histograms within one plot.
             By default None
-        flavour: str | Label, optional
+        flavour: Label, optional
             If set, the correct colour and a label prefix will be extracted from
             `puma.utils.global_config` set for this histogram.
             Allowed values are e.g. "bjets", "cjets", "ujets", "bbjets", ...
@@ -148,7 +148,7 @@ class Histogram(PlotLineObject):
         self.filled = self.bin_edges is not None
 
         # Ensure that the flavour is an instance of Flavour
-        self.flavour = Flavours[flavour] if isinstance(flavour, str) else flavour
+        self.flavour = flavour
 
         # Set the inputs as attributes
         self.weights = weights if weights is not None else np.ones_like(values)
@@ -170,15 +170,23 @@ class Histogram(PlotLineObject):
 
         # If flavour was specified, extract configuration from global config
         if self.flavour is not None:
+            if not isinstance(self.flavour, Label):
+                raise TypeError(
+                    f"'flavour' must be an instance of Label! You gave {type(self.flavour)}"
+                )
+
             # Use globally defined flavour colour if not specified
             if self.colour is None:
                 self.colour = self.flavour.colour
                 logger.debug("Histogram colour was set to %s", self.colour)
 
             # Add globally defined flavour label if not suppressed
-            if self.add_flavour_label:
-                global_flavour_label = self.flavour.label
-                self.label = f"{global_flavour_label} {label}"
+            if (
+                self.add_flavour_label
+                and self.label
+                and not self.label.startswith(f"{self.flavour.label}")
+            ):
+                self.label = f"{self.flavour.label} {label}"
 
             else:
                 self.label = label
@@ -210,14 +218,12 @@ class Histogram(PlotLineObject):
         dict[str, Any]
             Dict with the arguments
         """
-        # Copy the kwargs to remove safely stuff
-        extra_kwargs = dict(getattr(self, "kwargs", {}))
+        # Start with the base PlotLineObject fields (xmin, xmax, colour, label, ...)
+        base_args = PlotLineObject.args_to_store.fget(self)  # type: ignore[attr-defined]
+        data: dict[str, Any] = dict(base_args)
 
-        # Remove label
-        extra_kwargs.pop("label", None)
-
-        # Create the dict with the args to store/load
-        return {
+        # Histogram-specific fields
+        data.update({
             "bin_edges": self.bin_edges,
             "hist": self.hist,
             "unc": self.unc,
@@ -229,12 +235,17 @@ class Histogram(PlotLineObject):
             "is_data": self.is_data,
             "filled": self.filled,
             "key": self.key,
-            "label": self.label,
             "norm": self.norm,
             "discrete_vals": self.discrete_vals,
             "sum_of_weights": self.sum_of_weights,
-            **extra_kwargs,
-        }
+        })
+
+        # Optionally also include any extra kwargs stored on instances
+        extra_kwargs = getattr(self, "kwargs", None)
+        if extra_kwargs:
+            data.update(extra_kwargs)
+
+        return data
 
     def update(self, values: np.ndarray, weights: np.ndarray | None = None) -> None:
         """Update the existing histogram with new values.

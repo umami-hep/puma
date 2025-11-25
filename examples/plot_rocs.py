@@ -58,7 +58,7 @@ rnnip_ujets_roc = Roc(
     sig_eff=sig_eff,
     bkg_rej=rnnip_ujets_rej,
     n_test=n_jets_light,
-    rej_class="ujets",
+    rej_class=Flavours["ujets"],
     signal_class="bjets",
     label="RNNIP",
 )
@@ -66,7 +66,7 @@ dips_ujets_roc = Roc(
     sig_eff=sig_eff,
     bkg_rej=dips_ujets_rej,
     n_test=n_jets_light,
-    rej_class="ujets",
+    rej_class=Flavours["ujets"],
     signal_class="bjets",
     label="DIPS r22",
 )
@@ -74,7 +74,7 @@ rnnip_cjets_roc = Roc(
     sig_eff=sig_eff,
     bkg_rej=rnnip_cjets_rej,
     n_test=n_jets_c,
-    rej_class="cjets",
+    rej_class=Flavours["cjets"],
     signal_class="bjets",
     label="RNNIP",
 )
@@ -82,7 +82,7 @@ dips_cjets_roc = Roc(
     sig_eff=sig_eff,
     bkg_rej=dips_cjets_rej,
     n_test=n_jets_c,
-    rej_class="cjets",
+    rej_class=Flavours["cjets"],
     signal_class="bjets",
     label="DIPS r22",
 )
@@ -111,8 +111,11 @@ plot_roc.add_roc(roc_curve=rnnip_cjets_roc, reference=True)
 plot_roc.add_roc(roc_curve=dips_cjets_roc)
 
 # setting which flavour rejection ratio is drawn in which ratio panel
-plot_roc.set_ratio_class(1, "ujets")
-plot_roc.set_ratio_class(2, "cjets")
+plot_roc.set_ratio_class(1, Flavours["ujets"])
+
+# If you don't have a Label instance for your flavour, you can also
+# use as string but you need to give the label by hand
+plot_roc.set_ratio_class(2, rej_class="cjets", rej_class_label="$c$-jets")
 
 plot_roc.draw()
 plot_roc.savefig("roc.png", transparent=False)
@@ -140,8 +143,8 @@ loaded_plot_roc.add_roc(roc_curve=rnnip_cjets_roc, reference=True)
 loaded_plot_roc.add_roc(roc_curve=dips_cjets_roc)
 
 # setting which flavour rejection ratio is drawn in which ratio panel
-loaded_plot_roc.set_ratio_class(1, "ujets")
-loaded_plot_roc.set_ratio_class(2, "cjets")
+loaded_plot_roc.set_ratio_class(1, Flavours["ujets"])
+loaded_plot_roc.set_ratio_class(2, Flavours["cjets"])
 
 loaded_plot_roc.draw()
 loaded_plot_roc.savefig("roc_loaded.png", transparent=False)

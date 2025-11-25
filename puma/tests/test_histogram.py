@@ -86,12 +86,6 @@ class HistogramTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             hist_1.divide_data_mc(hist_2)
 
-    def test_multiple_references_wrong_flavour(self):
-        """Tests if warning is raised with wrong flavour."""
-        dummy_array = np.array([1, 1, 2, 3, 2, 3])
-        with self.assertRaises(KeyError):
-            Histogram(values=dummy_array, bins=3, flavour="dummy")
-
     def test_get_discrete_values(self):
         """Test the get_discrete_values standard behaviour."""
         bins = np.array([1, 2, 3])
@@ -161,6 +155,15 @@ class HistogramTestCase(unittest.TestCase):
             ),
             "Expected warning not found",
         )
+
+    def test_flavour_type_error(self):
+        """Test the TypeError raised if a wrong instance of flavour is given."""
+        with self.assertRaises(TypeError):
+            Histogram(
+                values=[1, 1, 1, 2, 2],
+                bins=np.array([1, 2, 3]),
+                flavour="This is not a Label!",
+            )
 
     def test_update_behaviour_without_weights_no_norm(self):
         """Test the default behaviour of update without weights and no norm."""
@@ -245,10 +248,11 @@ class HistogramIOTestCase(unittest.TestCase):
         return Histogram(
             values=np.arange(6),
             bins=3,
-            flavour="bjets",
+            flavour=Flavours["bjets"],
             colour=(0.1, 0.6, 0.3),
             linestyle=(0, (1, 2)),
             label="unit-test",
+            add_flavour_label=False,
         )
 
     # ------------------------------------------------------------------
@@ -278,7 +282,28 @@ class HistogramIOTestCase(unittest.TestCase):
         # flavour became a tag (Label to name)
         self.assertEqual(
             encoded["flavour"]["__label__"],
-            "bjets",
+            {
+                "name": "bjets",
+                "label": "$b$-jets",
+                "cuts": {
+                    "__cuts__": {
+                        "cuts": {
+                            "__tuple__": [
+                                {
+                                    "__cut__": {
+                                        "variable": "HadronConeExclTruthLabelID",
+                                        "operator": "==",
+                                        "_value": "5",
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                "colour": "tab:blue",
+                "category": "single-btag",
+                "_px": "pb",
+            },
         )
 
         # --- decode restores original Python objects -----------------------
@@ -422,7 +447,7 @@ class HistogramPlotTestCase(unittest.TestCase):
         dummy_array = np.array([1, 1, 2, 3, 2, 3])
         hist_plot = HistogramPlot()
         hist_plot.add(
-            Histogram(values=dummy_array, bins=3, norm=True, flavour="ujets"),
+            Histogram(values=dummy_array, bins=3, norm=True, flavour=Flavours["ujets"]),
             reference=True,
         )
         hist_plot.add(
@@ -430,7 +455,7 @@ class HistogramPlotTestCase(unittest.TestCase):
                 values=dummy_array,
                 bins=3,
                 norm=False,
-                flavour="ujets",
+                flavour=Flavours["ujets"],
             )
         )
         with self.assertRaises(ValueError):
@@ -444,7 +469,7 @@ class HistogramPlotTestCase(unittest.TestCase):
             Histogram(
                 values=dummy_array,
                 bin_edges=np.array([1, 2, 3]),
-                flavour="ujets",
+                flavour=Flavours["ujets"],
             ),
             reference=True,
         )
@@ -452,7 +477,7 @@ class HistogramPlotTestCase(unittest.TestCase):
             Histogram(
                 values=dummy_array,
                 bin_edges=np.array([1, 2, 3, 4]),
-                flavour="ujets",
+                flavour=Flavours["ujets"],
             )
         )
         with self.assertRaises(ValueError):
@@ -467,7 +492,7 @@ class HistogramPlotTestCase(unittest.TestCase):
                 values=dummy_array,
                 bins=3,
                 norm=True,
-                flavour="ujets",
+                flavour=Flavours["ujets"],
             ),
             reference=True,
         )
@@ -476,7 +501,7 @@ class HistogramPlotTestCase(unittest.TestCase):
                 values=dummy_array,
                 bins=3,
                 norm=True,
-                flavour="ujets",
+                flavour=Flavours["ujets"],
             )
         )
         with self.assertRaises(ValueError):
@@ -497,7 +522,7 @@ class HistogramPlotTestCase(unittest.TestCase):
                 values=np.array([1, 2]),
                 bins=np.linspace(0, 1, 1000),
                 norm=True,
-                flavour="ujets",
+                flavour=Flavours["ujets"],
             ),
             reference=True,
         )
@@ -520,9 +545,15 @@ class HistogramPlotTestCase(unittest.TestCase):
         """
         hist_plot = HistogramPlot(n_ratio_panels=1)
         dummy_array = np.array([1, 1, 2, 3, 2, 3])
-        hist_plot.add(Histogram(values=dummy_array, bins=3, flavour="ujets"), reference=True)
-        hist_plot.add(Histogram(values=dummy_array, bins=3, flavour="ujets"), reference=True)
-        hist_plot.add(Histogram(values=dummy_array, bins=3, flavour="ujets"))
+        hist_plot.add(
+            Histogram(values=dummy_array, bins=3, flavour=Flavours["ujets"]),
+            reference=True,
+        )
+        hist_plot.add(
+            Histogram(values=dummy_array, bins=3, flavour=Flavours["ujets"]),
+            reference=True,
+        )
+        hist_plot.add(Histogram(values=dummy_array, bins=3, flavour=Flavours["ujets"]))
         hist_plot.plot()
         with self.assertRaises(ValueError):
             hist_plot.plot_ratios()
@@ -1063,7 +1094,7 @@ class HistogramPlotTestCase(unittest.TestCase):
                 bins=100,
                 bins_range=(-4, 16),
                 label="(flavoured, adding default flavour label '$b$-jets' to legend)",
-                flavour="bjets",
+                flavour=Flavours["bjets"],
             )
         )
         # Flavour + label (this time with suppressing the default flavour label)
@@ -1073,7 +1104,7 @@ class HistogramPlotTestCase(unittest.TestCase):
                 bins=100,
                 bins_range=(-4, 16),
                 label="Flavoured histogram (default flavour label suppressed)",
-                flavour="bjets",
+                flavour=Flavours["bjets"],
                 add_flavour_label=False,
                 linestyle="--",
             )
@@ -1085,7 +1116,7 @@ class HistogramPlotTestCase(unittest.TestCase):
                 bins=100,
                 bins_range=(-4, 16),
                 label="(flavoured, with custom colour)",
-                flavour="bjets",
+                flavour=Flavours["bjets"],
                 linestyle="dotted",
                 colour="b",
             )

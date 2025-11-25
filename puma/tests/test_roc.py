@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+import json
 import os
 import shutil  # noqa: F401
 import tempfile
 import unittest
+from pathlib import Path
 
 import numpy as np
+import yaml
+from ftag import Flavours
 from matplotlib.testing.compare import compare_images
 
 from puma import Roc, RocPlot
@@ -103,6 +107,167 @@ class RocTestCase(unittest.TestCase):
         error_rej = np.array([8.717798, 35.0, 99.498744])
         roc_curve = Roc(np.array([0.1, 0.2, 0.3]), np.array([20, 50, 100]))
         np.testing.assert_array_almost_equal(roc_curve.binomial_error(n_test=100), error_rej)
+
+    def test_roc_wrong_flavour_instance(self):
+        """Test init of ROC with a wrong flavour instance."""
+        with self.assertRaises(ValueError):
+            Roc(np.array([0.1, 0.2, 0.3]), np.array([20, 50, 100]), rej_class=5)
+
+
+class RocIOTestCase(unittest.TestCase):
+    """
+    Unit-tests that ensure `Roc` serialisation is lossless and robust.
+
+    Each test creates a deterministic Roc, writes it to disk, reloads
+    it, and verifies that arrays, metadata and behaviour are preserved.
+    """
+
+    # ------------------------------------------------------------------
+    # helper to build a minimal deterministic Roc
+    # ------------------------------------------------------------------
+    @staticmethod
+    def _make_roc() -> Roc:
+        """
+        Create a minimal but deterministic `Roc` instance.
+
+        Returns
+        -------
+        Roc
+            A Roc
+        """
+        return Roc(
+            sig_eff=np.array([2, 3, 4]),
+            bkg_rej=np.array([2, 3, 4]),
+            n_test=1000,
+            rej_class=Flavours["ujets"],
+            signal_class="bjets",
+            key=None,
+            ratio_group="5",
+            colour="tab:blue",
+        )
+
+    # ------------------------------------------------------------------
+    # encode / decode
+    # ------------------------------------------------------------------
+    def testencodedecode_roundtrip(self):
+        """
+        `encode` must turn every value into a JSON/YAML-serialisable
+        form, and `decode` must restore the original objects exactly.
+        """
+        h = self._make_roc()
+
+        encoded = h.encode(h.args_to_store)
+
+        # --- encoded structure is JSON-safe --------------------------------
+        json.dumps(encoded)
+        # numpy arrays became {"__ndarray__": …, "dtype": …}
+        for field in ("sig_eff", "bkg_rej"):
+            self.assertIn("__ndarray__", encoded[field])
+
+        # tuples are tagged
+        self.assertEqual(encoded["colour"], "tab:blue")
+
+        # flavour became a tag (Label to name)
+        self.assertEqual(encoded["rej_class"], "ujets")
+
+        # --- decode restores original Python objects -----------------------
+        decoded = Roc.decode(encoded)
+
+        self.assertEqual(decoded["colour"], h.colour)
+        self.assertEqual(decoded["signal_class"], h.signal_class)
+        self.assertIsNone(decoded["key"])
+
+        # ndarray round-trip
+        np.testing.assert_array_equal(decoded["sig_eff"], h.sig_eff)
+
+    # ------------------------------------------------------------------
+    # save / load (JSON)
+    # ------------------------------------------------------------------
+    def test_json_roundtrip(self):
+        """Saving to JSON and loading back must reproduce the object."""
+        h = self._make_roc()
+
+        with tempfile.TemporaryDirectory() as tmpd:
+            path = Path(tmpd) / "roc.json"
+            h.save(path)
+
+            # The written file parses as valid JSON
+            with path.open() as f:
+                raw = json.load(f)
+            self.assertIn("sig_eff", raw)
+
+            clone = Roc.load(path)
+
+            # numerical arrays survive bit-perfect
+            np.testing.assert_array_equal(h.sig_eff, clone.sig_eff)
+            np.testing.assert_array_equal(h.bkg_rej, clone.bkg_rej)
+
+            # metadata
+            self.assertEqual(clone.label, h.label)
+            self.assertEqual(clone.n_test, h.n_test)
+            self.assertEqual(clone.signal_class, h.signal_class)
+            self.assertEqual(clone.rej_class, h.rej_class)
+            self.assertEqual(clone.key, h.key)
+            self.assertEqual(clone.ratio_group, h.ratio_group)
+            self.assertEqual(clone.colour, h.colour)
+
+            # functional behaviour intact
+            _, ratio, _ = h.divide(clone)
+            np.testing.assert_allclose(ratio, np.ones_like(ratio))
+
+    # ------------------------------------------------------------------
+    # save / load (YAML)
+    # ------------------------------------------------------------------
+    def test_yaml_roundtrip(self):
+        """YAML round-trip should preserve arrays & metadata."""
+        h = self._make_roc()
+
+        with tempfile.TemporaryDirectory() as tmpd:
+            path = Path(tmpd) / "roc.yaml"
+            h.save(path)
+
+            # YAML parses
+            with path.open() as f:
+                raw = yaml.safe_load(f)
+            self.assertIn("sig_eff", raw)
+
+            clone = Roc.load(path)
+            self.assertEqual(clone.label, h.label)
+
+    # ------------------------------------------------------------------
+    # load-time overrides
+    # ------------------------------------------------------------------
+    def test_load_override(self):
+        """
+        `extra_kwargs` passed to `load` must override attributes stored
+        in the file.
+        """
+        h = self._make_roc()
+        with tempfile.TemporaryDirectory() as tmpd:
+            path = Path(tmpd) / "roc.json"
+            h.save(path)
+
+            clone = Roc.load(path, colour="magenta", label="override")
+            self.assertEqual(clone.colour, "magenta")
+            self.assertEqual(clone.label, "override")
+
+    # ------------------------------------------------------------------
+    # unknown file extensions
+    # ------------------------------------------------------------------
+    def test_invalid_extensions(self):
+        """Unsupported suffixes must raise :class:`ValueError`."""
+        h = self._make_roc()
+
+        with tempfile.TemporaryDirectory() as tmpd:
+            # save
+            with self.assertRaises(ValueError):
+                h.save(Path(tmpd) / "roc.txt")
+
+            # load
+            bogus = Path(tmpd) / "roc.conf"
+            bogus.write_text("dummy")
+            with self.assertRaises(ValueError):
+                Roc.load(bogus)
 
 
 class RocMaskTestCase(unittest.TestCase):
@@ -204,7 +369,7 @@ class RocOutputTestCase(unittest.TestCase):
             Roc(
                 self.sig_eff,
                 self.u_rej_1,
-                rej_class="ujets",
+                rej_class=Flavours["ujets"],
                 label="reference",
             ),
             reference=True,
@@ -213,7 +378,7 @@ class RocOutputTestCase(unittest.TestCase):
             Roc(
                 self.sig_eff,
                 self.u_rej_2,
-                rej_class="ujets",
+                rej_class=Flavours["ujets"],
                 label="test",
             )
         )
@@ -251,7 +416,7 @@ class RocOutputTestCase(unittest.TestCase):
             Roc(
                 self.sig_eff,
                 self.u_rej_1,
-                rej_class="ujets",
+                rej_class=Flavours["ujets"],
                 label="reference",
             ),
             reference=True,
@@ -260,12 +425,12 @@ class RocOutputTestCase(unittest.TestCase):
             Roc(
                 self.sig_eff,
                 self.u_rej_2,
-                rej_class="ujets",
+                rej_class=Flavours["ujets"],
                 label="test",
             )
         )
 
-        plot.set_ratio_class(1, "ujets")
+        plot.set_ratio_class(ratio_panel=1, rej_class="ujets", rej_class_label="Light-jets")
 
         # Draw the figure
         plot.draw()
@@ -300,7 +465,7 @@ class RocOutputTestCase(unittest.TestCase):
             Roc(
                 self.sig_eff,
                 self.u_rej_1 * 2,
-                rej_class="ujets",
+                rej_class=Flavours["ujets"],
                 label="reference",
                 n_test=1_000,
             ),
@@ -310,13 +475,13 @@ class RocOutputTestCase(unittest.TestCase):
             Roc(
                 self.sig_eff,
                 self.u_rej_2 * 2,
-                rej_class="ujets",
+                rej_class=Flavours["ujets"],
                 label="test",
                 n_test=1_000,
             )
         )
 
-        plot.set_ratio_class(1, "ujets")
+        plot.set_ratio_class(1, Flavours["ujets"])
 
         # Draw the figure
         plot.draw()
@@ -349,7 +514,7 @@ class RocOutputTestCase(unittest.TestCase):
             Roc(
                 self.sig_eff,
                 self.u_rej_1,
-                rej_class="ujets",
+                rej_class=Flavours["ujets"],
                 label="reference",
             ),
             reference=True,
@@ -358,7 +523,7 @@ class RocOutputTestCase(unittest.TestCase):
             Roc(
                 self.sig_eff,
                 self.u_rej_2,
-                rej_class="ujets",
+                rej_class=Flavours["ujets"],
                 label="test",
             )
         )
@@ -366,7 +531,7 @@ class RocOutputTestCase(unittest.TestCase):
             Roc(
                 self.sig_eff,
                 self.c_rej_1,
-                rej_class="cjets",
+                rej_class=Flavours["cjets"],
                 label="reference",
             ),
             reference=True,
@@ -375,13 +540,13 @@ class RocOutputTestCase(unittest.TestCase):
             Roc(
                 self.sig_eff,
                 self.c_rej_2,
-                rej_class="cjets",
+                rej_class=Flavours["cjets"],
                 label="test",
             )
         )
 
-        plot.set_ratio_class(1, "ujets")
-        plot.set_ratio_class(2, "cjets")
+        plot.set_ratio_class(1, Flavours["ujets"])
+        plot.set_ratio_class(2, Flavours["cjets"])
 
         # Draw the figure
         plot.draw()
@@ -414,7 +579,7 @@ class RocOutputTestCase(unittest.TestCase):
             Roc(
                 self.sig_eff,
                 self.u_rej_1,
-                rej_class="ujets",
+                rej_class=Flavours["ujets"],
                 label="reference",
             ),
             reference=True,
@@ -423,7 +588,7 @@ class RocOutputTestCase(unittest.TestCase):
             Roc(
                 self.sig_eff,
                 self.u_rej_2,
-                rej_class="ujets",
+                rej_class=Flavours["ujets"],
                 label="test",
             )
         )
@@ -431,7 +596,7 @@ class RocOutputTestCase(unittest.TestCase):
             Roc(
                 self.sig_eff,
                 self.c_rej_1,
-                rej_class="cjets",
+                rej_class=Flavours["cjets"],
                 label="reference",
             ),
             reference=True,
@@ -440,13 +605,13 @@ class RocOutputTestCase(unittest.TestCase):
             Roc(
                 self.sig_eff,
                 self.c_rej_2,
-                rej_class="cjets",
+                rej_class=Flavours["cjets"],
                 label="test",
             )
         )
 
-        plot.set_ratio_class(1, "ujets")
-        plot.set_ratio_class(2, "cjets")
+        plot.set_ratio_class(1, Flavours["ujets"])
+        plot.set_ratio_class(2, Flavours["cjets"])
 
         # Draw the figure
         plot.draw()
@@ -479,7 +644,7 @@ class RocOutputTestCase(unittest.TestCase):
             Roc(
                 self.sig_eff,
                 self.u_rej_1,
-                rej_class="ujets",
+                rej_class=Flavours["ujets"],
                 label="reference",
                 n_test=1_000,
             ),
@@ -489,7 +654,7 @@ class RocOutputTestCase(unittest.TestCase):
             Roc(
                 self.sig_eff,
                 self.u_rej_2,
-                rej_class="ujets",
+                rej_class=Flavours["ujets"],
                 label="test",
                 n_test=1_000,
             )
@@ -498,7 +663,7 @@ class RocOutputTestCase(unittest.TestCase):
             Roc(
                 self.sig_eff,
                 self.c_rej_1,
-                rej_class="cjets",
+                rej_class=Flavours["cjets"],
                 label="reference",
                 n_test=1_000,
             ),
@@ -508,14 +673,14 @@ class RocOutputTestCase(unittest.TestCase):
             Roc(
                 self.sig_eff,
                 self.c_rej_2,
-                rej_class="cjets",
+                rej_class=Flavours["cjets"],
                 label="test",
                 n_test=1_000,
             )
         )
 
-        plot.set_ratio_class(1, "ujets")
-        plot.set_ratio_class(2, "cjets")
+        plot.set_ratio_class(1, Flavours["ujets"])
+        plot.set_ratio_class(2, Flavours["cjets"])
 
         # Draw the figure
         plot.draw()
@@ -550,7 +715,7 @@ class RocOutputTestCase(unittest.TestCase):
             Roc(
                 self.sig_eff,
                 self.u_rej_1,
-                rej_class="ujets",
+                rej_class=Flavours["ujets"],
                 label="reference",
             ),
             reference=True,
@@ -559,12 +724,12 @@ class RocOutputTestCase(unittest.TestCase):
             Roc(
                 self.sig_eff,
                 self.u_rej_2,
-                rej_class="ujets",
+                rej_class=Flavours["ujets"],
                 label="test",
             )
         )
 
-        plot.set_ratio_class(1, "ujets")
+        plot.set_ratio_class(1, Flavours["ujets"])
 
         # Draw the figure
         plot.draw(labelpad=20)
@@ -580,3 +745,53 @@ class RocOutputTestCase(unittest.TestCase):
                 tol=2.5,
             )
         )
+
+    def test_set_ratio_class_type_error(self):
+        """Test the TypeError raised if the rej_class is a string and the label is not a string."""
+        plot = RocPlot(
+            n_ratio_panels=1,
+            ylabel="Light-jet rejection",
+            xlabel="$b$-jet efficiency",
+            atlas_second_tag=(
+                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
+            ),
+            y_scale=1.5,
+            # logy=False,
+        )
+
+        with self.assertRaises(TypeError):
+            plot.set_ratio_class(ratio_panel=1, rej_class="ujets", rej_class_label=2)
+
+    def test_set_roc_reference_value_error(self):
+        """Test ValueError from set_roc_reference."""
+        plot = RocPlot(
+            n_ratio_panels=1,
+            ylabel="Light-jet rejection",
+            xlabel="$b$-jet efficiency",
+            atlas_second_tag=(
+                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
+            ),
+            y_scale=1.5,
+            # logy=False,
+        )
+
+        with self.assertRaises(ValueError):
+            plot.set_roc_reference(key="1", rej_class=Flavours["bjets"], ratio_group="bjets")
+            plot.set_roc_reference(key="2", rej_class=Flavours["cjets"], ratio_group="cjets")
+            plot.set_roc_reference(key="3", rej_class=Flavours["ujets"], ratio_group="ujets")
+
+    def test_set_roc_reference(self):
+        """Test behaviour for existing ROC reference curves."""
+        plot = RocPlot(
+            n_ratio_panels=1,
+            ylabel="Light-jet rejection",
+            xlabel="$b$-jet efficiency",
+            atlas_second_tag=(
+                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
+            ),
+            y_scale=1.5,
+            # logy=False,
+        )
+
+        plot.set_roc_reference(key="1", rej_class=Flavours["bjets"], ratio_group="bjets")
+        plot.set_roc_reference(key="2", rej_class=Flavours["bjets"], ratio_group="bjets")
