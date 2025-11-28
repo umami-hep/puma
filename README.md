@@ -42,6 +42,31 @@ from the `main` branch (no matter if it is a release/tagged commit).
 If you plan on contributing to `puma` and/or want the latest version possible, this
 is what you want.
 
+### Install for development with `uv` (recommended)
+
+For development, we recommend using [`uv`](https://docs.astral.sh/uv/), a fast Python package installer and resolver. First, install `uv`:
+
+```bash
+# On macOS and Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# On Windows
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+# Or with pip (If installing from PyPI, we recommend installing uv into an isolated environment)
+pip install uv
+```
+
+Then clone the repository and install `puma` with development dependencies:
+
+```bash
+git clone https://github.com/umami-hep/puma.git
+cd puma
+uv sync --extra dev
+```
+
+This will install `puma` in editable mode along with all development tools (testing, linting, etc.).
+
 ## Docker images
 
 The Docker images are built on GitHub and contain the latest version from the `main` branch.
