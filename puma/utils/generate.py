@@ -95,6 +95,7 @@ def get_dummy_2_taggers(
     output_rnnip, labels = get_dummy_multiclass_scores(bjets_mean=0.9, size=size, seed=seed)
     df_gen = pd.DataFrame(s2u(output_rnnip), columns=["rnnip_pu", "rnnip_pc", "rnnip_pb"])
     df_gen[label] = labels
+    df_gen["mcEventWeight"] = np.ones_like(labels)
     output_dips, _ = get_dummy_multiclass_scores(bjets_mean=1.4, size=size, seed=seed + 10)
     df_gen2 = pd.DataFrame(s2u(output_dips), columns=["dips_pu", "dips_pc", "dips_pb"])
     df_gen = pd.concat([df_gen, df_gen2], axis=1)
