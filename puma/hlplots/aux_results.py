@@ -131,7 +131,7 @@ class AuxResults:
             if np.sum(~mask) > 0:
                 if self.remove_nan:
                     logger.warning(
-                        f"{np.sum(~mask)} NaN values found in loaded data. Removing" " them."
+                        f"{np.sum(~mask)} NaN values found in loaded data. Removing them."
                     )
                     return data[mask]
                 raise ValueError(f"{np.sum(~mask)} NaN values found in loaded data.")
@@ -568,11 +568,11 @@ class AuxResults:
                         f"{tagger.label} does not have vertexing aux task defined. Skipping."
                     )
 
-                assert {"pt", "eta", "dphi"}.issubset(
-                    set(tagger.aux_perf_vars.keys())
-                ), "Track pt, eta or dphi not in tagger.aux_perf_vars (required to calculate \
+                assert {"pt", "eta", "dphi"}.issubset(set(tagger.aux_perf_vars.keys())), (
+                    "Track pt, eta or dphi not in tagger.aux_perf_vars (required to calculate \
                     vertex masses). Track eta is automatically calculated if deta and jet eta \
                     are supplied."
+                )
 
                 # get cleaned vertex indices and calculate vertexing metrics
                 truth_indices, reco_indices = tagger.vertex_indices(incl_vertexing=incl_vertexing)

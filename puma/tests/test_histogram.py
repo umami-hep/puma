@@ -688,8 +688,7 @@ class HistogramPlotTestCase(unittest.TestCase):
         hist_plot = HistogramPlot(
             figsize=(6.5, 5),
             atlas_second_tag=(
-                "Test if ratio is 1 for whole range if reference histogram is empty\n(+"
-                " normalised)"
+                "Test if ratio is 1 for whole range if reference histogram is empty\n(+ normalised)"
             ),
             n_ratio_panels=1,
         )

@@ -92,15 +92,15 @@ def get_included_taggers(
     if not incl and not excl:
         include_taggers = dict(all_taggers)  # copy to avoid mutating upstream
     elif incl:
-        assert all(
-            t in all_tagger_names for t in incl
-        ), f"Not all taggers are in the results: {incl}"
+        assert all(t in all_tagger_names for t in incl), (
+            f"Not all taggers are in the results: {incl}"
+        )
         include_taggers = {k: v for k, v in all_taggers.items() if v.yaml_name in incl}
     else:
         assert excl is not None
-        assert all(
-            t in all_tagger_names for t in excl
-        ), f"Not all excluded taggers are in the results: {excl}"
+        assert all(t in all_tagger_names for t in excl), (
+            f"Not all excluded taggers are in the results: {excl}"
+        )
         include_taggers = {k: v for k, v in all_taggers.items() if v.yaml_name not in excl}
 
     if len(include_taggers) == 0:

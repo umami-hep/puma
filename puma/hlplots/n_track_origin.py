@@ -122,7 +122,7 @@ def n_tracks_per_origin(
                 VarVsVarPlot_kwargs["atlas_second_tag"] = file_value["process_label"] + " Jets"
 
             else:
-                VarVsVarPlot_kwargs["atlas_second_tag"] += f'\n{file_value["process_label"]} Jets'
+                VarVsVarPlot_kwargs["atlas_second_tag"] += f"\n{file_value['process_label']} Jets"
 
             # Init the plot
             var_plot_dict[file_key] = VarVsVarPlot(**VarVsVarPlot_kwargs)

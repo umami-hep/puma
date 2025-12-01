@@ -297,7 +297,7 @@ class Results:
             if np.sum(~mask) > 0:
                 if self.remove_nan:
                     logger.warning(
-                        f"{np.sum(~mask)} NaN values found in loaded data. Removing" " them."
+                        f"{np.sum(~mask)} NaN values found in loaded data. Removing them."
                     )
                     return data[mask]
                 raise ValueError(f"{np.sum(~mask)} NaN values found in loaded data.")
@@ -1020,8 +1020,9 @@ class Results:
 
         elif isinstance(working_point, list):
             wp_disc = (
-                f"wp{int(working_point[0] * 100):.0f}_"
-                f"{int(working_point[1] * 100):.0f}".replace(".", "p")
+                f"wp{int(working_point[0] * 100):.0f}_{int(working_point[1] * 100):.0f}".replace(
+                    ".", "p"
+                )
             )
 
         else:

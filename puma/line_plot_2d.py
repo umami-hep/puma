@@ -83,7 +83,7 @@ class Line2D(PlotLineObject):
 
         else:
             raise TypeError(
-                "Invalid type of input data. Allowed values are numpy.ndarray, list," " int, float"
+                "Invalid type of input data. Allowed values are numpy.ndarray, list, int, float"
             )
 
         # Set inputs as attributes

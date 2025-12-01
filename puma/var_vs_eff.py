@@ -195,8 +195,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             # Ensure that disc_cut has the same length as the number of bins if it's used
             if isinstance(disc_cut, (list, np.ndarray)) and self.n_bins != len(disc_cut):
                 raise ValueError(
-                    "`disc_cut` has to be a float or has to have the same length as"
-                    " number of bins."
+                    "`disc_cut` has to be a float or has to have the same length as number of bins."
                 )
 
         elif self.working_point is not None:

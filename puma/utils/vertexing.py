@@ -184,9 +184,9 @@ def calculate_vertex_metrics(
                 Array of shape (n_jets, max_vertices) containing the number of tracks
                 in each matched truth vertex.
     """
-    assert (
-        ref_indices.shape == test_indices.shape
-    ), "Truth and reco vertex arrays must have the same shape."
+    assert ref_indices.shape == test_indices.shape, (
+        "Truth and reco vertex arrays must have the same shape."
+    )
     n_jets = ref_indices.shape[0]
 
     metrics = {}

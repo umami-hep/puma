@@ -110,8 +110,7 @@ def get_good_pie_colours(colour_scheme=None):
             "#FFE28A",
         ]
     raise KeyError(
-        f"Given colour scheme is {colour_scheme} but it has to be blue, red, green,"
-        " yellow or None"
+        f"Given colour scheme is {colour_scheme} but it has to be blue, red, green, yellow or None"
     )
 
 

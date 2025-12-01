@@ -359,7 +359,7 @@ class RocOutputTestCase(unittest.TestCase):
             ylabel="Light-jet rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
             ),
             y_scale=1.5,
         )
@@ -405,7 +405,7 @@ class RocOutputTestCase(unittest.TestCase):
             ylabel="Light-jet rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
             ),
             y_scale=1.5,
             # logy=False,
@@ -454,7 +454,7 @@ class RocOutputTestCase(unittest.TestCase):
             ylabel="Light-jet rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
             ),
             y_scale=1.5,
             # logy=False,
@@ -505,7 +505,7 @@ class RocOutputTestCase(unittest.TestCase):
             ylabel="Background rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
             ),
         )
 
@@ -570,7 +570,7 @@ class RocOutputTestCase(unittest.TestCase):
             ylabel="Background rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
             ),
         )
 
@@ -635,7 +635,7 @@ class RocOutputTestCase(unittest.TestCase):
             ylabel="Background rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
             ),
         )
 
@@ -704,7 +704,7 @@ class RocOutputTestCase(unittest.TestCase):
             ylabel="Light-jet rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
             ),
             y_scale=1.5,
             # logy=False,
@@ -753,7 +753,7 @@ class RocOutputTestCase(unittest.TestCase):
             ylabel="Light-jet rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
             ),
             y_scale=1.5,
             # logy=False,
@@ -769,7 +769,7 @@ class RocOutputTestCase(unittest.TestCase):
             ylabel="Light-jet rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
             ),
             y_scale=1.5,
             # logy=False,
@@ -787,7 +787,7 @@ class RocOutputTestCase(unittest.TestCase):
             ylabel="Light-jet rejection",
             xlabel="$b$-jet efficiency",
             atlas_second_tag=(
-                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample," " $f_{c}=0.018$"
+                "$\\sqrt{s}=13$ TeV, PFlow Jets\n$t\\bar{t}$ dummy sample, $f_{c}=0.018$"
             ),
             y_scale=1.5,
             # logy=False,

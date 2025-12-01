@@ -130,8 +130,7 @@ class Roc(PlotLineObject):
         # Check that the rejection class is a string
         if self.rej_class and not isinstance(self.rej_class, str):
             raise ValueError(
-                "'rej_class' must either be a string or a Label! "
-                f"You gave {type(self.rej_class)}"
+                f"'rej_class' must either be a string or a Label! You gave {type(self.rej_class)}"
             )
 
     def binomial_error(self, norm: bool = False, n_test: int | None = None) -> np.ndarray:

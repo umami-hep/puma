@@ -168,8 +168,7 @@ class AuxResultsTestCase(unittest.TestCase):
             self.assertEqual(
                 cm.output,
                 [
-                    f"WARNING:puma:{len(n_nans)} NaN values found in loaded data."
-                    " Removing them.",
+                    f"WARNING:puma:{len(n_nans)} NaN values found in loaded data. Removing them.",
                 ],
             )
 

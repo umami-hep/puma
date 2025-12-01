@@ -44,14 +44,14 @@ def confusion_matrix(
         [0.4 0.  0.6]])
     """
     # Checking that targets and predictions have the same sample size
-    assert (
-        targets.shape[0] == predictions.shape[0]
-    ), "confusion_matrix: Predictions and targets must have the same sample size"
+    assert targets.shape[0] == predictions.shape[0], (
+        "confusion_matrix: Predictions and targets must have the same sample size"
+    )
     # If user gives samples' weights, check that the sample size is consistent with the labels
     if sample_weights is not None:
-        assert (
-            sample_weights.shape[0] == targets.shape[0]
-        ), "confusion_matrix: Mismatch between targets' and sample weights' size"
+        assert sample_weights.shape[0] == targets.shape[0], (
+            "confusion_matrix: Mismatch between targets' and sample weights' size"
+        )
 
     if normalize is not None:
         assert normalize in {
