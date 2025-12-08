@@ -17,6 +17,35 @@ class VarVsVar(PlotLineObject):
     """
     VarVsVar class storing info about curve and allows to calculate ratio w.r.t other
     efficiency plots.
+
+    Parameters
+    ----------
+    x_var : np.ndarray
+        Values for x-axis variable, e.g. bin midpoints for binned data
+    y_var_mean : np.ndarray
+        Mean value for y-axis variable
+    y_var_std : np.ndarray
+        Std value for y-axis variable
+    x_var_widths : np.ndarray, optional
+        Widths for x-axis variable, e.g. bin widths for binned data
+    key : str | None, optional
+        Identifier for the curve e.g. tagger, by default None
+    fill : bool, optional
+        Defines do we need to fill box around point, by default True
+    plot_y_std : bool, optional
+        Defines do we need to plot y_var_std, by default True
+    ratio_group : str | None, optional
+        Name of the ratio group this VarVsVar is compared with. The ratio group
+        allows you to compare different groups of VarVsVar within one plot.
+        By default None
+    **kwargs : Any
+        Keyword arguments passed to `PlotLineObject`
+
+    Raises
+    ------
+    ValueError
+        If provided options are not compatible with each other
+
     """
 
     def __init__(
@@ -29,38 +58,8 @@ class VarVsVar(PlotLineObject):
         fill: bool = True,
         plot_y_std: bool = True,
         ratio_group: str | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
-        """Initialise properties of VarVsVar curve object.
-
-        Parameters
-        ----------
-        x_var : np.ndarray
-            Values for x-axis variable, e.g. bin midpoints for binned data
-        y_var_mean : np.ndarray
-            Mean value for y-axis variable
-        y_var_std : np.ndarray
-            Std value for y-axis variable
-        x_var_widths : np.ndarray, optional
-            Widths for x-axis variable, e.g. bin widths for binned data
-        key : str, optional
-            Identifier for the curve e.g. tagger, by default None
-        fill : bool, optional
-            Defines do we need to fill box around point, by default True
-        plot_y_std : bool, optional
-            Defines do we need to plot y_var_std, by default True
-        ratio_group : str, optional
-            Name of the ratio group this VarVsVar is compared with. The ratio group
-            allows you to compare different groups of VarVsVar within one plot.
-            By default None
-        **kwargs : kwargs
-            Keyword arguments passed to `PlotLineObject`
-
-        Raises
-        ------
-        ValueError
-            If provided options are not compatible with each other
-        """
         super().__init__(**kwargs)
         if len(x_var) != len(y_var_mean):
             raise ValueError(
@@ -122,18 +121,18 @@ class VarVsVar(PlotLineObject):
 
         return data
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: VarVsVar) -> bool:
         """Handles a == check with the class.
 
         Parameters
         ----------
-        other : obj
-            Other object that this class is tested against
+        other : VarVsVar
+            Other VarVsVar that this class is tested against
 
         Returns
         -------
         bool
-            If this object and the other are equal
+            If this VarVsVar and the other are equal
         """
         if isinstance(other, self.__class__):
             return (
@@ -194,26 +193,25 @@ class VarVsVar(PlotLineObject):
 
 
 class VarVsVarPlot(PlotBase):
-    """var_vs_eff plot class."""
+    """VarVsVar plot class.
 
-    def __init__(self, grid: bool = False, ratio_method: str = "divide", **kwargs) -> None:
-        """var_vs_eff plot properties.
+    Parameters
+    ----------
+    grid : bool, optional
+        Set the grid for the plots.
+    ratio_method: str, optional
+        Method for ratio calculations. Accepted values: "divide", "root_square_diff",
+        "subtract". By default "divide"
+    **kwargs : Any
+        Keyword arguments from `puma.PlotObject`
 
-        Parameters
-        ----------
-        grid : bool, optional
-            Set the grid for the plots.
-        ratio_method:
-            Method for ratio calculations. Accepted values: "divide", "root_square_diff",
-            "subtract".
-        **kwargs : kwargs
-            Keyword arguments from `puma.PlotObject`
+    Raises
+    ------
+    ValueError
+        If incompatible mode given or more than 1 ratio panel requested
+    """
 
-        Raises
-        ------
-        ValueError
-            If incompatible mode given or more than 1 ratio panel requested
-        """
+    def __init__(self, grid: bool = False, ratio_method: str = "divide", **kwargs: Any) -> None:
         super().__init__(grid=grid, **kwargs)
 
         self.plot_objects: dict[str, VarVsVar] = {}
@@ -232,9 +230,9 @@ class VarVsVarPlot(PlotBase):
 
         Parameters
         ----------
-        curve : VarVsVar class
+        curve : VarVsVar
             VarVsVar curve
-        key : str, optional
+        key : str | None, optional
             Unique identifier for VarVsVar curve, by default None
         reference : bool, optional
             If VarVsVar is used as reference for ratio calculation, by default False
@@ -301,17 +299,17 @@ class VarVsVarPlot(PlotBase):
             self.reference_object.append(key)
         logger.debug("Adding '%s' to reference VarVsVar(s)", key)
 
-    def plot(self, **kwargs):
+    def plot(self, **kwargs: Any) -> mpl.lines.Line2D:
         """Plotting curves.
 
         Parameters
         ----------
-        **kwargs: kwargs
+        **kwargs: Any
             Keyword arguments passed to plt.axis.errorbar
 
         Returns
         -------
-        Line2D
+        mpl.lines.Line2D
             matplotlib Line2D object
         """
         logger.debug("Plotting curves")
@@ -376,18 +374,18 @@ class VarVsVarPlot(PlotBase):
             )
         return plt_handles
 
-    def get_reference_name(self, var_object: VarVsVar):
+    def get_reference_name(self, var_object: VarVsVar) -> VarVsVar | None:
         """Get reference VarVsVar object from list of references.
 
         Parameters
         ----------
-        var_object : puma.var_vs_var.VarVsVar
+        var_object : VarVsVar
             VarVsVar we want to calculate the ratio for
 
         Returns
         -------
-        reference_name : str, int
-            Identifier of the corresponding reference VarVsVar
+        reference_name : VarVsVar | None
+            Corresponding reference VarVsVar
 
         Raises
         ------
@@ -498,7 +496,7 @@ class VarVsVarPlot(PlotBase):
 
         Parameters
         ----------
-        labelpad : int, optional
+        labelpad : int | None, optional
             Spacing in points from the axes bounding box including
             ticks and tick labels, by default "ratio"
         """

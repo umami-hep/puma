@@ -33,28 +33,30 @@ if TYPE_CHECKING:  # pragma: no cover
 class PlotLineObject:
     """Base data class defining properties of a plot object.
 
-    Parameters
+    Attributes
     ----------
-    xmin : float, optional
+    xmin : float | None, optional
         Minimum value of the x-axis, by default None
-    xmax : float, optional
+    xmax : float | None, optional
         Maximum value of the x-axis, by default None
-    colour : str, optional
+    colour : str | None, optional
         Colour of the object, by default None
-    label : str, optional
+    label : str | None, optional
         Label of object, by default None
-    linestyle : str, optional
+    linestyle : str | None, optional
         Linestyle following numpy style, by default None
-    alpha : float, optional
+    linewidth : float | None, optional
+        Linewidth that will be used, by default None
+    alpha : float | None, optional
         Value for visibility of the plot lines, by default None
-    marker : str, optional
+    marker : str | None, optional
         Marker that is used in the plot. For example an x.
         By default None
-    markersize : int, optional
+    markersize : int | None, optional
         Size of the marker. By default None
-    markeredgewidth : int, optional
+    markeredgewidth : int | None, optional
         Edge width of the marker. By default None
-    is_marker : bool, optional
+    is_marker : bool | None, optional
         Bool, to give info about if this is a marker or a line.
         By default None
     """
@@ -218,6 +220,8 @@ class PlotLineObject:
         ----------
         path : str | Path
             Path in which the attributes are stored.
+        **extra_kwargs : Any
+            Extra kwargs to overwrite certain stored options.
 
         Returns
         -------
@@ -265,36 +269,36 @@ class PlotLineObject:
 class PlotObject:
     """Data base class defining properties of a plot object.
 
-    Parameters
+    Attributes
     ----------
     title : str, optional
         Title of the plot, by default ""
     draw_errors : bool, optional
         Draw statistical uncertainty on the lines, by default True
-    xmin : float, optional
+    xmin : float | None, optional
         Minimum value of the x-axis, by default None
-    xmax : float, optional
+    xmax : float | None, optional
         Maximum value of the x-axis, by default None
-    ymin : float, optional
+    ymin : float | None, optional
         Minimum value of the y-axis, by default None
-    ymax : float, optional
+    ymax : float | None, optional
         Maximum value of the y-axis, by default None
-    ymin_ratio : list, optional
+    ymin_ratio : list[float | None] | None, optional
         Set the lower y limit of each of the ratio subplots, by default None.
-    ymax_ratio : list, optional
+    ymax_ratio : list[float | None] | None, optional
         Set the upper y limit of each of the ratio subplots, by default None.
     y_scale : float, optional
-        Scaling up the y axis, e.g. to fit the ATLAS Tag. Applied if ymax not defined,
-        by default 1.3
-    logx: bool, optional
+        Scaling up the y axis, e.g. to fit the ATLAS Tag. Applied if ymax not
+        defined, by default 1.3
+    logx : bool, optional
         Set the log of x-axis, by default False
     logy : bool, optional
         Set log of y-axis of main panel, by default True
-    xlabel : str, optional
+    xlabel : str | None, optional
         Label of the x-axis, by default None
-    ylabel : str, optional
+    ylabel : str | None, optional
         Label of the y-axis, by default None
-    ylabel_ratio : list, optional
+    ylabel_ratio : list[str] | None, optional
         List of labels for the y-axis in the ratio plots, by default "Ratio"
     label_fontsize : int, optional
         Used fontsize in label, by default 12
@@ -302,53 +306,55 @@ class PlotObject:
         Used fontsize, by default 10
     n_ratio_panels : int, optional
         Amount of ratio panels between 0 and 2, by default 0
-    vertical_split: bool
-        Set to False if you would like to split the figure horizonally. If set to
-        True the figure is split vertically (e.g for pie chart). By default False.
-    figsize : (float, float), optional
-        Tuple of figure size `(width, height)` in inches, by default (8, 6)
+    vertical_split : bool, optional
+        Set to False if you would like to split the figure horizontally. If set
+        to True the figure is split vertically (e.g. for pie chart), by
+        default False.
+    figsize : tuple[float, float] | None, optional
+        Tuple of figure size (width, height) in inches, by default None
     dpi : int, optional
         DPI used for plotting, by default 400
     transparent : bool, optional
-        Specify if the background of the plot should be transparent, by default False
+        Specify if the background of the plot should be transparent, by
+        default False
     grid : bool, optional
-        Set the grid for the plots.
+        Set the grid for the plots, by default True.
     figure_layout : str, optional
-        Set the layout that is used for the plot. By default "constrained"
-    leg_fontsize : int, optional
-        Fontsize of the legend, by default 10
+        Set the layout that is used for the plot, by default "constrained"
+    leg_fontsize : int | None, optional
+        Fontsize of the legend, by default None (falls back to fontsize)
     leg_loc : str, optional
         Position of the legend in the plot, by default "upper right"
-    leg_ncol : int, optional
-        Number of legend columns, by default 1
     leg_linestyle_loc : str, optional
         Position of the linestyle legend in the plot, by default "upper center"
+    leg_ncol : int, optional
+        Number of legend columns, by default 1
     apply_atlas_style : bool, optional
         Apply ATLAS style for matplotlib, by default True
     use_atlas_tag : bool, optional
         Use the ATLAS Tag in the plots, by default True
     atlas_first_tag : str, optional
-        First row of the ATLAS tag (i.e. the first row is "ATLAS <atlas_first_tag>"),
+        First row of the ATLAS tag (i.e. "ATLAS <atlas_first_tag>"),
         by default "Simulation Internal"
-    atlas_second_tag : str, optional
-        Second row of the ATLAS tag, by default ""
-    atlas_fontsize : float, optional
-        Fontsize of ATLAS label, by default 10
+    atlas_second_tag : str | None, optional
+        Second row of the ATLAS tag, by default None
+    atlas_fontsize : int | None, optional
+        Fontsize of ATLAS label, by default None (falls back to fontsize)
     atlas_vertical_offset : float, optional
         Vertical offset of the ATLAS tag, by default 7
     atlas_horizontal_offset : float, optional
         Horizontal offset of the ATLAS tag, by default 8
-    atlas_brand : str, optional
-        `brand` argument handed to atlasify. If you want to remove it just use an empty
-        string or None, by default "ATLAS"
+    atlas_brand : str | None, optional
+        brand argument handed to atlasify. Use an empty string or
+        None to remove it, by default "ATLAS"
     atlas_tag_outside : bool, optional
-        `outside` argument handed to atlasify. Decides if the ATLAS logo is plotted
-        outside of the plot (on top), by default False
+        outside argument handed to atlasify. Decides if the ATLAS logo
+        is plotted outside of the plot (on top), by default False
     atlas_second_tag_distance : float, optional
-        Distance between the `atlas_first_tag` and `atlas_second_tag` text in units
+        Distance between atlas_first_tag and atlas_second_tag in units
         of line spacing, by default 0
-    plotting_done : bool
-        Bool that indicates if plotting is done. Only then `atlasify()` can be called,
+    plotting_done : bool, optional
+        Indicates if plotting is done. Only then atlasify() can be called,
         by default False
     """
 
@@ -469,7 +475,7 @@ class PlotObject:
 
         Parameters
         ----------
-        yratio : list
+        yratio : Sequence[float | None] | None
             List of min or max limits of ratio plots
 
         Raises
@@ -488,16 +494,15 @@ class PlotObject:
 
 
 class PlotBase(PlotObject):
-    """Base class for plotting."""
+    """Base class for plotting.
+
+    Parameters
+    ----------
+    **kwargs : Any
+        Keyword arguments from `puma.PlotObject`
+    """
 
     def __init__(self, **kwargs: Any) -> None:
-        """Initialise class with PlotObject kwargs.
-
-        Parameters
-        ----------
-        **kwargs : kwargs
-            Keyword arguments from `puma.PlotObject`
-        """
         super().__init__(**kwargs)
         self.axis_top: Axes | None = None
         self.ratio_axes: list[Axes] = []
@@ -583,13 +588,13 @@ class PlotBase(PlotObject):
 
         Parameters
         ----------
-        xs : list
+        xs : Sequence[float]
             List of working points x values to draw
-        labels : list, optional
+        labels : Sequence[str | None] | None, optional
             List with labels for the vertical lines. Must be the same
             order as the xs. If None, the xvalues * 100 will be
             used as labels. By default None
-        ys : list, optional
+        ys : Sequence[float] | None, optional
             List with the y height of the vertical lines in percent of the
             upper plot (0 is bottom, 1 is top). Must be the same
             order as the xs and the labels. By default None
@@ -632,10 +637,10 @@ class PlotBase(PlotObject):
 
         Parameters
         ----------
-        title : str, optional
+        title : str | None, optional
             Title of top panel, if None using the value form the class variables,
             by default None
-        **kwargs : kwargs
+        **kwargs : Any
             Keyword arguments passed to `matplotlib.axes.Axes.set_title()`
         """
         assert self.axis_top is not None
@@ -684,13 +689,13 @@ class PlotBase(PlotObject):
 
         Parameters
         ----------
-        ax_mpl : matplotlib.axes.Axes
+        ax_mpl : Axes
             matplotlib axis object
-        label : str, optional
+        label : str | None, optional
             x-axis label, by default None
-        align : str, optional
+        align : str | None, optional
             Alignment of y-axis label, by default "right"
-        **kwargs, kwargs
+        **kwargs : Any
             Keyword arguments passed to `matplotlib.axes.Axes.set_ylabel()`
         """
         assert self.fig is not None
@@ -714,9 +719,9 @@ class PlotBase(PlotObject):
 
         Parameters
         ----------
-        label : str, optional
+        label : str | None, optional
             x-axis label, by default None
-        **kwargs : kwargs
+        **kwargs : Any
             Keyword arguments passed to `matplotlib.axes.Axes.set_xlabel()`
         """
         assert self.axis_top is not None
@@ -736,10 +741,10 @@ class PlotBase(PlotObject):
 
         Parameters
         ----------
-        labelsize : int, optional
+        labelsize : int | None, optional
             Label size of x- and y- axis ticks, by default None.
             If None then using global fontsize
-        **kwargs : kwargs
+        **kwargs : Any
             Keyword arguments passed to `matplotlib.axes.Axes.set_xlabel()`
         """
         assert self.axis_top is not None
@@ -757,11 +762,11 @@ class PlotBase(PlotObject):
 
         Parameters
         ----------
-        xmin : float, optional
+        xmin : float | None, optional
             Min of x-axis, by default None
-        xmax : float, optional
+        xmax : float | None, optional
             Max of x-axis, by default None
-        **kwargs : kwargs
+        **kwargs : Any
             Keyword arguments passed to `matplotlib.axes.Axes.set_xlim()`
         """
         assert self.axis_top is not None
@@ -784,11 +789,11 @@ class PlotBase(PlotObject):
         ----------
         plot_name : str
             File name of the plot
-        transparent : bool, optional
+        transparent : bool | None, optional
             Specify if plot background is transparent, by default False
-        dpi : int, optional
+        dpi : int | None, optional
             DPI for plotting, by default 400
-        **kwargs : kwargs
+        **kwargs : Any
             Keyword arguments passed to `matplotlib.figure.Figure.savefig()`
         """
         assert self.fig is not None
@@ -840,7 +845,7 @@ class PlotBase(PlotObject):
 
         Parameters
         ----------
-        root : tk.Tk
+        root : tk.Tk | None
             The Tkinter root window instance to be closed.
         """
         if root is not None:
@@ -965,14 +970,14 @@ class PlotBase(PlotObject):
 
         Parameters
         ----------
-        handles :  list
+        handles : list[lines.Line2D]
             List of matplotlib.lines.Line2D object returned when plotting
-        ax_mpl : matplotlib.axis.Axes
+        ax_mpl : Axes
             `matplotlib.axis.Axes` object where the legend should be plotted
-        labels : list, optional
+        labels : list[str] | None, optional
             Plot labels. If None, the labels are extracted from the `handles`.
             By default None
-        **kwargs : kwargs
+        **kwargs : Any
             Keyword arguments which can be passed to matplotlib axis
         """
         if labels is None:
@@ -1001,17 +1006,17 @@ class PlotBase(PlotObject):
 
         Parameters
         ----------
-        linestyles : list
+        linestyles : Sequence[str]
             List of the linestyles to draw in the legend
-        labels : list
+        labels : Sequence[str]
             List of the corresponding labels. Has to be in the same order as the
             linestyles
-        loc : str, optional
+        loc : str | None, optional
             Location of the legend (matplotlib supported locations), by default None
-        bbox_to_anchor : tuple, optional
+        bbox_to_anchor : tuple[float, float] | tuple[float, float, float, float] | None, optional
             Allows to specify the precise position of this legend. Either a 2-tuple
             (x, y) or a 4-tuple (x, y, width, height), by default None
-        axis_for_legend : matplotlib.Axes.axis, optional
+        axis_for_legend : Axes | None, optional
             Axis on which to draw the legend, by default None
         """
         axis_for_legend = self.axis_top if axis_for_legend is None else axis_for_legend
