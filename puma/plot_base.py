@@ -21,7 +21,7 @@ from matplotlib.figure import Figure
 from matplotlib.ticker import MaxNLocator
 from typing_extensions import Self
 
-from puma.utils import logger, set_xaxis_ticklabels_invisible
+from puma.utils import logger
 
 atlasify.LINE_SPACING = 1.3  # overwrite the default, which is 1.2
 
@@ -539,13 +539,13 @@ class PlotBase(PlotObject):
                 g_spec_height = (top_height + ratio_height * self.n_ratio_panels) * 10
                 g_spec = gridspec.GridSpec(int(g_spec_height), 1, figure=self.fig)
                 self.axis_top = self.fig.add_subplot(g_spec[: int(top_height * 10), 0])
-                set_xaxis_ticklabels_invisible(self.axis_top)
+                self.set_xaxis_ticklabels_invisible(self.axis_top)
                 for i in range(1, self.n_ratio_panels + 1):
                     start = int((top_height + ratio_height * (i - 1)) * 10)
                     stop = int(start + ratio_height * 10)
                     sub_axis = self.fig.add_subplot(g_spec[start:stop, 0], sharex=self.axis_top)
                     if i < self.n_ratio_panels:
-                        set_xaxis_ticklabels_invisible(sub_axis)
+                        self.set_xaxis_ticklabels_invisible(sub_axis)
                     self.ratio_axes.append(sub_axis)
 
         # type-narrowing: required before any use
@@ -1063,3 +1063,14 @@ class PlotBase(PlotObject):
             raise ValueError(f"Plot has {self.n_ratio_panels} ratio panels, not {ratio_panel}")
         assert self.ylabel_ratio is not None
         self.ylabel_ratio[ratio_panel - 1] = label
+
+    def set_xaxis_ticklabels_invisible(self, ax: Axes):
+        """Helper function to set the ticklabels of the xaxis invisible.
+
+        Parameters
+        ----------
+        ax : Axes
+            Axis you want to modify
+        """
+        for label in ax.get_xticklabels():
+            label.set_visible(False)

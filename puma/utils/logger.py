@@ -31,12 +31,12 @@ class CustomFormatter(logging.Formatter):
         logging.CRITICAL: bold_red + debugformat + reset,
     }
 
-    def format(self, record) -> str:
+    def format(self, record: logging.LogRecord) -> str:
         """Format the log record.
 
         Parameters
         ----------
-        record : LogRecord
+        record : logging.LogRecord
             LogRecord that is to be formatted.
 
         Returns
@@ -82,21 +82,19 @@ def get_log_level(
     return log_levels[level]
 
 
-def initialise_logger(
-    log_level: str | None = None,
-):
+def initialise_logger(log_level: str | None = None) -> logging.Logger:
     """Initialise.
 
     Parameters
     ----------
-    log_level : str, optional
+    log_level : str | None, optional
         Logging level defining the verbose level. Accepted values are:
         CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET, by default None
         If the log_level is not set, it will
 
     Returns
     -------
-    logger
+    logging.Logger
         logger object with new level set
     """
     int_log_level = get_log_level(
@@ -122,7 +120,7 @@ def set_log_level(
 
     Parameters
     ----------
-    puma_logger : logger
+    puma_logger : logging.Logger
         logger object
     log_level : str
         Logging level corresponding CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET

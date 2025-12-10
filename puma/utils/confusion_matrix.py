@@ -15,11 +15,11 @@ def confusion_matrix(
     """
     Parameters
     ----------
-    targets : 1d np.ndarray
+    targets : np.ndarray
         target labels
-    predictions : 1d np.ndarray
+    predictions : np.ndarray
         predicted labels (output of the classifier)
-    sample_weights : np.ndarray, optional
+    sample_weights : np.ndarray | None, optional
         Weight of each sample; if None, each sample weights the same. Defaults to None.
     normalize : str | None, optional
         Normalization of the confusion matrix. Can be:

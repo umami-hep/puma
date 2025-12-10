@@ -23,15 +23,15 @@ def n_tracks_per_origin(
     track_origin_dict: dict | None = None,
     plot_format: str = "pdf",
     plot_name: str | None = None,
-    **kwargs,
+    **kwargs: Any,
 ):
     """Plot number of tracks per track origin plot as a function of pT.
 
     Parameters
     ----------
-    flavour_list : list[Flavour]
+    flavour_list : list[Label]
         List of Flavour objects to consider.
-    files : dict[dict[str]]
+    files : dict[str, dict[str, Any]]
         Dict of dicts with the samples to use. Each sub-dict has the following variables:
         filepath : str
             Path to the file.
@@ -63,8 +63,10 @@ def n_tracks_per_origin(
         definition of the default track_origin_dict in the code. By default None
     plot_format : str, optional
         Plot format, by default "pdf"
-    plot_name : str, optional
+    plot_name : str | None, optional
         Extra for the plot name, by default None
+    **kwargs : Any
+        Kwargs for the VarVsVar plot object.
 
     Raises
     ------

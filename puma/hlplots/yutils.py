@@ -66,12 +66,12 @@ def get_included_taggers(
     ----------
     results : Results
         Results object from which the taggers are taken
-    plot_config : dict
+    plot_config : dict[str, Any]
         Plot config dict
 
     Returns
     -------
-    tuple[dict | Any | None, dict, str]
+    tuple[dict[str, Tagger], dict[str, Tagger], str]
         The included taggers as dict, all taggers as dict and the include_exclude string
 
     Raises

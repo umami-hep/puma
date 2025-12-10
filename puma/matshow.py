@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math as m
+from typing import Any
 
 import numpy as np
 from matplotlib import patches
@@ -14,7 +15,40 @@ from puma.utils import logger
 
 
 class MatshowPlot(PlotBase):
-    """Plot Matrix class."""
+    """Plot Matrix class.
+
+    Parameters
+    ----------
+    x_ticklabels : list | None, optional
+        Names of the matrix's columns; if None, indices are shown. by default None
+    x_ticks_rotation : int, optional
+        Rotation of the columns' names, by default 90
+    y_ticklabels : list | None, optional
+        Names of the matrix's rows; if None, indices are shown. by default None
+    show_entries : bool, optional
+        If True, show matrix entries as numbers in the matrix pixels. by default True
+    show_percentage : bool, optional
+        If True, if matrix entries are percentages (i.e. numbers in [0,1]), format them as
+        percentages. by default False
+    text_color_threshold : float, optional
+        threshold on the relative luminance of the colormap bkg color after which the text color
+        switches to black, to allow better readability on lighter cmap bkg colors.
+        If 1, all text is white; if 0, all text is black. by default 0.408
+    colormap : plt.cm, optional
+        Colormap for the plot, by default `plt.cm.Oranges`
+    show_cbar : bool, optional
+        Whether to plot the colorbar or not, by default True
+    cbar_label : str | None, optional
+        Label of the colorbar, by default None
+    **kwargs : Any
+        Keyword arguments for `puma.PlotObject`
+
+    Example
+    -------
+    >>> matrix_plotter = MatshowPlot()
+    >>> mat = np.random.rand(4, 3)
+    >>> matrix_plotter.draw(mat)
+    """
 
     def __init__(
         self,
@@ -27,42 +61,8 @@ class MatshowPlot(PlotBase):
         colormap: plt.cm = plt.cm.Oranges,
         show_cbar: bool = True,
         cbar_label: str | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
-        """Plot a matrix with matplotlib matshow.
-
-        Parameters
-        ----------
-        x_ticklabels : list | None, optional
-            Names of the matrix's columns; if None, indices are shown. by default None
-        x_ticks_rotation : int, optional
-            Rotation of the columns' names, by default 90
-        y_ticklabels : list | None, optional
-            Names of the matrix's rows; if None, indices are shown. by default None
-        show_entries : bool, optional
-            If True, show matrix entries as numbers in the matrix pixels. by default True
-        show_percentage : bool, optional
-            If True, if matrix entries are percentages (i.e. numbers in [0,1]), format them as
-            percentages. by default False
-        text_color_threshold : float, optional
-            threshold on the relative luminance of the colormap bkg color after which the text color
-            switches to black, to allow better readability on lighter cmap bkg colors.
-            If 1, all text is white; if 0, all text is black. by default 0.408
-        colormap : plt.cm, optional
-            Colormap for the plot, by default `plt.cm.Oranges`
-        show_cbar : bool, optional
-            Whether to plot the colorbar or not, by default True
-        cbar_label : str | None, optional
-            Label of the colorbar, by default None
-        **kwargs : kwargs
-            Keyword arguments for `puma.PlotObject`
-
-        Example
-        -------
-        >>> matrix_plotter = MatshowPlot()
-        >>> mat = np.random.rand(4, 3)
-        >>> matrix_plotter.draw(mat)
-        """
         super().__init__(**kwargs)
 
         self.x_ticklabels = x_ticklabels
@@ -80,13 +80,13 @@ class MatshowPlot(PlotBase):
             self.figsize = (10, 10.5)
         self.initialise_figure()
 
-    def __get_luminance(self, rgbaColor):
+    def __get_luminance(self, rgbaColor: tuple) -> float:
         """Calculate the relative luminance of a color according to W3C standards.
         For the details of the conversion see: https://www.w3.org/WAI/GL/wiki/Relative_luminance .
 
         Parameters
         ----------
-        rgbColor : tuple
+        rgbaColor : tuple
             (r,g,b,a) color (returned from `plt.cm` colormap)
 
         Returns
@@ -104,7 +104,7 @@ class MatshowPlot(PlotBase):
         weights = np.array([0.2126, 0.7152, 0.0722])
         return np.dot(rgbaColor, weights)
 
-    def __plot(self, matrix):
+    def __plot(self, matrix: np.ndarray) -> None:
         """Plot the Matrix."""
         n_cols = matrix.shape[1]
         n_rows = matrix.shape[0]
@@ -214,7 +214,7 @@ class MatshowPlot(PlotBase):
         self.set_ylabel(self.axis_top)
         self.set_title()
 
-    def draw(self, matrix):
+    def draw(self, matrix: np.ndarray) -> None:
         """Draw a matrix with the class customized appearance.
 
         Parameters
@@ -239,18 +239,40 @@ class MatshowPlot(PlotBase):
 class MatrixComparison(MatshowPlot):
     """Plot a comparison between two matrices. The resulting plot is a matrix with each bin split in
     two triangles, each containing the value of the corresponding matrix.
+
+    Parameters
+    ----------
+    show_legend : bool, optional
+        Decide, if the legend will be shown. By default True.
+    matrix_names : list[str] | None, optional
+        List of names for the matrices, by default None.
+    **kwargs : Any
+        kwargs for the MatshotPlot class.
     """
 
-    def __init__(self, show_legend: bool = True, matrix_names: list[str] | None = None, **kwargs):
-        """Initialize the MatrixComparison plotter."""
+    def __init__(
+        self,
+        show_legend: bool = True,
+        matrix_names: list[str] | None = None,
+        **kwargs: Any,
+    ):
         self.show_legend = show_legend
-        self.matrix_names = matrix_names
         if matrix_names is None:
-            self.matrix_names = ["m1", "m2"]
+            matrix_names = ["m1", "m2"]
+        assert isinstance(matrix_names, list)
+        self.matrix_names = matrix_names
         super().__init__(**kwargs)
 
-    def __plot(self, m1, m2):
-        """Plot the two matrices."""
+    def __plot(self, m1: np.ndarray, m2: np.ndarray) -> None:
+        """Plot the two matrices.
+
+        Parameters
+        ----------
+        m1 : np.ndarray
+            Matrix 1
+        m2 : np.ndarray
+            Matrix 2
+        """
         n_rows, n_cols = m1.shape
         all_values = np.concatenate([m1.flatten(), m2.flatten()])
 
@@ -297,7 +319,7 @@ class MatrixComparison(MatshowPlot):
 
                 if self.show_entries:
                     # Text for m1 (upper triangle)
-                    luminance1 = self._MatshowPlot__get_luminance(color1)
+                    luminance1 = self.__get_luminance(color1)
                     text_color1 = "white" if luminance1 <= self.text_color_threshold else "black"
                     text1 = (
                         f"{m1[y, x]:.0f}"
@@ -319,7 +341,7 @@ class MatrixComparison(MatshowPlot):
                     )
 
                     # Text for m2 (lower triangle)
-                    luminance2 = self._MatshowPlot__get_luminance(color2)
+                    luminance2 = self.__get_luminance(color2)
                     text_color2 = "white" if luminance2 <= self.text_color_threshold else "black"
                     text2 = (
                         f"{m2[y, x]:.0f}"
@@ -428,7 +450,7 @@ class MatrixComparison(MatshowPlot):
         self.axis_top.tick_params(axis="both", which="both", length=0)
         self.axis_top.grid(False)
 
-    def draw(self, matrix1, matrix2):
+    def draw(self, matrix1: np.ndarray, matrix2: np.ndarray) -> None:
         """Draw a comparison between two matrices with the class customized appearance.
 
         Parameters

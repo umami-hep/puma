@@ -56,12 +56,12 @@ class AuxResults:
             "track_origin": self.plot_track_origin_confmat,
         }
 
-    def add(self, tagger):
+    def add(self, tagger: Tagger) -> None:
         """Add tagger to class.
 
         Parameters
         ----------
-        tagger : puma.hlplots.Tagger
+        tagger : Tagger
             Instance of the puma.hlplots.Tagger class, containing tagger information.
 
         Raises
@@ -77,32 +77,32 @@ class AuxResults:
         self,
         taggers: list[Tagger],
         file_path: Path | str,
-        key="jets",
-        label_var="HadronConeExclTruthLabelID",
-        aux_key="tracks",
+        key: str = "jets",
+        label_var: str = "HadronConeExclTruthLabelID",
+        aux_key: str = "tracks",
         cuts: Cuts | list | None = None,
         num_jets: int | None = None,
         perf_vars: dict | None = None,
-    ):
+    ) -> None:
         """Load one or more taggers from a common file.
 
         Parameters
         ----------
         taggers : list[Tagger]
             List of taggers to add
-        file_path : str | Path
+        file_path : Path | str
             Path to file
         key : str, optional
             Key in file, by default 'jets'
-        label_var : str
+        label_var : str, optional
             Label variable to use, by default 'HadronConeExclTruthLabelID'
         aux_key : str, optional
             Key for auxiliary information, by default 'tracks'
-        cuts : Cuts | list, optional
+        cuts : Cuts | list | None, optional
             Cuts to apply, by default None
-        num_jets : int, optional
+        num_jets : int | None, optional
             Number of jets to load from the file, by default all jets
-        perf_vars : dict, optional
+        perf_vars : dict | None, optional
             Override the performance variable to use, by default None
         """
 
@@ -112,7 +112,7 @@ class AuxResults:
 
             Parameters
             ----------
-            data : ndarray
+            data : np.ndarray
                 Data to filter
 
             Returns
@@ -232,25 +232,25 @@ class AuxResults:
         """
         return self.taggers[tagger_name]
 
-    def get_filename(self, plot_name: str, suffix: str | None = None):
-        """Get output name.
+    def get_filename(self, plot_name: str, suffix: str | None = None) -> str:
+        """Get output file path.
 
         Parameters
         ----------
         plot_name : str
             plot name
-        suffix : str, optional
+        suffix : str | None, optional
             suffix to add to output name, by default None
 
         Returns
         -------
         str
-            output name
+            output file path
         """
         base = f"{self.sample}_{plot_name}"
         if suffix is not None:
             base += f"_{suffix}"
-        return Path(self.output_dir / base).with_suffix(f".{self.extension}")
+        return str(Path(self.output_dir / base).with_suffix(f".{self.extension}"))
 
     def plot_var_vtx_perf(
         self,
@@ -261,7 +261,7 @@ class AuxResults:
         perf_var: str = "pt",
         incl_vertexing: bool = False,
         vertex_match_requirement: dict | None = None,
-        **kwargs,
+        **kwargs: Any,
     ):
         """Plot the variable vs vertex performance.
 
@@ -281,12 +281,12 @@ class AuxResults:
             Decide, if the inclusive vertexing is plotted, by default False
         vertex_match_requirement : dict | None, optional
             Dict with matching requirements for the vertices, by default None
+        **kwargs : Any
 
         Raises
         ------
         ValueError
             If neither vtx_flavours nor no_vtx_flavours are given.
-        ValueError
             If no taggers with vertexing aux task were added.
         """
         # Get good linestyles for plotting
@@ -480,7 +480,7 @@ class AuxResults:
         vtx_flavours: list[Label] | list[str],
         incl_vertexing: bool = True,
         mass_range: tuple = (0, 5),
-        **kwargs,
+        **kwargs: Any,
     ):
         """Plot vertex mass for each tagger.
 
@@ -492,7 +492,7 @@ class AuxResults:
             Whether to use inclusive or exclusive vertexing, by default inclusive
         mass_range: tuple, optional
             Range of the mass histogram, by default (0, 5)
-        kwargs : dict
+        **kwargs : Any
             Keyword arguments for `puma.HistogramPlot`
         """
         if incl_vertexing:
@@ -651,7 +651,7 @@ class AuxResults:
         self,
         normalize: str | None = "rownorm",
         minimal_plot: bool = True,
-        **kwargs,
+        **kwargs: Any,
     ):
         """Plot Track Origin Aux Task confusion matrix.
 
@@ -666,7 +666,7 @@ class AuxResults:
             Defaults to "rownorm".
         minimal_plot : bool, optional
             Whether to plot the CM with minimal or full info (title, cbar), by default True
-        **kwargs : kwargs
+        **kwargs : Any
             Keyword arguments for `puma.MatshowPlot` and `puma.PlotObject`
         """
         for tagger in self.taggers.values():

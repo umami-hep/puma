@@ -128,7 +128,6 @@ def get_dummy_tagger_aux(
     vertexing and track origin classification. Also includes jet level
     classifier output and HadronConeExclTruthLabelID.
 
-
     Parameters
     ----------
     size : int, optional
@@ -142,8 +141,6 @@ def get_dummy_tagger_aux(
         by default 42
     label : str, optional
         Name of the label column, by default "HadronConeExclTruthLabelID"
-    vtx_label_var : str, optional
-        Name of the truth vertex label, by default "ftagTruthVertexIndex"
 
     Returns
     -------

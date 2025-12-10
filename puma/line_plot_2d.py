@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import matplotlib as mpl
 import numpy as np
@@ -16,36 +16,35 @@ if TYPE_CHECKING:  # pragma: no cover
 
 
 class Line2D(PlotLineObject):
-    """Line2D class storing info about the x and y values and style."""
+    """Line2D class storing info about the x and y values and style.
+
+    Parameters
+    ----------
+    x_values : np.ndarray
+        x values of the curve
+    y_values : np.ndarray
+        y values of the curve
+    **kwargs : Any
+        kwargs passed to `PlotLineObject`
+
+    Raises
+    ------
+    ValueError
+        If the dtype of x_values and y_values is different.
+        If provided x_values array is empty.
+        If provided y_values array is empty.
+        If provided x_values and y_values arrays have different shapes.
+        If an invalid type was given for x_values
+    TypeError
+        If the type of input data is not supported
+    """
 
     def __init__(
         self,
         x_values: np.ndarray,
         y_values: np.ndarray,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
-        """Initialise properties of Line2D object.
-
-        Parameters
-        ----------
-        x_values : np.ndarray
-            x values of the curve
-        y_values : np.ndarray
-            y values of the curve
-        **kwargs : kwargs
-            kwargs passed to `PlotLineObject`
-
-        Raises
-        ------
-        ValueError
-            If the dtype of x_values and y_values is different.
-            If provided x_values array is empty.
-            If provided y_values array is empty.
-            If provided x_values and y_values arrays have different shapes.
-            If an invalid type was given for x_values
-        TypeError
-            If the type of input data is not supported
-        """
         super().__init__(**kwargs)
 
         # Check input dtype
@@ -95,25 +94,24 @@ class Line2D(PlotLineObject):
 
 
 class Line2DPlot(PlotBase):
-    """Line2DPlot plot class for basic x-y line plots."""
+    """Line2DPlot plot class for basic x-y line plots.
+
+    Parameters
+    ----------
+    logy : bool, optional
+        Decide, if the y-axis of the plot will be in log, by default False
+    grid : bool, optional
+        Set the grid for the plots.
+    **kwargs : Any
+        Keyword arguments from `puma.PlotObject`
+    """
 
     def __init__(
         self,
         logy: bool = False,
         grid: bool = True,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
-        """Plot properties.
-
-        Parameters
-        ----------
-        logy : bool, optional
-            Decide, if the y-axis of the plot will be in log, by default False
-        grid : bool, optional
-            Set the grid for the plots.
-        **kwargs : kwargs
-            Keyword arguments from `puma.PlotObject`
-        """
         super().__init__(grid=grid, **kwargs)
 
         # Set inputs as attributes
@@ -135,9 +133,9 @@ class Line2DPlot(PlotBase):
 
         Parameters
         ----------
-        curve : puma.line_plot_2D.Line2D
+        curve : Line2D
             Line2D object
-        key : str, optional
+        key : str | None, optional
             Unique identifier for the curve, by default None
         is_marker : bool, optional
             Defines if this is a marker (True) or a line (False). By default False.
@@ -196,13 +194,13 @@ class Line2DPlot(PlotBase):
         self.plot_objects[key] = curve
         self.add_order.append(key)
 
-    def plot(self, **kwargs):
+    def plot(self, **kwargs: Any):
         """Plotting curves. Plot objects are drawn in the same order as they
         were added to the plot.
 
         Parameters
         ----------
-        **kwargs: kwargs
+        **kwargs: Any
             Keyword arguments passed to matplotlib.axes.Axes.plot()
 
         Returns
