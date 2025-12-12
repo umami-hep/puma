@@ -80,7 +80,7 @@ class MatshowPlot(PlotBase):
             self.figsize = (10, 10.5)
         self.initialise_figure()
 
-    def __get_luminance(self, rgbaColor: tuple) -> float:
+    def _get_luminance(self, rgbaColor: tuple) -> float:
         """Calculate the relative luminance of a color according to W3C standards.
         For the details of the conversion see: https://www.w3.org/WAI/GL/wiki/Relative_luminance .
 
@@ -131,7 +131,7 @@ class MatshowPlot(PlotBase):
                     # Getting the bkg color from the cmap
                     color = self.colormap(normMat[i, j])
                     # Calculating the bkg relative luminance
-                    luminance = self.__get_luminance(color)
+                    luminance = self._get_luminance(color)
                     # Choosing the appropriate color
                     color = "white" if luminance <= self.text_color_threshold else "black"
 
@@ -319,7 +319,7 @@ class MatrixComparison(MatshowPlot):
 
                 if self.show_entries:
                     # Text for m1 (upper triangle)
-                    luminance1 = self.__get_luminance(color1)
+                    luminance1 = self._get_luminance(color1)
                     text_color1 = "white" if luminance1 <= self.text_color_threshold else "black"
                     text1 = (
                         f"{m1[y, x]:.0f}"
@@ -341,7 +341,7 @@ class MatrixComparison(MatshowPlot):
                     )
 
                     # Text for m2 (lower triangle)
-                    luminance2 = self.__get_luminance(color2)
+                    luminance2 = self._get_luminance(color2)
                     text_color2 = "white" if luminance2 <= self.text_color_threshold else "black"
                     text2 = (
                         f"{m2[y, x]:.0f}"
