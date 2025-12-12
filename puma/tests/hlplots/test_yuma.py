@@ -162,9 +162,9 @@ class TestYumaPlots(unittest.TestCase):
 
             ctag_plots = [p.name for p in ctagging.rglob("*.pdf")]
             assert ctagging.exists(), "No c-tagging plots produced"
-            assert (
-                len(ctag_plots) == 1
-            ), f"Only expected one c-tagging plot, found {len(ctag_plots)}: , {ctag_plots}"
+            assert len(ctag_plots) == 1, (
+                f"Only expected one c-tagging plot, found {len(ctag_plots)}: , {ctag_plots}"
+            )
 
             args = ["--config", updated_plt_cfg.as_posix()]
             main(args)

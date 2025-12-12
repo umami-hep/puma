@@ -5,7 +5,11 @@ from __future__ import annotations
 import numpy as np
 
 
-def clean_indices(vertex_ids, condition, mode="remove"):
+def clean_indices(
+    vertex_ids: np.ndarray,
+    condition: np.ndarray,
+    mode: str = "remove",
+) -> np.ndarray:
     """
     Vertex index cleaner that modifies vertex indices that fulfill
     a specified condition. The mode can be set to either "remove"
@@ -15,18 +19,18 @@ def clean_indices(vertex_ids, condition, mode="remove"):
 
     Parameters
     ----------
-    vertex_ids: np.ndarray
+    vertex_ids : np.ndarray
         Array containing vertex IDs for each track.
-    condition: np.ndarray
+    condition : np.ndarray
         Boolean array of shape (n_jets, n_tracks) containing the condition
         to be applied.
-    mode: str
+    mode : str, optional
         Mode to apply to indices that meet the specified condition.
-        Options are "remove" and "merge".
+        Options are "remove" and "merge". By default remove
 
     Returns
     -------
-    vertex_ids: np.ndarray
+    np.ndarray
         Array containing vertex IDs for each track.
 
     Raises
@@ -45,7 +49,7 @@ def clean_indices(vertex_ids, condition, mode="remove"):
     return vertex_ids
 
 
-def build_vertices(vertex_ids):
+def build_vertices(vertex_ids: np.ndarray) -> np.ndarray:
     """
     Vertex builder that outputs an array of vertex associations
     from vertex ids derived in athena or salt for a single jet.
@@ -54,12 +58,12 @@ def build_vertices(vertex_ids):
 
     Parameters
     ----------
-    vertex_ids: np.ndarray
+    vertex_ids : np.ndarray
         Array containing vertex IDs for each track.
 
     Returns
     -------
-    vertices: np.ndarray
+    np.ndarray
         Boolean array of shape (n_vertices, n_tracks) containing track-vertex
         associations for each vertex. Each track is associated with at most
         one vertex.
@@ -73,7 +77,12 @@ def build_vertices(vertex_ids):
     return vertices == comparison_ids
 
 
-def associate_vertices(test_vertices, ref_vertices, eff_req, purity_req):
+def associate_vertices(
+    test_vertices: np.ndarray,
+    ref_vertices: np.ndarray,
+    eff_req: float,
+    purity_req: float,
+) -> tuple[np.ndarray, np.ndarray]:
     """
     Vertex associator that maps two collections of vertices onto
     each other 1-to-1 based on the highest overlap of track indices
@@ -84,23 +93,23 @@ def associate_vertices(test_vertices, ref_vertices, eff_req, purity_req):
 
     Parameters
     ----------
-    test_vertices: np.ndarray
+    test_vertices : np.ndarray
         Boolean array of shape (n_test_vertices, n_tracks) containing track-vertex
         associations for vertex collection to be tested (reco).
-    ref_vertices: np.ndarray
+    ref_vertices : np.ndarray
         Boolean array of shape (n_ref_vertices, n_tracks) containing track-vertex
         associations for vertex collection to use as reference (truth).
-    eff_req: float, optional
+    eff_req : float
         Minimum required efficiency for vertex matching.
-    purity_req: float, optional
+    purity_req : float
         Minimum required purity for vertex matching.
 
     Returns
     -------
-    associations: np.ndarray
+    associations : np.ndarray
         Boolean matrix of vertex associations with shape (n_test_vertices,
         n_ref_vertices).
-    common_tracks: np.ndarray
+    common_tracks : np.ndarray
         Matrix containing number of common tracks shared by each vertex pairing.
     """
     ref_sizes = ref_vertices.sum(axis=1)
@@ -138,29 +147,29 @@ def associate_vertices(test_vertices, ref_vertices, eff_req, purity_req):
 
 
 def calculate_vertex_metrics(
-    test_indices,
-    ref_indices,
-    max_vertices=20,
-    eff_req=0.65,
-    purity_req=0.5,
-):
+    test_indices: np.ndarray,
+    ref_indices: np.ndarray,
+    max_vertices: int = 20,
+    eff_req: float = 0.65,
+    purity_req: float = 0.5,
+) -> dict[str, np.ndarray]:
     """
     Vertex metric calculator that outputs a set of metrics useful for evaluating
     vertexing performance for each jet.
 
     Parameters
     ----------
-    test_indices: np.ndarray
+    test_indices : np.ndarray
         Boolean array of shape (n_jets, n_tracks) containing vertex indices to be
         tested (reco).
-    ref_indices: np.ndarray
+    ref_indices : np.ndarray
         Boolean array of shape (n_jets, n_tracks) containing vertex indices to use
         as reference (truth).
-    max_vertices: int, optional
+    max_vertices : int, optional
         Maximum number of matched vertices to write out, by default 20.
-    eff_req: float, optional
+    eff_req : float, optional
         Minimum required efficiency for vertex matching, by default 0.65.
-    purity_req: float, optional
+    purity_req : float, optional
         Minimum required purity for vertex matching, by default 0.5.
 
     Returns
@@ -184,9 +193,9 @@ def calculate_vertex_metrics(
                 Array of shape (n_jets, max_vertices) containing the number of tracks
                 in each matched truth vertex.
     """
-    assert (
-        ref_indices.shape == test_indices.shape
-    ), "Truth and reco vertex arrays must have the same shape."
+    assert ref_indices.shape == test_indices.shape, (
+        "Truth and reco vertex arrays must have the same shape."
+    )
     n_jets = ref_indices.shape[0]
 
     metrics = {}
@@ -238,7 +247,11 @@ def calculate_vertex_metrics(
     return metrics
 
 
-def clean_truth_vertices(truth_vertices, truth_track_origin, incl_vertexing=False):
+def clean_truth_vertices(
+    truth_vertices: np.ndarray,
+    truth_track_origin: np.ndarray,
+    incl_vertexing: bool = False,
+) -> np.ndarray:
     """
     Clean truth vertices for each track in a single jet. This function removes
     all truth vertices that are not entirely from HF. If inclusive vertexing
@@ -246,11 +259,11 @@ def clean_truth_vertices(truth_vertices, truth_track_origin, incl_vertexing=Fals
 
     Parameters
     ----------
-    truth_vertices: np.ndarray
+    truth_vertices : np.ndarray
         Array containing truth vertex indices for each track in a jet.
-    truth_track_origin: np.ndarray
+    truth_track_origin : np.ndarray
         Array containing truth track origin labels for each track in a jet.
-    incl_vertexing: bool, optional
+    incl_vertexing : bool, optional
         Whether to merge all vertex indices, by default False.
 
     Returns
@@ -278,8 +291,11 @@ def clean_truth_vertices(truth_vertices, truth_track_origin, incl_vertexing=Fals
 
 
 def clean_reco_vertices(
-    reco_vertices, reco_track_origin=None, incl_vertexing=False, require_hf_track=True
-):
+    reco_vertices: np.ndarray,
+    reco_track_origin: np.ndarray | None = None,
+    incl_vertexing: bool = False,
+    require_hf_track: bool = True,
+) -> np.ndarray:
     """
     Clean reconstructed vertices for each track in a single jet. This function
     removes the vertex with the most reco PV tracks if track origin classification
@@ -289,13 +305,13 @@ def clean_reco_vertices(
 
     Parameters
     ----------
-    reco_vertices: np.ndarray
+    reco_vertices : np.ndarray
         Array containing reco vertex indices for each track in a jet.
-    reco_track_origin: np.ndarray, optional
-        Array containing reco track origin labels for each track in a jet.
-    incl_vertexing: bool, optional
+    reco_track_origin : np.ndarray | None, optional
+        Array containing reco track origin labels for each track in a jet. By default None
+    incl_vertexing : bool, optional
         Whether to merge all vertex indices, by default False.
-    require_hf_track: bool, optional
+    require_hf_track : bool, optional
         Whether to require at least one track from HF to keep a vertex, by default True.
 
     Returns

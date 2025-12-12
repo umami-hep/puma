@@ -15,15 +15,85 @@ from puma.utils.histogram import hist_ratio, hist_w_unc
 
 
 class Histogram(PlotLineObject):
-    """
-    Histogram class storing info about histogram and allows to calculate ratio w.r.t
+    """Histogram class storing info about histogram and allows to calculate ratio w.r.t
     other histograms.
+
+    Parameters
+    ----------
+    values : np.ndarray | None, optional
+        Input data for the histogram. If bin_edges is specified (not None)
+        then this array is treated as the bin heights. By default None
+    bins : int | np.ndarray | list | None, optional
+        If bins is an int, it defines the number of equal-width bins in the given
+        range. If bins is a sequence, it defines a monotonically increasing array
+        of bin edges, including the rightmost edge, allowing for non-uniform
+        bin widths (like in numpy.histogram). By default None
+    bins_range : tuple | None, optional
+        Tuple of two floats, specifying the range for the binning. If bins_range is
+        specified and bins is an integer, equal-width bins from bins_range[0] to
+        bins_range[1] are used for the histogram (like in numpy.histogram).
+        By default None
+    bin_edges : np.ndarray, optional
+        If specified, the histogram is considered "filled": the array given to
+        values is treated as if it was the bin heights corresponding to these
+        bin_edges and the "weights" input is ignored. By default None.
+    weights : np.ndarray, optional
+        Weights for the input data. Has to be an array of same length as the input
+        data with a weight for each entry. If not specified, weight 1 will be given
+        to each entry. The uncertainties are calculated as the square root of the
+        squared weights (for each bin separately). By default None.
+    sum_squared_weights : np.ndarray, optional
+        Only considered if the histogram is considered filled (i.e bin_edges
+        is specified). It is the sum_squared_weights per bin.
+        By default None.
+    ratio_group : str | None, optional
+        Name of the ratio group this histogram is compared with. The ratio group
+        allows you to compare different groups of histograms within one plot.
+        By default None
+    flavour: Label | None, optional
+        If set, the correct colour and a label prefix will be extracted from
+        `puma.utils.global_config` set for this histogram.
+        Allowed values are e.g. "bjets", "cjets", "ujets", "bbjets", ...
+        By default None
+    add_flavour_label : bool, optional
+        Set to False to suppress the automatic addition of the flavour label prefix
+        in the label of the curve (i.e. "$b$-jets" in the case of b-jets).
+        This is ignored if `flavour` is not set. By default True
+    histtype: str, optional
+        `histtype` parameter which is handed to matplotlib.hist() when plotting the
+        histograms. Supported values are "bar", "barstacked", "step", "stepfilled".
+        By default "step"
+    norm : bool, optional
+        Specify if the histograms are normalised, this means that histograms are
+        divided by the total numer of counts. Therefore, the sum of the bin counts
+        is equal to one, but NOT the area under the curve, which would be
+        sum(bin_counts * bin_width). By default True.
+    underoverflow : bool, optional
+        Option to include under- and overflow values in outermost bins, by default
+        True.
+    is_data : bool, optional
+        Decide, if the plot object will be treated as data (black dots,
+        no stacking), by default False
+    discrete_vals : list | None, optional
+        List of values if a variable only has discrete values. If discrete_vals is
+        specified only the bins containing these values are plotted.
+        By default None.
+    **kwargs : Any
+        Keyword arguments passed to `puma.plot_base.PlotLineObject`
+
+    Raises
+    ------
+    ValueError
+        If input data is not of type np.ndarray or list
+        If weights are specified but have different length as the input values
+    TypeError
+        If the input data for the histogram are invalid
     """
 
     def __init__(
         self,
         values: np.ndarray | None = None,
-        bins: int | None = None,
+        bins: int | np.ndarray | list | None = None,
         bins_range: tuple | None = None,
         bin_edges: np.ndarray = None,
         weights: np.ndarray = None,
@@ -36,82 +106,8 @@ class Histogram(PlotLineObject):
         underoverflow: bool = True,
         is_data: bool = False,
         discrete_vals: list | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
-        """Initialise properties of histogram curve object.
-
-        Parameters
-        ----------
-        values : np.ndarray
-            Input data for the histogram. If bin_edges is specified (not None)
-            then this array is treated as the bin heights.
-        bins : int or numpy.ndarray or list, optional
-            If bins is an int, it defines the number of equal-width bins in the given
-            range. If bins is a sequence, it defines a monotonically increasing array
-            of bin edges, including the rightmost edge, allowing for non-uniform
-            bin widths (like in numpy.histogram). By default 40
-        bins_range : tuple, optional
-            Tuple of two floats, specifying the range for the binning. If bins_range is
-            specified and bins is an integer, equal-width bins from bins_range[0] to
-            bins_range[1] are used for the histogram (like in numpy.histogram).
-            By default None
-        bin_edges : np.ndarray, optional
-            If specified, the histogram is considered "filled": the array given to
-            values is treated as if it was the bin heights corresponding to these
-            bin_edges and the "weights" input is ignored. By default None.
-        weights : np.ndarray, optional
-            Weights for the input data. Has to be an array of same length as the input
-            data with a weight for each entry. If not specified, weight 1 will be given
-            to each entry. The uncertainties are calculated as the square root of the
-            squared weights (for each bin separately). By default None.
-        sum_squared_weights : np.ndarray, optional
-            Only considered if the histogram is considered filled (i.e bin_edges
-            is specified). It is the sum_squared_weights per bin.
-            By default None.
-        ratio_group : str, optional
-            Name of the ratio group this histogram is compared with. The ratio group
-            allows you to compare different groups of histograms within one plot.
-            By default None
-        flavour: Label, optional
-            If set, the correct colour and a label prefix will be extracted from
-            `puma.utils.global_config` set for this histogram.
-            Allowed values are e.g. "bjets", "cjets", "ujets", "bbjets", ...
-            By default None
-        add_flavour_label : bool, optional
-            Set to False to suppress the automatic addition of the flavour label prefix
-            in the label of the curve (i.e. "$b$-jets" in the case of b-jets).
-            This is ignored if `flavour` is not set. By default True
-        histtype: str, optional
-            `histtype` parameter which is handed to matplotlib.hist() when plotting the
-            histograms. Supported values are "bar", "barstacked", "step", "stepfilled".
-            By default "step"
-        norm : bool, optional
-            Specify if the histograms are normalised, this means that histograms are
-            divided by the total numer of counts. Therefore, the sum of the bin counts
-            is equal to one, but NOT the area under the curve, which would be
-            sum(bin_counts * bin_width). By default True.
-        underoverflow : bool, optional
-            Option to include under- and overflow values in outermost bins, by default
-            True.
-        is_data : bool, optional
-            Decide, if the plot object will be treated as data (black dots,
-            no stacking), by default False
-        discrete_vals : list, optional
-            List of values if a variable only has discrete values. If discrete_vals is
-            specified only the bins containing these values are plotted.
-            By default None.
-        **kwargs : kwargs
-            Keyword arguments passed to `puma.plot_base.PlotLineObject`
-
-        Raises
-        ------
-        ValueError
-            If input data is not of type np.ndarray or list
-        ValueError
-            If weights are specified but have different length as the input values
-        TypeError
-            If the input data for the histogram are invalid
-        """
         super().__init__(**kwargs)
 
         if isinstance(values, (np.ndarray, list, pd.core.series.Series)):
@@ -297,12 +293,12 @@ class Histogram(PlotLineObject):
         self.sum_of_weights += incoming_sum_of_weights
         self.band = self.hist - self.unc
 
-    def divide(self, other):
+    def divide(self, other: Histogram) -> tuple[np.ndarray, np.ndarray]:
         """Calculate ratio between two class objects.
 
         Parameters
         ----------
-        other : histogram class
+        other : Histogram
             Second histogram object to calculate ratio with
 
         Returns
@@ -316,9 +312,7 @@ class Histogram(PlotLineObject):
         ------
         ValueError
             If binning is not identical between 2 objects
-        ValueError
             If hist attribute is not set for one of the two histograms
-        ValueError
             If bin_edges attribute is not set for one of the two histograms
         """
         try:
@@ -344,7 +338,7 @@ class Histogram(PlotLineObject):
     def divide_data_mc(
         self,
         ref_hist: np.ndarray,
-    ) -> tuple:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """
         Similar as divide, but the second item doesn't need to be a histogram object.
 
@@ -352,8 +346,6 @@ class Histogram(PlotLineObject):
         ----------
         ref_hist : np.ndarray
             Hist weights of the reference.
-        ref_unc : np.ndarray
-            Uncertainties of the reference
 
         Returns
         -------
@@ -392,7 +384,6 @@ class Histogram(PlotLineObject):
         ValueError
             If the bin width is larger than 1 such that potentially not
             all discrete values are in a seperate bin
-        ValueError
             If the number of bins is set to 1 such that no values can be
             distinguished
         """
@@ -423,7 +414,29 @@ class Histogram(PlotLineObject):
 
 
 class HistogramPlot(PlotBase):
-    """Histogram plot class."""
+    """Histogram plot class.
+
+    Parameters
+    ----------
+    logy : bool, optional
+        Set log scale on y-axis, by default False.
+    bin_width_in_ylabel : bool, optional
+        Specify if the bin width should be added to the ylabel, by default False
+    grid : bool, optional
+        Set the grid for the plots, by default False
+    stacked : bool, optional
+        Decide, if all histograms (which are not data) are stacked, by default False
+    histtype : str, optional
+        If stacked is used, define the type of histogram you would like to have,
+        default is "bar"
+    **kwargs : Any
+        Keyword arguments from `puma.PlotObject`
+
+    Raises
+    ------
+    ValueError
+        If n_ratio_panels > 1
+    """
 
     def __init__(
         self,
@@ -432,31 +445,8 @@ class HistogramPlot(PlotBase):
         grid: bool = False,
         stacked: bool = False,
         histtype: str = "bar",
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
-        """Histogram plot properties.
-
-        Parameters
-        ----------
-        logy : bool, optional
-            Set log scale on y-axis, by default False.
-        bin_width_in_ylabel : bool, optional
-            Specify if the bin width should be added to the ylabel, by default False
-        grid : bool, optional
-            Set the grid for the plots, by default False
-        stacked : bool, optional
-            Decide, if all histograms (which are not data) are stacked, by default False
-        histtype : str, optional
-            If stacked is used, define the type of histogram you would like to have,
-            default is "bar"
-        **kwargs : kwargs
-            Keyword arguments from `puma.PlotObject`
-
-        Raises
-        ------
-        ValueError
-            If n_ratio_panels > 1
-        """
         super().__init__(grid=grid, **kwargs)
         self.logy = logy
         self.bin_width_in_ylabel = bin_width_in_ylabel
@@ -480,9 +470,9 @@ class HistogramPlot(PlotBase):
 
         Parameters
         ----------
-        histogram : Histogram class
+        histogram : Histogram
             Histogram curve
-        key : str, optional
+        key : str | None, optional
             Unique identifier for histogram, by default None
         reference : bool, optional
             If this histogram is used as reference for ratio calculation, by default
@@ -545,14 +535,14 @@ class HistogramPlot(PlotBase):
         self.reference_object.append(key)
         logger.debug("Adding '%s' to reference histogram(s)", key)
 
-    def plot(self, **kwargs):
+    def plot(self, **kwargs: Any):
         """Plotting curves. This also generates the bins of the histograms that are
         added to the plot. Plot objects are drawn in the same order as they were added
         to the plot.
 
         Parameters
         ----------
-        **kwargs: kwargs
+        **kwargs : Any
             Keyword arguments passed to matplotlib.axes.Axes.hist()
 
         Returns
@@ -594,7 +584,7 @@ class HistogramPlot(PlotBase):
         plt_handles = []
 
         # Stacked dict for the stacked histogram
-        self.stacked_dict = {
+        self.stacked_dict: dict[str, Any] = {
             "x": [],
             "bins": [],
             "weights": [],
@@ -763,18 +753,18 @@ class HistogramPlot(PlotBase):
         self.plotting_done = True
         return plt_handles
 
-    def get_reference_histo(self, histo):
+    def get_reference_histo(self, histo: Histogram) -> Histogram | None:
         """Get reference histogram from list of references.
 
         Parameters
         ----------
-        histo : puma.histogram.Histogram
+        histo : Histogram
             Histogram we want to calculate the ratio for
 
         Returns
         -------
-        reference_histo_name : str, int
-            Identifier of the corresponding reference histogram
+        reference_histo : Histogram
+            The reference histogram
 
         Raises
         ------
@@ -913,15 +903,14 @@ class HistogramPlot(PlotBase):
             self.ylabel = f"{self.ylabel} / {bin_width:.2f}"
         self.set_ylabel(self.axis_top)
 
-    def draw(self, labelpad: int | None = None):
+    def draw(self, labelpad: int | None = None) -> None:
         """Draw figure.
 
         Parameters
         ----------
-        labelpad : int, optional
+        labelpad : int | None, optional
             Spacing in points from the axes bounding box including
             ticks and tick labels, by default "ratio"
-
         """
         plt_handles = self.plot()
 

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import cast
+from typing import Any, cast
 
 import matplotlib as mpl
 import numpy as np
@@ -14,7 +14,25 @@ from puma.utils import get_good_colours, get_good_linestyles, logger
 
 
 class IntegratedEfficiency(PlotLineObject):
-    """Represent a single IntegratedEfficiency curve."""
+    """Represent a single IntegratedEfficiency curve.
+
+    Parameters
+    ----------
+    disc_sig : np.ndarray
+        Discriminant values for signal
+    disc_bkg : np.ndarray
+        Discriminant values for background
+    key : str | None, optional
+        Identifier for IntegratedEfficiency e.g. tagger, by default None
+    n_vals : int, optional
+        Number of values to calculate the efficiency at, by default 500
+    tagger : str | None, optional
+        Tagger name, by default None
+    flavour : str | Label, optional
+        Flavour label of the jets, by default None
+    **kwargs : Any
+        Keyword arguments passed to `puma.PlotLineObject`
+    """
 
     def __init__(
         self,
@@ -24,27 +42,8 @@ class IntegratedEfficiency(PlotLineObject):
         n_vals: int = 500,
         tagger: str | None = None,
         flavour: str | Label = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
-        """Initialise properties of IntegratedEfficiency object.
-
-        Parameters
-        ----------
-        disc_sig : np.array
-            Discriminant values for signal
-        disc_bkg : np.array
-            Discriminant values for background
-        key : str
-            Identifier for IntegratedEfficiency e.g. tagger, by default None
-        n_vals : int, optional
-            Number of values to calculate the efficiency at, by default 500
-        tagger : str, optional
-            Tagger name, by default None
-        flavour : str or Label, optional
-            Flavour label of the jets, by default None
-        **kwargs : kwargs
-            Keyword arguments passed to `puma.PlotLineObject`
-        """
         super().__init__(**kwargs)
         self.disc_sig = np.asarray(disc_sig)
         self.disc_bkg = np.asarray(disc_bkg)
@@ -67,18 +66,17 @@ class IntegratedEfficiency(PlotLineObject):
 
 
 class IntegratedEfficiencyPlot(PlotBase):
-    """IntegratedEfficiencyPlot class."""
+    """IntegratedEfficiencyPlot class.
 
-    def __init__(self, grid: bool = True, **kwargs) -> None:
-        """IntegratedEfficiency plot properties.
+    Parameters
+    ----------
+    grid : bool, optional
+        Set the grid for the plots.
+    **kwargs : Any
+        Keyword arguments from `puma.PlotObject`
+    """
 
-        Parameters
-        ----------
-        grid : bool, optional
-            Set the grid for the plots.
-        **kwargs : kwargs
-            Keyword arguments from `puma.PlotObject`
-        """
+    def __init__(self, grid: bool = True, **kwargs: Any) -> None:
         super().__init__(grid=grid, **kwargs)
         self.int_effs: dict[str, IntegratedEfficiency] = {}
         self.tagger_ls: dict[str, str] = {}
@@ -98,9 +96,9 @@ class IntegratedEfficiencyPlot(PlotBase):
 
         Parameters
         ----------
-        int_effs : puma.IntegratedEfficiency
+        int_eff : IntegratedEfficiency
             IntegratedEfficiency curve
-        key : str, optional
+        key : str | None, optional
             Unique identifier for IntegratedEfficiency curve, by default None
 
         Raises
@@ -244,12 +242,12 @@ class IntegratedEfficiencyPlot(PlotBase):
             if self.legend_flavs is not None:
                 self.legend_flavs.set_frame_on(False)
 
-    def plot(self, **kwargs) -> mpl.lines.Line2D:
+    def plot(self, **kwargs: Any) -> mpl.lines.Line2D:
         """Plotting integrated efficiency curves.
 
         Parameters
         ----------
-        **kwargs: kwargs
+        **kwargs: Any
             Keyword arguments passed to plt.axis.plot
 
         Returns

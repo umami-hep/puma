@@ -12,11 +12,64 @@ from puma.utils.histogram import save_divide
 from puma.var_vs_var import VarVsVar, VarVsVarPlot
 
 if TYPE_CHECKING:  # pragma: no cover
+    import matplotlib as mpl
     from ftag.labels import Label
 
 
 class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
-    """Class for efficiency vs. variable plot."""
+    """Class for efficiency vs. variable plot.
+
+    Parameters
+    ----------
+    x_var_sig : np.ndarray
+        Values for x-axis variable for signal
+    disc_sig : np.ndarray
+        Discriminant values for signal
+    weights_sig : np.ndarray | None, optional
+        Weights for the signal. If not provided, equal weights will be used.
+        By default None
+    x_var_bkg : np.ndarray, optional
+        Values for x-axis variable for background, by default None
+    disc_bkg : np.ndarray, optional
+        Discriminant values for background, by default None
+    weights_bkg : np.ndarray | None, optional
+        Weights for the background. If not provided, equal weights will be used.
+        By default None
+    bins : int | list | np.ndarray, optional
+        If bins is an int, it defines the number of equal-width bins in the
+        given range (10, by default). If bins is a sequence, it defines a
+        monotonically increasing array of bin edges, including the
+        rightmost edge, allowing for non-uniform bin widths, by default 10
+    working_point : float | list | None, optional
+        Working point, by default None
+    fixed_bkg_rej : float | None, optional
+        Instead of fixing the signal efficiency (by using working_point), fix the
+        background rejection to a certain value. By default None
+    disc_cut : int | list | np.ndarray | None, optional
+        Cut value for discriminant, if it is a sequence it has to have the same
+        length as number of bins, by default None
+    flat_per_bin : bool, optional
+        If True and no `disc_cut` is given the signal efficiency is held constant
+        in each bin, by default False
+    key : str | None, optional
+        Identifier for the curve e.g. tagger, by default None
+    **kwargs : Any
+        Keyword arguments passed to `PlotLineObject`
+
+    Raises
+    ------
+    ValueError
+        x_var_sig and disc_sig have different lengths
+        x_var_bkg and disc_bkg have different lengths
+        Neither working_point nor flat_per_bin was set
+        Both disc_cut and flat_per_bin are set
+        working_point is not set but flat_per_bin is
+        Using PCFT bins and flat_per_bin together
+        Using disc_cut and working_point together
+        disc_cut (if an array) has a different length than the number of bins given
+    TypeError
+        If "working_point" is neither a list nor a float
+    """
 
     def __init__(
         self,
@@ -32,68 +85,8 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         disc_cut: int | list | np.ndarray | None = None,
         flat_per_bin: bool = False,
         key: str | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
-        """Initialise properties of roc curve object.
-
-        Parameters
-        ----------
-        x_var_sig : np.ndarray
-            Values for x-axis variable for signal
-        disc_sig : np.ndarray
-            Discriminant values for signal
-        weights_sig : np.ndarray, optional
-            Weights for the signal. If not provided, equal weights will be used.
-            By default None
-        x_var_bkg : np.ndarray, optional
-            Values for x-axis variable for background, by default None
-        disc_bkg : np.ndarray, optional
-            Discriminant values for background, by default None
-        weights_bkg : np.ndarray, optional
-            Weights for the background. If not provided, equal weights will be used.
-            By default None
-        bins : int, optional
-            If bins is an int, it defines the number of equal-width bins in the
-            given range (10, by default). If bins is a sequence, it defines a
-            monotonically increasing array of bin edges, including the
-            rightmost edge, allowing for non-uniform bin widths, by default 10
-        working_point : float | list | None, optional
-            Working point, by default None
-        fixed_bkg_rej : float | None, optional
-            Instead of fixing the signal efficiency (by using working_point), fix the
-            background rejection to a certain value. By default None
-        disc_cut : int | list | np.ndarray | None, optional
-            Cut value for discriminant, if it is a sequence it has to have the same
-            length as number of bins, by default None
-        flat_per_bin : bool, optional
-            If True and no `disc_cut` is given the signal efficiency is held constant
-            in each bin, by default False
-        key : str | None, optional
-            Identifier for the curve e.g. tagger, by default None
-        **kwargs : kwargs
-            Keyword arguments passed to `PlotLineObject`
-
-        Raises
-        ------
-        ValueError
-            x_var_sig and disc_sig have different lengths
-        ValueError
-            x_var_bkg and disc_bkg have different lengths
-        ValueError
-            Neither working_point nor flat_per_bin was set
-        ValueError
-            Both disc_cut and flat_per_bin are set
-        ValueError
-            working_point is not set but flat_per_bin is
-        ValueError
-            Using PCFT bins and flat_per_bin together
-        ValueError
-            Using disc_cut and working_point together
-        ValueError
-            disc_cut (if an array) has a different length than the number of bins given
-        TypeError
-            If "working_point" is neither a list nor a float
-        """
         if len(x_var_sig) != len(disc_sig):
             raise ValueError(
                 f"Length of `x_var_sig` ({len(x_var_sig)}) and `disc_sig` "
@@ -195,8 +188,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             # Ensure that disc_cut has the same length as the number of bins if it's used
             if isinstance(disc_cut, (list, np.ndarray)) and self.n_bins != len(disc_cut):
                 raise ValueError(
-                    "`disc_cut` has to be a float or has to have the same length as"
-                    " number of bins."
+                    "`disc_cut` has to be a float or has to have the same length as number of bins."
                 )
 
         elif self.working_point is not None:
@@ -409,7 +401,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         arr: np.ndarray,
         cut: float | np.ndarray,
         weights: np.ndarray | None = None,
-    ):
+    ) -> tuple[float, float] | tuple[np.ndarray, np.ndarray]:
         """Calculate efficiency and the associated error.
 
         Parameters
@@ -419,15 +411,15 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         cut : float | np.ndarray
             Cut value. If you want to use PCFT, two values are provided.
             The lower and the upper cut.
-        weights : np.ndarray, optional
+        weights : np.ndarray | None, optional
             Weights to use for the array. Must be same length as arr!
             When None is given, equal weights are used. By default None
 
         Returns
         -------
-        float
+        float | np.ndarray
             Efficiency
-        float
+        float | np.ndarray
             Efficiency error
 
         Raises
@@ -479,7 +471,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         arr: np.ndarray,
         cut: float | np.ndarray,
         weights: np.ndarray | None = None,
-    ):
+    ) -> tuple[float, float] | tuple[np.ndarray, np.ndarray]:
         """Calculate rejection and the associated error.
 
         Parameters
@@ -489,15 +481,15 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
         cut : float | np.ndarray
             Cut value used for the given working point. Ndarray
             when PCFT-style cuts are used
-        weights : np.ndarray, optional
+        weights : np.ndarray | None, optional
             Weights to use for the array. Must be same length as arr!
             When None is given, equal weights are used. By default None
 
         Returns
         -------
-        float
+        float | np.ndarray
             Rejection
-        float
+        float | np.ndarray
             Rejection error
 
         Raises
@@ -769,7 +761,37 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
 
 
 class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attributes
-    """var_vs_eff plot class."""
+    """VarVsEff plot class.
+
+    Parameters
+    ----------
+    mode : str
+        Defines which quantity is plotted, the following options ar available:
+            sig_eff - Plots signal efficiency vs. variable, with statistical error
+                on N signal per bin
+            bkg_eff - Plots background efficiency vs. variable, with statistical
+                error on N background per bin
+            sig_rej - Plots signal rejection vs. variable, with statistical error
+                on N signal per bin
+            bkg_rej - Plots background rejection vs. variable, with statistical
+                error on N background per bin
+            bkg_eff_sig_err - Plots background efficiency vs. variable, with
+                statistical error on N signal per bin.
+    grid : bool, optional
+        Set the grid for the plots.
+    **kwargs : Any
+        Keyword arguments from `puma.PlotObject`
+
+    Attributes
+    ----------
+    mode_options : ClassVar[list[str]]
+        List of possible modes.
+
+    Raises
+    ------
+    ValueError
+        If incompatible mode given or more than 1 ratio panel requested
+    """
 
     mode_options: ClassVar[list[str]] = [
         "sig_eff",
@@ -779,33 +801,7 @@ class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
         "bkg_eff_sig_err",
     ]
 
-    def __init__(self, mode, grid: bool = False, **kwargs) -> None:
-        """var_vs_eff plot properties.
-
-        Parameters
-        ----------
-        mode : str
-            Defines which quantity is plotted, the following options ar available:
-                sig_eff - Plots signal efficiency vs. variable, with statistical error
-                    on N signal per bin
-                bkg_eff - Plots background efficiency vs. variable, with statistical
-                    error on N background per bin
-                sig_rej - Plots signal rejection vs. variable, with statistical error
-                    on N signal per bin
-                bkg_rej - Plots background rejection vs. variable, with statistical
-                    error on N background per bin
-                bkg_eff_sig_err - Plots background efficiency vs. variable, with
-                    statistical error on N signal per bin.
-        grid : bool, optional
-            Set the grid for the plots.
-        **kwargs : kwargs
-            Keyword arguments from `puma.PlotObject`
-
-        Raises
-        ------
-        ValueError
-            If incompatible mode given or more than 1 ratio panel requested
-        """
+    def __init__(self, mode: str, grid: bool = False, **kwargs: Any) -> None:
         super().__init__(grid=grid, **kwargs)
         if mode not in self.mode_options:
             raise ValueError(
@@ -876,17 +872,17 @@ class VarVsEffPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
         else:
             self.atlas_second_tag = tag
 
-    def plot(self, **kwargs):
+    def plot(self, **kwargs: Any) -> mpl.lines.Line2D:
         """Plotting curves.
 
         Parameters
         ----------
-        **kwargs: kwargs
+        **kwargs: Any
             Keyword arguments passed to plt.axis.errorbar
 
         Returns
         -------
-        Line2D
+        mpl.lines.Line2D
             matplotlib Line2D object
         """
         logger.debug(f"Plotting curves with mode {self.mode}")

@@ -195,7 +195,7 @@ class Tagger:
 
         Parameters
         ----------
-        source : pd.DataFrame | np.ndarray
+        source : pd.DataFrame | np.ndarray | str | Path
             pd.DataFrame or file path to h5 file containing pd.DataFrame or structured
             numpy array
         source_type : str, optional
@@ -205,7 +205,7 @@ class Tagger:
             passing a file path to a h5 file with a structured numpy array, or
             `strucuted_array` when passing a structured numpy array,
             by default "data_frame"
-        key : str, optional
+        key : str | None, optional
             Key within h5 file, needs to be provided when using the `source_type`
             `data_frame_path` or `numpy_structured`, by default None
 
@@ -281,9 +281,9 @@ class Tagger:
 
         Parameters
         ----------
-        signal : Label
+        signal : Label | str
             Signal class for which the discriminant should be retrieved
-        fxs : dict, optional
+        fxs : dict[str, float] | None, optional
             dict of fractions to use instead of the default ones, by default None
 
         Returns

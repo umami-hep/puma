@@ -8,26 +8,27 @@ from puma.utils.logger import logger
 
 
 def save_divide(
-    numerator,
-    denominator,
+    numerator: np.ndarray | float,
+    denominator: np.ndarray | float,
     default: float = 1.0,
-):
+) -> np.ndarray:
     """
     Division using numpy divide function returning default value in cases where
     denominator is 0.
 
     Parameters
     ----------
-    numerator: array_like, int, float
+    numerator: np.ndarray | float
         Numerator in the ratio calculation.
-    denominator: array_like, int, float
+    denominator: np.ndarray | float
         Denominator in the ratio calculation.
-    default: float
-        Default value which is returned if denominator is 0.
+    default: float, optional
+        Default value which is returned if denominator is 0. By default 1.
 
     Returns
     -------
-    ratio: array_like, float
+    ratio : np.ndarray
+        Ratio of the numerator and denominator.
     """
     if isinstance(numerator, (int, float, np.number)) and isinstance(
         denominator, (int, float, np.number)
@@ -55,53 +56,84 @@ def save_divide(
 
 
 def hist_w_unc(
-    arr,
-    bins,
+    arr: np.ndarray,
+    bins: np.ndarray | int,
     filled: bool = False,
-    bins_range=None,
+    bins_range: tuple | None = None,
     normed: bool = True,
     weights: np.ndarray = None,
     bin_edges: np.ndarray = None,
     sum_squared_weights: np.ndarray = None,
     underoverflow: bool = False,
-):
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
-    Computes histogram and the associated statistical uncertainty.
+    Compute a 1D histogram together with per-bin statistical uncertainties.
+
+    The function supports both raw input data (``filled=False``) and
+    pre-computed bin contents (``filled=True``). Uncertainties follow the
+    standard definition:
+    ``sqrt(sum_i w_i^2)`` for weighted data, or ``sqrt(N)`` for unweighted
+    counts. Optional inclusion of underflow and overflow contributions is
+    supported for unfilled histograms.
 
     Parameters
     ----------
-    arr : array_like
-        Input data. The histogram is computed over the flattened array.
-    bins : int or sequence of scalars or str
-        `bins` parameter from `np.histogram`
-    bins_range : tuple, optional
-        `range` parameter from `np.histogram`. This is ignored if `bins` is array like,
-        because then the entries of `bins` are used as bin edges.
+    arr : np.ndarray
+        Input values. For ``filled=False`` these are the data points from
+        which the histogram is constructed. For ``filled=True`` this array
+        is interpreted as an array of bin counts.
+    bins : np.ndarray | int
+        Bin specification as accepted by ``np.histogram``. If array-like,
+        the values are interpreted as explicit bin edges; otherwise the
+        number of bins.
+    filled : bool, optional
+        If False (default), ``arr`` is treated as event-level input and a
+        histogram is computed. If True, ``arr`` is assumed to contain
+        pre-computed bin contents.
+    bins_range : tuple | None, optional
+        Range passed to ``np.histogram`` when ``bins`` is an integer.
+        Ignored when ``bins`` is array-like.
     normed : bool, optional
-        If True (default) the calculated histogram is normalised to an integral
-        of 1.
+        If True (default), the histogram and uncertainties are normalized
+        such that the total integral equals 1.
     weights : np.ndarray, optional
-        Weights for the input data. Has to be an array of same length as the input
-        data with a weight for each entry. If not specified, weight 1 will be given
-        to each entry. The uncertainty of bins with weighted entries is
-        sqrt(sum_i{w_i^2}) where w_i are the weights of the entries in this bin.
-        By default None.
+        Per-event weights used when ``filled=False``. Must match the shape
+        of ``arr``. If None, all entries receive weight 1.
+        Uncertainties are computed as ``sqrt(sum_i w_i^2)`` per bin.
+    bin_edges : np.ndarray, optional
+        Explicit bin edges to return when ``filled=True``. Ignored for
+        ``filled=False``. If None and ``filled=True``, the caller is
+        expected to supply this value.
+    sum_squared_weights : np.ndarray, optional
+        Pre-computed sum of squared weights per bin when ``filled=True``.
+        If provided, uncertainties are computed as ``sqrt(sum_squared_weights)``.
+        If None, uncertainties fall back to ``sqrt(arr)``.
     underoverflow : bool, optional
-        Option to include under- and overflow values in outermost bins.
+        If True, underflow and overflow contributions are added to the
+        outermost bins when ``filled=False``. Default is False.
 
     Returns
     -------
-    bin_edges : array of dtype float
-        Return the bin edges (length(hist)+1)
-    hist : numpy array
-        The values of the histogram. If normed is true (default), returns the
-        normed counts per bin
-    unc : numpy array
-        Statistical uncertainty per bin.
-        If normed is true (default), returns the normed values.
-    band : numpy array
-        lower uncertainty band location: hist - unc
-        If normed is true (default), returns the normed values.
+    bin_edges : np.ndarray
+        Array of bin edges of length ``len(hist) + 1``.
+    hist : np.ndarray
+        Histogram bin contents. If ``normed=True``, returns normalized bin
+        contents.
+    unc : np.ndarray
+        Statistical uncertainty per bin. If ``normed=True``, uncertainties
+        are normalized consistently with ``hist``.
+    band : np.ndarray
+        Lower edge of the uncertainty band, ``hist - unc``. If
+        ``normed=True``, the normalized values are returned.
+
+    Notes
+    -----
+    * NaN values in the input are removed and reported via logging.
+    * Infinite values are reported but retained.
+    * For weighted histograms, uncertainties always follow the standard
+      definition using squared weights.
+    * When ``filled=True``, no histogramming of input values is performed;
+      ``arr`` is interpreted directly as bin contents.
     """
     if weights is None:
         weights = np.ones(len(arr))
@@ -186,35 +218,34 @@ def hist_w_unc(
 
 
 def hist_ratio(
-    numerator,
-    denominator,
-    numerator_unc,
+    numerator: np.ndarray,
+    denominator: np.ndarray,
+    numerator_unc: np.ndarray,
     step: bool = True,
     method: str = "divide",
-):
+) -> tuple[np.ndarray, np.ndarray]:
     """
     Calculate the ratio of the given bincounts and
     returns the input for a step function that plots the ratio.
 
     Parameters
     ----------
-    numerator : array_like
+    numerator : np.ndarray
         Numerator in the ratio calculation.
-    denominator : array_like
+    denominator : np.ndarray
         Denominator in the ratio calculation.
-    numerator_unc : array_like
+    numerator_unc : np.ndarray
         Uncertainty of the numerator.
-    step : bool
+    step : bool, optional
         if True duplicates first bin to match with step plotting function,
         by default True
-    method : str
+    method : str, optional
         Selects the method by which the ratio should be calculated.
         "divide" calculates the ratio as the division of the numerator by the denominator.
         "root_square_diff" calculates the Root Square Difference between the numerator and the
         denominator.
         "subtract" calculates the difference between the numerator and the denominator
         by default "divide"
-
 
     Returns
     -------

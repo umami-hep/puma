@@ -17,7 +17,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from matplotlib.axes import Axes
 
 
-def can_hide(ax) -> bool:
+def can_hide(ax: Axes) -> bool:
     """Check if the label is hideable.
 
     Parameters
@@ -61,7 +61,37 @@ def adjust_ylabels(fig, axes, min_distance=1) -> None:
 
 
 class Roc(PlotLineObject):
-    """Represent a single ROC curve and allows to calculate ratio w.r.t other ROCs."""
+    """Represent a single ROC curve and allows to calculate ratio w.r.t other ROCs.
+
+    Parameters
+    ----------
+    sig_eff : np.ndarray
+        Array of signal efficiencies
+    bkg_rej : np.ndarray
+        Array of background rejection
+    n_test : int | None, optional
+        Number of events used to calculate the background efficiencies,
+        by default None
+    rej_class : str | Label, optional
+        Rejection class, e.g. for b-tagging anc charm rejection "cjets",
+        by default None
+    signal_class : str | None, optional
+        Signal class, e.g. for b-tagging "bjets", by default None
+    key : str | None, optional
+        Identifier for roc curve e.g. tagger, by default None
+    ratio_group : str | None, optional
+        Identifies the reference ROC group for ratio calculation, by default None
+    use_bkg_eff : bool, optional
+        Correct error calculation for background efficiency ROCs instead of
+        background rejection, by default False
+    **kwargs : Any
+        Keyword arguments passed to `puma.PlotLineObject`
+
+    Raises
+    ------
+    ValueError
+        If `sig_eff` and `bkg_rej` have a different shape
+    """
 
     _ARRAY_FIELDS: ClassVar[set[str]] = {
         "sig_eff",
@@ -78,39 +108,8 @@ class Roc(PlotLineObject):
         key: str | None = None,
         ratio_group: str | None = None,
         use_bkg_eff: bool = False,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
-        """Initialise properties of roc curve object.
-
-        Parameters
-        ----------
-        sig_eff : np.array
-            Array of signal efficiencies
-        bkg_rej : np.array
-            Array of background rejection
-        n_test : int
-            Number of events used to calculate the background efficiencies,
-            by default None
-        signal_class : str
-            Signal class, e.g. for b-tagging "bjets", by default None
-        rej_class : str or Label
-            Rejection class, e.g. for b-tagging anc charm rejection "cjets",
-            by default None
-        key : str
-            Identifier for roc curve e.g. tagger, by default None
-        ratio_group : str, optional
-            Identifies the reference ROC group for ratio calculation, by default None
-        use_bkg_eff : bool
-            Correct error calculation for background efficiency ROCs instead of
-            background rejection, by default False
-        **kwargs : kwargs
-            Keyword arguments passed to `puma.PlotLineObject`
-
-        Raises
-        ------
-        ValueError
-            If `sig_eff` and `bkg_rej` have a different shape
-        """
         super().__init__(**kwargs)
         if len(sig_eff) != len(bkg_rej):
             raise ValueError(
@@ -130,8 +129,7 @@ class Roc(PlotLineObject):
         # Check that the rejection class is a string
         if self.rej_class and not isinstance(self.rej_class, str):
             raise ValueError(
-                "'rej_class' must either be a string or a Label! "
-                f"You gave {type(self.rej_class)}"
+                f"'rej_class' must either be a string or a Label! You gave {type(self.rej_class)}"
             )
 
     def binomial_error(self, norm: bool = False, n_test: int | None = None) -> np.ndarray:
@@ -139,15 +137,15 @@ class Roc(PlotLineObject):
 
         Parameters
         ----------
-        norm : bool
+        norm : bool, optional
             If True calulate relative error, by default False
-        n_test : int
+        n_test : int | None
             Number of events used to calculate the background efficiencies,
             by default None
 
         Returns
         -------
-        numpy.array
+        np.ndarray
             Binomial error
 
         Raises
@@ -268,18 +266,17 @@ class Roc(PlotLineObject):
 
 
 class RocPlot(PlotBase):
-    """ROC plot class."""
+    """ROC plot class.
 
-    def __init__(self, grid: bool = True, **kwargs) -> None:
-        """ROC plot properties.
+    Parameters
+    ----------
+    grid : bool, optional
+        Set the grid for the plots.
+    **kwargs : Any
+        Keyword arguments from `puma.PlotObject`
+    """
 
-        Parameters
-        ----------
-        grid : bool, optional
-            Set the grid for the plots.
-        **kwargs : kwargs
-            Keyword arguments from `puma.PlotObject`
-        """
+    def __init__(self, grid: bool = True, **kwargs: Any) -> None:
         super().__init__(grid=grid, **kwargs)
         self.test = ""
         self.rocs: dict[str, Roc] = {}
@@ -306,9 +303,9 @@ class RocPlot(PlotBase):
 
         Parameters
         ----------
-        roc_curve : puma.Roc
+        roc_curve : Roc
             ROC curve
-        key : str, optional
+        key : str | None, optional
             Unique identifier for roc_curve, by default None
         reference : bool, optional
             If roc is used as reference for ratio calculation, by default False
@@ -417,7 +414,7 @@ class RocPlot(PlotBase):
         ratio_panel: int,
         rej_class: str | Label,
         rej_class_label: str | None = None,
-    ):
+    ) -> None:
         """Associate the rejection class to a ratio panel adn set the legend label.
 
         Parameters
@@ -426,7 +423,7 @@ class RocPlot(PlotBase):
             Ratio panel either 1 or 2
         rej_class : str | Label
             Rejection class associated to that panel. Either a Label instance or a string
-        rej_class_label : str, optional
+        rej_class_label : str | None, optional
             If rej_class is not a Label, this label must be given
 
         Raises
@@ -451,14 +448,13 @@ class RocPlot(PlotBase):
         self.set_ratio_label(ratio_panel, f"{label} ratio")
         self.leg_rej_labels[rej_class_name] = rej_class_label_str
 
-    def add_ratios(self):
+    def add_ratios(self) -> None:
         """Calculating ratios.
 
         Raises
         ------
         ValueError
             If number of reference rocs and ratio panels don't match
-        ValueError
             If no ratio classes are set
         """
         if self.reference_roc and len(self.reference_roc) != self.n_ratio_panels:
@@ -472,7 +468,7 @@ class RocPlot(PlotBase):
         for rej_class, axis in self.rej_axes.items():
             self.plot_ratios(axis=axis, rej_class=rej_class)
 
-    def get_xlim_auto(self):
+    def get_xlim_auto(self) -> tuple[float, float]:
         """Returns min and max efficiency values.
 
         Returns
@@ -486,7 +482,7 @@ class RocPlot(PlotBase):
 
         return self.eff_min, self.eff_max
 
-    def plot_ratios(self, axis: plt.axis, rej_class: str):
+    def plot_ratios(self, axis: plt.axis, rej_class: str) -> None:
         """Plotting ratio curves.
 
         Parameters
@@ -522,7 +518,7 @@ class RocPlot(PlotBase):
                     zorder=1,
                 )
 
-    def make_split_legend(self, handles):
+    def make_split_legend(self, handles: list) -> None:
         """Draw legend for the case of 2 ratios, splitting up legend into models and
         rejection class.
 
@@ -604,7 +600,7 @@ class RocPlot(PlotBase):
 
         Parameters
         ----------
-        labelpad : int, optional
+        labelpad : int | None, optional
             Spacing in points from the axes bounding box including
             ticks and tick labels, by default None
         """
@@ -679,12 +675,12 @@ class RocPlot(PlotBase):
 
         adjust_ylabels(self.fig, self.rej_axes.values())
 
-    def plot_roc(self, **kwargs) -> mpl.lines.Line2D:
+    def plot_roc(self, **kwargs: Any) -> mpl.lines.Line2D:
         """Plotting roc curves.
 
         Parameters
         ----------
-        **kwargs: kwargs
+        **kwargs: Any
             Keyword arguments passed to plt.axis.plot
 
         Returns

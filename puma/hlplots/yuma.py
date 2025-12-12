@@ -6,6 +6,7 @@ import argparse
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 import yaml
 from yamlinclude import YamlIncludeConstructor
@@ -18,12 +19,12 @@ from puma.utils import logger
 ALL_PLOTS = ["roc", "scan", "disc", "probs", "peff"]
 
 
-def get_args(args):
+def get_args(args: Any):
     """Get the arguments from the command line as an argparser.
 
     Parameters
     ----------
-    args :
+    args : Any
         Command line argument
 
     Returns
@@ -64,6 +65,7 @@ class YumaConfig:
     taggers_config: dict
     taggers: list[str] | list[Tagger] | None = None
 
+    signal: str | None = None
     timestamp: bool = False
     base_path: Path | None = None
 
@@ -86,13 +88,15 @@ class YumaConfig:
             self.taggers = list(self.taggers_config.keys())
 
     @classmethod
-    def load_config(cls, path: Path, **kwargs) -> YumaConfig:
+    def load_config(cls, path: Path, **kwargs: Any) -> YumaConfig:
         """Load the config and return a YumaConfig object.
 
         Parameters
         ----------
         path : Path
             Path to the Yuma config file.
+        **kwargs : Any
+            Kwargs for the YumaConfig
 
         Returns
         -------
@@ -192,7 +196,7 @@ class YumaConfig:
         """Iterates plots and returns a list of all performance variables."""
         return list({p["plot_kwargs"].get("perf_var", "pt") for p in self.plots.get("peff", [])})
 
-    def make_plots(self, plot_types):
+    def make_plots(self, plot_types: list[str]) -> None:
         """Makes all desired plots.
 
         Parameters
@@ -215,19 +219,18 @@ class YumaConfig:
                 self.results.taggers = all_taggers
 
 
-def main(args=None):
+def main(args: Any | None = None):
     """Run Yuma and make plots.
 
     Parameters
     ----------
-    args : args, optional
+    args : Any | None, optional
         Command line arguments, by default None
 
     Raises
     ------
     ValueError
         If unsupported plot types were given.
-    ValueError
         If unknown signals were given.
     """
     args = get_args(args)

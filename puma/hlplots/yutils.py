@@ -66,12 +66,12 @@ def get_included_taggers(
     ----------
     results : Results
         Results object from which the taggers are taken
-    plot_config : dict
+    plot_config : dict[str, Any]
         Plot config dict
 
     Returns
     -------
-    tuple[dict | Any | None, dict, str]
+    tuple[dict[str, Tagger], dict[str, Tagger], str]
         The included taggers as dict, all taggers as dict and the include_exclude string
 
     Raises
@@ -92,15 +92,15 @@ def get_included_taggers(
     if not incl and not excl:
         include_taggers = dict(all_taggers)  # copy to avoid mutating upstream
     elif incl:
-        assert all(
-            t in all_tagger_names for t in incl
-        ), f"Not all taggers are in the results: {incl}"
+        assert all(t in all_tagger_names for t in incl), (
+            f"Not all taggers are in the results: {incl}"
+        )
         include_taggers = {k: v for k, v in all_taggers.items() if v.yaml_name in incl}
     else:
         assert excl is not None
-        assert all(
-            t in all_tagger_names for t in excl
-        ), f"Not all excluded taggers are in the results: {excl}"
+        assert all(t in all_tagger_names for t in excl), (
+            f"Not all excluded taggers are in the results: {excl}"
+        )
         include_taggers = {k: v for k, v in all_taggers.items() if v.yaml_name not in excl}
 
     if len(include_taggers) == 0:

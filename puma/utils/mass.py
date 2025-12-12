@@ -5,7 +5,13 @@ from __future__ import annotations
 import numpy as np
 
 
-def calculate_vertex_mass(pt, eta, phi, vtx_idx, particle_mass=0.13957):
+def calculate_vertex_mass(
+    pt: np.ndarray,
+    eta: np.ndarray,
+    phi: np.ndarray,
+    vtx_idx: np.ndarray,
+    particle_mass: float = 0.13957,
+) -> np.ndarray:
     """
     Calculate the invariant mass of secondary vertices from the track 4-momenta,
     assuming a pion mass hypothesis.

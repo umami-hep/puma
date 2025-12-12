@@ -23,11 +23,11 @@ def precision_recall_scores_per_class(
 
     Parameters
     ----------
-    targets : 1d np.ndarray
+    targets : np.ndarray
         target labels
-    predictions : 1d np.ndarray
+    predictions : np.ndarray
         predicted labels (output of the classifier)
-    sample_weights : np.ndarray, optional
+    sample_weights : np.ndarray | None, optional
         Weight of each sample; if None, each sample weights the same. Defaults to None.
 
     Returns

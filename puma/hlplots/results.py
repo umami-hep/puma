@@ -169,7 +169,7 @@ class Results:
 
         Parameters
         ----------
-        signal : Flavour
+        signal : Label
             Flavour which is the signal
         """
         if isinstance(signal, str):
@@ -210,7 +210,7 @@ class Results:
 
         Parameters
         ----------
-        tagger : puma.hlplots.Tagger
+        tagger : Tagger
             Instance of the puma.hlplots.Tagger class, containing tagger information.
 
         Raises
@@ -259,17 +259,17 @@ class Results:
         ----------
         taggers : list[Tagger]
             List of taggers to add
-        file_path : str | Path
+        file_path : Path | str
             Path to file
         key : str, optional
             Key in file, by default 'jets'
         label_var : str, optional
             Label variable to use, by default 'HadronConeExclTruthLabelID'
-        cuts : Cuts | list, optional
+        cuts : Cuts | list | None, optional
             Cuts to apply, by default None
-        num_jets : int, optional
+        num_jets : int | None, optional
             Number of jets to load from the file, by default all jets
-        perf_vars : dict, optional
+        perf_vars : dict | None, optional
             Override the performance variables to use, by default None
         """
 
@@ -278,7 +278,7 @@ class Results:
 
             Parameters
             ----------
-            data : ndarray
+            data : np.ndarray
                 Data to filter
 
             Returns
@@ -297,7 +297,7 @@ class Results:
             if np.sum(~mask) > 0:
                 if self.remove_nan:
                     logger.warning(
-                        f"{np.sum(~mask)} NaN values found in loaded data. Removing" " them."
+                        f"{np.sum(~mask)} NaN values found in loaded data. Removing them."
                     )
                     return data[mask]
                 raise ValueError(f"{np.sum(~mask)} NaN values found in loaded data.")
@@ -399,9 +399,9 @@ class Results:
             Matplotlib figure to save.
         plot_type : str
             Plots of the same type are saved in the same directory.
-        base_fname : str
-            Base filename, modified by this function.
-        suffix : str, optional
+        base : str | None, optional
+            Base filename, modified by this function. By default None.
+        suffix : str | None, optional
             Suffix to add to the filename, by default None
         """
         tag_str = f"{self.sig_str}tag"
@@ -419,15 +419,15 @@ class Results:
     def plot_probs(
         self,
         suffix: str | None = None,
-        **kwargs,
+        **kwargs: Any,
     ):
         """Plot probability distributions.
 
         Parameters
         ----------
-        suffix : str, optional
+        suffix : str | None, optional
             Suffix to add to output file name, by default None
-        **kwargs : kwargs
+        **kwargs : Any
             key word arguments for `puma.HistogramPlot` and `puma.Histogram`
         """
         # Get good linestyles for plotting
@@ -586,21 +586,21 @@ class Results:
         exclude_tagger: list | None = None,
         xlabel: str | None = None,
         wp_vlines: list | None = None,
-        **kwargs,
+        **kwargs: Any,
     ):
         """Plot discriminant distributions.
 
         Parameters
         ----------
-        suffix : str, optional
+        suffix : str | None, optional
             Suffix to add to output file name, by default None
-        exclude_tagger : list, optional
+        exclude_tagger : list | None, optional
             List of taggers to be excluded from this plot, by default None
-        xlabel : str, optional
+        xlabel : str | None, optional
             x-axis label, by default "$D_{b}$"
-        wp_vlines : list, optional
+        wp_vlines : list | None, optional
             List of WPs to draw vertical lines at, by default None
-        **kwargs : kwargs
+        **kwargs : Any
             key word arguments for `puma.HistogramPlot`
         """
         if xlabel is None:
@@ -719,22 +719,22 @@ class Results:
         resolution: int = 50,
         suffix: str | None = None,
         skip_missing_flavours: bool = True,
-        **kwargs,
+        **kwargs: Any,
     ):
         """Plots rocs.
 
         Parameters
         ----------
-        x_range : tuple, optional
-            x-axis range, by default None
+        x_range : tuple[float, float] | None, optional
+            x-axis range, by default (0.5, 1.0)
         resolution : int, optional
             number of points to use for the x-axis, by default 100
-        suffix : str, optional
+        suffix : str | None, optional
             suffix to add to output file name, by default None
         skip_missing_flavours : bool, optional
             If True, skip making ROC curves for flavours that are
             not present in every tagger, by default True
-        kwargs: dict, optional
+        **kwargs: Any
             key word arguments being passed to `RocPlot`
         """
         # Linspace the signal efficiencies
@@ -852,8 +852,8 @@ class Results:
         working_point: float | list | None = None,
         disc_cut: float | None = None,
         fixed_rejections: dict[Label, float] | None = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         r"""Variable vs efficiency/rejection plot.
 
         You can choose between different modes: "sig_eff", "bkg_eff", "sig_rej",
@@ -861,24 +861,24 @@ class Results:
 
         Parameters
         ----------
-        suffix : str, optional
+        suffix : str | None, optional
             suffix to add to output file name, by default None
-        xlabel : regexp, optional
+        xlabel : str, optional
             _description_, by default "$p_{T}$ [GeV]"
         perf_var: str, optional
             The x axis variable, default is 'pt'
-        h_line : float, optional
-            draws a horizonatal line in the signal efficiency plot
-        working_point: float, optional
+        h_line : float | None, optional
+            draws a horizonatal line in the signal efficiency plot. By default None.
+        working_point: float | list | None, optional
             The working point to use for the plot. Only one out of
-            [working_point, disc_cut, fixed_rejections] can be set
-        disc_cut: float, optional
+            [working_point, disc_cut, fixed_rejections] can be set. By default None.
+        disc_cut: float | None, optional
             The cut on the discriminant to use for the plot. Only one out of
-            [working_point, disc_cut, fixed_rejections] can be set
-        fixed_rejections: dict[Flavour, float]
+            [working_point, disc_cut, fixed_rejections] can be set. By default None.
+        fixed_rejections: dict[Label, float] | None, optional
             Show signal efficiency as a function of fixed background rejection. Only one
-            out of [working_point, disc_cut, fixed_rejections] can be set
-        **kwargs : kwargs
+            out of [working_point, disc_cut, fixed_rejections] can be set. By default None.
+        **kwargs : Any
             key word arguments for `puma.VarVsEff`
 
         Raises
@@ -1020,8 +1020,9 @@ class Results:
 
         elif isinstance(working_point, list):
             wp_disc = (
-                f"wp{int(working_point[0] * 100):.0f}_"
-                f"{int(working_point[1] * 100):.0f}".replace(".", "p")
+                f"wp{int(working_point[0] * 100):.0f}_{int(working_point[1] * 100):.0f}".replace(
+                    ".", "p"
+                )
             )
 
         else:
@@ -1043,23 +1044,23 @@ class Results:
         suffix: str | None = None,
         perf_var: str = "pt",
         h_line: float | None = None,
-        **kwargs,
+        **kwargs: Any,
     ):
         """Plot signal efficiency as a function of a variable, with a fixed
         background rejection for each bin.
 
         Parameters
         ----------
-        fixed_rejections : dict[Flavour, float]
+        fixed_rejections : dict[Label, float]
             A dictionary of the fixed background rejections for each flavour, eg:
             fixed_rejections = {'cjets' : 0.1, 'ujets' : 0.01}
-        suffix : str, optional
+        suffix : str | None, optional
             suffix to add to output file name, by default None
         perf_var: str, optional
             The x axis variable, default is 'pt'
-        h_line : float, optional
-            draws a horizonatal line in the signal efficiency plot
-        **kwargs : kwargs
+        h_line : float | None, optional
+            draws a horizonatal line in the signal efficiency plot, by default None
+        **kwargs : Any
             key word arguments for `puma.VarVsEff`
 
         Raises
@@ -1172,23 +1173,26 @@ class Results:
         rej: bool = False,
         plot_optimal_fraction_values: bool = False,
         fixed_fraction_values: dict | None = None,
-        **kwargs,
+        **kwargs: Any,
     ):
         """Produce fraction scan (fc/fb) iso-efficiency plots.
 
         Parameters
         ----------
-        suffix : str, optional
+        backgrounds_to_plot : list[Label]
+            List of background flavours that are to be plotted.
+        suffix : str | None, optional
             suffix to add to output file name, by default None
         efficiency : float, optional
             signal efficiency, by default 0.7
         rej : bool, optional
             if True, plot rejection instead of efficiency, by default False
-        optimal_fc : bool, optional
-            if True, plot optimal fc/fb, by default False
-        backgrounds : list[Flavour], optional
-            List of background flavours, by default None, will use self.backgrounds
-        **kwargs
+        plot_optimal_fraction_values : bool, optional
+            if True, plot optimal fraction values, by default False
+        fixed_fraction_values : dict | None, optional
+            Dict with the other background flavours that are not to be plotted.
+            A fixed value per flavour must be provided. By default None
+        **kwargs: Any
             Keyword arguments for `puma.Line2DPlot
 
         Raises

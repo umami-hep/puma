@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar, Sequence
 
 import numpy as np
 from ftag.utils import calculate_efficiency_error
@@ -11,9 +11,39 @@ from puma.utils import logger
 from puma.utils.histogram import save_divide
 from puma.var_vs_var import VarVsVar, VarVsVarPlot
 
+if TYPE_CHECKING:  # pragma: no cover
+    import matplotlib as mpl
+
 
 class VarVsVtx(VarVsVar):  # pylint: disable=too-many-instance-attributes
-    """var_vs_vtx class storing info about vertexing performance."""
+    """VarVsVtx class storing info about vertexing performance.
+
+    Parameters
+    ----------
+    x_var : np.ndarray
+        Values for x-axis variable for signal
+    n_match : np.ndarray
+        Values for number of correctly identified objects (where truth and
+        reco match)
+    n_true : np.ndarray
+        Values for true number of objects
+    n_reco : np.ndarray
+        Values for reconstructed number of objects
+    bins : int | Sequence, optional
+        If bins is an int, it defines the number of equal-width bins in the
+        given range (10, by default). If bins is a sequence, it defines a
+        monotonically increasing array of bin edges, including the
+        rightmost edge, allowing for non-uniform bin widths, by default 10
+    key : str | None, optional
+        Identifier for the curve e.g. tagger, by default None
+    **kwargs : Any
+        Keyword arguments passed to `PlotLineObject`
+
+    Raises
+    ------
+    ValueError
+        If provided options are not compatible with each other
+    """
 
     def __init__(
         self,
@@ -21,38 +51,10 @@ class VarVsVtx(VarVsVar):  # pylint: disable=too-many-instance-attributes
         n_match: np.ndarray,
         n_true: np.ndarray,
         n_reco: np.ndarray,
-        bins=10,
+        bins: int | Sequence = 10,
         key: str | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
-        """Initialise properties of roc curve object.
-
-        Parameters
-        ----------
-        x_var : np.ndarray
-            Values for x-axis variable for signal
-        n_match : np.ndarray
-            Values for number of correctly identified objects (where truth and
-            reco match)
-        n_true : np.ndarray
-            Values for true number of objects
-        n_reco : np.ndarray
-            Values for reconstructed number of objects
-        bins : int or sequence of scalars, optional
-            If bins is an int, it defines the number of equal-width bins in the
-            given range (10, by default). If bins is a sequence, it defines a
-            monotonically increasing array of bin edges, including the
-            rightmost edge, allowing for non-uniform bin widths, by default 10
-        key : str, optional
-            Identifier for the curve e.g. tagger, by default None
-        **kwargs : kwargs
-            Keyword arguments passed to `PlotLineObject`
-
-        Raises
-        ------
-        ValueError
-            If provided options are not compatible with each other
-        """
         if len(x_var) != len(n_match):
             raise ValueError(
                 f"Length of `x_var` ({len(x_var)}) and `n_match` "
@@ -97,16 +99,21 @@ class VarVsVtx(VarVsVar):  # pylint: disable=too-many-instance-attributes
             **kwargs,
         )
 
-    def _set_bin_edges(self, bins):
+    def _set_bin_edges(self, bins: int | list | np.ndarray) -> None:
         """Calculate bin edges, centres and width and save them as class variables.
 
         Parameters
         ----------
-        bins : int or sequence of scalars
+        bins : int | list | np.ndarray
             If bins is an int, it defines the number of equal-width bins in the given
             range. If bins is a sequence, it defines a monotonically increasing array of
             bin edges, including the rightmost edge, allowing for non-uniform bin
             widths.
+
+        Raises
+        ------
+        TypeError
+            If the given bins are not supported.
         """
         logger.debug("Calculating binning.")
         if isinstance(bins, int):
@@ -117,8 +124,16 @@ class VarVsVtx(VarVsVar):  # pylint: disable=too-many-instance-attributes
             # np.digitize
             xmax *= 1 + 1e-5
             self.bin_edges = np.linspace(xmin, xmax, bins + 1)
+
         elif isinstance(bins, (list, np.ndarray)):
             self.bin_edges = np.array(bins)
+
+        else:
+            raise TypeError("Given type for bins is not supported!")
+
+        # Ensure that bin edges is not None
+        assert self.bin_edges is not None
+
         logger.debug("Retrieved bin edges %s}", self.bin_edges)
         # Get the bins for the histogram
         self.x_bin_centres = (self.bin_edges[:-1] + self.bin_edges[1:]) / 2.0
@@ -126,8 +141,9 @@ class VarVsVtx(VarVsVar):  # pylint: disable=too-many-instance-attributes
         self.n_bins = self.bin_edges.size - 1
         logger.debug("N bins: %i", self.n_bins)
 
-    def _apply_binning(self):
+    def _apply_binning(self) -> None:
         """Get binned distributions for number of matches, truth and reco objects."""
+        assert self.bin_edges is not None
         logger.debug("Applying binning.")
         self.bin_indices = np.digitize(self.x_var, self.bin_edges)
         self.match_binned = [
@@ -140,22 +156,26 @@ class VarVsVtx(VarVsVar):  # pylint: disable=too-many-instance-attributes
             self.n_reco[np.where(self.bin_indices == x)[0]] for x in range(1, len(self.bin_edges))
         ]
 
-    def get_performance_ratio(self, num: np.ndarray, denom: np.ndarray):
+    def get_performance_ratio(
+        self,
+        num: np.ndarray,
+        denom: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Calculate performance ratio for vertexing task. Either n_matched/n_true
         (efficiency) or n_matched/n_reco (purity).
 
         Parameters
         ----------
-        arr : np.ndarray
+        num : np.ndarray
             Array with discriminants
-        cut : float
+        denom : np.ndarray
             Cut value
 
         Returns
         -------
-        float
+        np.ndarray
             Performance ratio
-        float
+        np.ndarray
             Performance ratio error
         """
         pm = save_divide(np.sum(num), np.sum(denom), default=np.inf)
@@ -237,18 +257,18 @@ class VarVsVtx(VarVsVar):  # pylint: disable=too-many-instance-attributes
         logger.debug("Retrieved vertexing fake rate: %s", total_reco)
         return np.array(total_reco)[:, 0], np.array(total_reco)[:, 1]
 
-    def __eq__(self, other):
+    def __eq__(self, other: VarVsVtx) -> bool:
         """Handles a == check with the class.
 
         Parameters
         ----------
-        other : obj
-            Other object that this class is tested against
+        other : VarVsVtx
+            Other VarVsVtx that this class is tested against
 
         Returns
         -------
         bool
-            If this object and the other are equal
+            If this VarVsVtx and the other are equal
         """
         if isinstance(other, self.__class__):
             return (
@@ -294,7 +314,32 @@ class VarVsVtx(VarVsVar):  # pylint: disable=too-many-instance-attributes
 
 
 class VarVsVtxPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attributes
-    """var_vs_vtx plot class."""
+    """var_vs_vtx plot class.
+
+    Parameters
+    ----------
+    mode : str
+        Defines which quantity is plotted, the following options ar available:
+            efficiency - Plots efficiency vs. variable for jets where vertices are
+            expected
+            purity - Plots purity vs. variable for jets where vertices are expected
+            fakes - Plots fake rate vs. variable for jets where vertices are not
+            expected
+    grid : bool, optional
+        Set the grid for the plots.
+    **kwargs : Any
+        Keyword arguments from `puma.PlotObject`
+
+    Attributes
+    ----------
+    mode_options : ClassVar[list[str]]
+        List of possible modes.
+
+    Raises
+    ------
+    ValueError
+        If incompatible mode given or more than 1 ratio panel requested
+    """
 
     mode_options: ClassVar[list[str]] = [
         "efficiency",
@@ -302,28 +347,7 @@ class VarVsVtxPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
         "fakes",
     ]
 
-    def __init__(self, mode, grid: bool = False, **kwargs) -> None:
-        """var_vs_vtx plot properties.
-
-        Parameters
-        ----------
-        mode : str
-            Defines which quantity is plotted, the following options ar available:
-                efficiency - Plots efficiency vs. variable for jets where vertices are
-                expected
-                purity - Plots purity vs. variable for jets where vertices are expected
-                fakes - Plots fake rate vs. variable for jets where vertices are not
-                expected
-        grid : bool, optional
-            Set the grid for the plots.
-        **kwargs : kwargs
-            Keyword arguments from `puma.PlotObject`
-
-        Raises
-        ------
-        ValueError
-            If incompatible mode given or more than 1 ratio panel requested
-        """
+    def __init__(self, mode: str, grid: bool = False, **kwargs: Any) -> None:
         super().__init__(grid=grid, **kwargs)
         if mode not in self.mode_options:
             raise ValueError(
@@ -339,17 +363,17 @@ class VarVsVtxPlot(VarVsVarPlot):  # pylint: disable=too-many-instance-attribute
             elem.y_var_mean = y_value
             elem.y_var_std = y_error
 
-    def plot(self, **kwargs):
+    def plot(self, **kwargs: Any) -> mpl.lines.Line2D:
         """Plotting curves.
 
         Parameters
         ----------
-        **kwargs: kwargs
+        **kwargs: Any
             Keyword arguments passed to plt.axis.errorbar
 
         Returns
         -------
-        Line2D
+        mpl.lines.Line2D
             matplotlib Line2D object
         """
         logger.debug("Plotting curves with mode %s", self.mode)
