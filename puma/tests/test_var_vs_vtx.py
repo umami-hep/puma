@@ -90,6 +90,17 @@ class VarVsVtxTestCase(unittest.TestCase):
         )
         np.testing.assert_array_almost_equal(var_plot.bin_edges, [0, 1, 2], decimal=4)
 
+    def test_var_vs_vtx_set_bin_edges_type_error(self):
+        """Test var_vs_vtx set_bin_edges with a wrong type."""
+        with self.assertRaises(TypeError):
+            VarVsVtx(
+                x_var=[0, 1, 2],
+                n_match=[3, 4, 5],
+                n_true=[3, 4, 5],
+                n_reco=[3, 4, 5],
+                bins="Wrong Type",
+            )
+
     def test_var_vs_vtx_get_perf_ratio_zero(self):
         """Test var_vs_vtx get_performance_ratio with zero efficiency case."""
         var_plot = VarVsVtx(
