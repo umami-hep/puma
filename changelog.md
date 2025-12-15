@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Update Package Handling + FTAG tools [#351](https://github.com/umami-hep/puma/pull/351)
 - Update Pre-Commit Version [#350](https://github.com/umami-hep/puma/pull/350)
 - Use `uv` for development [#349](https://github.com/umami-hep/puma/pull/349)
 - Adding Support for Weights to VarVsEff [#348](https://github.com/umami-hep/puma/pull/348)
