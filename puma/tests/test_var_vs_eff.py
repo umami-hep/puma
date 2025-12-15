@@ -207,7 +207,7 @@ class VarVsEffTestCase(unittest.TestCase):
         # For a random uniform disc in [0,1], the sum of normal and inverse
         # efficiency across the entire dataset should be close to 1.0 per bin.
         # We won't test exact equality, but at least a sanity check:
-        for e1, e2 in zip(normal_sig_eff, inverse_sig_eff):
+        for e1, e2 in zip(normal_sig_eff, inverse_sig_eff, strict=False):
             self.assertTrue(np.isclose(e1 + e2, 1.0, atol=0.05))
 
         self.assertTrue(np.isclose(normal_bkg_rej[0] + inverse_bkg_rej[0], 4.426316, atol=0.05))

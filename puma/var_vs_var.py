@@ -346,6 +346,7 @@ class VarVsVarPlot(PlotBase):
                     elem.y_var_mean,
                     elem.x_var_widths,
                     2 * elem.y_var_std,
+                    strict=False,
                 ):
                     self.axis_top.add_patch(
                         Rectangle(
@@ -454,7 +455,7 @@ class VarVsVarPlot(PlotBase):
                 )
             if elem.x_var_widths is not None and elem.fill:
                 for x_pos, y_pos, width, height in zip(
-                    elem.x_var, ratio, elem.x_var_widths, 2 * ratio_err
+                    elem.x_var, ratio, elem.x_var_widths, 2 * ratio_err, strict=False
                 ):
                     self.ratio_axes[0].add_patch(
                         Rectangle(

@@ -36,17 +36,18 @@ def GetOrderedHadrons(
             [index for index, hadron in enumerate(hadron_list) if hadron == parent]
             for parent in parent_set
         ]
-        for hadron_list, parent_set in zip(hadron_parent, set_parent_barcodes)
+        for hadron_list, parent_set in zip(hadron_parent, set_parent_barcodes, strict=False)
     ]
     parent_index = [
         [
             [index for index, hadron in enumerate(hadron_list) if hadron == parent]
             for parent in parent_set
         ]
-        for hadron_list, parent_set in zip(hadron_barcode, set_parent_barcodes)
+        for hadron_list, parent_set in zip(hadron_barcode, set_parent_barcodes, strict=False)
     ]
     family_indices = [
-        [j + c[k] for k, j in enumerate(p)] for p, c in zip(parent_index, child_indices)
+        [j + c[k] for k, j in enumerate(p)]
+        for p, c in zip(parent_index, child_indices, strict=False)
     ]
 
     # Now reshuffle them to keep always first the longest shower!
@@ -96,10 +97,10 @@ def GetOrderedHadrons(
             for index, hadron in enumerate(hadron_list)
             if (hadron not in parent_set) and (hadron > 0)
         ]
-        for hadron_list, parent_set in zip(orphan_barcodes, set_parent_barcodes)
+        for hadron_list, parent_set in zip(orphan_barcodes, set_parent_barcodes, strict=False)
     ]  # remove parents
     extended_family_indices = [
-        f + u for f, u in zip(sorted_family_indices.copy(), unrelated_indices)
+        f + u for f, u in zip(sorted_family_indices.copy(), unrelated_indices, strict=False)
     ]
 
     # Now select the more important (first) shower and pad the indices!

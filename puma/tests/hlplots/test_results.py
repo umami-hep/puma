@@ -713,7 +713,7 @@ class SeparateKwargsTestCase(unittest.TestCase):
             expected.append(exp)
 
         self.assertEqual(len(out), len(expected))
-        for got, exp in zip(out, expected):
+        for got, exp in zip(out, expected, strict=False):
             self.assertDictEqual(got, exp)
 
     def test_kwargs_none(self) -> None:
@@ -730,7 +730,7 @@ class SeparateKwargsTestCase(unittest.TestCase):
             expected.append(exp)
 
         self.assertEqual(len(out), len(expected))
-        for got, exp in zip(out, expected):
+        for got, exp in zip(out, expected, strict=False):
             self.assertDictEqual(got, exp)
 
     def test_ignores_unknown_keys(self) -> None:
@@ -753,7 +753,7 @@ class SeparateKwargsTestCase(unittest.TestCase):
             expected.append(exp)
 
         self.assertEqual(len(out), len(expected))
-        for got, exp in zip(out, expected):
+        for got, exp in zip(out, expected, strict=False):
             self.assertDictEqual(got, exp)
 
     def test_no_updates_returns_empty(self) -> None:

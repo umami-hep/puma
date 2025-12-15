@@ -361,7 +361,9 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
                             weights=iter_weights,
                         )
                     )
-                    for iter_val, iter_weights in zip(self.disc_binned_sig, self.weights_binned_sig)
+                    for iter_val, iter_weights in zip(
+                        self.disc_binned_sig, self.weights_binned_sig, strict=False
+                    )
                 ]
             elif isinstance(self.fixed_bkg_rej, (int, float)):
                 self.disc_cut = [
@@ -372,7 +374,9 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
                             weights=iter_weights,
                         )
                     )
-                    for iter_val, iter_weights in zip(self.disc_binned_bkg, self.weights_binned_bkg)
+                    for iter_val, iter_weights in zip(
+                        self.disc_binned_bkg, self.weights_binned_bkg, strict=False
+                    )
                 ]
         elif isinstance(self.fixed_bkg_rej, (int, float)):
             self.disc_cut = [
@@ -591,6 +595,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             self.disc_cut,
             self.weights_binned_bkg,
             self.weights_binned_sig,
+            strict=False,
         ):
             eff, _ = self.efficiency(disc_bkg, cut, w_bkg)
             _, err = self.efficiency(disc_sig, cut, w_sig)
@@ -623,6 +628,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             self.disc_binned_sig,
             self.disc_cut,
             self.weights_binned_sig,
+            strict=False,
         ):
             eff, err = self.efficiency(disc_sig, cut, w_sig)
             effs.append(eff)
@@ -653,6 +659,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             self.disc_binned_bkg,
             self.disc_cut,
             self.weights_binned_bkg,
+            strict=False,
         ):
             eff, err = self.efficiency(disc_bkg, cut, w_bkg)
             effs.append(eff)
@@ -683,6 +690,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             self.disc_binned_sig,
             self.disc_cut,
             self.weights_binned_sig,
+            strict=False,
         ):
             rej, err = self.rejection(disc_sig, cut, w_sig)
             rejs.append(rej)
@@ -713,6 +721,7 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             self.disc_binned_bkg,
             self.disc_cut,
             self.weights_binned_bkg,
+            strict=False,
         ):
             rej, err = self.rejection(disc_bkg, cut, w_bkg)
             rejs.append(rej)

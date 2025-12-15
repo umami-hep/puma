@@ -93,7 +93,7 @@ class PiePlot(PlotBase):
         # If the legend should be drawn, get the handles and plot it on the right axis
         if self.draw_legend:
             plt_handles = []
-            for pie_label, pie_colour in zip(self.labels, self.colours):
+            for pie_label, pie_colour in zip(self.labels, self.colours, strict=False):
                 plt_handles.append(
                     mpl.patches.Patch(
                         label=pie_label,

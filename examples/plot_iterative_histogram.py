@@ -18,7 +18,7 @@ weights_extra_vals = np.ones_like(extra_vals)
 
 # Now loop over our batches
 for counter, (batch_values, batch_weights) in enumerate(
-    zip([vals, extra_vals], [weights_vals, weights_extra_vals])
+    zip([vals, extra_vals], [weights_vals, weights_extra_vals], strict=False)
 ):
     # Create the histogram if it's the first batch
     if counter == 0:

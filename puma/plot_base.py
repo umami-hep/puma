@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import json
 import tkinter as tk
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Sequence
+from typing import TYPE_CHECKING, Any, Self
 
 import atlasify
 import numpy as np
@@ -19,7 +20,6 @@ from matplotlib import gridspec, lines
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from matplotlib.ticker import MaxNLocator
-from typing_extensions import Self
 
 from puma.utils import logger
 
@@ -1023,7 +1023,7 @@ class PlotBase(PlotObject):
         assert axis_for_legend is not None
 
         lines_list: list[lines.Line2D] = []
-        for linestyle, label in zip(linestyles, labels):
+        for linestyle, label in zip(linestyles, labels, strict=False):
             lines_list.append(
                 lines.Line2D(
                     [],
