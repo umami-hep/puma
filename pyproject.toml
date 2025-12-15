@@ -48,7 +48,7 @@ yuma = "puma.hlplots.yuma:main"
 version = {attr = "puma.__version__"}
 
 [tool.setuptools]
-packages = ["puma"]
+packages = ["puma", "puma.utils"]
 include-package-data = true
 
 [build-system]
