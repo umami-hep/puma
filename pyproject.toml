@@ -8,7 +8,7 @@ readme = "README.md"
 requires-python = ">=3.10,<3.12"
 
 dependencies = [
-    "atlas-ftag-tools==0.2.17",
+    "atlas-ftag-tools==0.2.18",
     "atlasify>=0.8.0",
     "h5py>=3.14.0",
     "ipython>=8.37.0",
@@ -52,7 +52,7 @@ requires = ["setuptools>=62"]
 build-backend = "setuptools.build_meta"
 
 [tool.ruff]
-target-version = "py38"
+target-version = "py311"
 line-length = 100
 preview = true
 lint.select = ["ALL"]
