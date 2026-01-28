@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar, Sequence
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import numpy as np
 from ftag.utils import calculate_efficiency_error

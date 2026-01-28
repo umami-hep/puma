@@ -176,9 +176,12 @@ class HistWUncTestCase(unittest.TestCase):
                     "WARNING",
                     "Histogram values contain 3 +-inf values!",
                 ))
-        with self.subTest(
-            "Test if error is raised if inf values are in input but no range is defined"
-        ), self.assertRaises(ValueError):
+        with (
+            self.subTest(
+                "Test if error is raised if inf values are in input but no range is defined"
+            ),
+            self.assertRaises(ValueError),
+        ):
             hist_w_unc(values_with_infs, bins=10)
 
     def test_nan_check(self):

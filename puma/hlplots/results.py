@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import inspect
+from collections.abc import Callable
 from dataclasses import MISSING, dataclass, field, fields, is_dataclass
 from pathlib import Path
-from typing import Any, Callable, cast
+from typing import Any, cast
 
 import numpy as np
 from ftag import Cuts, Flavours, Label
@@ -105,7 +106,7 @@ def separate_kwargs(
     updated_keys_per_class: list[set[str]] = [set() for _ in classes]
 
     # 3) Apply provided defaults (count as "updated")
-    for i, (base, override) in enumerate(zip(classes_defaults, defaults)):
+    for i, (base, override) in enumerate(zip(classes_defaults, defaults, strict=False)):
         for k, v in override.items():
             if k in base:
                 base[k] = v
@@ -190,8 +191,7 @@ class Results:
         """
         suffix = "jets"
         sig = str(self.signal)
-        if sig.endswith(suffix):
-            sig = sig[: -len(suffix)]
+        sig = sig.removesuffix(suffix)
         return f"{sig}"
 
     @property

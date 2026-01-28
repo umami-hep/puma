@@ -61,7 +61,7 @@ plot_histo = HistogramPlot(
 )
 
 # Add the histograms
-for tagger, linestyle in zip(taggers, linestyles):
+for tagger, linestyle in zip(taggers, linestyles, strict=False):
     plot_histo.add(
         Histogram(
             values=discs[tagger][is_light],
