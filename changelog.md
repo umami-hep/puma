@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+### [v0.5.0](https://github.com/umami-hep/puma/releases/tag/v0.4.12) (28.01.2025)
+
 - Update Pre-Commit Version [#350](https://github.com/umami-hep/puma/pull/350)
 - Use `uv` for development [#349](https://github.com/umami-hep/puma/pull/349)
 - Adding Support for Weights to VarVsEff [#348](https://github.com/umami-hep/puma/pull/348)

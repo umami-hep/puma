@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-__version__ = "0.4.12"
+__version__ = "0.5.0"
 
 from puma.histogram import Histogram, HistogramPlot
 from puma.integrated_eff import IntegratedEfficiency, IntegratedEfficiencyPlot
