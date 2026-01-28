@@ -33,7 +33,7 @@ def save_divide(
     if isinstance(numerator, (int, float, np.number)) and isinstance(
         denominator, (int, float, np.number)
     ):
-        output_shape = 1
+        output_shape = ()
     else:
         try:
             output_shape = denominator.shape
@@ -50,8 +50,8 @@ def save_divide(
         * default,
         where=(denominator != 0),
     )
-    if output_shape == 1:
-        return float(ratio)
+    if output_shape == ():
+        return float(np.asarray(ratio))
     return ratio
 
 
