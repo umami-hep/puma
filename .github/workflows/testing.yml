@@ -14,7 +14,7 @@ jobs:
   unit_tests:
     name: Unit tests
     runs-on: ubuntu-latest
-    container: python:3.11
+    container: python:3.11.10-bullseye
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -35,7 +35,7 @@ jobs:
   example_tests:
     name: Example tests
     runs-on: ubuntu-latest
-    container: python:3.11
+    container: python:3.11.10-bullseye
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3

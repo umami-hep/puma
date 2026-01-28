@@ -1,4 +1,4 @@
-FROM python:3.11
+FROM python:3.11.10-bullseye
 
 RUN apt update && apt install -y vim nano
 
