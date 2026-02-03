@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+- Fixing Legend Label Issue in Histogram Class [#352](https://github.com/umami-hep/puma/pull/352)
+
 ### [v0.5.0](https://github.com/umami-hep/puma/releases/tag/v0.4.12) (28.01.2025)
 
 - Update Package Handling + FTAG tools [#351](https://github.com/umami-hep/puma/pull/351)
