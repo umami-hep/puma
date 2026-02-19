@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+- Update atlas-ftag-tools to 0.3.1 [#353](https://github.com/umami-hep/puma/pull/353)
+
 ### [v0.5.0](https://github.com/umami-hep/puma/releases/tag/v0.4.12) (28.01.2025)
 
 - Update Package Handling + FTAG tools [#351](https://github.com/umami-hep/puma/pull/351)
