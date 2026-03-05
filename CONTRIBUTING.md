@@ -9,7 +9,7 @@ If this is your first visit, please start with our detailed [Developer Guideline
 ## Quick start
 
 1. **Fork** the repository and clone it locally.
-2. Create and activate a Python ≥ 3.10 virtual environment (or conda env).
+2. Create and activate a Python ≥ 3.11 virtual environment (or conda env).
 3. Install the package *plus* development extras:
 
    ```bash
