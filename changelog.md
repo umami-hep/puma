@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+- Enable default UV Usage [#355](https://github.com/umami-hep/puma/pull/355)
+
 ### [v0.5.1](https://github.com/umami-hep/puma/releases/tag/v0.5.1) (19.02.2026)
 
 - Update atlas-ftag-tools to 0.3.1 [#353](https://github.com/umami-hep/puma/pull/353)

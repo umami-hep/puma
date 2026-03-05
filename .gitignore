@@ -144,3 +144,6 @@ dmypy.json
 examples/*.png
 # user specific files
 *user*
+
+# UV files
+uv.lock
