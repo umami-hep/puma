@@ -9,21 +9,22 @@ If this is your first visit, please start with our detailed [Developer Guideline
 ## Quick start
 
 1. **Fork** the repository and clone it locally.
-2. Create and activate a Python ≥ 3.11 virtual environment (or conda env).
-3. Install the package *plus* development extras:
+2. Install the package *plus* development extras:
 
    ```bash
    cd puma
    
    # Using uv (recommended)
    uv sync --extra dev 
-   # Or with pip
+
+   # Or with pip (we recommend using a virtual environment for pip)
    pip install -e .[dev]
    
    # Pre-commit hooks
    pre-commit install
    ```
-4. Run the hook chain once to auto‑format and lint the existing code base:
+
+3. Run the hook chain once to auto‑format and lint the existing code base:
 
    ```bash
    pre-commit run --all-files
