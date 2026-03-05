@@ -1,4 +1,7 @@
 name: Test and publish
+concurrency:
+  group: ${{ github.workflow }}-${{ startsWith(github.ref, 'refs/tags/') && github.sha || (github.event.pull_request.number || github.ref) }}
+  cancel-in-progress: true
 on:
   pull_request:
     branches:
@@ -36,9 +39,6 @@ jobs:
       - name: Run tests
         run: pytest -v --junitxml=coverage.xml --cov-report=term-missing:skip-covered --cov=puma puma/tests/
 
-      - name: Install git
-        run: sudo apt-get update && sudo apt-get install -y git
-
       - name: Report coverage with Codecov
         uses: codecov/codecov-action@v4
         with:
@@ -64,15 +64,11 @@ jobs:
       - name: Install dependencies
         run: uv sync --extra dev
 
-      - name: Install Tkinter
-        run: sudo apt-get update && sudo apt-get install -y python3-tk
+      - name: Install Tkinter and rsync
+        run: sudo apt-get update && sudo apt-get install -y python3-tk && sudo apt-get install -y rsync
 
       - name: Run tests
         run: mkdir plots && cd plots && for f in ../examples/*.py; do python "$f"; done
-
-      # rsync is needed for the subsequently used action
-      - name: Install rsync
-        run: sudo apt-get update && sudo apt-get install -y rsync
 
       # This action will only update the examples-material branch if it
       # is affected by the changes that triggered the job
