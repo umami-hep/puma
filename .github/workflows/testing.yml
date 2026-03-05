@@ -30,6 +30,9 @@ jobs:
       - name: Install dependencies
         run: uv sync --extra dev
 
+      - name: Install Tkinter
+        run: sudo apt-get update && sudo apt-get install -y python3-tk
+
       - name: Run tests
         run: pytest -v --junitxml=coverage.xml --cov-report=term-missing:skip-covered --cov=puma puma/tests/
 
@@ -60,6 +63,9 @@ jobs:
 
       - name: Install dependencies
         run: uv sync --extra dev
+
+      - name: Install Tkinter
+        run: sudo apt-get update && sudo apt-get install -y python3-tk
 
       - name: Run tests
         run: mkdir plots && cd plots && for f in ../examples/*.py; do python "$f"; done
