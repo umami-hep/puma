@@ -14,19 +14,29 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Setup UV
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: 3.x
-      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
-      - uses: actions/cache@v3
+          python-version: "3.11"
+
+      - name: Cache docs environment
+        run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+        uses: actions/cache@v4
         with:
+          path: ~/.cache/docs
           key: mkdocs-material-${{ env.cache_id }}
-          path: .cache
           restore-keys: |
             mkdocs-material-
-      - run: pip install -r docs/requirements.txt
-      - run: mkdocs build
-      - name : Deploy
+
+      - name: Install dependencies
+        run: uv sync --extra dev && uv pip install -r docs/requirements.txt
+
+      - name: Build Docs
+        run: mkdocs build
+
+      - name: Deploy Docs
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: mkdocs gh-deploy --force

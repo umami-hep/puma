@@ -9,42 +9,21 @@ If this is your first visit, please start with our detailed [Developer Guideline
 ## Quick start
 
 1. **Fork** the repository and clone it locally.
-2. Install [`uv`](https://docs.astral.sh/uv/) (recommended) or create a Python ≥ 3.9 virtual environment.
-   
-   ```bash
-   # If using uv, install it first:
-
-   # On macOS and Linux
-   curl -LsSf https://astral.sh/uv/install.sh | sh
-
-   # On Windows
-   powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-
-   # Or with pip (If installing from PyPI, we recommend installing uv into an isolated environment)
-   pip install uv
-
-   # If using venv, create and activate a virtual environment:
-   python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-   ```
-
+2. Create and activate a Python ≥ 3.10 virtual environment (or conda env).
 3. Install the package *plus* development extras:
 
    ```bash
-   # With uv (recommended)
-   uv sync --extra dev
+   cd puma
    
+   # Using uv (recommended)
+   uv sync --extra dev 
    # Or with pip
-   python -m pip install -e ".[dev]"
-   ```
+   pip install -e .[dev]
    
-4. Set up pre-commit hooks:
-
-   ```bash
+   # Pre-commit hooks
    pre-commit install
    ```
-   
-5. Run the hook chain once to auto‑format and lint the existing code base:
+4. Run the hook chain once to auto‑format and lint the existing code base:
 
    ```bash
    pre-commit run --all-files
@@ -66,8 +45,7 @@ If this is your first visit, please start with our detailed [Developer Guideline
 
 ## Style & static checks
 
-* **Formatting:** [Black](https://black.readthedocs.io/)
-* **Linting & simple refactors:** [Ruff](https://docs.astral.sh/ruff/)
+* **Formatting & Linting & simple refactors:** [Ruff](https://docs.astral.sh/ruff/)
 * **Type safety:** [mypy](https://mypy-lang.org/)
 * **Import order:** isort (via ruff)
 

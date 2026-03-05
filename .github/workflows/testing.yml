@@ -12,43 +12,62 @@ on:
 
 jobs:
   unit_tests:
-    name: Unit tests
+    name: Unit tests (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
-    container: python:3.11.10-bullseye
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v3
-      - run: echo "The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-      - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
-      - run: python -m pip install ".[dev]"
-      - run: pip install .
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Setup UV
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: uv sync --extra dev
+
       - name: Run tests
         run: pytest -v --junitxml=coverage.xml --cov-report=term-missing:skip-covered --cov=puma puma/tests/
+
       - name: Install git
         run: apt update && apt install -y git
+
       - name: Report coverage with Codecov
         uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
+
   example_tests:
-    name: Example tests
+    name: Example tests (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
-    container: python:3.11.10-bullseye
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v3
-      - run: echo "The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-      - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
-      - run: python -m pip install ".[dev]"
-      - run: pip install .
-      - run: mkdir plots
-      - run: cd plots && for f in ../examples/*.py; do python "$f"; done
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Setup UV
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: uv sync --extra dev
+
+      - name: Run tests
+        run: mkdir plots && cd plots && for f in ../examples/*.py; do python "$f"; done
+
       # rsync is needed for the subsequently used action
       - name: Install rsync
         run: apt update && apt install -y rsync
+
       # This action will only update the examples-material branch if it
       # is affected by the changes that triggered the job
       - name: Upload examples-material
@@ -68,13 +87,19 @@ jobs:
       id-token: write # IMPORTANT: this permission is mandatory for trusted publishing
     steps:
       - name: Checkout repository code
-        uses: actions/checkout@v3
-      - name: Set up python version
-        uses: actions/setup-python@v4
+        uses: actions/checkout@v4
+
+      - name: Setup UV
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.11"
+
+      - name: Sync environment
+        run: uv sync
+
       - name: Build package
-        run: |
-          python -m pip install -U pip build
-          python -m build
+        run: uv build
+
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
