@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Enable Usage of Multiple Labels in Results Class [#356](https://github.com/umami-hep/puma/pull/356)
 - Enable default UV Usage [#355](https://github.com/umami-hep/puma/pull/355)
 
 ### [v0.5.1](https://github.com/umami-hep/puma/releases/tag/v0.5.1) (19.02.2026)
