@@ -194,8 +194,7 @@ class Results:
         """
         suffix = "jets"
         sig = str(self.signal)
-        sig = sig.removesuffix(suffix)
-        return f"{sig}"
+        return sig.removesuffix(suffix)
 
     @property
     def flavours(self) -> list[Label]:
