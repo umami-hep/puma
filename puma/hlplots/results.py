@@ -208,7 +208,7 @@ class Results:
         """
         return [*self.backgrounds, self.signal]
 
-    def add(self, tagger: Tagger):
+    def add(self, tagger: Tagger) -> None:
         """Add a tagger to the results collection.
 
         Parameters
