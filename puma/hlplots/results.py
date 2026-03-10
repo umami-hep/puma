@@ -35,23 +35,23 @@ def separate_kwargs(
     classes: list[Any],
     defaults: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
-    """Separate the provided kwargs to the classes they belong.
+    """Separate keyword arguments by target class.
 
     Parameters
     ----------
     kwargs : dict[str, Any] | None
-        Dict with the kwargs
+        Keyword arguments to distribute across the given classes.
     classes : list[Any]
-        Classes to which the kwargs are sorted
+        Classes whose dataclass fields and ``__init__`` parameters are inspected.
     defaults : list[dict[str, Any]]
-        Default values for the classes, if not defined in kwargs,
-        which overwrite the defaults from the class definition
+        Default values to apply per class before user-provided keyword arguments.
+        These values override the defaults defined by the class itself.
 
     Returns
     -------
     list[dict[str, Any]]
-        List with the separated kwargs. The first entry are the kwargs
-        for the first class in the classes list etc.
+        One dictionary per class containing only the keyword arguments that were
+        explicitly updated, either by ``defaults`` or by ``kwargs``.
     """
     classes_defaults: list[dict[str, Any]] = []
 
@@ -129,7 +129,7 @@ def separate_kwargs(
 
 @dataclass
 class Results:
-    """Store information about several taggers and plot results."""
+    """Store taggers, input metadata, and plotting helpers for result production."""
 
     signal: Label | str
     sample: str
@@ -144,15 +144,17 @@ class Results:
     global_cuts: Cuts | list | None = None
     num_jets: int | None = None
     remove_nan: bool = False
-    label_var: str = "HadronConeExclTruthLabelID"
+    label_var: str | list[str] = "HadronConeExclTruthLabelID"
 
-    def __post_init__(self):
-        """Run post init checks of the inputs."""
+    def __post_init__(self) -> None:
+        """Validate and normalise inputs after dataclass initialisation."""
         self.set_signal(self.signal)
         if isinstance(self.output_dir, str):
             self.output_dir = Path(self.output_dir)
         if isinstance(self.perf_vars, str):
             self.perf_vars = [self.perf_vars]
+        if isinstance(self.label_var, str):
+            self.label_var = [self.label_var]
         if self.atlas_second_tag is not None and self.atlas_third_tag is not None:
             self.atlas_second_tag = f"{self.atlas_second_tag}\n{self.atlas_third_tag}"
 
@@ -163,15 +165,16 @@ class Results:
             "peff": self.plot_var_perf,
             "scan": self.plot_fraction_scans,
         }
-        self.saved_plots = []
+        self.saved_plots: list[Path] = []
 
-    def set_signal(self, signal: Label):
-        """Set the signal flavour and define background flavours.
+    def set_signal(self, signal: Label | str) -> None:
+        """Set the signal flavour and derive the corresponding background flavours.
 
         Parameters
         ----------
-        signal : Label
-            Flavour which is the signal
+        signal : Label | str
+            Flavour to use as the signal class. String inputs are resolved through
+            ``ftag.Flavours``.
         """
         if isinstance(signal, str):
             signal = Flavours[signal]
@@ -181,42 +184,41 @@ class Results:
         self.backgrounds = [*Flavours.by_category(self.category).backgrounds(self.signal)]
 
     @property
-    def sig_str(self):
-        """Returns the name of the signal as a string.
+    def sig_str(self) -> str:
+        """Return the signal flavour name without the ``"jets"`` suffix.
 
         Returns
         -------
         str
-            Name of the signal as string
+            Signal flavour name used in output paths and filenames.
         """
         suffix = "jets"
         sig = str(self.signal)
-        sig = sig.removesuffix(suffix)
-        return f"{sig}"
+        return sig.removesuffix(suffix)
 
     @property
-    def flavours(self):
-        """Return a list of all flavours.
+    def flavours(self) -> list[Label]:
+        """Return all flavours used by this results object.
 
         Returns
         -------
-        list
-            List of all flavours
+        list[Label]
+            Background flavours followed by the signal flavour.
         """
         return [*self.backgrounds, self.signal]
 
-    def add(self, tagger: Tagger):
-        """Add tagger to class.
+    def add(self, tagger: Tagger) -> None:
+        """Add a tagger to the results collection.
 
         Parameters
         ----------
         tagger : Tagger
-            Instance of the puma.hlplots.Tagger class, containing tagger information.
+            Tagger instance containing model metadata, scores, and plotting options.
 
         Raises
         ------
         KeyError
-            if model name duplicated
+            If a tagger with the same name has already been added.
         """
         if str(tagger) in self.taggers:
             raise KeyError(f"{tagger} was already added.")
@@ -228,10 +230,12 @@ class Results:
 
         self.taggers[str(tagger)] = tagger
 
-    def load(self):
-        """Iterates all taggers, and loads data if it hasn't already been loaded."""
+    def load(self) -> None:
+        """Load input data for all taggers that do not yet have scores attached."""
         req_load = [tagger for tagger in self.taggers.values() if tagger.scores is None]
-        tagger_paths = list({tagger.sample_path for tagger in req_load})
+        tagger_paths = list({
+            tagger.sample_path for tagger in req_load if tagger.sample_path is not None
+        })
         for tp in tagger_paths:
             tp_taggers = [tagger for tagger in req_load if tagger.sample_path == tp]
             self.load_taggers_from_file(
@@ -247,49 +251,54 @@ class Results:
         taggers: list[Tagger],
         file_path: Path | str,
         key: str = "jets",
-        label_var: str = "HadronConeExclTruthLabelID",
+        label_var: str | list[str] = "HadronConeExclTruthLabelID",
         cuts: Cuts | list | None = None,
         num_jets: int | None = None,
         perf_vars: dict | None = None,
-    ):
-        """Load one or more taggers from a common file. Adds the tagger to this results class
-        if it is not already present.
+    ) -> None:
+        """Load one or more taggers from a common file.
+
+        Taggers that are not yet registered in this ``Results`` instance are added
+        automatically.
 
         Parameters
         ----------
         taggers : list[Tagger]
-            List of taggers to add
+            Taggers to load from the input file.
         file_path : Path | str
-            Path to file
+            Path to the input file.
         key : str, optional
-            Key in file, by default 'jets'
-        label_var : str, optional
-            Label variable to use, by default 'HadronConeExclTruthLabelID'
+            Dataset key inside the input file, by default ``"jets"``.
+        label_var : str | list[str], optional
+            Label variable name or list of label variable names to load and attach to
+            each tagger, by default ``"HadronConeExclTruthLabelID"``.
         cuts : Cuts | list | None, optional
-            Cuts to apply, by default None
+            Common cuts to apply before any tagger-specific cuts, by default None.
         num_jets : int | None, optional
-            Number of jets to load from the file, by default all jets
+            Maximum number of jets to load from the file, by default all available jets.
         perf_vars : dict | None, optional
-            Override the performance variables to use, by default None
+            Precomputed performance variables to attach to the taggers instead of
+            reading them from the loaded structured array, by default None.
         """
 
         def check_nan(data: np.ndarray) -> np.ndarray:
-            """Filter out NaN values from loaded data.
+            """Filter out rows containing NaN values.
 
             Parameters
             ----------
             data : np.ndarray
-                Data to filter
+                Structured array to validate.
 
             Returns
             -------
             np.ndarray
-                Array with NaN values removed
+                Input array with rows containing NaN values removed if
+                ``self.remove_nan`` is enabled.
 
             Raises
             ------
             ValueError
-                If NaN values are found but the setting is to keep them
+                If NaN values are found and ``self.remove_nan`` is ``False``.
             """
             mask = np.ones(len(data), dtype=bool)
             for name in data.dtype.names:
@@ -308,10 +317,13 @@ class Results:
             if tagger not in self.taggers.values():
                 self.add(tagger)
 
+        # Ensure that the label variables are a list
+        label_vars = [label_var] if isinstance(label_var, str) else list(label_var)
+
         # get a list of all variables to be loaded from the file
         if not isinstance(cuts, Cuts):
             cuts = Cuts.empty() if cuts is None else Cuts.from_list(cuts)
-        var_list = sum([tagger.variables for tagger in taggers], [label_var])
+        var_list = sum([tagger.variables for tagger in taggers], label_vars)
         var_list += cuts.variables
         var_list += sum([t.cuts.variables for t in taggers if t.cuts is not None], [])
         var_list = list(set(var_list + self.perf_vars))
@@ -340,7 +352,10 @@ class Results:
 
             # attach data to tagger objects
             tagger.extract_tagger_scores(sel_data, source_type="structured_array")
-            tagger.labels = np.array(sel_data[label_var], dtype=[(label_var, "i4")])
+            tagger.labels = np.array(
+                [tuple(row[var] for var in label_vars) for row in sel_data],
+                dtype=[(var, "i4") for var in label_vars],
+            )
             if perf_vars is None:
                 tagger.perf_vars = {}
                 for perf_var in self.perf_vars:
@@ -351,33 +366,33 @@ class Results:
             else:
                 tagger.perf_vars = sel_perf_vars
 
-    def __getitem__(self, tagger_name: str):
-        """Retrieve Tagger object.
+    def __getitem__(self, tagger_name: str) -> Tagger:
+        """Return a tagger by name.
 
         Parameters
         ----------
         tagger_name : str
-            Name of model
+            Name of the tagger to retrieve.
 
         Returns
         -------
         Tagger
-            Instance of the puma.hlplots.Tagger class, containing tagger information.
+            Stored tagger instance associated with ``tagger_name``.
         """
         return self.taggers[tagger_name]
 
     def output_directory(self, plot_type: str) -> Path:
-        """Create and return the output directory for the plot.
+        """Create and return the output directory for a plot type.
 
         Parameters
         ----------
         plot_type : str
-            Type of plot you are providing. Like "prob".
+            Plot category, for example ``"prob"`` or ``"roc"``.
 
         Returns
         -------
         Path
-            Path object with the path to the output directory.
+            Output directory for the requested plot type.
         """
         tag_str = f"{self.sig_str}tag"
         out_dir = self.output_dir / tag_str / plot_type
@@ -390,19 +405,19 @@ class Results:
         plot_type: str,
         base: str | None = None,
         suffix: str | None = None,
-    ):
-        """Get the output file path.
+    ) -> None:
+        """Save a plot to disk and record its output path.
 
         Parameters
         ----------
         plot : Figure
-            Matplotlib figure to save.
+            Matplotlib figure-like object to save.
         plot_type : str
-            Plots of the same type are saved in the same directory.
+            Plot category used to determine the output subdirectory.
         base : str | None, optional
-            Base filename, modified by this function. By default None.
+            Base filename to use. If None, ``plot_type`` is used.
         suffix : str | None, optional
-            Suffix to add to the filename, by default None
+            Optional suffix appended to the filename before the extension.
         """
         tag_str = f"{self.sig_str}tag"
         out_dir = self.output_directory(plot_type=plot_type)
@@ -420,15 +435,16 @@ class Results:
         self,
         suffix: str | None = None,
         **kwargs: Any,
-    ):
-        """Plot probability distributions.
+    ) -> None:
+        """Plot output probability distributions for all available flavours.
 
         Parameters
         ----------
         suffix : str | None, optional
-            Suffix to add to output file name, by default None
+            Suffix to append to the output filename, by default None.
         **kwargs : Any
-            key word arguments for `puma.HistogramPlot` and `puma.Histogram`
+            Keyword arguments forwarded to ``puma.HistogramPlot`` and
+            ``puma.Histogram``.
         """
         # Get good linestyles for plotting
         line_styles = get_good_linestyles()
@@ -587,21 +603,22 @@ class Results:
         xlabel: str | None = None,
         wp_vlines: list | None = None,
         **kwargs: Any,
-    ):
+    ) -> None:
         """Plot discriminant distributions.
 
         Parameters
         ----------
         suffix : str | None, optional
-            Suffix to add to output file name, by default None
+            Suffix to append to the output filename, by default None.
         exclude_tagger : list | None, optional
-            List of taggers to be excluded from this plot, by default None
+            Names of taggers to exclude from the plot, by default None.
         xlabel : str | None, optional
-            x-axis label, by default "$D_{b}$"
+            Label for the x-axis. If None, a default discriminant label is used.
         wp_vlines : list | None, optional
-            List of WPs to draw vertical lines at, by default None
+            Working points for which vertical lines are drawn, by default None.
         **kwargs : Any
-            key word arguments for `puma.HistogramPlot`
+            Keyword arguments forwarded to ``puma.HistogramPlot`` and
+            ``puma.Histogram``.
         """
         if xlabel is None:
             xlabel = rf"$D_{{{self.signal.name.rstrip('jets')}}}$"
@@ -720,22 +737,23 @@ class Results:
         suffix: str | None = None,
         skip_missing_flavours: bool = True,
         **kwargs: Any,
-    ):
-        """Plots rocs.
+    ) -> None:
+        """Plot ROC curves for all configured taggers and background flavours.
 
         Parameters
         ----------
         x_range : tuple[float, float] | None, optional
-            x-axis range, by default (0.5, 1.0)
+            Range of signal efficiencies used to evaluate the ROC curves, by default
+            ``(0.5, 1.0)``.
         resolution : int, optional
-            number of points to use for the x-axis, by default 100
+            Number of signal-efficiency points to evaluate, by default 50.
         suffix : str | None, optional
-            suffix to add to output file name, by default None
+            Suffix to append to the output filename, by default None.
         skip_missing_flavours : bool, optional
-            If True, skip making ROC curves for flavours that are
-            not present in every tagger, by default True
-        **kwargs: Any
-            key word arguments being passed to `RocPlot`
+            If True, skip ROC curves for background flavours that are not available in
+            a given tagger, by default True.
+        **kwargs : Any
+            Keyword arguments forwarded to ``puma.RocPlot`` and ``puma.Roc``.
         """
         # Linspace the signal efficiencies
         sig_effs = np.linspace(*x_range, resolution)
@@ -854,38 +872,44 @@ class Results:
         fixed_rejections: dict[Label, float] | None = None,
         **kwargs: Any,
     ) -> None:
-        r"""Variable vs efficiency/rejection plot.
+        r"""Plot performance as a function of a variable.
 
-        You can choose between different modes: "sig_eff", "bkg_eff", "sig_rej",
-        "bkg_rej"
+        Depending on the configuration, this produces signal-efficiency or
+        background-rejection profiles as a function of a performance variable.
 
         Parameters
         ----------
         suffix : str | None, optional
-            suffix to add to output file name, by default None
+            Suffix to append to the output filename, by default None.
         xlabel : str, optional
-            _description_, by default "$p_{T}$ [GeV]"
-        perf_var: str, optional
-            The x axis variable, default is 'pt'
+            Label for the x-axis, by default ``r"$p_{\mathrm{T}}$ [GeV]"``.
+        perf_var : str, optional
+            Name of the performance variable to plot on the x-axis, by default
+            ``"pt"``.
         h_line : float | None, optional
-            draws a horizonatal line in the signal efficiency plot. By default None.
-        working_point: float | list | None, optional
-            The working point to use for the plot. Only one out of
-            [working_point, disc_cut, fixed_rejections] can be set. By default None.
-        disc_cut: float | None, optional
-            The cut on the discriminant to use for the plot. Only one out of
-            [working_point, disc_cut, fixed_rejections] can be set. By default None.
-        fixed_rejections: dict[Label, float] | None, optional
-            Show signal efficiency as a function of fixed background rejection. Only one
-            out of [working_point, disc_cut, fixed_rejections] can be set. By default None.
+            Horizontal reference line to draw on the signal-efficiency plot, by
+            default None.
+        working_point : float | list | None, optional
+            Working point to use for the profile. Exactly one of
+            ``working_point``, ``disc_cut``, or ``fixed_rejections`` must be set.
+        disc_cut : float | None, optional
+            Discriminant cut to use for the profile. Exactly one of
+            ``working_point``, ``disc_cut``, or ``fixed_rejections`` must be set.
+        fixed_rejections : dict[Label, float] | None, optional
+            Fixed background rejections to use for flat-rejection profiles. Exactly
+            one of ``working_point``, ``disc_cut``, or ``fixed_rejections`` must be
+            set.
         **kwargs : Any
-            key word arguments for `puma.VarVsEff`
+            Keyword arguments forwarded to ``puma.VarVsEffPlot`` and
+            ``puma.VarVsEff``.
 
         Raises
         ------
         ValueError
-            If more than one of working_point, disc_cut, or fixed_rejections is set
-            If neither working_point nor disc_cut is set
+            If more than one of ``working_point``, ``disc_cut``, or
+            ``fixed_rejections`` is set.
+            If none of ``working_point``, ``disc_cut``, or ``fixed_rejections`` is
+            set.
         """
         # Check correct setting of working_point, disc_cut and fixed_rejections
         if sum([bool(working_point), bool(disc_cut), bool(fixed_rejections)]) > 1:
@@ -1045,30 +1069,34 @@ class Results:
         perf_var: str = "pt",
         h_line: float | None = None,
         **kwargs: Any,
-    ):
-        """Plot signal efficiency as a function of a variable, with a fixed
-        background rejection for each bin.
+    ) -> None:
+        """Plot signal efficiency versus a variable at fixed background rejection.
+
+        A separate plot is produced for each requested background flavour, where the
+        background rejection is kept constant in each bin of the performance variable.
 
         Parameters
         ----------
         fixed_rejections : dict[Label, float]
-            A dictionary of the fixed background rejections for each flavour, eg:
-            fixed_rejections = {'cjets' : 0.1, 'ujets' : 0.01}
+            Mapping from background flavour name to the fixed rejection value to apply
+            per bin.
         suffix : str | None, optional
-            suffix to add to output file name, by default None
-        perf_var: str, optional
-            The x axis variable, default is 'pt'
+            Suffix to append to the output filename, by default None.
+        perf_var : str, optional
+            Name of the performance variable to plot on the x-axis, by default
+            ``"pt"``.
         h_line : float | None, optional
-            draws a horizonatal line in the signal efficiency plot, by default None
+            Horizontal reference line to draw on the plot, by default None.
         **kwargs : Any
-            key word arguments for `puma.VarVsEff`
+            Keyword arguments forwarded to ``puma.VarVsEffPlot`` and
+            ``puma.VarVsEff``.
 
         Raises
         ------
         ValueError
-            If invalid background flavours are given
-            If disc_cut is set when executing this plot
-            If working_point is set when executing this plot
+            If invalid background flavours are given.
+            If ``disc_cut`` is provided in ``kwargs``.
+            If ``working_point`` is provided in ``kwargs``.
         """
         # Check for invalid inputs
         if inv_bkg := set(fixed_rejections.keys()) - {str(b) for b in self.backgrounds}:
@@ -1174,31 +1202,32 @@ class Results:
         plot_optimal_fraction_values: bool = False,
         fixed_fraction_values: dict | None = None,
         **kwargs: Any,
-    ):
-        """Produce fraction scan (fc/fb) iso-efficiency plots.
+    ) -> None:
+        """Produce fraction-scan iso-efficiency or iso-rejection plots.
 
         Parameters
         ----------
         backgrounds_to_plot : list[Label]
-            List of background flavours that are to be plotted.
+            Two background flavours to scan against each other.
         suffix : str | None, optional
-            suffix to add to output file name, by default None
+            Suffix to append to the output filename, by default None.
         efficiency : float, optional
-            signal efficiency, by default 0.7
+            Signal efficiency at which to evaluate the scan, by default 0.7.
         rej : bool, optional
-            if True, plot rejection instead of efficiency, by default False
+            If True, plot rejection instead of efficiency, by default False.
         plot_optimal_fraction_values : bool, optional
-            if True, plot optimal fraction values, by default False
+            If True, mark the optimal fraction values on the plot, by default False.
         fixed_fraction_values : dict | None, optional
-            Dict with the other background flavours that are not to be plotted.
-            A fixed value per flavour must be provided. By default None
-        **kwargs: Any
-            Keyword arguments for `puma.Line2DPlot
+            Fixed fraction values for background flavours that are not part of
+            ``backgrounds_to_plot``, by default None.
+        **kwargs : Any
+            Keyword arguments forwarded to ``puma.Line2DPlot`` and the fraction-scan
+            helper utilities.
 
         Raises
         ------
         ValueError
-            If more than two background flavours are given
+            If the number of background flavours in ``backgrounds_to_plot`` is not two.
         """
         # Get the background flavours in a list
         backgrounds = [Flavours[b] for b in backgrounds_to_plot]
@@ -1341,20 +1370,20 @@ class Results:
         plot.draw()
         self.save(plot, "scan", "fraction_scan", suffix)
 
-    def make_plot(self, plot_type: str, kwargs: dict):
-        """Make a plot.
+    def make_plot(self, plot_type: str, kwargs: dict) -> None:
+        """Create a plot of the requested type.
 
         Parameters
         ----------
         plot_type : str
-            Type of plot
+            Plot type key. Must be one of the keys in ``self.plot_funcs``.
         kwargs : dict
-            Keyword arguments for the plot
+            Keyword arguments forwarded to the selected plotting method.
 
         Raises
         ------
         ValueError
-            If an unknown plot type is given
+            If ``plot_type`` is unknown.
         """
         if plot_type not in self.plot_funcs:
             raise ValueError(f"Unknown plot type {plot_type}, choose from {self.plot_funcs.keys()}")

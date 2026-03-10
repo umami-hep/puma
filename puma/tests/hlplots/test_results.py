@@ -81,6 +81,60 @@ class ResultsTestCase(unittest.TestCase):
         results.load_taggers_from_file(taggers, fname)
         self.assertEqual(list(results.taggers.values()), taggers)
 
+    def test_load_taggers_from_file_multiple_label_vars(self):
+        """Test loading multiple label variables into tagger.labels."""
+        f = get_mock_file()[1]
+        d = {}
+        d["HadronConeExclTruthLabelID"] = f["jets"]["HadronConeExclTruthLabelID"]
+        d["TruthLabelID2"] = f["jets"]["HadronConeExclTruthLabelID"] + 1
+        d["MockTagger_pb"] = f["jets"]["MockTagger_pb"]
+        d["MockTagger_pc"] = f["jets"]["MockTagger_pc"]
+        d["MockTagger_pu"] = f["jets"]["MockTagger_pu"]
+        d["pt"] = f["jets"]["pt"]
+
+        array = structured_from_dict(d)
+
+        with tempfile.TemporaryDirectory() as tmp_file:
+            fname = Path(tmp_file) / "test.h5"
+            with h5py.File(fname, "w") as f_out:
+                f_out.create_dataset("jets", data=array)
+
+            results = Results(
+                signal="bjets",
+                sample="test",
+                label_var=["HadronConeExclTruthLabelID", "TruthLabelID2"],
+            )
+            taggers = [
+                Tagger(
+                    "MockTagger",
+                    output_flavours=["ujets", "cjets", "bjets"],
+                )
+            ]
+            results.load_taggers_from_file(
+                taggers=taggers,
+                file_path=fname,
+                label_var=["HadronConeExclTruthLabelID", "TruthLabelID2"],
+            )
+
+            loaded_tagger = taggers[0]
+            self.assertIsNotNone(loaded_tagger.labels)
+            self.assertEqual(
+                loaded_tagger.labels.dtype.names,
+                ("HadronConeExclTruthLabelID", "TruthLabelID2"),
+            )
+            self.assertEqual(
+                loaded_tagger.labels.dtype,
+                np.dtype([
+                    ("HadronConeExclTruthLabelID", "i4"),
+                    ("TruthLabelID2", "i4"),
+                ]),
+            )
+            np.testing.assert_array_equal(
+                loaded_tagger.labels["TruthLabelID2"],
+                loaded_tagger.labels["HadronConeExclTruthLabelID"] + 1,
+            )
+            self.assertEqual(len(loaded_tagger.labels), len(array))
+
     def test_add_taggers_with_cuts_override_perf_vars(self):
         """Test for Results.load_taggers_from_file function."""
         rng = np.random.default_rng(seed=16)
