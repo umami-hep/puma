@@ -69,9 +69,11 @@ class Roc(PlotLineObject):
         Array of signal efficiencies
     bkg_rej : np.ndarray
         Array of background rejection
-    n_test : int | None, optional
-        Number of events used to calculate the background efficiencies,
-        by default None
+    n_test : int | float | None, optional
+        Number of events used to calculate the background efficiencies.
+        For weighted samples, pass the effective sample size
+        N_eff = (sum w)^2 / sum(w^2) instead of the raw count.
+        By default None
     rej_class : str | Label, optional
         Rejection class, e.g. for b-tagging anc charm rejection "cjets",
         by default None
@@ -102,7 +104,7 @@ class Roc(PlotLineObject):
         self,
         sig_eff: np.ndarray,
         bkg_rej: np.ndarray,
-        n_test: int | None = None,
+        n_test: int | float | None = None,
         rej_class: str | Label = None,
         signal_class: str | None = None,
         key: str | None = None,
@@ -118,7 +120,7 @@ class Roc(PlotLineObject):
             )
         self.sig_eff = sig_eff
         self.bkg_rej = bkg_rej
-        self.n_test = None if n_test is None else int(n_test)
+        self.n_test = None if n_test is None else float(n_test)
         self.signal_class = signal_class
         self.rej_class = rej_class.name if isinstance(rej_class, Label) else rej_class
         self.key = key
@@ -132,16 +134,17 @@ class Roc(PlotLineObject):
                 f"'rej_class' must either be a string or a Label! You gave {type(self.rej_class)}"
             )
 
-    def binomial_error(self, norm: bool = False, n_test: int | None = None) -> np.ndarray:
+    def binomial_error(self, norm: bool = False, n_test: int | float | None = None) -> np.ndarray:
         """Calculate binomial error of roc curve.
 
         Parameters
         ----------
         norm : bool, optional
             If True calulate relative error, by default False
-        n_test : int | None
-            Number of events used to calculate the background efficiencies,
-            by default None
+        n_test : int | float | None
+            Number of events used to calculate the background efficiencies.
+            For weighted samples, pass N_eff = (sum w)^2 / sum(w^2).
+            By default None
 
         Returns
         -------
