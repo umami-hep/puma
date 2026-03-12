@@ -225,6 +225,30 @@ class SaveDivideTestCase(unittest.TestCase):
         steps = save_divide(1, np.ones(2) * 2)
         np.testing.assert_equal(steps, 0.5 * np.ones(2))
 
+    def test_both_scalars(self):
+        """Test save_divide with both scalar inputs (numpy 2.0 compat)."""
+        result = save_divide(3.0, 6.0)
+        assert result == 0.5
+        assert isinstance(result, float)
+
+    def test_both_scalars_zero_denominator(self):
+        """Test save_divide with scalar zero denominator returns default."""
+        result = save_divide(3.0, 0.0)
+        assert result == 1.0
+        assert isinstance(result, float)
+
+    def test_both_scalars_int(self):
+        """Test save_divide with both integer inputs."""
+        result = save_divide(1, 4)
+        assert result == 0.25
+        assert isinstance(result, float)
+
+    def test_both_np_number(self):
+        """Test save_divide with np.number inputs (e.g. from array.sum())."""
+        result = save_divide(np.float64(3.0), np.float64(6.0))
+        assert result == 0.5
+        assert isinstance(result, float)
+
 
 class HistRatioTestCase(unittest.TestCase):
     """Test case for hist_ratio function."""
