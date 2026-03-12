@@ -51,7 +51,7 @@ def save_divide(
         where=(denominator != 0),
     )
     if output_shape == 1:
-        return float(ratio)
+        return ratio.item()
     return ratio
 
 
