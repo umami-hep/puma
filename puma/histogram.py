@@ -162,7 +162,7 @@ class Histogram(PlotLineObject):
         self.key: str | None = None
 
         # Set the label
-        self.label = kwargs.get("label") or ""
+        self.label = kwargs.get("label", "")
 
         # If flavour was specified, extract configuration from global config
         if self.flavour is not None:
