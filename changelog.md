@@ -5,6 +5,15 @@
 - Fixing Legend Label Issue in Histogram Class [#352](https://github.com/umami-hep/puma/pull/352)
 
 ### [v0.5.0](https://github.com/umami-hep/puma/releases/tag/v0.4.12) (28.01.2025)
+- Use .item() instead of float() in save_divide [#357](https://github.com/umami-hep/puma/pull/357)
+- Enable Usage of Multiple Labels in Results Class [#356](https://github.com/umami-hep/puma/pull/356)
+- Enable default UV Usage [#355](https://github.com/umami-hep/puma/pull/355)
+
+### [v0.5.1](https://github.com/umami-hep/puma/releases/tag/v0.5.1) (19.02.2026)
+
+- Update atlas-ftag-tools to 0.3.1 [#353](https://github.com/umami-hep/puma/pull/353)
+
+### [v0.5.0](https://github.com/umami-hep/puma/releases/tag/v0.5.0) (28.01.2026)
 
 - Update Package Handling + FTAG tools [#351](https://github.com/umami-hep/puma/pull/351)
 - Update Pre-Commit Version [#350](https://github.com/umami-hep/puma/pull/350)

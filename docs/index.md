@@ -1,7 +1,8 @@
 # PUMA: Plotting UMami Api
 
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Umami docs](https://img.shields.io/badge/info-documentation-informational)](https://umami-hep.github.io/puma/)
+[![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![PUMA Docs](https://img.shields.io/badge/info-documentation-informational)](https://umami-hep.github.io/puma/)
 [![PyPI version](https://badge.fury.io/py/puma-hep.svg)](https://badge.fury.io/py/puma-hep)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6607414.svg)](https://doi.org/10.5281/zenodo.6607414)
 
@@ -19,7 +20,7 @@ The Python package `puma` provides a plotting API for commonly used plots in fla
 
 ## Installation
 
-`puma` can be installed from PyPI or using the latest code from this repository.
+`puma` can be installed from [PyPI](https://pypi.org/project/puma-hep/) or using the latest code from this repository.
 
 ### Install latest release from PyPI
 
@@ -41,6 +42,38 @@ This will install the latest version of `puma`, i.e. the current version
 from the `main` branch (no matter if it is a release/tagged commit).
 If you plan on contributing to `puma` and/or want the latest version possible, this
 is what you want.
+
+### Install for development with `uv` (recommended)
+
+For development, we recommend using [`uv`](https://docs.astral.sh/uv/), a fast Python package installer and resolver. First, install `uv`:
+
+```bash
+# On macOS and Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# On Windows
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+# Or with pip (If installing from PyPI, we recommend installing uv into an isolated environment)
+pip install uv
+```
+
+Then clone the repository and install `puma` with development dependencies:
+
+```bash
+git clone https://github.com/umami-hep/puma.git
+cd puma
+uv sync --extra dev
+```
+
+This will install `puma` in editable mode along with all development tools (testing, linting, etc.).
+
+> [!TIP]
+> In order to use locally installed version of `puma` in other `uv`-managed projects, you can add the following to the `pyproject.toml` of the other project:
+> ```toml
+> [tool.uv.sources]
+> puma-hep = { path = "path_to/puma" }
+> ```
 
 ## Docker images
 
