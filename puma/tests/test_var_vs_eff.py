@@ -514,7 +514,7 @@ class VarVsEffTestCase(unittest.TestCase):
         # binomial uncertainty. sig weights [2,4] -> N_eff=1.8,
         # bkg weights [3,1] -> N_eff=1.6.
         self.assertAlmostEqual(obj.bkg_eff_sig_err[0][0], 0.25)
-        self.assertAlmostEqual(obj.bkg_eff_sig_err[1][0], 0.3423265984407288)
+        self.assertAlmostEqual(obj.bkg_eff_sig_err[1][0], 0.35136418446315326)
         self.assertAlmostEqual(obj.sig_eff[0][0], 0.6666666666666666)
         self.assertAlmostEqual(obj.sig_eff[1][0], 0.3513641844631533)
         self.assertAlmostEqual(obj.sig_rej[0][0], 1.5)

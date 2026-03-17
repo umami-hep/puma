@@ -69,7 +69,7 @@ class Roc(PlotLineObject):
         Array of signal efficiencies
     bkg_rej : np.ndarray
         Array of background rejection
-    n_test : int | float | None, optional
+    n_test : float | None, optional
         Number of events used to calculate the background efficiencies.
         For weighted samples, pass the effective sample size
         N_eff = (sum w)^2 / sum(w^2) instead of the raw count.
@@ -104,7 +104,7 @@ class Roc(PlotLineObject):
         self,
         sig_eff: np.ndarray,
         bkg_rej: np.ndarray,
-        n_test: int | float | None = None,
+        n_test: float | None = None,
         rej_class: str | Label = None,
         signal_class: str | None = None,
         key: str | None = None,
@@ -134,14 +134,14 @@ class Roc(PlotLineObject):
                 f"'rej_class' must either be a string or a Label! You gave {type(self.rej_class)}"
             )
 
-    def binomial_error(self, norm: bool = False, n_test: int | float | None = None) -> np.ndarray:
+    def binomial_error(self, norm: bool = False, n_test: float | None = None) -> np.ndarray:
         """Calculate binomial error of roc curve.
 
         Parameters
         ----------
         norm : bool, optional
             If True calulate relative error, by default False
-        n_test : int | float | None
+        n_test : float | None
             Number of events used to calculate the background efficiencies.
             For weighted samples, pass N_eff = (sum w)^2 / sum(w^2).
             By default None
