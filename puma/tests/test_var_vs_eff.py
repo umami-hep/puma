@@ -510,16 +510,49 @@ class VarVsEffTestCase(unittest.TestCase):
             working_point=0.5,
         )
 
+        # Errors use N_eff = (sum w)^2 / sum(w^2) for proper weighted
+        # binomial uncertainty. sig weights [2,4] -> N_eff=1.8,
+        # bkg weights [3,1] -> N_eff=1.6.
         self.assertAlmostEqual(obj.bkg_eff_sig_err[0][0], 0.25)
-        self.assertAlmostEqual(obj.bkg_eff_sig_err[1][0], 0.19245008972987526)
+        self.assertAlmostEqual(obj.bkg_eff_sig_err[1][0], 0.35136418446315326)
         self.assertAlmostEqual(obj.sig_eff[0][0], 0.6666666666666666)
-        self.assertAlmostEqual(obj.sig_eff[1][0], 0.19245008972987526)
+        self.assertAlmostEqual(obj.sig_eff[1][0], 0.3513641844631533)
         self.assertAlmostEqual(obj.sig_rej[0][0], 1.5)
-        self.assertAlmostEqual(obj.sig_rej[1][0], 0.43301270189221935)
+        self.assertAlmostEqual(obj.sig_rej[1][0], 0.7905694150420949)
         self.assertAlmostEqual(obj.bkg_eff[0][0], 0.25)
-        self.assertAlmostEqual(obj.bkg_eff[1][0], 0.21650635094610965)
+        self.assertAlmostEqual(obj.bkg_eff[1][0], 0.3423265984407288)
         self.assertAlmostEqual(obj.bkg_rej[0][0], 4.0)
-        self.assertAlmostEqual(obj.bkg_rej[1][0], 3.4641016151377544)
+        self.assertAlmostEqual(obj.bkg_rej[1][0], 5.477225575051661)
+
+    def test_uniform_weights_match_unweighted(self):
+        """Test that uniform weights give the same errors as unweighted."""
+        x_var_sig = np.array([0, 1])
+        disc_sig = np.array([0.2, 0.8])
+        x_var_bkg = np.array([0, 1])
+        disc_bkg = np.array([0.3, 0.7])
+
+        obj_unweighted = VarVsEff(
+            x_var_sig=x_var_sig,
+            disc_sig=disc_sig,
+            x_var_bkg=x_var_bkg,
+            disc_bkg=disc_bkg,
+            bins=1,
+            working_point=0.5,
+        )
+        obj_weighted = VarVsEff(
+            x_var_sig=x_var_sig,
+            disc_sig=disc_sig,
+            x_var_bkg=x_var_bkg,
+            disc_bkg=disc_bkg,
+            weights_sig=np.ones(2),
+            weights_bkg=np.ones(2),
+            bins=1,
+            working_point=0.5,
+        )
+
+        # N_eff = N for uniform weights, so errors should match
+        self.assertAlmostEqual(obj_unweighted.sig_eff[1][0], obj_weighted.sig_eff[1][0])
+        self.assertAlmostEqual(obj_unweighted.bkg_rej[1][0], obj_weighted.bkg_rej[1][0])
 
     def test_unequal_sized_weights(self):
         """Test the error when the weights are not the size of the discs."""

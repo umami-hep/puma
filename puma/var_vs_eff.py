@@ -466,7 +466,11 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
 
         # Calculate the efficiency and the error
         eff = save_divide(numerator=numerator, denominator=denominator)
-        eff_error = calculate_efficiency_error(eff, denominator)
+
+        # Use effective sample size for proper weighted binomial uncertainty:
+        # N_eff = (sum w)^2 / sum(w^2). For uniform weights, N_eff = N.
+        n_eff = float(weights.sum()) ** 2 / float((weights**2).sum())
+        eff_error = calculate_efficiency_error(eff, n_eff)
 
         return eff, eff_error
 
@@ -545,8 +549,10 @@ class VarVsEff(VarVsVar):  # pylint: disable=too-many-instance-attributes
             logger.warning("Your rejection is infinity -> setting it to np.nan.")
             return np.nan, np.nan
 
-        # Calculate the error
-        rej_error = calculate_rejection_error(rej, denominator)
+        # Use effective sample size for proper weighted binomial uncertainty:
+        # N_eff = (sum w)^2 / sum(w^2). For uniform weights, N_eff = N.
+        n_eff = denominator**2 / float((weights**2).sum())
+        rej_error = calculate_rejection_error(rej, n_eff)
         return rej, rej_error
 
     @property
