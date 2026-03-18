@@ -2,6 +2,9 @@
 
 ### [Latest]
 
+- Fixing Legend Label Issue in Histogram Class [#352](https://github.com/umami-hep/puma/pull/352)
+
+### [v0.5.0](https://github.com/umami-hep/puma/releases/tag/v0.4.12) (28.01.2025)
 - Use .item() instead of float() in save_divide [#357](https://github.com/umami-hep/puma/pull/357)
 - Enable Usage of Multiple Labels in Results Class [#356](https://github.com/umami-hep/puma/pull/356)
 - Enable default UV Usage [#355](https://github.com/umami-hep/puma/pull/355)
