@@ -61,7 +61,7 @@ linewidth: null
 marker: null
 markeredgewidth: null
 markersize: null
-n_test: 3333
+n_test: 3333.0
 ratio_group: ujets
 rej_class: ujets
 sig_eff:
