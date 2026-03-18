@@ -3,6 +3,7 @@
 ### [Latest]
 
 - Effective statistics for weighted var vs efficiency plots [#358](https://github.com/umami-hep/puma/pull/358)
+- Fixing Legend Label Issue in Histogram Class [#352](https://github.com/umami-hep/puma/pull/352)
 - Use .item() instead of float() in save_divide [#357](https://github.com/umami-hep/puma/pull/357)
 - Enable Usage of Multiple Labels in Results Class [#356](https://github.com/umami-hep/puma/pull/356)
 - Enable default UV Usage [#355](https://github.com/umami-hep/puma/pull/355)
