@@ -196,7 +196,7 @@ class Roc(PlotLineObject):
         if inverse:
             ratio = 1 / ratio
 
-        ratio_err = self.binomial_error(norm=True) * ratio if self.n_test else None
+        ratio_err = self.binomial_error(norm=True) * ratio[self.non_zero_mask] if self.n_test else None
         return self.sig_eff, ratio, ratio_err
 
     @property
@@ -704,10 +704,10 @@ class RocPlot(PlotBase):
                 # if uncertainties are available for roc plotting their uncertainty as
                 # a band around the roc itself
                 rej_band_down = (
-                    elem.bkg_rej[elem.non_zero_mask] - elem.binomial_error()[elem.non_zero_mask]
+                    elem.bkg_rej[elem.non_zero_mask] - elem.binomial_error()
                 )
                 rej_band_up = (
-                    elem.bkg_rej[elem.non_zero_mask] + elem.binomial_error()[elem.non_zero_mask]
+                    elem.bkg_rej[elem.non_zero_mask] + elem.binomial_error()
                 )
                 self.axis_top.fill_between(
                     elem.sig_eff[elem.non_zero_mask],
