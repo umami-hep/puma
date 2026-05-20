@@ -4,7 +4,7 @@ To set up the inputs for the plots, have a look [here](./index.md). In general, 
 for aux task plots, but a separate container with track-level aux task outputs is required to be present in the
 files (by default "tracks"). For now, vertexing and track origin prediction aux tasks are supported.
 
-The following examples use the dummy data which is described [here](./dummy_data.md)
+The following examples use the dummy data which is described [here](../examples/dummy_data.md)
 
 The high level API for aux tasks matches the general high level API in terms of structure. It can be used to
 produce vertexing performance plots.
