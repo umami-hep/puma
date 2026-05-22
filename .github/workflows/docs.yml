@@ -48,9 +48,19 @@ jobs:
           name: docs-site
           path: site
 
+      - name: Deploy PR docs preview
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: site
+          target-folder: pr-${{ github.event.pull_request.number }}
+
       - name: Deploy Docs
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          BRANCH: gh-pages
-          FOLDER: site
+          branch: gh-pages
+          folder: site
+          clean-exclude: |
+            pr-*

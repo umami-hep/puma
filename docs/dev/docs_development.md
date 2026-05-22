@@ -40,8 +40,17 @@ loader.
 
 ## Downloading the artifact of a dev version of the docs
 
-The docs are only deployed for commits on the `main` branch. However, the docs are
-built for every pull request and uploaded as an artifact named `docs-site`.
+The docs are deployed for commits on the `main` branch. Pull requests from branches
+in the main repository also get a public preview at:
 
-If you have an open pull request for your changes, open the docs workflow run,
-download the `docs-site` artifact, unzip it, and open `index.html` in your browser.
+```text
+https://umami-hep.github.io/puma/pr-<PR-number>/
+```
+
+The preview is removed automatically when the pull request is closed. Forked pull
+requests still build the docs and upload the generated site as an artifact named
+`docs-site`, but they do not publish a preview because GitHub does not grant write
+permissions to those workflows.
+
+If you need the artifact, open the docs workflow run, download `docs-site`, unzip
+it, and open `index.html` in your browser.
