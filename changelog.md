@@ -2,9 +2,7 @@
 
 ### [Latest]
 
-- Add sticky pull request comments for docs preview links
-- Add per-PR documentation previews for Puma docs
-- Replace MkDocs documentation build with Zensical
+- Move documentation build to Zensical [#367](https://github.com/umami-hep/puma/pull/367)
 - Fix binomial_error() masking issue [#360](https://github.com/umami-hep/puma/pull/360)
 - Effective statistics for weighted var vs efficiency plots [#358](https://github.com/umami-hep/puma/pull/358)
 - Fixing Legend Label Issue in Histogram Class [#352](https://github.com/umami-hep/puma/pull/352)
