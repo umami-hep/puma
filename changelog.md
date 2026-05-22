@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Add sticky pull request comments for docs preview links
 - Add per-PR documentation previews for Puma docs
 - Replace MkDocs documentation build with Zensical
 - Fix binomial_error() masking issue [#360](https://github.com/umami-hep/puma/pull/360)

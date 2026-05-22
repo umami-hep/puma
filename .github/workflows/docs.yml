@@ -13,6 +13,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -55,6 +56,42 @@ jobs:
           branch: gh-pages
           folder: site
           target-folder: pr-${{ github.event.pull_request.number }}
+
+      - name: Comment docs preview link
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const marker = '<!-- puma-docs-preview -->';
+            const previewUrl = `https://umami-hep.github.io/puma/pr-${context.payload.pull_request.number}/`;
+            const body = `${marker}\nDocs preview: ${previewUrl}`;
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const { data: comments } = await github.rest.issues.listComments({
+              owner,
+              repo,
+              issue_number,
+              per_page: 100,
+            });
+            const existing = comments.find(
+              (comment) =>
+                comment.user.type === 'Bot' && comment.body.includes(marker),
+            );
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body,
+              });
+            }
 
       - name: Deploy Docs
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
