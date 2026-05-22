@@ -12,6 +12,7 @@ edit_uri: tree/main/docs
 
 theme:
   name: zensical
+  logo: assets/PUMA.png
   variant: classic
   palette:
     - scheme: default
