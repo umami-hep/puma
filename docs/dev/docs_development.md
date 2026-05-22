@@ -1,31 +1,47 @@
 # Docs development
 
-## Adding a new version/tag to the docs
+## Building the docs locally
 
-To add the docs of a specific release/tag to the deployment on GitHub pages, just add
-the corresponding version to the file `docs/source/_static/switcher.json`. The
-corresponding job in the CI will then automatically build the docs for this release and
-add it to the deployment.
+Install the documentation dependencies from the repository root:
 
-![](../assets/version_switcher_update_edit.png)
+```bash
+uv sync --extra dev
+uv pip install -r docs/requirements.txt
+```
+
+Build the documentation with Zensical:
+
+```bash
+zensical build --config-file zensical.yml --strict
+```
+
+The generated site is written to `site/`. To preview the documentation while editing,
+run:
+
+```bash
+zensical serve --config-file zensical.yml
+```
+
+## Mermaid diagrams
+
+Mermaid code fences are supported through Zensical's native SuperFences
+configuration. Use a standard fenced block:
+
+````markdown
+```mermaid
+graph TD
+  A[Start] --> B[Finish]
+```
+````
+
+Do not use the old `mermaid2.fence_mermaid` formatter. That formatter was specific
+to the previous MkDocs Material setup and is not compatible with Zensical's config
+loader.
 
 ## Downloading the artifact of a dev version of the docs
 
-When changing something in the `puma` documentation, you might find yourself in a
-situation where you want to see if your changes have the intended effect.
-
 The docs are only deployed for commits on the `main` branch. However, the docs are
-built for _every_ commit, no matter on which branch, and are uploaded as an artifact.
+built for every pull request and uploaded as an artifact named `docs-site`.
 
-This means that you can download the docs as a `.zip` file and then browser the html
-files on your machine.
-
-If you have an open pull request for your changes, you find the artifact like shown
-below (click on the button that is marked with the red circle).
-After downloading, unzip the file and open the `artifact/index.html` file in your browser.
-You should then see the docs that you just downloaded.
-
-![](../assets/artifact_steps_1.png)
-![](../assets/artifact_steps_2.png)
-![](../assets/artifact_steps_3.png)
-
+If you have an open pull request for your changes, open the docs workflow run,
+download the `docs-site` artifact, unzip it, and open `index.html` in your browser.

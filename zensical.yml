@@ -3,30 +3,20 @@ site_description: Documentation for the PUMA plotting framework
 site_author: Umami Team
 site_url: https://umami-hep.github.io/puma/
 
-repo_name: Github
+docs_dir: docs
+site_dir: site
+
+repo_name: GitHub
 repo_url: https://github.com/umami-hep/puma
-edit_uri: "tree/main/docs"
+edit_uri: tree/main/docs
 
 theme:
-  name: material
+  name: zensical
+  variant: classic
   features:
     - content.code.copy
-    - navigation.tabs
-    - navigation.tabs.sticky
     - navigation.sections
-    - navigation.indexes
     - navigation.top
-    - toc.follow
-
-  palette:
-    - scheme: default
-      toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
-    - scheme: slate
-      toggle:
-        icon: material/brightness-4
-        name: Switch to light mode
 
 nav:
   - Introduction: index.md
@@ -50,8 +40,9 @@ nav:
       - YUMA (Yaml Plotting): hlapi/yuma.md
   - Tutorial: examples/tutorial-plotting.md
   - Contributing:
-      - dev/development_guidelines.md
-      - dev/docs_development.md
+      - Development Guidelines: dev/development_guidelines.md
+      - Docker Development: dev/docker.md
+      - Docs Development: dev/docs_development.md
   - API Reference:
       - Plot Base: api/plot_base.md
       - Histogram: api/histogram.md
@@ -64,16 +55,11 @@ nav:
 
 plugins:
   - search
-  - markdownextradata
-  - git-revision-date-localized:
-      enable_creation_date: true
-      type: date
-  - autorefs
   - mkdocstrings:
       handlers:
         python:
+          paths: [puma]
           options:
-            paths: [puma]
             line_length: 100
             show_root_heading: true
             show_root_toc_entry: true
@@ -82,27 +68,43 @@ plugins:
             merge_init_into_class: true
             annotations_path: full
             show_signature: false
-            # members: false
 
 markdown_extensions:
+  - abbr
   - admonition
-  - codehilite
-  - pymdownx.arithmatex
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem
+  - pymdownx.caret
   - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
   - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink
+  - pymdownx.mark
   - pymdownx.smartsymbols
   - pymdownx.snippets
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
           class: mermaid
-          format: "!!python/name:mermaid2.fence_mermaid"
   - pymdownx.tabbed:
       alternate_style: true
+      combine_header_slug: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
   - toc:
       permalink: "#"
 
 extra_javascript:
-  - "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"
+  - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML
 
 copyright: Copyright &copy; 2022 - 2023 CERN for the benefit of the ATLAS collaboration

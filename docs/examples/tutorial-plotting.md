@@ -572,7 +572,7 @@ rejection for a range of $b$-jets efficiencies.
 
     Plotting ROC curves with `puma` is similar to plotting histograms. The main difference
     is that you are using the `puma.RocPlot` and `puma.Roc` classes. Search the
-    [puma docs] for "roc" to have a look at an example and the API reference.
+    [puma docs](https://umami-hep.github.io/puma/examples/rocs/) for "roc" to have a look at an example and the API reference.
 
 ??? info "Hint 2: I Initialised the Plot and Added the ROC Curves - Is there anything else to do?"
 

@@ -25,21 +25,32 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Cache docs environment
+      - name: Set docs cache key
         run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+
+      - name: Cache docs environment
         uses: actions/cache@v4
         with:
           path: ~/.cache/docs
-          key: mkdocs-material-${{ env.cache_id }}
+          key: zensical-${{ env.cache_id }}
           restore-keys: |
-            mkdocs-material-
+            zensical-
 
       - name: Install dependencies
         run: uv sync --extra dev && uv pip install -r docs/requirements.txt
 
       - name: Build Docs
-        run: mkdocs build
+        run: zensical build --config-file zensical.yml --strict
+
+      - name: Upload docs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-site
+          path: site
 
       - name: Deploy Docs
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: mkdocs gh-deploy --force
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          BRANCH: gh-pages
+          FOLDER: site
