@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Update atlas-ftag-tools to v0.3.3 [#368](https://github.com/umami-hep/puma/pull/368)
 - Fix binomial_error() masking issue [#360](https://github.com/umami-hep/puma/pull/360)
 - Effective statistics for weighted var vs efficiency plots [#358](https://github.com/umami-hep/puma/pull/358)
 - Fixing Legend Label Issue in Histogram Class [#352](https://github.com/umami-hep/puma/pull/352)
