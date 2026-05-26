@@ -1258,7 +1258,7 @@
   <span class="md-ellipsis">
     
   
-  Docker Development
+  Docker images
 
     
   </span>
@@ -1985,7 +1985,7 @@ distributions).</p>
 <p>Now, it is up to you. <strong>Generate a dummy multi-class output of a neural network.</strong></p>
 <details class="info">
 <summary>Hint: Where can I find such a function?</summary>
-<p>You can have a look at the <a href="https://umami-hep.github.io/puma/main/index.html">puma documentation</a>
+<p>You can have a look at the <a href="https://umami-hep.github.io/puma/">puma documentation</a>
 and search in the API reference.</p>
 </details>
 <details class="info">
@@ -2020,7 +2020,7 @@ discriminant into the log-likelihood</p>
 \mathcal{D}_\text{b}(f_c) = \log \left(  \frac{p_b}{f_c\cdot p_c+(1-f_c)\cdot p_u} \right),
 \]</div>
 <p>with <span class="arithmatex">\(p_b\)</span>, <span class="arithmatex">\(p_c\)</span> and <span class="arithmatex">\(p_u\)</span> being the probabilities for the jet to be a <span class="arithmatex">\(b\)</span>-jet, <span class="arithmatex">\(c\)</span>-jet or
-light-flavour jet (often refered to as <span class="arithmatex">\(u\)</span>-jets), respectively. The <span class="arithmatex">\(c\)</span>-jet fraction value <span class="arithmatex">\(f_c\)</span>
+light-flavour jet (often referred to as <span class="arithmatex">\(u\)</span>-jets), respectively. The <span class="arithmatex">\(c\)</span>-jet fraction value <span class="arithmatex">\(f_c\)</span>
 allows to tune how much emphasis is given to the <span class="arithmatex">\(c\)</span>-jet or to the light-flavour performance. While
 the <span class="arithmatex">\(c\)</span>-jet rejection increases as a function of <span class="arithmatex">\(f_c\)</span>, the light-flavour jet rejection decreases.
 This parameter has to be tuned separately for each tagger and depends on the needs of the physics
@@ -2055,7 +2055,7 @@ to use the <code>get_discriminant</code> function from the
 </span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="sd">    Parameters</span>
 </span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="sd">    ----------</span>
 </span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="sd">    arr : numpy.ndarray</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="sd">        array with with shape (, 3)</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="sd">        array with shape (3,)</span>
 </span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="sd">    f_c : float, optional</span>
 </span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="sd">        f_c value in the discriminant (weight for $c$-jets rejection)</span>
 </span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>
@@ -2081,9 +2081,9 @@ retrieve the working point cut value for 70% <span class="arithmatex">\(b\)</spa
 described in the <a href="https://ftag.docs.cern.ch/algorithms/labelling/jet_labels/#delta-r-matching-default-scheme-in-ftag">FTAG algo docs</a>.</p>
 </details>
 <details class="info">
-<summary>Hint: Which Function to Use?</summary>
+<summary>Hint: Which function to use?</summary>
 <p>You can have a look at the <code>percentile</code> function from <code>numpy</code>.
-Be aware from which site we need to integrate!
+Be aware from which side we need to integrate!
 And the <code>apply_along_axis</code> function to evaluate an entire array.</p>
 </details>
 <details class="warning">
@@ -2127,7 +2127,7 @@ In that case this would simplify to
 </details>
 <p>Starting from these metrics, we can plot for instance:</p>
 <ul>
-<li><strong>ROC curves</strong>: which show the background rejection as function of the <span class="arithmatex">\(b\)</span>-jet efficency</li>
+<li><strong>ROC curves</strong>: which show the background rejection as a function of the <span class="arithmatex">\(b\)</span>-jet efficiency</li>
 <li><strong>Efficiency vs <span class="arithmatex">\(p_\text{T}\)</span></strong>: where one fixes a working point and calculates the background rejection in bins of <span class="arithmatex">\(p_\text{T}\)</span></li>
 </ul>
 <h3 id="task-1-histogram-plots">Task 1: Histogram Plots<a class="headerlink" href="#task-1-histogram-plots" title="Permanent link">#</a></h3>
@@ -2169,7 +2169,7 @@ script from this task.</p>
 </details>
 <h4 id="task-12-plotting-the-p_textt-distribution-for-jets-of-different-flavours">Task 1.2: Plotting the <span class="arithmatex">\(p_\text{T}\)</span> Distribution for Jets of Different Flavours<a class="headerlink" href="#task-12-plotting-the-p_textt-distribution-for-jets-of-different-flavours" title="Permanent link">#</a></h4>
 <p>As a next step, you will produce a histogram plot that shows the <span class="arithmatex">\(p_\text{T}\)</span> distribution of light-flavour
-jets, <span class="arithmatex">\(b\)</span>-jets and <span class="arithmatex">\(b\)</span>-jets.</p>
+jets, <span class="arithmatex">\(c\)</span>-jets and <span class="arithmatex">\(b\)</span>-jets.</p>
 <details class="info">
 <summary>Hint: How do I Create a Histogram Plot with <code>puma</code>?</summary>
 <p>You can find the examples of histogram plots
@@ -2216,10 +2216,10 @@ documentation for histogram plots with <code>puma</code>
 <li>Create the histogram plot (similar to the one from the previous task) and the different
     histograms. If you plot this for light-flavour jets, <span class="arithmatex">\(c\)</span>-jets and <span class="arithmatex">\(b\)</span>-jets, you should have 6
     histograms.</li>
-<li>Make sure that you use a different linestyle for the histgrams of you second tagger.</li>
+<li>Make sure that you use a different linestyle for the histograms of your second tagger.</li>
 <li>Add a ratio panel to the plot</li>
 <li>Make your plot look pretty. Have a look at the arguments that are supported by
-    <a href="https://umami-hep.github.io/puma/main/autoapi/puma/plot_base/index.html#puma.plot_base.PlotObject"><code>puma.PlotObject</code></a>.</li>
+    <a href="https://umami-hep.github.io/puma/api/plot_base/#puma.plot_base.PlotObject"><code>puma.PlotObject</code></a>.</li>
 </ol>
 <details class="info">
 <summary>Hint 1: Histogram and HistogramPlot Objects</summary>
@@ -2228,7 +2228,7 @@ This lines are the Histogram objects you need to define.</p>
 </details>
 <details class="info">
 <summary>Hint 2: Linestyle</summary>
-<p>The <code>linestyle</code> can be set when the different <code>Histogram</code> lines are initalised.</p>
+<p>The <code>linestyle</code> can be set when the different <code>Histogram</code> lines are initialised.</p>
 </details>
 <details class="info">
 <summary>Hint 3: Ratio Panel</summary>
@@ -2490,7 +2490,7 @@ The method you need to use here is <code>RocPlot.set_ratio_class()</code>.</p>
 </span><span id="__span-12-31"><a id="__codelineno-12-31" name="__codelineno-12-31" href="#__codelineno-12-31"></a><span class="n">plot_roc</span><span class="o">.</span><span class="n">add_roc</span><span class="p">(</span><span class="n">roc_curve</span><span class="o">=</span><span class="n">dips_ujets_roc</span><span class="p">)</span>
 </span><span id="__span-12-32"><a id="__codelineno-12-32" name="__codelineno-12-32" href="#__codelineno-12-32"></a>
 </span><span id="__span-12-33"><a id="__codelineno-12-33" name="__codelineno-12-33" href="#__codelineno-12-33"></a><span class="c1"># Set the ratio class for the ratio panels</span>
-</span><span id="__span-12-34"><a id="__codelineno-12-34" name="__codelineno-12-34" href="#__codelineno-12-34"></a><span class="n">plot_roc</span><span class="o">.</span><span class="n">set_ratio_class</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;ujets&quot;</span><span class="p">)</span>
+</span><span id="__span-12-34"><a id="__codelineno-12-34" name="__codelineno-12-34" href="#__codelineno-12-34"></a><span class="n">plot_roc</span><span class="o">.</span><span class="n">set_ratio_class</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">Flavours</span><span class="p">[</span><span class="s2">&quot;ujets&quot;</span><span class="p">])</span>
 </span><span id="__span-12-35"><a id="__codelineno-12-35" name="__codelineno-12-35" href="#__codelineno-12-35"></a>
 </span><span id="__span-12-36"><a id="__codelineno-12-36" name="__codelineno-12-36" href="#__codelineno-12-36"></a><span class="c1"># Draw and save the plot</span>
 </span><span id="__span-12-37"><a id="__codelineno-12-37" name="__codelineno-12-37" href="#__codelineno-12-37"></a><span class="n">plot_roc</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
@@ -2533,8 +2533,8 @@ The method you need to use here is <code>RocPlot.set_ratio_class()</code>.</p>
 </span><span id="__span-13-26"><a id="__codelineno-13-26" name="__codelineno-13-26" href="#__codelineno-13-26"></a><span class="n">plot_roc</span><span class="o">.</span><span class="n">add_roc</span><span class="p">(</span><span class="n">roc_curve</span><span class="o">=</span><span class="n">rnnip_cjets_roc</span><span class="p">,</span> <span class="n">reference</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </span><span id="__span-13-27"><a id="__codelineno-13-27" name="__codelineno-13-27" href="#__codelineno-13-27"></a><span class="n">plot_roc</span><span class="o">.</span><span class="n">add_roc</span><span class="p">(</span><span class="n">roc_curve</span><span class="o">=</span><span class="n">dips_cjets_roc</span><span class="p">)</span>
 </span><span id="__span-13-28"><a id="__codelineno-13-28" name="__codelineno-13-28" href="#__codelineno-13-28"></a>
-</span><span id="__span-13-29"><a id="__codelineno-13-29" name="__codelineno-13-29" href="#__codelineno-13-29"></a><span class="c1"># Add this to the below the other set_ratio_class</span>
-</span><span id="__span-13-30"><a id="__codelineno-13-30" name="__codelineno-13-30" href="#__codelineno-13-30"></a><span class="n">plot_roc</span><span class="o">.</span><span class="n">set_ratio_class</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;cjets&quot;</span><span class="p">)</span>
+</span><span id="__span-13-29"><a id="__codelineno-13-29" name="__codelineno-13-29" href="#__codelineno-13-29"></a><span class="c1"># Add this below the other set_ratio_class</span>
+</span><span id="__span-13-30"><a id="__codelineno-13-30" name="__codelineno-13-30" href="#__codelineno-13-30"></a><span class="n">plot_roc</span><span class="o">.</span><span class="n">set_ratio_class</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">Flavours</span><span class="p">[</span><span class="s2">&quot;cjets&quot;</span><span class="p">])</span>
 </span></code></pre></div>
 </details>
 <h3 id="task-3-p_textt-vs-efficiency">Task 3: <span class="arithmatex">\(p_\text{T}\)</span> vs. Efficiency<a class="headerlink" href="#task-3-p_textt-vs-efficiency" title="Permanent link">#</a></h3>
@@ -2833,7 +2833,7 @@ is left unchanged.</p>
 </span><span id="__span-19-60"><a id="__codelineno-19-60" name="__codelineno-19-60" href="#__codelineno-19-60"></a>    <span class="s1">&#39;disc_rnnip&#39;</span><span class="p">:</span> <span class="s1">&#39;RNNIP $b$-tagging discriminant&#39;</span><span class="p">,</span>
 </span><span id="__span-19-61"><a id="__codelineno-19-61" name="__codelineno-19-61" href="#__codelineno-19-61"></a><span class="p">}</span>
 </span><span id="__span-19-62"><a id="__codelineno-19-62" name="__codelineno-19-62" href="#__codelineno-19-62"></a>
-</span><span id="__span-19-63"><a id="__codelineno-19-63" name="__codelineno-19-63" href="#__codelineno-19-63"></a><span class="c1"># plot score and discriminantdistributions</span>
+</span><span id="__span-19-63"><a id="__codelineno-19-63" name="__codelineno-19-63" href="#__codelineno-19-63"></a><span class="c1"># plot score and discriminant distributions</span>
 </span><span id="__span-19-64"><a id="__codelineno-19-64" name="__codelineno-19-64" href="#__codelineno-19-64"></a><span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
 </span><span id="__span-19-65"><a id="__codelineno-19-65" name="__codelineno-19-65" href="#__codelineno-19-65"></a>    <span class="n">rnnip_light</span> <span class="o">=</span> <span class="n">Histogram</span><span class="p">(</span>
 </span><span id="__span-19-66"><a id="__codelineno-19-66" name="__codelineno-19-66" href="#__codelineno-19-66"></a>        <span class="n">jets_df</span><span class="p">[</span><span class="n">is_light</span><span class="p">][</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
@@ -2947,7 +2947,7 @@ is left unchanged.</p>
       <div class="md-copyright">
   
     <div class="md-copyright__highlight">
-      Copyright &copy; 2022 - 2023 CERN for the benefit of the ATLAS collaboration
+      Copyright &copy; 2022 - 2026 CERN for the benefit of the ATLAS collaboration
     </div>
   
   
