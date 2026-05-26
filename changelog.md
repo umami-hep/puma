@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Fix strict MkDocs documentation build warnings [#364](https://github.com/umami-hep/puma/pull/364)
 - Fix stale tutorial links and ROC ratio examples [#366](https://github.com/umami-hep/puma/pull/366)
 - Update atlas-ftag-tools to v0.3.3 [#368](https://github.com/umami-hep/puma/pull/368)
 - Fix binomial_error() masking issue [#360](https://github.com/umami-hep/puma/pull/360)

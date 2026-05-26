@@ -52,6 +52,7 @@ nav:
   - Contributing:
       - dev/development_guidelines.md
       - dev/docs_development.md
+      - Docker images: dev/docker.md
   - API Reference:
       - Plot Base: api/plot_base.md
       - Histogram: api/histogram.md
