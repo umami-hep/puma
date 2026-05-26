@@ -79,7 +79,7 @@ distributions).
 Now, it is up to you. **Generate a dummy multi-class output of a neural network.**
 
 ??? info "Hint: Where can I find such a function?"
-    You can have a look at the [puma documentation](https://umami-hep.github.io/puma/main/index.html)
+    You can have a look at the [puma documentation](https://umami-hep.github.io/puma/)
     and search in the API reference.
 
 ??? info "Hint: Which exact function?"
@@ -120,7 +120,7 @@ $$
 $$
 
 with $p_b$, $p_c$ and $p_u$ being the probabilities for the jet to be a $b$-jet, $c$-jet or
-light-flavour jet (often refered to as $u$-jets), respectively. The $c$-jet fraction value $f_c$
+light-flavour jet (often referred to as $u$-jets), respectively. The $c$-jet fraction value $f_c$
 allows to tune how much emphasis is given to the $c$-jet or to the light-flavour performance. While
 the $c$-jet rejection increases as a function of $f_c$, the light-flavour jet rejection decreases.
 This parameter has to be tuned separately for each tagger and depends on the needs of the physics
@@ -159,7 +159,7 @@ fraction value.
         Parameters
         ----------
         arr : numpy.ndarray
-            array with with shape (, 3)
+            array with shape (3,)
         f_c : float, optional
             f_c value in the discriminant (weight for $c$-jets rejection)
 
@@ -185,9 +185,9 @@ retrieve the working point cut value for 70% $b$-jet efficiency.**
     The `labels` from task 0.1 have the same values as the `HadronConeExclTruthLabelID`
     described in the [FTAG algo docs](https://ftag.docs.cern.ch/algorithms/labelling/jet_labels/#delta-r-matching-default-scheme-in-ftag).
 
-??? info "Hint: Which Function to Use?"
+??? info "Hint: Which function to use?"
     You can have a look at the `percentile` function from `numpy`.
-    Be aware from which site we need to integrate!
+    Be aware from which side we need to integrate!
     And the `apply_along_axis` function to evaluate an entire array.
 
 ??? warning "Solution"
@@ -237,7 +237,7 @@ measure. The rejection is simply the inverse of the efficiency $\frac{1}{\vareps
 
 Starting from these metrics, we can plot for instance:
 
-- **ROC curves**: which show the background rejection as function of the $b$-jet efficency
+- **ROC curves**: which show the background rejection as a function of the $b$-jet efficiency
 - **Efficiency vs $p_\text{T}$**: where one fixes a working point and calculates the background rejection in bins of $p_\text{T}$
 
 ### Task 1: Histogram Plots
@@ -284,7 +284,7 @@ script from this task.
 #### Task 1.2: Plotting the $p_\text{T}$ Distribution for Jets of Different Flavours
 
 As a next step, you will produce a histogram plot that shows the $p_\text{T}$ distribution of light-flavour
-jets, $b$-jets and $b$-jets.
+jets, $c$-jets and $b$-jets.
 
 ??? info "Hint: How do I Create a Histogram Plot with `puma`?"
 
@@ -334,10 +334,10 @@ In this task you will plot the $b$-jets probability of two different taggers - R
 1.  Create the histogram plot (similar to the one from the previous task) and the different
     histograms. If you plot this for light-flavour jets, $c$-jets and $b$-jets, you should have 6
     histograms.
-2.  Make sure that you use a different linestyle for the histgrams of you second tagger.
+2.  Make sure that you use a different linestyle for the histograms of your second tagger.
 3.  Add a ratio panel to the plot
 4.  Make your plot look pretty. Have a look at the arguments that are supported by
-    [`puma.PlotObject`](https://umami-hep.github.io/puma/main/autoapi/puma/plot_base/index.html#puma.plot_base.PlotObject).
+    [`puma.PlotObject`](https://umami-hep.github.io/puma/api/plot_base/#puma.plot_base.PlotObject).
 
 ??? info "Hint 1: Histogram and HistogramPlot Objects"
 
@@ -346,7 +346,7 @@ In this task you will plot the $b$-jets probability of two different taggers - R
 
 ??? info "Hint 2: Linestyle"
 
-    The `linestyle` can be set when the different `Histogram` lines are initalised.
+    The `linestyle` can be set when the different `Histogram` lines are initialised.
 
 ??? info "Hint 3: Ratio Panel"
 
@@ -617,7 +617,7 @@ rejection for a range of $b$-jets efficiencies.
     plot_roc.add_roc(roc_curve=dips_ujets_roc)
 
     # Set the ratio class for the ratio panels
-    plot_roc.set_ratio_class(1, "ujets")
+    plot_roc.set_ratio_class(1, Flavours["ujets"])
 
     # Draw and save the plot
     plot_roc.draw()
@@ -661,8 +661,8 @@ rejection for a range of $b$-jets efficiencies.
     plot_roc.add_roc(roc_curve=rnnip_cjets_roc, reference=True)
     plot_roc.add_roc(roc_curve=dips_cjets_roc)
 
-    # Add this to the below the other set_ratio_class
-    plot_roc.set_ratio_class(2, "cjets")
+    # Add this below the other set_ratio_class
+    plot_roc.set_ratio_class(2, Flavours["cjets"])
     ```
 
 ### Task 3: $p_\text{T}$ vs. Efficiency
@@ -989,7 +989,7 @@ For this task, you will:
         'disc_rnnip': 'RNNIP $b$-tagging discriminant',
     }
 
-    # plot score and discriminantdistributions
+    # plot score and discriminant distributions
     for v in variables:
         rnnip_light = Histogram(
             jets_df[is_light][v[0]],

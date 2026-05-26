@@ -51,7 +51,7 @@ nav:
   - Tutorial: examples/tutorial-plotting.md
   - Contributing:
       - Development Guidelines: dev/development_guidelines.md
-      - Docker Development: dev/docker.md
+      - Docker images: dev/docker.md
       - Docs Development: dev/docs_development.md
   - API Reference:
       - Plot Base: api/plot_base.md

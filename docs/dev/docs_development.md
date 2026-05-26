@@ -53,5 +53,5 @@ is closed. Forked pull requests still build the docs and upload the generated si
 as an artifact named `docs-site`, but they do not publish a preview because GitHub
 does not grant write permissions to those workflows.
 
-If you need the artifact, open the docs workflow run, download `docs-site`, unzip
-it, and open `index.html` in your browser.
+If you need the artifact, open the docs workflow run, download the `docs-site`
+artifact, unzip it, and open `index.html` in your browser.
