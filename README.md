@@ -42,7 +42,7 @@ from the `main` branch (no matter if it is a release/tagged commit).
 If you plan on contributing to `puma` and/or want the latest version possible, this
 is what you want.
 
-### Install for development with `uv` (recommended)
+### Install for Development with `uv` (recommended)
 
 For development, we recommend using [`uv`](https://docs.astral.sh/uv/), a fast Python package installer and resolver. First, install `uv`:
 
