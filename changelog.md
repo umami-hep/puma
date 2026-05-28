@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Updating Puma Tutorial [#369](https://github.com/umami-hep/puma/pull/369)
 - Move documentation build to Zensical [#367](https://github.com/umami-hep/puma/pull/367)
 - Fix strict MkDocs documentation build warnings [#364](https://github.com/umami-hep/puma/pull/364)
 - Fix stale tutorial links and ROC ratio examples [#366](https://github.com/umami-hep/puma/pull/366)
