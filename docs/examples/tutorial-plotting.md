@@ -22,7 +22,8 @@ In this tutorial you will learn how to:
 1. Plot histograms with `puma`, where you will produce plots of both jet- and track-variables.
 2. Plot ROC curves of two taggers, with ratio panels that compare the curves.
 3. Plot the efficiency/rejection of a tagger as a function of $p_\text{T}$.
-4. Plot the input variables of the files using Umami.
+4. Stream large files in batches and use the high-level `puma` plotting interface.
+5. Try a few other plot types supported by `puma`.
 
 The tutorial is meant to be followed in a self-guided manner. You will be prompted to do certain
 tasks by telling you what the desired outcome will be, without telling you how to do it. Using the
@@ -804,6 +805,316 @@ For a fixed inclusive $b$-efficiency, you plot the $b$-efficiency for different 
 
     plot_bkg_rej.draw()
     plot_bkg_rej.savefig("tutorial_pt_light_rej.png")
+    ```
+
+### Task 4: Scaling Up and Using the High-Level API
+
+The previous tasks intentionally used the low-level plotting objects, because they make the
+ingredients of each plot explicit. Once you understand these ingredients, two patterns are useful in
+day-to-day plotting:
+
+- stream large files in batches when a full `h5py` array would use too much memory;
+- use the high-level API to make standard tagger-comparison plots with less boilerplate.
+
+#### Task 4.1: Fill a Histogram from an h5 File in Batches
+
+In Task 1 you loaded the full `jets` and `tracks_loose` datasets into memory. This is convenient for
+small files, but many production files are too large for this. The `ftag.hdf5.H5Reader` can stream
+only the variables you need, and `puma.Histogram.update()` can fill the same histogram batch by
+batch.
+
+**Create the same $p_\text{T}$ histogram as in Task 1.2, but fill it batch by batch.**
+
+??? info "Hint: Which methods are needed?"
+
+    Use `H5Reader.stream()` to loop over batches and `Histogram.update()` after the first batch.
+
+??? warning "Solution"
+
+    ```py
+    import numpy as np
+    from ftag import Flavours
+    from ftag.hdf5 import H5Reader
+    from puma import Histogram, HistogramPlot
+
+    ttbar_filepath = "/eos/user/u/umamibot/tutorials/ttbar.h5"
+
+    reader = H5Reader(ttbar_filepath, batch_size=100_000, shuffle=False)
+    variables = {"jets": ["pt", "HadronConeExclTruthLabelID"]}
+    bins = np.linspace(0, 250, 50)
+
+    histograms = {"ujets": None, "cjets": None, "bjets": None}
+
+    for batch in reader.stream(variables=variables):
+        jets = batch["jets"]
+        masks = {
+            "ujets": jets["HadronConeExclTruthLabelID"] == 0,
+            "cjets": jets["HadronConeExclTruthLabelID"] == 4,
+            "bjets": jets["HadronConeExclTruthLabelID"] == 5,
+        }
+
+        for flavour, mask in masks.items():
+            values = jets["pt"][mask] / 1000
+            if histograms[flavour] is None:
+                histograms[flavour] = Histogram(
+                    values,
+                    flavour=Flavours[flavour],
+                    bins=bins,
+                )
+            else:
+                histograms[flavour].update(values)
+
+    pt_plot = HistogramPlot(
+        xlabel=r"$p_\text{T}$ [GeV]",
+        ylabel="Normalised number of jets",
+    )
+    for histogram in histograms.values():
+        pt_plot.add(histogram)
+
+    pt_plot.draw()
+    pt_plot.savefig("tutorial_histogram_pT_streamed.png")
+    ```
+
+#### Task 4.2: Use the High-Level API for Standard Tagger Comparisons
+
+The low-level `Histogram`, `Roc`, and `VarVsEff` objects are useful when you need full control.
+For repeated tagger comparisons, the high-level API can load taggers once and produce common plots
+with short method calls.
+
+**Use `Results` and `Tagger` to make discriminant and ROC comparison plots for RNNIP and DIPS.**
+
+??? info "Hint: Where can I find more examples?"
+
+    The high-level API is documented in the [high-level API docs](../hlapi/index.md). The full
+    example script is in `examples/high_level_plots.py`.
+
+??? warning "Solution"
+
+    ```py
+    from pathlib import Path
+
+    from puma.hlplots import Results, Tagger
+
+    ttbar_filepath = "/eos/user/u/umamibot/tutorials/ttbar.h5"
+
+    dips = Tagger(
+        name="dipsLoose20220314v2",
+        output_flavours=["ujets", "cjets", "bjets"],
+        label="DIPS r22",
+        fxs={"fc": 0.018},
+        colour="#AA3377",
+    )
+    rnnip = Tagger(
+        name="rnnip",
+        output_flavours=["ujets", "cjets", "bjets"],
+        label="RNNIP",
+        fxs={"fc": 0.018},
+        colour="#4477AA",
+        reference=True,
+    )
+
+    results = Results(
+        signal="bjets",
+        sample="ttbar",
+        output_dir=Path("tutorial_high_level_plots"),
+        extension="png",
+    )
+    results.load_taggers_from_file([dips, rnnip], ttbar_filepath)
+    results.atlas_second_tag = "$\\sqrt{s}=13$ TeV, PFlow jets\n$t\\bar{t}$ sample"
+
+    results.plot_discs(bins=40, bins_range=(-10, 10))
+    results.plot_rocs()
+    ```
+
+    The high-level API writes plots and cached intermediate `Histogram`/`Roc` objects into the
+    output directory. If you only want a fast test while developing a script, pass `num_jets=50_000`
+    to `load_taggers_from_file()`.
+
+### Task 5: Other Supported Plot Types
+
+The main flavour-tagging performance plots are histograms, ROC curves and efficiency/rejection
+profiles. `puma` also supports several more general plot types that are useful for quick checks,
+summary figures, and classifier diagnostics.
+
+#### Task 5.1: Plot the Flavour Composition with `PiePlot`
+
+Pie charts are not usually the right tool for detailed performance comparisons, but they are useful
+for quick sample-composition checks.
+
+**Plot the fraction of light-flavour jets, $c$-jets and $b$-jets in the tutorial file.**
+
+??? warning "Solution"
+
+    ```py
+    import h5py
+    from ftag import Flavours
+    from puma.pie import PiePlot
+
+    ttbar_filepath = "/eos/user/u/umamibot/tutorials/ttbar.h5"
+
+    with h5py.File(ttbar_filepath, "r") as h5file:
+        labels = h5file["jets"]["HadronConeExclTruthLabelID"][:]
+
+    counts = [
+        (labels == 0).sum(),
+        (labels == 4).sum(),
+        (labels == 5).sum(),
+    ]
+    plot = PiePlot(
+        wedge_sizes=counts,
+        labels=["Light-flavour jets", "$c$-jets", "$b$-jets"],
+        colours=[
+            Flavours["ujets"].colour,
+            Flavours["cjets"].colour,
+            Flavours["bjets"].colour,
+        ],
+        atlas_second_tag="$t\\bar{t}$ sample",
+        figsize=(5.5, 3.5),
+    )
+    plot.savefig("tutorial_flavour_composition.png")
+    ```
+
+#### Task 5.2: Plot a Confusion Matrix with `MatshowPlot`
+
+For multi-class taggers, a confusion matrix is a compact way to see which class has the largest
+output probability for each true jet flavour. Here we use the DIPS output probabilities directly.
+
+**Create a row-normalised confusion matrix for DIPS.**
+
+??? warning "Solution"
+
+    ```py
+    import h5py
+    import numpy as np
+    from puma.matshow import MatshowPlot
+    from puma.utils.confusion_matrix import confusion_matrix
+
+    ttbar_filepath = "/eos/user/u/umamibot/tutorials/ttbar.h5"
+
+    with h5py.File(ttbar_filepath, "r") as h5file:
+        jets = h5file["jets"][:]
+
+    is_used = np.isin(jets["HadronConeExclTruthLabelID"], [0, 4, 5])
+    true_labels = np.select(
+        [
+            jets["HadronConeExclTruthLabelID"][is_used] == 0,
+            jets["HadronConeExclTruthLabelID"][is_used] == 4,
+            jets["HadronConeExclTruthLabelID"][is_used] == 5,
+        ],
+        [0, 1, 2],
+    )
+    probabilities = np.column_stack(
+        [
+            jets["dipsLoose20220314v2_pu"][is_used],
+            jets["dipsLoose20220314v2_pc"][is_used],
+            jets["dipsLoose20220314v2_pb"][is_used],
+        ]
+    )
+    predicted_labels = np.argmax(probabilities, axis=1)
+
+    matrix = confusion_matrix(true_labels, predicted_labels, normalize="rownorm")
+
+    plot = MatshowPlot(
+        x_ticklabels=["Pred. light", "Pred. $c$", "Pred. $b$"],
+        y_ticklabels=["True light", "True $c$", "True $b$"],
+        show_entries=True,
+        show_percentage=True,
+        cbar_label="Fraction of true class",
+        atlas_second_tag="DIPS r22",
+    )
+    plot.draw(matrix)
+    plot.savefig("tutorial_dips_confusion_matrix.png")
+    ```
+
+#### Task 5.3: Plot Integrated Efficiencies
+
+Integrated-efficiency plots show the signal and background efficiencies as a function of the
+discriminant cut. They are a useful diagnostic when you want to inspect where a working point sits
+on the discriminant distribution.
+
+**Create integrated-efficiency curves for RNNIP and DIPS.**
+
+??? warning "Solution"
+
+    ```py
+    from ftag import Flavours
+    from ftag.hdf5 import H5Reader
+    from ftag.utils import get_discriminant
+    from puma import IntegratedEfficiency, IntegratedEfficiencyPlot
+
+    ttbar_filepath = "/eos/user/u/umamibot/tutorials/ttbar.h5"
+
+    reader = H5Reader(ttbar_filepath, batch_size=100)
+    jets = reader.load()["jets"]
+
+    discs_dips = get_discriminant(
+        jets=jets,
+        tagger="dipsLoose20220314v2",
+        signal=Flavours["bjets"],
+        flavours=Flavours.by_category("single-btag"),
+        fraction_values={
+            "fc": 0.018,
+            "fu": 0.982,
+            "ftau": 0,
+        },
+    )
+    discs_rnnip = get_discriminant(
+        jets=jets,
+        tagger="rnnip",
+        signal=Flavours["bjets"],
+        flavours=Flavours.by_category("single-btag"),
+        fraction_values={
+            "fc": 0.018,
+            "fu": 0.982,
+            "ftau": 0,
+        },
+    )
+
+    is_light = jets["HadronConeExclTruthLabelID"] == 0
+    is_c = jets["HadronConeExclTruthLabelID"] == 4
+    is_b = jets["HadronConeExclTruthLabelID"] == 5
+
+    plot = IntegratedEfficiencyPlot(
+        ylabel="Integrated efficiency",
+        xlabel="Discriminant",
+        atlas_second_tag="$\\sqrt{s}=13$ TeV, PFlow jets\n$t\\bar{t}$ sample",
+        figsize=(6.5, 6),
+    )
+    plot.add(
+        IntegratedEfficiency(
+            discs_rnnip[is_b],
+            discs_rnnip[is_light],
+            flavour="ujets",
+            tagger="RNNIP",
+        )
+    )
+    plot.add(
+        IntegratedEfficiency(
+            discs_rnnip[is_b],
+            discs_rnnip[is_c],
+            flavour="cjets",
+            tagger="RNNIP",
+        )
+    )
+    plot.add(
+        IntegratedEfficiency(
+            discs_dips[is_b],
+            discs_dips[is_light],
+            flavour="ujets",
+            tagger="DIPS r22",
+        )
+    )
+    plot.add(
+        IntegratedEfficiency(
+            discs_dips[is_b],
+            discs_dips[is_c],
+            flavour="cjets",
+            tagger="DIPS r22",
+        )
+    )
+
+    plot.draw()
+    plot.savefig("tutorial_integrated_efficiency.png", transparent=False)
     ```
 
 ## Bonus tasks
