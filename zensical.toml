@@ -1,0 +1,126 @@
+[project]
+site_name = "PUMA: Plotting UMami Api"
+site_description = "Documentation for the PUMA plotting framework"
+site_author = "Umami Team"
+site_url = "https://umami-hep.github.io/puma/"
+
+docs_dir = "docs"
+site_dir = "site"
+
+repo_name = "GitHub"
+repo_url = "https://github.com/umami-hep/puma"
+edit_uri = "tree/main/docs"
+
+nav = [
+  { "Introduction" = "index.md" },
+  { "Examples" = [
+    { "Examples" = "examples/index.md" },
+    { "Dummy Data" = "examples/dummy_data.md" },
+    { "Histograms" = "examples/histograms.md" },
+    { "ROC curves" = "examples/rocs.md" },
+    { "Integrated efficiency plot" = "examples/int_eff.md" },
+    { "Variable vs efficiency Plots" = "examples/var_vs_eff.md" },
+    { "Fraction Scan Plots" = "examples/fraction_scan.md" },
+    { "Pie charts" = "examples/pie_charts.md" },
+    { "Line plots" = "examples/line_plots.md" },
+    { "Confusion Matrix" = "examples/confusion_matrix.md" },
+    { "Precision Recall" = "examples/precision_recall.md" },
+    { "Matrix Plot" = "examples/matrix_plot.md" },
+  ] },
+  { "High level API" = [
+    { "High level API" = "hlapi/index.md" },
+    { "High level API for aux task plots" = "hlapi/high_level_aux_api.md" },
+    { "Number of Tracks per Jet per Origin" = "hlapi/n_track_origin.md" },
+    { "YUMA (Yaml Plotting)" = "hlapi/yuma.md" },
+  ] },
+  { "Tutorial" = "examples/tutorial-plotting.md" },
+  { "Contributing" = [
+    { "Development Guidelines" = "dev/development_guidelines.md" },
+    { "Docker images" = "dev/docker.md" },
+    { "Docs Development" = "dev/docs_development.md" },
+  ] },
+  { "API Reference" = [
+    { "Plot Base" = "api/plot_base.md" },
+    { "Histogram" = "api/histogram.md" },
+    { "ROC" = "api/roc.md" },
+    { "Integrated Efficiency" = "api/int_eff.md" },
+    { "Variable vs Variable" = "api/var_vs_var.md" },
+    { "Fraction Scan" = "api/fraction_scan.md" },
+    { "Pie Chart" = "api/pie_chart.md" },
+    { "Matshow Plot" = "api/matshow_plot.md" },
+  ] },
+]
+
+extra_javascript = [
+  "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML",
+]
+
+copyright = "Copyright &copy; 2022 - 2026 CERN for the benefit of the ATLAS collaboration"
+
+[project.theme]
+logo = "assets/PUMA.png"
+variant = "classic"
+features = [
+  "content.code.copy",
+  "navigation.sections",
+  "navigation.top",
+]
+
+[[project.theme.palette]]
+scheme = "default"
+toggle.icon = "lucide/sun"
+toggle.name = "Switch to dark mode"
+
+[[project.theme.palette]]
+scheme = "slate"
+toggle.icon = "lucide/moon"
+toggle.name = "Switch to light mode"
+
+[project.plugins.search]
+
+[project.plugins.mkdocstrings.handlers.python]
+paths = ["puma"]
+
+[project.plugins.mkdocstrings.handlers.python.options]
+line_length = 100
+show_root_heading = true
+show_root_toc_entry = true
+show_root_full_path = true
+docstring_style = "numpy"
+merge_init_into_class = true
+annotations_path = "full"
+show_signature = false
+
+[project.markdown_extensions.abbr]
+[project.markdown_extensions.admonition]
+[project.markdown_extensions.attr_list]
+[project.markdown_extensions.def_list]
+[project.markdown_extensions.footnotes]
+[project.markdown_extensions.md_in_html]
+[project.markdown_extensions.pymdownx.arithmatex]
+generic = true
+[project.markdown_extensions.pymdownx.betterem]
+[project.markdown_extensions.pymdownx.caret]
+[project.markdown_extensions.pymdownx.details]
+[project.markdown_extensions.pymdownx.highlight]
+anchor_linenums = true
+line_spans = "__span"
+pygments_lang_class = true
+[project.markdown_extensions.pymdownx.inlinehilite]
+[project.markdown_extensions.pymdownx.keys]
+[project.markdown_extensions.pymdownx.magiclink]
+[project.markdown_extensions.pymdownx.mark]
+[project.markdown_extensions.pymdownx.smartsymbols]
+[project.markdown_extensions.pymdownx.snippets]
+[project.markdown_extensions.pymdownx.superfences]
+custom_fences = [
+  { name = "mermaid", class = "mermaid" },
+]
+[project.markdown_extensions.pymdownx.tabbed]
+alternate_style = true
+combine_header_slug = true
+[project.markdown_extensions.pymdownx.tasklist]
+custom_checkbox = true
+[project.markdown_extensions.pymdownx.tilde]
+[project.markdown_extensions.toc]
+permalink = "#"

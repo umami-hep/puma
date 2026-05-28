@@ -12,14 +12,14 @@ uv pip install -r docs/requirements.txt
 Build the documentation with Zensical:
 
 ```bash
-zensical build --config-file zensical.yml --strict
+zensical build --strict
 ```
 
 The generated site is written to `site/`. To preview the documentation while editing,
 run:
 
 ```bash
-zensical serve --config-file zensical.yml
+zensical serve
 ```
 
 ## Mermaid diagrams
