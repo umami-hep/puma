@@ -21,7 +21,7 @@ Various aspects of the plot appearance can be customized using the class' argume
 - `x_ticks_rotation`: Rotation of the columns' names with respect to the horizontal direction;
 - `y_ticklabels`: Names of the matrix's rows;
 - `show_entries`: wether to show or not the matrix entries as text over the matrix's pixels (bins);
-- `show_percentage`: If `True`, the entries are formatted as percentages (i.e. numbers in [0,1] are multiplied by 100 and the percentage symbol is appended).
+- `show_percentage`: If `True`, the entries are formatted as percentages (i.e. numbers in `[0,1]` are multiplied by 100 and the percentage symbol is appended).
 - `text_color_threshold`: threshold on the relative luminance of the background color (i.e. the color of the matrix pixel) after which the overlapped text color switches to black, to allow better readability on lighter background colors. By default is set to 0.408, as per [W3C standards](https://www.w3.org/WAI/GL/wiki/Relative_luminance);
 - `colormap`: `pyplot.cm` colormap for the plot;
 - `cbar_label`: Label of the colorbar;

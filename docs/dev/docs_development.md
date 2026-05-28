@@ -1,26 +1,57 @@
 # Docs development
 
-## Adding a new version/tag to the docs
+## Building the docs locally
 
-To add the docs of a specific release/tag to the deployment on GitHub pages, just add
-the corresponding version to the file `docs/source/_static/switcher.json`. The
-corresponding job in the CI will then automatically build the docs for this release and
-add it to the deployment.
+Install the documentation dependencies from the repository root:
 
+```bash
+uv sync --extra dev
+uv pip install -r docs/requirements.txt
+```
+
+Build the documentation with Zensical:
+
+```bash
+zensical build --strict
+```
+
+The generated site is written to `site/`. To preview the documentation while editing,
+run:
+
+```bash
+zensical serve
+```
+
+## Mermaid diagrams
+
+Mermaid code fences are supported through Zensical's native SuperFences
+configuration. Use a standard fenced block:
+
+````markdown
+```mermaid
+graph TD
+  A[Start] --> B[Finish]
+```
+````
+
+Do not use the old `mermaid2.fence_mermaid` formatter. That formatter was specific
+to the previous MkDocs Material setup and is not compatible with Zensical's config
+loader.
 
 ## Downloading the artifact of a dev version of the docs
 
-When changing something in the `puma` documentation, you might find yourself in a
-situation where you want to see if your changes have the intended effect.
+The docs are deployed for commits on the `main` branch. Pull requests from branches
+in the main repository also get a public preview at:
 
-The docs are only deployed for commits on the `main` branch. However, the docs are
-built for _every_ commit, no matter on which branch, and are uploaded as an artifact.
+```text
+https://umami-hep.github.io/puma/pr-<PR-number>/
+```
 
-This means that you can download the docs as a `.zip` file and then browser the html
-files on your machine.
+The workflow posts the preview URL as a pull request comment and updates that
+comment on later runs. The preview is removed automatically when the pull request
+is closed. Forked pull requests still build the docs and upload the generated site
+as an artifact named `docs-site`, but they do not publish a preview because GitHub
+does not grant write permissions to those workflows.
 
-If you have an open pull request for your changes, open the GitHub Actions run for
-your branch and download the uploaded documentation artifact.
-After downloading, unzip the file and open the `artifact/index.html` file in your browser.
-You should then see the docs that you just downloaded.
-
+If you need the artifact, open the GitHub Actions docs workflow run, download
+the `docs-site` artifact, unzip it, and open `index.html` in your browser.

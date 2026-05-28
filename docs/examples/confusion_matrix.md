@@ -37,4 +37,4 @@ There are four possible normalization choices, which can be selected through the
 ```
 
 
-[^1] In a multiclass task, each sample belongs to one and only class (the true label, or target label).
+[^1]: In a multiclass task, each sample belongs to one and only class (the true label, or target label).
