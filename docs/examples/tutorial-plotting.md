@@ -633,11 +633,11 @@ rejection for a range of $b$-jets efficiencies.
 ??? warning "Solution"
 
     ```py
-    # Add this to the calculation part of the script (place it below or above the other calculate_rejection)
+    # Calculate the c-jet rejection values
     rnnip_cjets_rej = calculate_rejection(discs_rnnip[is_b], discs_rnnip[is_c], sig_eff)
     dips_cjets_rej = calculate_rejection(discs_dips[is_b], discs_dips[is_c], sig_eff)
 
-    # Add this below the definition of the other ROC objects
+    # Define the c-jet ROC objects
     rnnip_cjets_roc = Roc(
         sig_eff=sig_eff,
         bkg_rej=rnnip_cjets_rej,
@@ -655,14 +655,28 @@ rejection for a range of $b$-jets efficiencies.
         label="DIPS r22",
     )
 
-    # Set the n_ratio_panels in the RocPlot to 2!
+    # Create a new ROC plot with one ratio panel per rejection class
+    plot_roc = RocPlot(
+        n_ratio_panels=2,
+        ylabel="Background rejection",
+        xlabel="$b$-jet efficiency",
+        atlas_second_tag="$\\sqrt{s}=13$ TeV, dummy jets \ndummy sample, $f_{c}=0.018$",
+        figsize=(6.5, 6),
+        y_scale=1.4,
+    )
 
-    # Add this below the add_roc() from the other light jets
+    # Add both the light-jet and c-jet ROC objects
+    plot_roc.add_roc(roc_curve=rnnip_ujets_roc, reference=True)
+    plot_roc.add_roc(roc_curve=dips_ujets_roc)
     plot_roc.add_roc(roc_curve=rnnip_cjets_roc, reference=True)
     plot_roc.add_roc(roc_curve=dips_cjets_roc)
 
-    # Add this below the other set_ratio_class
+    # Set one ratio panel for light jets and one for c-jets
+    plot_roc.set_ratio_class(1, Flavours["ujets"])
     plot_roc.set_ratio_class(2, Flavours["cjets"])
+
+    plot_roc.draw()
+    plot_roc.savefig("tutorial_roc_with_cjets.png", transparent=False)
     ```
 
 ### Task 3: $p_\text{T}$ vs. Efficiency
