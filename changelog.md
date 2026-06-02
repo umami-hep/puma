@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+### [v0.5.2](https://github.com/umami-hep/puma/releases/tag/v0.5.2) (02.06.2026)
+
 - Updating Puma Tutorial [#369](https://github.com/umami-hep/puma/pull/369)
 - Move documentation build to Zensical [#367](https://github.com/umami-hep/puma/pull/367)
 - Fix strict MkDocs documentation build warnings [#364](https://github.com/umami-hep/puma/pull/364)
