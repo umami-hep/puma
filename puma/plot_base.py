@@ -19,7 +19,7 @@ from IPython.display import display
 from matplotlib import gridspec, lines
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
-from matplotlib.ticker import LogFormatterSciNotation, LogLocator, MaxNLocator
+from matplotlib.ticker import LogLocator, MaxNLocator, NullFormatter
 
 from puma.utils import logger
 
@@ -988,8 +988,9 @@ class PlotBase(PlotObject):
         sub-divisions lie in `[1, base)`; the sub-1 values shift the placement one
         decade too low, so on a sub-decade range the minor ticks above the lone
         major tick are dropped (e.g. a flat `|eta|` distribution shows ticks only
-        below `10^-2`). Reset the minor locator/formatter to the conventional
-        `subs=(2, ..., 9)` so the minor ticks and their labels span the whole axis.
+        below `10^-2`). Reset the minor locator to the conventional
+        `subs=(2, ..., 9)` so the minor tick marks span the whole axis, and keep
+        them unlabelled via a `NullFormatter`.
 
         """
         axes = [self.axis_top, *self.ratio_axes]
@@ -1001,9 +1002,7 @@ class PlotBase(PlotObject):
             ax.yaxis.set_minor_locator(
                 LogLocator(base=10.0, subs=(2, 3, 4, 5, 6, 7, 8, 9), numticks=100)
             )
-            ax.yaxis.set_minor_formatter(
-                LogFormatterSciNotation(base=10.0, labelOnlyBase=False, minor_thresholds=(2, 0.5))
-            )
+            ax.yaxis.set_minor_formatter(NullFormatter())
 
     def make_legend(
         self,
