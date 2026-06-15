@@ -30,7 +30,6 @@ dev = [
     "mypy>=1.18.1",
     "pre-commit>=4.3.0",
     "pydoclint>=0.7.3",
-    "pytest_notebook>=0.10.0",
     "pytest-cov>=7.0.0",
     "pytest-randomly>=4.0.1",
     "pytest>=8.4.2",

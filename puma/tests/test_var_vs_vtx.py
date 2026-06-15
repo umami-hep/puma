@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import shutil  # noqa: F401
 import tempfile
 import unittest
 
@@ -224,17 +225,17 @@ class VarVsVtxPlotTestCase(unittest.TestCase):
 
         plot_eff.draw()
 
-        plotname = "test_vtx_efficiency.png"
-        plot_eff.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_vtx_efficiency.png"
+        plot_eff.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # plot_eff.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
         # Investigate small shifts in labels/scale causing this test to fail
         self.assertEqual(
             None,
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=5,
             ),
         )
@@ -273,17 +274,17 @@ class VarVsVtxPlotTestCase(unittest.TestCase):
 
         plot_pur.draw()
 
-        plotname = "test_vtx_purity.png"
-        plot_pur.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_vtx_purity.png"
+        plot_pur.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # plot_pur.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
         # Investigate small shifts in labels/scale causing this test to fail
         self.assertEqual(
             None,
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=5,
             ),
         )
@@ -322,17 +323,17 @@ class VarVsVtxPlotTestCase(unittest.TestCase):
 
         plot_fakes.draw()
 
-        plotname = "test_vtx_fake_rate.png"
-        plot_fakes.savefig(f"{self.actual_plots_dir}/{plotname}")
+        name = "test_vtx_fake_rate.png"
+        plot_fakes.savefig(f"{self.actual_plots_dir}/{name}")
         # Uncomment line below to update expected image
-        # plot_fakes.savefig(f"{self.expected_plots_dir}/{plotname}")
+        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
         # Investigate small shifts in labels/scale causing this test to fail
         self.assertEqual(
             None,
             compare_images(
-                f"{self.actual_plots_dir}/{plotname}",
-                f"{self.expected_plots_dir}/{plotname}",
+                f"{self.actual_plots_dir}/{name}",
+                f"{self.expected_plots_dir}/{name}",
                 tol=5,
             ),
         )

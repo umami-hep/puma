@@ -2,6 +2,7 @@
 
 ### [Latest]
 
+- Fix Issues in with Matplotlib 3.11 [#372](https://github.com/umami-hep/puma/pull/372)
 - Update Docker development image [#370](https://github.com/umami-hep/puma/pull/370)
 
 ### [v0.5.2](https://github.com/umami-hep/puma/releases/tag/v0.5.2) (02.06.2026)
