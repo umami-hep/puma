@@ -202,8 +202,6 @@ class VarVsVarPlot(PlotBase):
     ratio_method: str, optional
         Method for ratio calculations. Accepted values: "divide", "root_square_diff",
         "subtract". By default "divide"
-    show_xaxis_endpoints : bool, optional
-        Ensure the lower and upper x-axis limits are shown as major ticks, by default False
     **kwargs : Any
         Keyword arguments from `puma.PlotObject`
 
@@ -213,13 +211,7 @@ class VarVsVarPlot(PlotBase):
         If incompatible mode given or more than 1 ratio panel requested
     """
 
-    def __init__(
-        self,
-        grid: bool = False,
-        ratio_method: str = "divide",
-        show_xaxis_endpoints: bool = False,
-        **kwargs: Any,
-    ) -> None:
+    def __init__(self, grid: bool = False, ratio_method: str = "divide", **kwargs: Any) -> None:
         super().__init__(grid=grid, **kwargs)
 
         self.plot_objects: dict[str, VarVsVar] = {}
@@ -231,17 +223,7 @@ class VarVsVarPlot(PlotBase):
         if self.n_ratio_panels > 1:
             raise ValueError("Not more than one ratio panel supported.")
         self.ratio_method = ratio_method
-        self.show_xaxis_endpoints = show_xaxis_endpoints
         self.initialise_figure()
-
-    def add_xaxis_endpoint_ticks(self) -> None:
-        """Add the lower and upper x-axis limits to the major ticks."""
-        assert self.axis_top is not None
-        axis = self.ratio_axes[-1] if self.ratio_axes else self.axis_top
-        lower, upper = axis.get_xlim()
-        ticks = axis.get_xticks()
-        interior_ticks = ticks[(ticks > lower) & (ticks < upper)]
-        axis.set_xticks(np.concatenate(([lower], interior_ticks, [upper])))
 
     def add(self, curve: VarVsVar, key: str | None = None, reference: bool = False) -> None:
         """Adding VarVsVar object to figure.
@@ -528,8 +510,7 @@ class VarVsVarPlot(PlotBase):
             self.plot_ratios()
         self.set_title()
         self.set_log()
-        if self.show_xaxis_endpoints:
-            self.add_xaxis_endpoint_ticks()
+        self.apply_xaxis_endpoint_ticks()
         self.set_y_lim()
         self.set_xlabel()
         self.set_tick_params()

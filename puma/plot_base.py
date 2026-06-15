@@ -294,6 +294,9 @@ class PlotObject:
         Set the log of x-axis, by default False
     logy : bool, optional
         Set log of y-axis of main panel, by default True
+    show_xaxis_endpoints : bool, optional
+        Ensure the lower and upper limits of continuous numeric x-axes are shown
+        as major ticks, by default False
     xlabel : str | None, optional
         Label of the x-axis, by default None
     ylabel : str | None, optional
@@ -370,6 +373,7 @@ class PlotObject:
     y_scale: float = 1.3
     logx: bool = False
     logy: bool = True
+    show_xaxis_endpoints: bool = False
     xlabel: str | None = None
     ylabel: str | None = None
     ylabel_ratio: list[str] | None = None
@@ -735,6 +739,18 @@ class PlotBase(PlotObject):
             self.axis_top.set_xlabel(**xlabel_args, **kwargs)
         else:
             self.ratio_axes[-1].set_xlabel(**xlabel_args, **kwargs)
+
+    def apply_xaxis_endpoint_ticks(self) -> None:
+        """Add the lower and upper x-axis limits to the major ticks if requested."""
+        if not self.show_xaxis_endpoints:
+            return
+
+        assert self.axis_top is not None
+        axis = self.ratio_axes[-1] if self.ratio_axes else self.axis_top
+        lower, upper = axis.get_xlim()
+        ticks = axis.get_xticks()
+        interior_ticks = ticks[(ticks > lower) & (ticks < upper)]
+        axis.set_xticks(np.concatenate(([lower], interior_ticks, [upper])))
 
     def set_tick_params(self, labelsize: int | None = None, **kwargs: Any) -> None:
         """Set tick params on all relevant axes.

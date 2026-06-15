@@ -641,6 +641,42 @@ class HistogramPlotTestCase(unittest.TestCase):
             )
         )
 
+    def test_show_xaxis_endpoints(self):
+        """Ensure numeric histogram x-axis limits are included in the major ticks."""
+        hist_plot = HistogramPlot(show_xaxis_endpoints=True)
+        hist_plot.add(
+            Histogram(
+                values=np.array([1, 2, 3, 4]),
+                bin_edges=np.array([20, 40, 60, 140, 250]),
+                label="test histogram",
+            )
+        )
+        hist_plot.draw()
+
+        np.testing.assert_array_equal(
+            hist_plot.axis_top.get_xticks(),
+            np.array([20, 50, 100, 150, 200, 250]),
+        )
+
+    def test_discrete_values_ignore_xaxis_endpoints(self):
+        """Ensure endpoint ticks do not replace discrete histogram labels."""
+        discrete_vals = [0, 5, 7, 9]
+        hist_plot = HistogramPlot(show_xaxis_endpoints=True)
+        hist_plot.add(
+            Histogram(
+                values=np.array([0, 5, 5, 7]),
+                bins=np.linspace(0, 10, 100),
+                discrete_vals=discrete_vals,
+                label="test histogram",
+            )
+        )
+        hist_plot.draw()
+
+        self.assertEqual(
+            [label.get_text() for label in hist_plot.axis_top.get_xticklabels()],
+            [str(value) for value in discrete_vals],
+        )
+
     def test_output_ratio(self):
         """Check with a plot if the ratio is the expected value."""
         hist_plot = HistogramPlot(

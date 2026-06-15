@@ -5,6 +5,7 @@ from __future__ import annotations
 import unittest
 from unittest.mock import ANY, MagicMock, patch
 
+import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.lines import Line2D
@@ -101,6 +102,7 @@ class TestPlotBase(unittest.TestCase):
         self.assertEqual(self.plot_base.n_ratio_panels, 0)
         self.assertTrue(self.plot_base.logy)
         self.assertFalse(self.plot_base.logx)
+        self.assertFalse(self.plot_base.show_xaxis_endpoints)
         self.assertFalse(self.plot_base.plotting_done)
         self.assertIsNone(self.plot_base.fig)
         self.assertIsNone(self.plot_base.axis_top)
@@ -179,6 +181,34 @@ class TestPlotBase(unittest.TestCase):
         self.plot_base.initialise_figure()
         self.plot_base.set_ylabel(self.plot_base.axis_top, "My Y Label")
         self.assertEqual(self.plot_base.axis_top.get_ylabel(), "My Y Label")
+
+    def test_apply_xaxis_endpoint_ticks_disabled(self):
+        """Test x-axis endpoint ticks are not added by default."""
+        self.plot_base.initialise_figure()
+        self.plot_base.set_xlim(xmin=20, xmax=250)
+        ticks = self.plot_base.axis_top.get_xticks().copy()
+
+        self.plot_base.apply_xaxis_endpoint_ticks()
+
+        np.testing.assert_array_equal(self.plot_base.axis_top.get_xticks(), ticks)
+
+    def test_apply_xaxis_endpoint_ticks(self):
+        """Test x-axis endpoint ticks with and without a ratio panel."""
+        for n_ratio_panels in (0, 1):
+            with self.subTest(n_ratio_panels=n_ratio_panels):
+                plot_base = PlotBase(
+                    n_ratio_panels=n_ratio_panels,
+                    show_xaxis_endpoints=True,
+                )
+                plot_base.initialise_figure()
+                plot_base.set_xlim(xmin=20, xmax=250)
+                plot_base.apply_xaxis_endpoint_ticks()
+                axis = plot_base.ratio_axes[-1] if plot_base.ratio_axes else plot_base.axis_top
+
+                np.testing.assert_array_equal(
+                    axis.get_xticks(),
+                    np.array([20, 50, 100, 150, 200, 250]),
+                )
 
     def test_set_tick_params(self):
         """Test set_tick_params is applied to top and ratio axes."""
