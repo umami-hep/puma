@@ -316,7 +316,9 @@ def n_tracks_per_origin(
         iter_plot.draw()
 
         # Remove initial legend
-        iter_plot.axis_top.get_legend().remove()
+        initial_legend = iter_plot.axis_top.get_legend()
+        if initial_legend is not None:
+            initial_legend.remove()
 
         # Remove the puma legend and call adjust layout
         iter_plot.fig.tight_layout()
