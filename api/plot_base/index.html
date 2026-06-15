@@ -4719,7 +4719,11 @@ By default None</p>
 <span class="normal"><a href="#__codelineno-0-992">992</a></span>
 <span class="normal"><a href="#__codelineno-0-993">993</a></span>
 <span class="normal"><a href="#__codelineno-0-994">994</a></span>
-<span class="normal"><a href="#__codelineno-0-995">995</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-962"><a id="__codelineno-0-962" name="__codelineno-0-962"></a><span class="k">def</span><span class="w"> </span><span class="nf">make_legend</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-995">995</a></span>
+<span class="normal"><a href="#__codelineno-0-996">996</a></span>
+<span class="normal"><a href="#__codelineno-0-997">997</a></span>
+<span class="normal"><a href="#__codelineno-0-998">998</a></span>
+<span class="normal"><a href="#__codelineno-0-999">999</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-962"><a id="__codelineno-0-962" name="__codelineno-0-962"></a><span class="k">def</span><span class="w"> </span><span class="nf">make_legend</span><span class="p">(</span>
 </span><span id="__span-0-963"><a id="__codelineno-0-963" name="__codelineno-0-963"></a>    <span class="bp">self</span><span class="p">,</span>
 </span><span id="__span-0-964"><a id="__codelineno-0-964" name="__codelineno-0-964"></a>    <span class="n">handles</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">lines</span><span class="o">.</span><span class="n">Line2D</span><span class="p">],</span>
 </span><span id="__span-0-965"><a id="__codelineno-0-965" name="__codelineno-0-965"></a>    <span class="n">ax_mpl</span><span class="p">:</span> <span class="n">Axes</span><span class="p">,</span>
@@ -4743,16 +4747,20 @@ By default None</p>
 </span><span id="__span-0-983"><a id="__codelineno-0-983" name="__codelineno-0-983"></a>    <span class="k">if</span> <span class="n">labels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="__span-0-984"><a id="__codelineno-0-984" name="__codelineno-0-984"></a>        <span class="c1"># remove the handles which have label=None</span>
 </span><span id="__span-0-985"><a id="__codelineno-0-985" name="__codelineno-0-985"></a>        <span class="n">handles</span> <span class="o">=</span> <span class="p">[</span><span class="n">handle</span> <span class="k">for</span> <span class="n">handle</span> <span class="ow">in</span> <span class="n">handles</span> <span class="k">if</span> <span class="n">handle</span><span class="o">.</span><span class="n">get_label</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
-</span><span id="__span-0-986"><a id="__codelineno-0-986" name="__codelineno-0-986"></a>    <span class="n">ax_mpl</span><span class="o">.</span><span class="n">add_artist</span><span class="p">(</span>
-</span><span id="__span-0-987"><a id="__codelineno-0-987" name="__codelineno-0-987"></a>        <span class="n">ax_mpl</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
-</span><span id="__span-0-988"><a id="__codelineno-0-988" name="__codelineno-0-988"></a>            <span class="n">handles</span><span class="o">=</span><span class="n">handles</span><span class="p">,</span>
-</span><span id="__span-0-989"><a id="__codelineno-0-989" name="__codelineno-0-989"></a>            <span class="n">labels</span><span class="o">=</span><span class="p">([</span><span class="n">handle</span><span class="o">.</span><span class="n">get_label</span><span class="p">()</span> <span class="k">for</span> <span class="n">handle</span> <span class="ow">in</span> <span class="n">handles</span><span class="p">]</span> <span class="k">if</span> <span class="n">labels</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">labels</span><span class="p">),</span>
-</span><span id="__span-0-990"><a id="__codelineno-0-990" name="__codelineno-0-990"></a>            <span class="n">loc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">leg_loc</span><span class="p">,</span>
-</span><span id="__span-0-991"><a id="__codelineno-0-991" name="__codelineno-0-991"></a>            <span class="n">fontsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">leg_fontsize</span><span class="p">,</span>
-</span><span id="__span-0-992"><a id="__codelineno-0-992" name="__codelineno-0-992"></a>            <span class="n">ncol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">leg_ncol</span><span class="p">,</span>
-</span><span id="__span-0-993"><a id="__codelineno-0-993" name="__codelineno-0-993"></a>            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-</span><span id="__span-0-994"><a id="__codelineno-0-994" name="__codelineno-0-994"></a>        <span class="p">)</span>
-</span><span id="__span-0-995"><a id="__codelineno-0-995" name="__codelineno-0-995"></a>    <span class="p">)</span>
+</span><span id="__span-0-986"><a id="__codelineno-0-986" name="__codelineno-0-986"></a>        <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">handle</span><span class="o">.</span><span class="n">get_label</span><span class="p">()</span> <span class="k">for</span> <span class="n">handle</span> <span class="ow">in</span> <span class="n">handles</span><span class="p">]</span>
+</span><span id="__span-0-987"><a id="__codelineno-0-987" name="__codelineno-0-987"></a>
+</span><span id="__span-0-988"><a id="__codelineno-0-988" name="__codelineno-0-988"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">handles</span><span class="p">:</span>
+</span><span id="__span-0-989"><a id="__codelineno-0-989" name="__codelineno-0-989"></a>        <span class="k">return</span>
+</span><span id="__span-0-990"><a id="__codelineno-0-990" name="__codelineno-0-990"></a>    <span class="n">ax_mpl</span><span class="o">.</span><span class="n">add_artist</span><span class="p">(</span>
+</span><span id="__span-0-991"><a id="__codelineno-0-991" name="__codelineno-0-991"></a>        <span class="n">ax_mpl</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+</span><span id="__span-0-992"><a id="__codelineno-0-992" name="__codelineno-0-992"></a>            <span class="n">handles</span><span class="o">=</span><span class="n">handles</span><span class="p">,</span>
+</span><span id="__span-0-993"><a id="__codelineno-0-993" name="__codelineno-0-993"></a>            <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+</span><span id="__span-0-994"><a id="__codelineno-0-994" name="__codelineno-0-994"></a>            <span class="n">loc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">leg_loc</span><span class="p">,</span>
+</span><span id="__span-0-995"><a id="__codelineno-0-995" name="__codelineno-0-995"></a>            <span class="n">fontsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">leg_fontsize</span><span class="p">,</span>
+</span><span id="__span-0-996"><a id="__codelineno-0-996" name="__codelineno-0-996"></a>            <span class="n">ncol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">leg_ncol</span><span class="p">,</span>
+</span><span id="__span-0-997"><a id="__codelineno-0-997" name="__codelineno-0-997"></a>            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+</span><span id="__span-0-998"><a id="__codelineno-0-998" name="__codelineno-0-998"></a>        <span class="p">)</span>
+</span><span id="__span-0-999"><a id="__codelineno-0-999" name="__codelineno-0-999"></a>    <span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4872,11 +4880,7 @@ linestyles</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>puma/plot_base.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-997"> 997</a></span>
-<span class="normal"><a href="#__codelineno-0-998"> 998</a></span>
-<span class="normal"><a href="#__codelineno-0-999"> 999</a></span>
-<span class="normal"><a href="#__codelineno-0-1000">1000</a></span>
-<span class="normal"><a href="#__codelineno-0-1001">1001</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1001">1001</a></span>
 <span class="normal"><a href="#__codelineno-0-1002">1002</a></span>
 <span class="normal"><a href="#__codelineno-0-1003">1003</a></span>
 <span class="normal"><a href="#__codelineno-0-1004">1004</a></span>
@@ -4920,55 +4924,59 @@ linestyles</p>
 <span class="normal"><a href="#__codelineno-0-1042">1042</a></span>
 <span class="normal"><a href="#__codelineno-0-1043">1043</a></span>
 <span class="normal"><a href="#__codelineno-0-1044">1044</a></span>
-<span class="normal"><a href="#__codelineno-0-1045">1045</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-997"><a id="__codelineno-0-997" name="__codelineno-0-997"></a><span class="k">def</span><span class="w"> </span><span class="nf">make_linestyle_legend</span><span class="p">(</span>
-</span><span id="__span-0-998"><a id="__codelineno-0-998" name="__codelineno-0-998"></a>    <span class="bp">self</span><span class="p">,</span>
-</span><span id="__span-0-999"><a id="__codelineno-0-999" name="__codelineno-0-999"></a>    <span class="n">linestyles</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-</span><span id="__span-0-1000"><a id="__codelineno-0-1000" name="__codelineno-0-1000"></a>    <span class="n">labels</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-</span><span id="__span-0-1001"><a id="__codelineno-0-1001" name="__codelineno-0-1001"></a>    <span class="n">loc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-1002"><a id="__codelineno-0-1002" name="__codelineno-0-1002"></a>    <span class="n">bbox_to_anchor</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-1003"><a id="__codelineno-0-1003" name="__codelineno-0-1003"></a>    <span class="n">axis_for_legend</span><span class="p">:</span> <span class="n">Axes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-1004"><a id="__codelineno-0-1004" name="__codelineno-0-1004"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-1005"><a id="__codelineno-0-1005" name="__codelineno-0-1005"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a legend to indicate what different linestyles correspond to.</span>
-</span><span id="__span-0-1006"><a id="__codelineno-0-1006" name="__codelineno-0-1006"></a>
-</span><span id="__span-0-1007"><a id="__codelineno-0-1007" name="__codelineno-0-1007"></a><span class="sd">    Parameters</span>
-</span><span id="__span-0-1008"><a id="__codelineno-0-1008" name="__codelineno-0-1008"></a><span class="sd">    ----------</span>
-</span><span id="__span-0-1009"><a id="__codelineno-0-1009" name="__codelineno-0-1009"></a><span class="sd">    linestyles : Sequence[str]</span>
-</span><span id="__span-0-1010"><a id="__codelineno-0-1010" name="__codelineno-0-1010"></a><span class="sd">        List of the linestyles to draw in the legend</span>
-</span><span id="__span-0-1011"><a id="__codelineno-0-1011" name="__codelineno-0-1011"></a><span class="sd">    labels : Sequence[str]</span>
-</span><span id="__span-0-1012"><a id="__codelineno-0-1012" name="__codelineno-0-1012"></a><span class="sd">        List of the corresponding labels. Has to be in the same order as the</span>
-</span><span id="__span-0-1013"><a id="__codelineno-0-1013" name="__codelineno-0-1013"></a><span class="sd">        linestyles</span>
-</span><span id="__span-0-1014"><a id="__codelineno-0-1014" name="__codelineno-0-1014"></a><span class="sd">    loc : str | None, optional</span>
-</span><span id="__span-0-1015"><a id="__codelineno-0-1015" name="__codelineno-0-1015"></a><span class="sd">        Location of the legend (matplotlib supported locations), by default None</span>
-</span><span id="__span-0-1016"><a id="__codelineno-0-1016" name="__codelineno-0-1016"></a><span class="sd">    bbox_to_anchor : tuple[float, float] | tuple[float, float, float, float] | None, optional</span>
-</span><span id="__span-0-1017"><a id="__codelineno-0-1017" name="__codelineno-0-1017"></a><span class="sd">        Allows to specify the precise position of this legend. Either a 2-tuple</span>
-</span><span id="__span-0-1018"><a id="__codelineno-0-1018" name="__codelineno-0-1018"></a><span class="sd">        (x, y) or a 4-tuple (x, y, width, height), by default None</span>
-</span><span id="__span-0-1019"><a id="__codelineno-0-1019" name="__codelineno-0-1019"></a><span class="sd">    axis_for_legend : Axes | None, optional</span>
-</span><span id="__span-0-1020"><a id="__codelineno-0-1020" name="__codelineno-0-1020"></a><span class="sd">        Axis on which to draw the legend, by default None</span>
-</span><span id="__span-0-1021"><a id="__codelineno-0-1021" name="__codelineno-0-1021"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-1022"><a id="__codelineno-0-1022" name="__codelineno-0-1022"></a>    <span class="n">axis_for_legend</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">axis_top</span> <span class="k">if</span> <span class="n">axis_for_legend</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">axis_for_legend</span>
-</span><span id="__span-0-1023"><a id="__codelineno-0-1023" name="__codelineno-0-1023"></a>    <span class="k">assert</span> <span class="n">axis_for_legend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-</span><span id="__span-0-1024"><a id="__codelineno-0-1024" name="__codelineno-0-1024"></a>
-</span><span id="__span-0-1025"><a id="__codelineno-0-1025" name="__codelineno-0-1025"></a>    <span class="n">lines_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">lines</span><span class="o">.</span><span class="n">Line2D</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="__span-0-1026"><a id="__codelineno-0-1026" name="__codelineno-0-1026"></a>    <span class="k">for</span> <span class="n">linestyle</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">linestyles</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-</span><span id="__span-0-1027"><a id="__codelineno-0-1027" name="__codelineno-0-1027"></a>        <span class="n">lines_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-</span><span id="__span-0-1028"><a id="__codelineno-0-1028" name="__codelineno-0-1028"></a>            <span class="n">lines</span><span class="o">.</span><span class="n">Line2D</span><span class="p">(</span>
-</span><span id="__span-0-1029"><a id="__codelineno-0-1029" name="__codelineno-0-1029"></a>                <span class="p">[],</span>
-</span><span id="__span-0-1030"><a id="__codelineno-0-1030" name="__codelineno-0-1030"></a>                <span class="p">[],</span>
-</span><span id="__span-0-1031"><a id="__codelineno-0-1031" name="__codelineno-0-1031"></a>                <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span>
-</span><span id="__span-0-1032"><a id="__codelineno-0-1032" name="__codelineno-0-1032"></a>                <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
-</span><span id="__span-0-1033"><a id="__codelineno-0-1033" name="__codelineno-0-1033"></a>                <span class="n">linestyle</span><span class="o">=</span><span class="n">linestyle</span><span class="p">,</span>
-</span><span id="__span-0-1034"><a id="__codelineno-0-1034" name="__codelineno-0-1034"></a>            <span class="p">)</span>
-</span><span id="__span-0-1035"><a id="__codelineno-0-1035" name="__codelineno-0-1035"></a>        <span class="p">)</span>
-</span><span id="__span-0-1036"><a id="__codelineno-0-1036" name="__codelineno-0-1036"></a>
-</span><span id="__span-0-1037"><a id="__codelineno-0-1037" name="__codelineno-0-1037"></a>    <span class="n">linestyle_legend</span> <span class="o">=</span> <span class="n">axis_for_legend</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
-</span><span id="__span-0-1038"><a id="__codelineno-0-1038" name="__codelineno-0-1038"></a>        <span class="n">handles</span><span class="o">=</span><span class="n">lines_list</span><span class="p">,</span>
-</span><span id="__span-0-1039"><a id="__codelineno-0-1039" name="__codelineno-0-1039"></a>        <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="n">handle</span><span class="o">.</span><span class="n">get_label</span><span class="p">()</span> <span class="k">for</span> <span class="n">handle</span> <span class="ow">in</span> <span class="n">lines_list</span><span class="p">],</span>
-</span><span id="__span-0-1040"><a id="__codelineno-0-1040" name="__codelineno-0-1040"></a>        <span class="n">loc</span><span class="o">=</span><span class="p">(</span><span class="n">loc</span> <span class="k">if</span> <span class="n">loc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">leg_linestyle_loc</span><span class="p">),</span>
-</span><span id="__span-0-1041"><a id="__codelineno-0-1041" name="__codelineno-0-1041"></a>        <span class="n">fontsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">leg_fontsize</span><span class="p">,</span>
-</span><span id="__span-0-1042"><a id="__codelineno-0-1042" name="__codelineno-0-1042"></a>        <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="n">bbox_to_anchor</span><span class="p">,</span>
-</span><span id="__span-0-1043"><a id="__codelineno-0-1043" name="__codelineno-0-1043"></a>        <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-</span><span id="__span-0-1044"><a id="__codelineno-0-1044" name="__codelineno-0-1044"></a>    <span class="p">)</span>
-</span><span id="__span-0-1045"><a id="__codelineno-0-1045" name="__codelineno-0-1045"></a>    <span class="n">axis_for_legend</span><span class="o">.</span><span class="n">add_artist</span><span class="p">(</span><span class="n">linestyle_legend</span><span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-1045">1045</a></span>
+<span class="normal"><a href="#__codelineno-0-1046">1046</a></span>
+<span class="normal"><a href="#__codelineno-0-1047">1047</a></span>
+<span class="normal"><a href="#__codelineno-0-1048">1048</a></span>
+<span class="normal"><a href="#__codelineno-0-1049">1049</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1001"><a id="__codelineno-0-1001" name="__codelineno-0-1001"></a><span class="k">def</span><span class="w"> </span><span class="nf">make_linestyle_legend</span><span class="p">(</span>
+</span><span id="__span-0-1002"><a id="__codelineno-0-1002" name="__codelineno-0-1002"></a>    <span class="bp">self</span><span class="p">,</span>
+</span><span id="__span-0-1003"><a id="__codelineno-0-1003" name="__codelineno-0-1003"></a>    <span class="n">linestyles</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+</span><span id="__span-0-1004"><a id="__codelineno-0-1004" name="__codelineno-0-1004"></a>    <span class="n">labels</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+</span><span id="__span-0-1005"><a id="__codelineno-0-1005" name="__codelineno-0-1005"></a>    <span class="n">loc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-1006"><a id="__codelineno-0-1006" name="__codelineno-0-1006"></a>    <span class="n">bbox_to_anchor</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-1007"><a id="__codelineno-0-1007" name="__codelineno-0-1007"></a>    <span class="n">axis_for_legend</span><span class="p">:</span> <span class="n">Axes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-1008"><a id="__codelineno-0-1008" name="__codelineno-0-1008"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-1009"><a id="__codelineno-0-1009" name="__codelineno-0-1009"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a legend to indicate what different linestyles correspond to.</span>
+</span><span id="__span-0-1010"><a id="__codelineno-0-1010" name="__codelineno-0-1010"></a>
+</span><span id="__span-0-1011"><a id="__codelineno-0-1011" name="__codelineno-0-1011"></a><span class="sd">    Parameters</span>
+</span><span id="__span-0-1012"><a id="__codelineno-0-1012" name="__codelineno-0-1012"></a><span class="sd">    ----------</span>
+</span><span id="__span-0-1013"><a id="__codelineno-0-1013" name="__codelineno-0-1013"></a><span class="sd">    linestyles : Sequence[str]</span>
+</span><span id="__span-0-1014"><a id="__codelineno-0-1014" name="__codelineno-0-1014"></a><span class="sd">        List of the linestyles to draw in the legend</span>
+</span><span id="__span-0-1015"><a id="__codelineno-0-1015" name="__codelineno-0-1015"></a><span class="sd">    labels : Sequence[str]</span>
+</span><span id="__span-0-1016"><a id="__codelineno-0-1016" name="__codelineno-0-1016"></a><span class="sd">        List of the corresponding labels. Has to be in the same order as the</span>
+</span><span id="__span-0-1017"><a id="__codelineno-0-1017" name="__codelineno-0-1017"></a><span class="sd">        linestyles</span>
+</span><span id="__span-0-1018"><a id="__codelineno-0-1018" name="__codelineno-0-1018"></a><span class="sd">    loc : str | None, optional</span>
+</span><span id="__span-0-1019"><a id="__codelineno-0-1019" name="__codelineno-0-1019"></a><span class="sd">        Location of the legend (matplotlib supported locations), by default None</span>
+</span><span id="__span-0-1020"><a id="__codelineno-0-1020" name="__codelineno-0-1020"></a><span class="sd">    bbox_to_anchor : tuple[float, float] | tuple[float, float, float, float] | None, optional</span>
+</span><span id="__span-0-1021"><a id="__codelineno-0-1021" name="__codelineno-0-1021"></a><span class="sd">        Allows to specify the precise position of this legend. Either a 2-tuple</span>
+</span><span id="__span-0-1022"><a id="__codelineno-0-1022" name="__codelineno-0-1022"></a><span class="sd">        (x, y) or a 4-tuple (x, y, width, height), by default None</span>
+</span><span id="__span-0-1023"><a id="__codelineno-0-1023" name="__codelineno-0-1023"></a><span class="sd">    axis_for_legend : Axes | None, optional</span>
+</span><span id="__span-0-1024"><a id="__codelineno-0-1024" name="__codelineno-0-1024"></a><span class="sd">        Axis on which to draw the legend, by default None</span>
+</span><span id="__span-0-1025"><a id="__codelineno-0-1025" name="__codelineno-0-1025"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-1026"><a id="__codelineno-0-1026" name="__codelineno-0-1026"></a>    <span class="n">axis_for_legend</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">axis_top</span> <span class="k">if</span> <span class="n">axis_for_legend</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">axis_for_legend</span>
+</span><span id="__span-0-1027"><a id="__codelineno-0-1027" name="__codelineno-0-1027"></a>    <span class="k">assert</span> <span class="n">axis_for_legend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+</span><span id="__span-0-1028"><a id="__codelineno-0-1028" name="__codelineno-0-1028"></a>
+</span><span id="__span-0-1029"><a id="__codelineno-0-1029" name="__codelineno-0-1029"></a>    <span class="n">lines_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">lines</span><span class="o">.</span><span class="n">Line2D</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-0-1030"><a id="__codelineno-0-1030" name="__codelineno-0-1030"></a>    <span class="k">for</span> <span class="n">linestyle</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">linestyles</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+</span><span id="__span-0-1031"><a id="__codelineno-0-1031" name="__codelineno-0-1031"></a>        <span class="n">lines_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+</span><span id="__span-0-1032"><a id="__codelineno-0-1032" name="__codelineno-0-1032"></a>            <span class="n">lines</span><span class="o">.</span><span class="n">Line2D</span><span class="p">(</span>
+</span><span id="__span-0-1033"><a id="__codelineno-0-1033" name="__codelineno-0-1033"></a>                <span class="p">[],</span>
+</span><span id="__span-0-1034"><a id="__codelineno-0-1034" name="__codelineno-0-1034"></a>                <span class="p">[],</span>
+</span><span id="__span-0-1035"><a id="__codelineno-0-1035" name="__codelineno-0-1035"></a>                <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span>
+</span><span id="__span-0-1036"><a id="__codelineno-0-1036" name="__codelineno-0-1036"></a>                <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+</span><span id="__span-0-1037"><a id="__codelineno-0-1037" name="__codelineno-0-1037"></a>                <span class="n">linestyle</span><span class="o">=</span><span class="n">linestyle</span><span class="p">,</span>
+</span><span id="__span-0-1038"><a id="__codelineno-0-1038" name="__codelineno-0-1038"></a>            <span class="p">)</span>
+</span><span id="__span-0-1039"><a id="__codelineno-0-1039" name="__codelineno-0-1039"></a>        <span class="p">)</span>
+</span><span id="__span-0-1040"><a id="__codelineno-0-1040" name="__codelineno-0-1040"></a>
+</span><span id="__span-0-1041"><a id="__codelineno-0-1041" name="__codelineno-0-1041"></a>    <span class="n">linestyle_legend</span> <span class="o">=</span> <span class="n">axis_for_legend</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+</span><span id="__span-0-1042"><a id="__codelineno-0-1042" name="__codelineno-0-1042"></a>        <span class="n">handles</span><span class="o">=</span><span class="n">lines_list</span><span class="p">,</span>
+</span><span id="__span-0-1043"><a id="__codelineno-0-1043" name="__codelineno-0-1043"></a>        <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="n">handle</span><span class="o">.</span><span class="n">get_label</span><span class="p">()</span> <span class="k">for</span> <span class="n">handle</span> <span class="ow">in</span> <span class="n">lines_list</span><span class="p">],</span>
+</span><span id="__span-0-1044"><a id="__codelineno-0-1044" name="__codelineno-0-1044"></a>        <span class="n">loc</span><span class="o">=</span><span class="p">(</span><span class="n">loc</span> <span class="k">if</span> <span class="n">loc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">leg_linestyle_loc</span><span class="p">),</span>
+</span><span id="__span-0-1045"><a id="__codelineno-0-1045" name="__codelineno-0-1045"></a>        <span class="n">fontsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">leg_fontsize</span><span class="p">,</span>
+</span><span id="__span-0-1046"><a id="__codelineno-0-1046" name="__codelineno-0-1046"></a>        <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="n">bbox_to_anchor</span><span class="p">,</span>
+</span><span id="__span-0-1047"><a id="__codelineno-0-1047" name="__codelineno-0-1047"></a>        <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-0-1048"><a id="__codelineno-0-1048" name="__codelineno-0-1048"></a>    <span class="p">)</span>
+</span><span id="__span-0-1049"><a id="__codelineno-0-1049" name="__codelineno-0-1049"></a>    <span class="n">axis_for_legend</span><span class="o">.</span><span class="n">add_artist</span><span class="p">(</span><span class="n">linestyle_legend</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -5266,11 +5274,7 @@ linestyles</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>puma/plot_base.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1047">1047</a></span>
-<span class="normal"><a href="#__codelineno-0-1048">1048</a></span>
-<span class="normal"><a href="#__codelineno-0-1049">1049</a></span>
-<span class="normal"><a href="#__codelineno-0-1050">1050</a></span>
-<span class="normal"><a href="#__codelineno-0-1051">1051</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1051">1051</a></span>
 <span class="normal"><a href="#__codelineno-0-1052">1052</a></span>
 <span class="normal"><a href="#__codelineno-0-1053">1053</a></span>
 <span class="normal"><a href="#__codelineno-0-1054">1054</a></span>
@@ -5284,25 +5288,29 @@ linestyles</p>
 <span class="normal"><a href="#__codelineno-0-1062">1062</a></span>
 <span class="normal"><a href="#__codelineno-0-1063">1063</a></span>
 <span class="normal"><a href="#__codelineno-0-1064">1064</a></span>
-<span class="normal"><a href="#__codelineno-0-1065">1065</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1047"><a id="__codelineno-0-1047" name="__codelineno-0-1047"></a><span class="k">def</span><span class="w"> </span><span class="nf">set_ratio_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ratio_panel</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-1048"><a id="__codelineno-0-1048" name="__codelineno-0-1048"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Associate the rejection class to a ratio panel.</span>
-</span><span id="__span-0-1049"><a id="__codelineno-0-1049" name="__codelineno-0-1049"></a>
-</span><span id="__span-0-1050"><a id="__codelineno-0-1050" name="__codelineno-0-1050"></a><span class="sd">    Parameters</span>
-</span><span id="__span-0-1051"><a id="__codelineno-0-1051" name="__codelineno-0-1051"></a><span class="sd">    ----------</span>
-</span><span id="__span-0-1052"><a id="__codelineno-0-1052" name="__codelineno-0-1052"></a><span class="sd">    ratio_panel : int</span>
-</span><span id="__span-0-1053"><a id="__codelineno-0-1053" name="__codelineno-0-1053"></a><span class="sd">        Index of the ratio panel to label.</span>
-</span><span id="__span-0-1054"><a id="__codelineno-0-1054" name="__codelineno-0-1054"></a><span class="sd">    label : str</span>
-</span><span id="__span-0-1055"><a id="__codelineno-0-1055" name="__codelineno-0-1055"></a><span class="sd">        y-axis label of the ratio panel.</span>
-</span><span id="__span-0-1056"><a id="__codelineno-0-1056" name="__codelineno-0-1056"></a>
-</span><span id="__span-0-1057"><a id="__codelineno-0-1057" name="__codelineno-0-1057"></a><span class="sd">    Raises</span>
-</span><span id="__span-0-1058"><a id="__codelineno-0-1058" name="__codelineno-0-1058"></a><span class="sd">    ------</span>
-</span><span id="__span-0-1059"><a id="__codelineno-0-1059" name="__codelineno-0-1059"></a><span class="sd">    ValueError</span>
-</span><span id="__span-0-1060"><a id="__codelineno-0-1060" name="__codelineno-0-1060"></a><span class="sd">        If the requested ratio panel does not exist.</span>
-</span><span id="__span-0-1061"><a id="__codelineno-0-1061" name="__codelineno-0-1061"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-1062"><a id="__codelineno-0-1062" name="__codelineno-0-1062"></a>    <span class="k">if</span> <span class="n">ratio_panel</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_ratio_panels</span><span class="p">:</span>
-</span><span id="__span-0-1063"><a id="__codelineno-0-1063" name="__codelineno-0-1063"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Plot has </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_ratio_panels</span><span class="si">}</span><span class="s2"> ratio panels, not </span><span class="si">{</span><span class="n">ratio_panel</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-0-1064"><a id="__codelineno-0-1064" name="__codelineno-0-1064"></a>    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">ylabel_ratio</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-</span><span id="__span-0-1065"><a id="__codelineno-0-1065" name="__codelineno-0-1065"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">ylabel_ratio</span><span class="p">[</span><span class="n">ratio_panel</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">label</span>
+<span class="normal"><a href="#__codelineno-0-1065">1065</a></span>
+<span class="normal"><a href="#__codelineno-0-1066">1066</a></span>
+<span class="normal"><a href="#__codelineno-0-1067">1067</a></span>
+<span class="normal"><a href="#__codelineno-0-1068">1068</a></span>
+<span class="normal"><a href="#__codelineno-0-1069">1069</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1051"><a id="__codelineno-0-1051" name="__codelineno-0-1051"></a><span class="k">def</span><span class="w"> </span><span class="nf">set_ratio_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ratio_panel</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-1052"><a id="__codelineno-0-1052" name="__codelineno-0-1052"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Associate the rejection class to a ratio panel.</span>
+</span><span id="__span-0-1053"><a id="__codelineno-0-1053" name="__codelineno-0-1053"></a>
+</span><span id="__span-0-1054"><a id="__codelineno-0-1054" name="__codelineno-0-1054"></a><span class="sd">    Parameters</span>
+</span><span id="__span-0-1055"><a id="__codelineno-0-1055" name="__codelineno-0-1055"></a><span class="sd">    ----------</span>
+</span><span id="__span-0-1056"><a id="__codelineno-0-1056" name="__codelineno-0-1056"></a><span class="sd">    ratio_panel : int</span>
+</span><span id="__span-0-1057"><a id="__codelineno-0-1057" name="__codelineno-0-1057"></a><span class="sd">        Index of the ratio panel to label.</span>
+</span><span id="__span-0-1058"><a id="__codelineno-0-1058" name="__codelineno-0-1058"></a><span class="sd">    label : str</span>
+</span><span id="__span-0-1059"><a id="__codelineno-0-1059" name="__codelineno-0-1059"></a><span class="sd">        y-axis label of the ratio panel.</span>
+</span><span id="__span-0-1060"><a id="__codelineno-0-1060" name="__codelineno-0-1060"></a>
+</span><span id="__span-0-1061"><a id="__codelineno-0-1061" name="__codelineno-0-1061"></a><span class="sd">    Raises</span>
+</span><span id="__span-0-1062"><a id="__codelineno-0-1062" name="__codelineno-0-1062"></a><span class="sd">    ------</span>
+</span><span id="__span-0-1063"><a id="__codelineno-0-1063" name="__codelineno-0-1063"></a><span class="sd">    ValueError</span>
+</span><span id="__span-0-1064"><a id="__codelineno-0-1064" name="__codelineno-0-1064"></a><span class="sd">        If the requested ratio panel does not exist.</span>
+</span><span id="__span-0-1065"><a id="__codelineno-0-1065" name="__codelineno-0-1065"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-1066"><a id="__codelineno-0-1066" name="__codelineno-0-1066"></a>    <span class="k">if</span> <span class="n">ratio_panel</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_ratio_panels</span><span class="p">:</span>
+</span><span id="__span-0-1067"><a id="__codelineno-0-1067" name="__codelineno-0-1067"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Plot has </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_ratio_panels</span><span class="si">}</span><span class="s2"> ratio panels, not </span><span class="si">{</span><span class="n">ratio_panel</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-0-1068"><a id="__codelineno-0-1068" name="__codelineno-0-1068"></a>    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">ylabel_ratio</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+</span><span id="__span-0-1069"><a id="__codelineno-0-1069" name="__codelineno-0-1069"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">ylabel_ratio</span><span class="p">[</span><span class="n">ratio_panel</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">label</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -5560,25 +5568,25 @@ by default None</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>puma/plot_base.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1067">1067</a></span>
-<span class="normal"><a href="#__codelineno-0-1068">1068</a></span>
-<span class="normal"><a href="#__codelineno-0-1069">1069</a></span>
-<span class="normal"><a href="#__codelineno-0-1070">1070</a></span>
-<span class="normal"><a href="#__codelineno-0-1071">1071</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1071">1071</a></span>
 <span class="normal"><a href="#__codelineno-0-1072">1072</a></span>
 <span class="normal"><a href="#__codelineno-0-1073">1073</a></span>
 <span class="normal"><a href="#__codelineno-0-1074">1074</a></span>
 <span class="normal"><a href="#__codelineno-0-1075">1075</a></span>
-<span class="normal"><a href="#__codelineno-0-1076">1076</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1067"><a id="__codelineno-0-1067" name="__codelineno-0-1067"></a><span class="k">def</span><span class="w"> </span><span class="nf">set_xaxis_ticklabels_invisible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">:</span> <span class="n">Axes</span><span class="p">):</span>
-</span><span id="__span-0-1068"><a id="__codelineno-0-1068" name="__codelineno-0-1068"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper function to set the ticklabels of the xaxis invisible.</span>
-</span><span id="__span-0-1069"><a id="__codelineno-0-1069" name="__codelineno-0-1069"></a>
-</span><span id="__span-0-1070"><a id="__codelineno-0-1070" name="__codelineno-0-1070"></a><span class="sd">    Parameters</span>
-</span><span id="__span-0-1071"><a id="__codelineno-0-1071" name="__codelineno-0-1071"></a><span class="sd">    ----------</span>
-</span><span id="__span-0-1072"><a id="__codelineno-0-1072" name="__codelineno-0-1072"></a><span class="sd">    ax : Axes</span>
-</span><span id="__span-0-1073"><a id="__codelineno-0-1073" name="__codelineno-0-1073"></a><span class="sd">        Axis you want to modify</span>
-</span><span id="__span-0-1074"><a id="__codelineno-0-1074" name="__codelineno-0-1074"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-1075"><a id="__codelineno-0-1075" name="__codelineno-0-1075"></a>    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">():</span>
-</span><span id="__span-0-1076"><a id="__codelineno-0-1076" name="__codelineno-0-1076"></a>        <span class="n">label</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-1076">1076</a></span>
+<span class="normal"><a href="#__codelineno-0-1077">1077</a></span>
+<span class="normal"><a href="#__codelineno-0-1078">1078</a></span>
+<span class="normal"><a href="#__codelineno-0-1079">1079</a></span>
+<span class="normal"><a href="#__codelineno-0-1080">1080</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1071"><a id="__codelineno-0-1071" name="__codelineno-0-1071"></a><span class="k">def</span><span class="w"> </span><span class="nf">set_xaxis_ticklabels_invisible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">:</span> <span class="n">Axes</span><span class="p">):</span>
+</span><span id="__span-0-1072"><a id="__codelineno-0-1072" name="__codelineno-0-1072"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper function to set the ticklabels of the xaxis invisible.</span>
+</span><span id="__span-0-1073"><a id="__codelineno-0-1073" name="__codelineno-0-1073"></a>
+</span><span id="__span-0-1074"><a id="__codelineno-0-1074" name="__codelineno-0-1074"></a><span class="sd">    Parameters</span>
+</span><span id="__span-0-1075"><a id="__codelineno-0-1075" name="__codelineno-0-1075"></a><span class="sd">    ----------</span>
+</span><span id="__span-0-1076"><a id="__codelineno-0-1076" name="__codelineno-0-1076"></a><span class="sd">    ax : Axes</span>
+</span><span id="__span-0-1077"><a id="__codelineno-0-1077" name="__codelineno-0-1077"></a><span class="sd">        Axis you want to modify</span>
+</span><span id="__span-0-1078"><a id="__codelineno-0-1078" name="__codelineno-0-1078"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-1079"><a id="__codelineno-0-1079" name="__codelineno-0-1079"></a>    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">():</span>
+</span><span id="__span-0-1080"><a id="__codelineno-0-1080" name="__codelineno-0-1080"></a>        <span class="n">label</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
