@@ -891,6 +891,38 @@ class VarVsEffOutputTestCase(unittest.TestCase):
                 figsize=(9, 6),
             )
 
+    def test_show_xaxis_endpoints_default(self):
+        """Ensure x-axis endpoint ticks are disabled by default."""
+        plot = VarVsEffPlot(mode="bkg_rej")
+        self.assertFalse(plot.show_xaxis_endpoints)
+
+    def test_show_xaxis_endpoints(self):
+        """Ensure the x-axis limits are included in the major ticks."""
+        curve = VarVsEff(
+            x_var_sig=self.x_var_sig_1,
+            disc_sig=self.disc_sig_1,
+            x_var_bkg=self.x_var_bkg,
+            disc_bkg=self.disc_bkg,
+            bins=self.bins,
+            working_point=0.5,
+            label="test curve",
+        )
+        for n_ratio_panels in (0, 1):
+            with self.subTest(n_ratio_panels=n_ratio_panels):
+                plot = VarVsEffPlot(
+                    mode="bkg_rej",
+                    n_ratio_panels=n_ratio_panels,
+                    show_xaxis_endpoints=True,
+                )
+                plot.add(curve, reference=True)
+                plot.draw()
+                axis = plot.ratio_axes[-1] if plot.ratio_axes else plot.axis_top
+
+                np.testing.assert_array_equal(
+                    axis.get_xticks(),
+                    np.array([20, 50, 100, 150, 200, 250]),
+                )
+
     def test_output_plot_flat_per_bin_bkg_rejection(self):
         """
         Test output plot with 'bkg_rej' mode and flat-per-bin setup.
