@@ -2,7 +2,7 @@
 
 ### [Latest]
 
-- Enforce xmin and xmax ticks for VarVsVar Plots [#371](https://github.com/umami-hep/puma/pull/371)
+- Allow optional xmin and xmax ticks for PlotBase [#371](https://github.com/umami-hep/puma/pull/371)
 - Fix Issues in with Matplotlib 3.11 [#372](https://github.com/umami-hep/puma/pull/372)
 - Update Docker development image [#370](https://github.com/umami-hep/puma/pull/370)
 
