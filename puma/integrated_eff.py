@@ -228,6 +228,7 @@ class IntegratedEfficiencyPlot(PlotBase):
         self.set_title()
         self.set_y_lim()
         # self.set_log()
+        self.apply_xaxis_endpoint_ticks()
         self.set_y_lim()
         self.set_xlabel(label=x_label)
         self.set_ylabel(self.axis_top, label="Integrated efficiency")

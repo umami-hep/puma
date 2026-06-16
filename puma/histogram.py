@@ -920,6 +920,8 @@ class HistogramPlot(PlotBase):
             self.bin_edges[-1] if self.xmax is None else self.xmax,
         )
         self.set_log()
+        if all(elem.discrete_vals is None for elem in self.plot_objects.values()):
+            self.apply_xaxis_endpoint_ticks()
         self.set_y_lim()
         self.set_xlabel()
         self.set_tick_params()
