@@ -19,7 +19,7 @@ from IPython.display import display
 from matplotlib import gridspec, lines
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
-from matplotlib.ticker import LogLocator, MaxNLocator, NullFormatter
+from matplotlib.ticker import MaxNLocator
 
 from puma.utils import logger
 
@@ -965,8 +965,6 @@ class PlotBase(PlotObject):
             if self.vertical_split and self.axis_leg is not None:
                 atlasify.atlasify(atlas=False, axes=self.axis_leg, enlarge=1)
 
-            self.fix_log_yaxis_minor_ticks()
-
             if force:
                 if not self.apply_atlas_style:
                     logger.warning(
@@ -976,33 +974,6 @@ class PlotBase(PlotObject):
                     logger.warning(
                         "Initialising ATLAS style even though `plotting_done` is set to False."
                     )
-
-    def fix_log_yaxis_minor_ticks(self) -> None:
-        """Restore conventional minor ticks on log y-axes after atlasify.
-
-        TODO: We need to get somehow access to atlasify to fix it.
-
-        What is the issue:
-        atlasify sets the minor `LogLocator` with `subs=(0.1, ..., 0.9)`. With
-        matplotlib >= 3.11, `LogLocator.tick_values` was rewritten to assume the
-        sub-divisions lie in `[1, base)`; the sub-1 values shift the placement one
-        decade too low, so on a sub-decade range the minor ticks above the lone
-        major tick are dropped (e.g. a flat `|eta|` distribution shows ticks only
-        below `10^-2`). Reset the minor locator to the conventional
-        `subs=(2, ..., 9)` so the minor tick marks span the whole axis, and keep
-        them unlabelled via a `NullFormatter`.
-
-        """
-        axes = [self.axis_top, *self.ratio_axes]
-        if self.axis_leg is not None:
-            axes.append(self.axis_leg)
-        for ax in axes:
-            if ax is None or ax.get_yscale() != "log":
-                continue
-            ax.yaxis.set_minor_locator(
-                LogLocator(base=10.0, subs=(2, 3, 4, 5, 6, 7, 8, 9), numticks=100)
-            )
-            ax.yaxis.set_minor_formatter(NullFormatter())
 
     def make_legend(
         self,
