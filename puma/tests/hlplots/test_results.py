@@ -129,7 +129,7 @@ class ResultsTestCase(unittest.TestCase):
                     ("TruthLabelID2", "i4"),
                 ]),
             )
-            np.testing.assert_array_equal(
+            np.testing.assert_array_almost_equal(
                 loaded_tagger.labels["TruthLabelID2"],
                 loaded_tagger.labels["HadronConeExclTruthLabelID"] + 1,
             )

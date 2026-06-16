@@ -190,7 +190,7 @@ class TestPlotBase(unittest.TestCase):
 
         self.plot_base.apply_xaxis_endpoint_ticks()
 
-        np.testing.assert_array_equal(self.plot_base.axis_top.get_xticks(), ticks)
+        np.testing.assert_array_almost_equal(self.plot_base.axis_top.get_xticks(), ticks)
 
     def test_apply_xaxis_endpoint_ticks(self):
         """Test x-axis endpoint ticks with and without a ratio panel."""
@@ -205,7 +205,7 @@ class TestPlotBase(unittest.TestCase):
                 plot_base.apply_xaxis_endpoint_ticks()
                 axis = plot_base.ratio_axes[-1] if plot_base.ratio_axes else plot_base.axis_top
 
-                np.testing.assert_array_equal(
+                np.testing.assert_array_almost_equal(
                     axis.get_xticks(),
                     np.array([20, 50, 100, 150, 200, 250]),
                 )

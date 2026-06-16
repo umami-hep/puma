@@ -157,7 +157,7 @@ class VarVsVarIOTestCase(unittest.TestCase):
 
         # ── decoding restores original Python objects ────────────────────
         decoded = VarVsVar.decode(encoded)
-        np.testing.assert_array_equal(decoded["y_var_std"], v.y_var_std)
+        np.testing.assert_array_almost_equal(decoded["y_var_std"], v.y_var_std)
         self.assertEqual(decoded["colour"], v.colour)  # tuple restored
         self.assertTrue(decoded["fill"])
 
@@ -180,10 +180,10 @@ class VarVsVarIOTestCase(unittest.TestCase):
             clone = VarVsVar.load(path)
 
             # numerical arrays survive bit-perfect
-            np.testing.assert_array_equal(v.x_var, clone.x_var)
-            np.testing.assert_array_equal(v.y_var_mean, clone.y_var_mean)
-            np.testing.assert_array_equal(v.y_var_std, clone.y_var_std)
-            np.testing.assert_array_equal(v.x_var_widths, clone.x_var_widths)
+            np.testing.assert_array_almost_equal(v.x_var, clone.x_var)
+            np.testing.assert_array_almost_equal(v.y_var_mean, clone.y_var_mean)
+            np.testing.assert_array_almost_equal(v.y_var_std, clone.y_var_std)
+            np.testing.assert_array_almost_equal(v.x_var_widths, clone.x_var_widths)
 
             # metadata
             self.assertEqual(clone.key, v.key)

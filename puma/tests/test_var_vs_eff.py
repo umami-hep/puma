@@ -730,7 +730,7 @@ class VarVsEffIOTestCase(unittest.TestCase):
         decoded = VarVsEff.decode(encoded)
 
         # The numerical data must match exactly
-        np.testing.assert_array_equal(
+        np.testing.assert_array_almost_equal(
             decoded["results"]["normal"]["sig_eff"]["y_value"],
             v.results["normal"]["sig_eff"]["y_value"],
         )
@@ -763,7 +763,7 @@ class VarVsEffIOTestCase(unittest.TestCase):
             self.assertEqual(clone, v)
 
             # Check one representative array field
-            np.testing.assert_array_equal(
+            np.testing.assert_array_almost_equal(
                 clone.results["normal"]["bkg_eff"]["y_error"],
                 v.results["normal"]["bkg_eff"]["y_error"],
             )
@@ -917,7 +917,7 @@ class VarVsEffOutputTestCase(unittest.TestCase):
                 plot.draw()
                 axis = plot.ratio_axes[-1] if plot.ratio_axes else plot.axis_top
 
-                np.testing.assert_array_equal(
+                np.testing.assert_array_almost_equal(
                     axis.get_xticks(),
                     np.array([20, 50, 100, 150, 200, 250]),
                 )

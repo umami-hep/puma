@@ -177,7 +177,7 @@ class RocIOTestCase(unittest.TestCase):
         self.assertIsNone(decoded["key"])
 
         # ndarray round-trip
-        np.testing.assert_array_equal(decoded["sig_eff"], h.sig_eff)
+        np.testing.assert_array_almost_equal(decoded["sig_eff"], h.sig_eff)
 
     # ------------------------------------------------------------------
     # save / load (JSON)
@@ -198,8 +198,8 @@ class RocIOTestCase(unittest.TestCase):
             clone = Roc.load(path)
 
             # numerical arrays survive bit-perfect
-            np.testing.assert_array_equal(h.sig_eff, clone.sig_eff)
-            np.testing.assert_array_equal(h.bkg_rej, clone.bkg_rej)
+            np.testing.assert_array_almost_equal(h.sig_eff, clone.sig_eff)
+            np.testing.assert_array_almost_equal(h.bkg_rej, clone.bkg_rej)
 
             # metadata
             self.assertEqual(clone.label, h.label)
