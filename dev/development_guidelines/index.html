@@ -1024,6 +1024,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Test-Driven Development">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#image-comparison-tests-and-reference-plots" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Image-comparison tests and reference plots
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1506,6 +1523,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Test-Driven Development">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#image-comparison-tests-and-reference-plots" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Image-comparison tests and reference plots
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1587,6 +1621,17 @@
 <p>The <code>puma</code> framework uses unit tests to reduce the risk for bugs being undetected.
 If you contribute to <code>puma</code>, please make sure that you add unit tests for the new
 code.</p>
+<h3 id="image-comparison-tests-and-reference-plots">Image-comparison tests and reference plots<a class="headerlink" href="#image-comparison-tests-and-reference-plots" title="Permanent link">#</a></h3>
+<p>Many plotting tests render a figure and compare it pixel-wise (via matplotlib's
+<code>compare_images</code>) against a stored reference image under
+<code>puma/tests/**/expected_plots/</code>. When you intentionally change a plot's appearance,
+regenerate the affected reference images by passing the <code>--update-reference-plots</code>
+flag to pytest:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>pytest<span class="w"> </span>--update-reference-plots<span class="w"> </span>puma/tests/
+</span></code></pre></div>
+<p>This overwrites the reference images with the freshly generated ones. Review the
+resulting <code>git diff</code> of the PNGs to confirm only the intended changes, then commit
+them. Without the flag, the tests only compare and never modify the references.</p>
 <h2 id="code-style">Code Style<a class="headerlink" href="#code-style" title="Permanent link">#</a></h2>
 <p>We are using the <a href="https://github.com/psf/black"><code>black</code></a> python formatter, which
 also runs in the pipeline to check if your code is properly formatted.
@@ -1601,7 +1646,7 @@ automatic formatting when you save a file.</p>
 hook, which then won't allow you to commit your staged changes if <code>ruff</code> 
 or `black fails.
 You can set it up by executing the following in the root of the repo:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>pre-commit<span class="w"> </span>install
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pre-commit<span class="w"> </span>install
 </span></code></pre></div>
 
 
