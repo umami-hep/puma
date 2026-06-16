@@ -43,6 +43,22 @@ The `puma` framework uses unit tests to reduce the risk for bugs being undetecte
 If you contribute to `puma`, please make sure that you add unit tests for the new
 code.
 
+### Image-comparison tests and reference plots
+
+Many plotting tests render a figure and compare it pixel-wise (via matplotlib's
+`compare_images`) against a stored reference image under
+`puma/tests/**/expected_plots/`. When you intentionally change a plot's appearance,
+regenerate the affected reference images by passing the `--update-reference-plots`
+flag to pytest:
+
+```bash
+pytest --update-reference-plots puma/tests/
+```
+
+This overwrites the reference images with the freshly generated ones. Review the
+resulting `git diff` of the PNGs to confirm only the intended changes, then commit
+them. Without the flag, the tests only compare and never modify the references.
+
 ## Code Style
 
 We are using the [`black`](https://github.com/psf/black) python formatter, which

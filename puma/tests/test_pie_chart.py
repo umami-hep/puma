@@ -3,13 +3,11 @@
 from __future__ import annotations
 
 import os
-import shutil  # noqa: F401
 import tempfile
 import unittest
 
-from matplotlib.testing.compare import compare_images
-
 from puma import PiePlot
+from puma.tests._image_utils import assert_plot_matches
 from puma.utils import get_good_colours, logger, set_log_level
 
 set_log_level(logger, "DEBUG")
@@ -32,16 +30,8 @@ class PiePlotTestCase(unittest.TestCase):
         )
         name = "test_pie_chart_default_style.png"
         pie_plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_plot_pie_chart_custom_style(self):
         """Check if pie chart is plotted correctly (using default style)."""
@@ -68,13 +58,5 @@ class PiePlotTestCase(unittest.TestCase):
         )
         name = "test_pie_chart_custom_style.png"
         pie_plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)

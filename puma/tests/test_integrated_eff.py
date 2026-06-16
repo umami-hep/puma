@@ -3,16 +3,15 @@
 from __future__ import annotations
 
 import os
-import shutil  # noqa: F401
 import tempfile
 import unittest
 
 import numpy as np
 from ftag import Flavours
 from ftag.utils import get_discriminant
-from matplotlib.testing.compare import compare_images
 
 from puma import IntegratedEfficiency, IntegratedEfficiencyPlot
+from puma.tests._image_utils import assert_plot_matches
 from puma.utils import get_dummy_2_taggers
 from puma.utils.logger import logger, set_log_level
 
@@ -138,15 +137,7 @@ class IntegratedEfficiencyPlotTestCase(unittest.TestCase):
         plot.draw()
         name = "test_int_eff_one_tagger.png"
         plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_output_two_taggers(self):
         """Test with one tagger."""
@@ -157,12 +148,4 @@ class IntegratedEfficiencyPlotTestCase(unittest.TestCase):
         plot.draw()
         name = "test_int_eff_two_taggers.png"
         plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)

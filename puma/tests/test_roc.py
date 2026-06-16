@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import os
-import shutil  # noqa: F401
 import tempfile
 import unittest
 from pathlib import Path
@@ -12,9 +11,9 @@ from pathlib import Path
 import numpy as np
 import yaml
 from ftag import Flavours
-from matplotlib.testing.compare import compare_images
 
 from puma import Roc, RocPlot
+from puma.tests._image_utils import assert_plot_matches
 from puma.utils.logger import logger, set_log_level
 
 set_log_level(logger, "DEBUG")
@@ -388,15 +387,7 @@ class RocOutputTestCase(unittest.TestCase):
 
         name = "test_roc_two_curves_no_ratio.png"
         plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copyfile(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=2.5,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=2.5)
 
     def test_output_two_curves_one_ratio(self):
         """Test with two curves of same flavour, one ratio panel."""
@@ -437,15 +428,7 @@ class RocOutputTestCase(unittest.TestCase):
 
         name = "test_roc_two_curves_1_ratio.png"
         plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copyfile(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=2.5,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=2.5)
 
     def test_output_two_curves_one_ratio_uncertainties(self):
         """Test with two curves of same flavour, one ratio panel."""
@@ -488,15 +471,7 @@ class RocOutputTestCase(unittest.TestCase):
 
         name = "test_roc_two_curves_1_ratio_unc.png"
         plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copyfile(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=2.5,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=2.5)
 
     def test_output_four_curves_two_ratio(self):
         """Test with two curves for each flavour, two ratio panels."""
@@ -553,15 +528,7 @@ class RocOutputTestCase(unittest.TestCase):
 
         name = "test_roc_four_curves_2_ratio.png"
         plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copyfile(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=2.5,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=2.5)
 
     def test_output_ratio_legend_four_curves_two_ratio(self):
         """Test with two curves for each flavour, two ratio panels, and ratio legend."""
@@ -618,15 +585,7 @@ class RocOutputTestCase(unittest.TestCase):
 
         name = "test_output_ratio_legend_four_curves_two_ratio.png"
         plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copyfile(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=2.5,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=2.5)
 
     def test_output_four_curves_two_ratio_uncertainties(self):
         """Test with two curves for each flavour, two ratio panels and binom. unc."""
@@ -687,15 +646,7 @@ class RocOutputTestCase(unittest.TestCase):
 
         name = "test_roc_four_curves_2_ratio_unc.png"
         plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copyfile(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=2.5,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=2.5)
 
     def test_output_ratio_labelpad(self):
         """Test for labelpad support."""
@@ -736,15 +687,7 @@ class RocOutputTestCase(unittest.TestCase):
 
         name = "test_roc_ratio_labelpad.png"
         plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copyfile(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=2.5,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=2.5)
 
     def test_set_ratio_class_type_error(self):
         """Test the TypeError raised if the rej_class is a string and the label is not a string."""

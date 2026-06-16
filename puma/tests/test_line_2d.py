@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 import os
-import shutil  # noqa: F401
 import tempfile
 import unittest
 
 import numpy as np
-from matplotlib.testing.compare import compare_images
 
 from puma import Line2D, Line2DPlot
+from puma.tests._image_utils import assert_plot_matches
 from puma.utils import logger, set_log_level
 
 set_log_level(logger, "DEBUG")
@@ -115,17 +114,8 @@ class Line2DPlotTestCase(unittest.TestCase):
         frac_plot.draw()
         frac_plot.savefig(f"{self.actual_plots_dir}/{name}")
 
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-
         # Check
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_grid_off(self):
         """Test the basic functions of Line2DPlot."""
@@ -166,17 +156,8 @@ class Line2DPlotTestCase(unittest.TestCase):
         frac_plot.draw()
         frac_plot.savefig(f"{self.actual_plots_dir}/{name}")
 
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-
         # Check
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_no_param_set(self):
         """Test the basic functions of Line2DPlot."""
@@ -219,17 +200,8 @@ class Line2DPlotTestCase(unittest.TestCase):
         frac_plot.draw()
         frac_plot.savefig(f"{self.actual_plots_dir}/{name}")
 
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-
         # Check
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_double_key(self):
         """Test the basic functions of Line2DPlot."""

@@ -1,15 +1,14 @@
 from __future__ import annotations
 
 import os
-import shutil  # noqa: F401
 import tempfile
 import unittest
 
 import numpy as np
 from matplotlib import pyplot as plt
-from matplotlib.testing.compare import compare_images
 
 from puma.matshow import MatrixComparison, MatshowPlot
+from puma.tests._image_utils import assert_plot_matches
 from puma.utils import logger, set_log_level
 
 set_log_level(logger, "DEBUG")
@@ -34,16 +33,8 @@ class TestMatshowPlot(unittest.TestCase):
         name = "test_matrix.png"
         plot_mat.draw(mat)
         plot_mat.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_matrix_of_integers(self):
         # test matrix
@@ -57,16 +48,8 @@ class TestMatshowPlot(unittest.TestCase):
         name = "test_matrix_of_integers.png"
         plot_mat.draw(mat)
         plot_mat.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_matrix_nocbar(self):
         # test matrix
@@ -80,16 +63,8 @@ class TestMatshowPlot(unittest.TestCase):
         name = "test_matrix_nocbar.png"
         plot_mat.draw(mat)
         plot_mat.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_matrix_fully_customized(self):
         # test matrix
@@ -114,16 +89,8 @@ class TestMatshowPlot(unittest.TestCase):
         plot_mat.draw(mat)
         name = "test_matrix_fully_customized.png"
         plot_mat.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_matrix_fully_customized_no_entries(self):
         # test matrix
@@ -148,16 +115,8 @@ class TestMatshowPlot(unittest.TestCase):
         name = "test_matrix_fully_customized_no_entries.png"
         plot_mat.draw(mat)
         plot_mat.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_matrix_comparison(self):
         # test matrices
@@ -192,16 +151,8 @@ class TestMatshowPlot(unittest.TestCase):
         name = "test_matrix_comparison.png"
         plot_matrix_comp.draw(mat1, mat2)
         plot_matrix_comp.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_matrix_comparison_percentage(self):
         # test matrices
@@ -232,13 +183,5 @@ class TestMatshowPlot(unittest.TestCase):
         name = "test_matrix_comparison_percentage.png"
         plot_matrix_comp.draw(mat1, mat2)
         plot_matrix_comp.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
