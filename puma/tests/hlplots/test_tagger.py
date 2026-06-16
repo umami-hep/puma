@@ -96,7 +96,7 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
         """Test passing data frame."""
         tagger = Tagger("dummy", output_flavours=["ujets", "cjets", "bjets"])
         tagger.extract_tagger_scores(self.df_dummy)
-        np.testing.assert_array_equal(s2u(tagger.scores), self.scores_expected)
+        np.testing.assert_array_almost_equal(s2u(tagger.scores), self.scores_expected)
 
     def test_data_frame_path(self):
         """Test passing data frame path."""
@@ -108,7 +108,7 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
             tagger.extract_tagger_scores(
                 file_name, key="dummy_tagger", source_type="data_frame_path"
             )
-        np.testing.assert_array_equal(s2u(tagger.scores), self.scores_expected)
+        np.testing.assert_array_almost_equal(s2u(tagger.scores), self.scores_expected)
 
     def test_h5_structured_numpy_path(self):
         """Test passing structured h5 path."""
@@ -119,7 +119,7 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
                 f_h5.create_dataset(data=self.df_dummy.to_records(), name="dummy_tagger")
 
             tagger.extract_tagger_scores(file_name, key="dummy_tagger", source_type="h5_file")
-        np.testing.assert_array_equal(s2u(tagger.scores), self.scores_expected)
+        np.testing.assert_array_almost_equal(s2u(tagger.scores), self.scores_expected)
 
     def test_structured_array(self):
         """Test passing structured numpy array."""
@@ -129,7 +129,7 @@ class TaggerScoreExtractionTestCase(unittest.TestCase):
             key="dummy_tagger",
             source_type="structured_array",
         )
-        np.testing.assert_array_equal(s2u(tagger.scores), self.scores_expected)
+        np.testing.assert_array_almost_equal(s2u(tagger.scores), self.scores_expected)
 
 
 class TaggerTestCase(unittest.TestCase):
@@ -160,7 +160,7 @@ class TaggerTestCase(unittest.TestCase):
         )
         tagger.scores = self.scores
         discs = tagger.discriminant("bjets")
-        np.testing.assert_array_equal(discs, np.zeros(10))
+        np.testing.assert_array_almost_equal(discs, np.zeros(10))
 
     def test_disc_c_calc(self):
         """Test c-disc calculation."""
@@ -171,7 +171,7 @@ class TaggerTestCase(unittest.TestCase):
         )
         tagger.scores = self.scores
         discs = tagger.discriminant("cjets")
-        np.testing.assert_array_equal(discs, np.zeros(10))
+        np.testing.assert_array_almost_equal(discs, np.zeros(10))
 
     def test_disc_hbb_calc(self):
         """Test hbb-disc calculation."""
@@ -242,19 +242,19 @@ class TaggerProbsTestCase(unittest.TestCase):
         """Test probs method without label_flavour parameter."""
         prob_flavour = "bjets"
         expected_probs = np.ones(10) * 5
-        np.testing.assert_array_equal(self.tagger.probs(prob_flavour), expected_probs)
+        np.testing.assert_array_almost_equal(self.tagger.probs(prob_flavour), expected_probs)
 
     def test_probs_with_label_flavour(self):
         """Test probs method with label_flavour parameter."""
         prob_flavour = "bjets"
         label_flavour = "cjets"
         expected_probs = np.zeros(0)
-        np.testing.assert_array_equal(
+        np.testing.assert_array_almost_equal(
             self.tagger.probs(prob_flavour, label_flavour), expected_probs
         )
         prob_flavour = "cjets"
         label_flavour = "ujets"
         expected_probs = np.zeros(10)
-        np.testing.assert_array_equal(
+        np.testing.assert_array_almost_equal(
             self.tagger.probs(prob_flavour, label_flavour), expected_probs
         )

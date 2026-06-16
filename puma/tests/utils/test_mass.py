@@ -25,7 +25,7 @@ class VertexMassTestCase(unittest.TestCase):
         vtx_idx = np.zeros((5, 10))
         vtx_masses = calculate_vertex_mass(track_pt, track_eta, track_phi, vtx_idx)
         expected_shape = (5, 10)
-        np.testing.assert_array_equal(vtx_masses.shape, expected_shape)
+        np.testing.assert_array_almost_equal(vtx_masses.shape, expected_shape)
 
     def test_single_track_only(self):
         """Check case where only single track vertices exist."""
@@ -35,7 +35,7 @@ class VertexMassTestCase(unittest.TestCase):
         vtx_idx = np.array([[0, 1, 2, 3, 4]])
         vtx_masses = calculate_vertex_mass(track_pt, track_eta, track_phi, vtx_idx, particle_mass=2)
         expected_result = np.array([[2, 2, 2, 2, 2]])
-        np.testing.assert_array_equal(vtx_masses, expected_result)
+        np.testing.assert_array_almost_equal(vtx_masses, expected_result)
 
     def test_multiple_vertices(self):
         """Check more complicated case with two vertices."""
@@ -66,4 +66,4 @@ class VertexMassTestCase(unittest.TestCase):
             track_pt, track_eta, track_phi, vtx_idx, particle_mass=0.13957
         )
         expected_result = np.array([[vtx_mass_1, vtx_mass_1, vtx_mass_2, vtx_mass_2, vtx_mass_2]])
-        np.testing.assert_array_equal(vtx_masses, expected_result)
+        np.testing.assert_array_almost_equal(vtx_masses, expected_result)

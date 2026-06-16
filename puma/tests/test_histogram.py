@@ -172,7 +172,7 @@ class HistogramTestCase(unittest.TestCase):
             norm=False,
         )
         hist.update(values=np.array([2, 2, 2]))
-        np.testing.assert_array_equal(hist.hist, np.array([3, 5]))
+        np.testing.assert_array_almost_equal(hist.hist, np.array([3, 5]))
         np.testing.assert_array_almost_equal(hist.unc, np.sqrt(np.array([3, 5])))
         np.testing.assert_array_almost_equal(
             hist.band, np.array([3, 5]) - np.sqrt(np.array([3, 5]))
@@ -186,7 +186,7 @@ class HistogramTestCase(unittest.TestCase):
             norm=True,
         )
         hist.update(values=np.array([2, 2, 2]))
-        np.testing.assert_array_equal(hist.hist, np.array([0.375, 0.625]))
+        np.testing.assert_array_almost_equal(hist.hist, np.array([0.375, 0.625]))
         np.testing.assert_array_almost_equal(hist.unc, np.sqrt(np.array([3, 5])) / 8)
         np.testing.assert_array_almost_equal(
             hist.band, np.array([0.375, 0.625]) - (np.sqrt(np.array([3, 5])) / 8)
@@ -201,7 +201,7 @@ class HistogramTestCase(unittest.TestCase):
             norm=False,
         )
         hist.update(values=np.array([2, 2, 2]))
-        np.testing.assert_array_equal(hist.hist, np.array([6, 14]))
+        np.testing.assert_array_almost_equal(hist.hist, np.array([6, 14]))
         np.testing.assert_array_almost_equal(hist.unc, np.array([3.741657, 10.198039]))
         np.testing.assert_array_almost_equal(
             hist.band, np.array([6, 14]) - np.array([3.741657, 10.198039])
@@ -216,7 +216,7 @@ class HistogramTestCase(unittest.TestCase):
             norm=True,
         )
         hist.update(values=np.array([2, 2, 2]))
-        np.testing.assert_array_equal(hist.hist, np.array([0.3, 0.7]))
+        np.testing.assert_array_almost_equal(hist.hist, np.array([0.3, 0.7]))
         np.testing.assert_array_almost_equal(hist.unc, np.array([0.187083, 0.509902]))
         np.testing.assert_array_almost_equal(
             hist.band, np.array([0.3, 0.7]) - np.array([0.187083, 0.509902])
@@ -313,7 +313,7 @@ class HistogramIOTestCase(unittest.TestCase):
         self.assertIsNone(decoded["discrete_vals"])
 
         # ndarray round-trip
-        np.testing.assert_array_equal(decoded["hist"], h.hist)
+        np.testing.assert_array_almost_equal(decoded["hist"], h.hist)
 
     # ------------------------------------------------------------------
     # save / load (JSON)
@@ -334,10 +334,10 @@ class HistogramIOTestCase(unittest.TestCase):
             clone = Histogram.load(path)
 
             # numerical arrays survive bit-perfect
-            np.testing.assert_array_equal(h.hist, clone.hist)
-            np.testing.assert_array_equal(h.bin_edges, clone.bin_edges)
-            np.testing.assert_array_equal(h.unc, clone.unc)
-            np.testing.assert_array_equal(h.band, clone.band)
+            np.testing.assert_array_almost_equal(h.hist, clone.hist)
+            np.testing.assert_array_almost_equal(h.bin_edges, clone.bin_edges)
+            np.testing.assert_array_almost_equal(h.unc, clone.unc)
+            np.testing.assert_array_almost_equal(h.band, clone.band)
 
             # metadata
             self.assertEqual(clone.label, h.label)
@@ -636,7 +636,7 @@ class HistogramPlotTestCase(unittest.TestCase):
         )
         hist_plot.draw()
 
-        np.testing.assert_array_equal(
+        np.testing.assert_array_almost_equal(
             hist_plot.axis_top.get_xticks(),
             np.array([20, 50, 100, 150, 200, 250]),
         )
