@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+### [v0.5.3](https://github.com/umami-hep/puma/releases/tag/v0.5.3) (16.06.2026)
+
 - Adding CLI Flag to Update Reference Plots [#373](https://github.com/umami-hep/puma/pull/373)
 - Allow optional xmin and xmax ticks for PlotBase [#371](https://github.com/umami-hep/puma/pull/371)
 - Fix Issues in with Matplotlib 3.11 [#372](https://github.com/umami-hep/puma/pull/372)
