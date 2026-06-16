@@ -4,16 +4,15 @@ from __future__ import annotations
 
 import json
 import os
-import shutil  # noqa: F401
 import tempfile
 import unittest
 from pathlib import Path
 
 import numpy as np
 import yaml
-from matplotlib.testing.compare import compare_images
 
 from puma import VarVsVar, VarVsVarPlot
+from puma.tests._image_utils import assert_plot_matches
 from puma.utils.logger import logger, set_log_level
 
 set_log_level(logger, "DEBUG")
@@ -342,16 +341,7 @@ class VarVsVarPlotTestCase(unittest.TestCase):
 
         name = "test_var_vs_var.png"
         test_plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertEqual(
-            None,
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=5,
-            ),
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=5)
 
     def test_output_plot_subtract(self):
         """Test output plot with the subtract method."""
@@ -376,16 +366,7 @@ class VarVsVarPlotTestCase(unittest.TestCase):
 
         name = "test_var_vs_var_subtracted.png"
         test_plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertEqual(
-            None,
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=5,
-            ),
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=5)
 
     def test_get_reference_name_multiple_references(self):
         """Testing get_reference_name ValueError for multiple references."""

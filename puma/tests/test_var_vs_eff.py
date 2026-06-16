@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import os
-import shutil  # noqa: F401
 import tempfile
 import unittest
 from pathlib import Path
@@ -12,9 +11,9 @@ from pathlib import Path
 import numpy as np
 import yaml
 from ftag import Flavours
-from matplotlib.testing.compare import compare_images
 
 from puma import VarVsEff, VarVsEffPlot
+from puma.tests._image_utils import assert_plot_matches
 from puma.utils.logger import logger, set_log_level
 
 set_log_level(logger, "DEBUG")
@@ -976,17 +975,8 @@ class VarVsEffOutputTestCase(unittest.TestCase):
 
         name = "test_pt_dependence_rejection.png"
         plot_bkg_rej.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
-        self.assertEqual(
-            None,
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            ),
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_output_plot_flat_eff_bin_bkg_efficiency(self):
         """
@@ -1041,17 +1031,8 @@ class VarVsEffOutputTestCase(unittest.TestCase):
 
         name = "test_pt_dependence_bkg_efficiency.png"
         plot_bkg_rej.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
-        self.assertEqual(
-            None,
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            ),
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_var_vs_eff_info_str_fixed_eff(self):
         """

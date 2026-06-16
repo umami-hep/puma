@@ -3,16 +3,15 @@
 from __future__ import annotations
 
 import os
-import shutil  # noqa: F401
 import tempfile
 import unittest
 from urllib.request import urlretrieve
 
 import numpy as np
 from ftag import Flavours
-from matplotlib.testing.compare import compare_images
 
 from puma.hlplots import n_tracks_per_origin
+from puma.tests._image_utils import assert_plot_matches
 from puma.utils import logger, set_log_level
 
 set_log_level(logger, "DEBUG")
@@ -60,17 +59,8 @@ class NTrackOriginTestCase(unittest.TestCase):
         # Define a plot name
         name = "ttbar_all_flavour.png"
 
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-
         # Check
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_all_samples_one_flavour(self):
         """Test the all_samples_one_flavour plot."""
@@ -117,17 +107,8 @@ class NTrackOriginTestCase(unittest.TestCase):
 
         # Check all plots
         for name in names:
-            # Uncomment line below to update expected image
-            # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-
             # Check
-            self.assertIsNone(
-                compare_images(
-                    f"{self.actual_plots_dir}/{name}",
-                    f"{self.expected_plots_dir}/{name}",
-                    tol=1,
-                )
-            )
+            assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_extra_kwargs_all_flavour(self):
         """Test extra kwargs."""
@@ -159,17 +140,8 @@ class NTrackOriginTestCase(unittest.TestCase):
         # Define a plot name
         name = "ttbar_test_kwargs_all_flavour.png"
 
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-
         # Check
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_extra_kwargs_all_samples(self):
         """Test extra kwargs."""
@@ -218,17 +190,8 @@ class NTrackOriginTestCase(unittest.TestCase):
 
         # Check all plots
         for name in names:
-            # Uncomment line below to update expected image
-            # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-
             # Check
-            self.assertIsNone(
-                compare_images(
-                    f"{self.actual_plots_dir}/{name}",
-                    f"{self.expected_plots_dir}/{name}",
-                    tol=1,
-                )
-            )
+            assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_custom_track_origins(self):
         """Test custom grouping of track origins."""
@@ -265,17 +228,8 @@ class NTrackOriginTestCase(unittest.TestCase):
         # Define a plot name
         name = "ttbar_test_custom_track_origins_all_flavour.png"
 
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-
         # Check
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_wrong_plot_type(self):
         """Test wrong plot type error raising."""

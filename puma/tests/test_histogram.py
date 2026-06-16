@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import os
-import shutil  # noqa: F401
 import tempfile
 import unittest
 from pathlib import Path
@@ -12,9 +11,9 @@ from pathlib import Path
 import numpy as np
 import yaml
 from ftag import Flavours
-from matplotlib.testing.compare import compare_images
 
 from puma import Histogram, HistogramPlot
+from puma.tests._image_utils import assert_plot_matches
 from puma.utils import logger, set_log_level
 
 set_log_level(logger, "DEBUG")
@@ -583,15 +582,7 @@ class HistogramPlotTestCase(unittest.TestCase):
 
         name = "test_histogram_data_mc.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_discrete_values(self):
         """Check if discrete values are working properly."""
@@ -631,15 +622,7 @@ class HistogramPlotTestCase(unittest.TestCase):
 
         name = "test_histogram_discrete_values.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_show_xaxis_endpoints(self):
         """Ensure numeric histogram x-axis limits are included in the major ticks."""
@@ -692,32 +675,13 @@ class HistogramPlotTestCase(unittest.TestCase):
 
         name = "test_histogram_ratio_value.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
         # Also save this plot with transparent background to test this feature
         name_transparent = "test_histogram_ratio_value_transparent.png"
         hist_plot.transparent = True
         hist_plot.savefig(f"{self.actual_plots_dir}/{name_transparent}")
-        # Uncomment line below to update expected image
-        # shutil.copy(
-        #     f"{self.actual_plots_dir}/{name_transparent}",
-        #     f"{self.expected_plots_dir}/{name_transparent}",
-        # )
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name_transparent}",
-                f"{self.expected_plots_dir}/{name_transparent}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name_transparent, tol=1)
 
     def test_output_empty_histogram_norm(self):
         """Test empty normed histogram."""
@@ -751,15 +715,7 @@ class HistogramPlotTestCase(unittest.TestCase):
 
         name = "test_histogram_empty_reference_norm.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_output_empty_histogram_no_norm(self):
         """Test if ratio is 1 for whole range if reference histogram is empty."""
@@ -791,15 +747,7 @@ class HistogramPlotTestCase(unittest.TestCase):
 
         name = "test_histogram_empty_reference_no_norm.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_output_different_range_histogram(self):
         """Test if ratio yields the expected values for case of different histogram
@@ -851,15 +799,7 @@ class HistogramPlotTestCase(unittest.TestCase):
 
         name = "test_histogram_different_ranges.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_draw_vlines_histogram(self):
         """Test the drawing of vertical lines in the histogram."""
@@ -888,15 +828,7 @@ class HistogramPlotTestCase(unittest.TestCase):
 
         name = "test_draw_vlines_histogram.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_draw_vlines_histogram_custom_labels(self):
         """Test the drawing of vertical lines in the histogram."""
@@ -926,15 +858,7 @@ class HistogramPlotTestCase(unittest.TestCase):
 
         name = "test_draw_vlines_histogram_custom_labels.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_draw_vlines_histogram_same_height(self):
         """Test the drawing of vertical lines in the histogram."""
@@ -964,15 +888,7 @@ class HistogramPlotTestCase(unittest.TestCase):
 
         name = "test_draw_vlines_histogram_same_height.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_draw_vlines_histogram_custom_yheight(self):
         """Test the drawing of vertical lines in the histogram."""
@@ -1002,15 +918,7 @@ class HistogramPlotTestCase(unittest.TestCase):
 
         name = "test_draw_vlines_histogram_custom_yheight.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_ratio_group_argument(self):
         """Test different combinations of using ratio groups."""
@@ -1085,16 +993,8 @@ class HistogramPlotTestCase(unittest.TestCase):
 
         name = "test_ratio_groups.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
 
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1.4,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1.4)
 
     def test_flavoured_labels(self):
         """Test different combinations of specifying the label when also specifying a
@@ -1160,15 +1060,7 @@ class HistogramPlotTestCase(unittest.TestCase):
 
         name = "test_flavoured_labels.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_weights(self):
         """Output plot with weights."""
@@ -1191,15 +1083,7 @@ class HistogramPlotTestCase(unittest.TestCase):
 
         name = "test_histogram_weights.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_weights_wrong_shape(self):
         """Check if ValueError is raised if wieghts has."""
@@ -1242,15 +1126,7 @@ class HistogramPlotTestCase(unittest.TestCase):
 
         name = "test_histogram_without_underoverflow_bins.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
         hist_plot = HistogramPlot()
         hist_plot.atlas_second_tag = "This plot has under/overflow bins"
@@ -1275,15 +1151,7 @@ class HistogramPlotTestCase(unittest.TestCase):
 
         name = "test_histogram_with_underoverflow_bins.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_plot_filled_hist(self):
         bin_edges = [0, 1, 2, 3, 4, 5]
@@ -1302,16 +1170,7 @@ class HistogramPlotTestCase(unittest.TestCase):
         name = "test_filled_histogram.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
 
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_plot_filled_hist_sumW2(self):
         bin_edges = [0, 1, 2, 3, 4, 5]
@@ -1332,13 +1191,4 @@ class HistogramPlotTestCase(unittest.TestCase):
         name = "test_filled_histogram_sumW2.png"
         hist_plot.savefig(f"{self.actual_plots_dir}/{name}")
 
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)

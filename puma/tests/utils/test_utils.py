@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 import os
-import shutil  # noqa: F401
 import tempfile
 import unittest
 
 import numpy as np
-from matplotlib.testing.compare import compare_images
 
 from puma import Line2D, Line2DPlot
+from puma.tests._image_utils import assert_plot_matches
 from puma.utils import (
     get_good_colours,
     get_good_linestyles,
@@ -85,15 +84,7 @@ class LinestylesTestCase(unittest.TestCase):
         test_plot.draw()
         name = "test_linestyles.png"
         test_plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_colours_accepted_by_mpl(self):
         """Test if all the colours are supported."""
@@ -109,15 +100,7 @@ class LinestylesTestCase(unittest.TestCase):
         test_plot.draw()
         name = "test_colours.png"
         test_plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_colours_accepted_by_mpl_dark2p8(self):
         """Test if all the dark2.8 colours are supported."""
@@ -133,15 +116,7 @@ class LinestylesTestCase(unittest.TestCase):
         test_plot.draw()
         name = "test_colours_dark2p8.png"
         test_plot.savefig(f"{self.actual_plots_dir}/{name}")
-        # Uncomment line below to update expected image
-        # shutil.copy(f"{self.actual_plots_dir}/{name}", f"{self.expected_plots_dir}/{name}")
-        self.assertIsNone(
-            compare_images(
-                f"{self.actual_plots_dir}/{name}",
-                f"{self.expected_plots_dir}/{name}",
-                tol=1,
-            )
-        )
+        assert_plot_matches(self.actual_plots_dir, self.expected_plots_dir, name, tol=1)
 
     def test_colours_ValueError(self):
         """Test the ValueError if an unsupported colour scheme is called."""
