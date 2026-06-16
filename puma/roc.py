@@ -620,6 +620,7 @@ class RocPlot(PlotBase):
             self.add_ratios()
         self.set_title()
         self.set_log()
+        self.apply_xaxis_endpoint_ticks()
         self.set_y_lim()
         self.set_xlabel()
         self.set_ylabel(self.axis_top)
