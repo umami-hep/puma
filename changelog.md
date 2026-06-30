@@ -2,6 +2,8 @@
 
 ### [Latest]
 
+- Update atlas-ftag-tools to v0.3.5 [#375](https://github.com/umami-hep/puma/pull/375)
+
 ### [v0.5.3](https://github.com/umami-hep/puma/releases/tag/v0.5.3) (16.06.2026)
 
 - Replace `assert_array_equal` with `assert_array_almost_equal` in tests [#374](https://github.com/umami-hep/puma/pull/374)
