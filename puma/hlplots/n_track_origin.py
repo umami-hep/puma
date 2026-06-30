@@ -200,7 +200,7 @@ def n_tracks_per_origin(
                     jets_name: [jet_pt_variable, flavour_label_variable],
                     tracks_name: [track_truth_variable],
                 },
-                num_jets=file_value.get("n_jets", None),
+                num_global_objects=file_value.get("n_jets", None),
                 cuts=kinematic_cuts + flavour.cuts,
             )
 
