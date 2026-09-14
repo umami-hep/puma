@@ -324,6 +324,18 @@ class HistRatioTestCase(unittest.TestCase):
         np.testing.assert_almost_equal(step_rsd, -self.step_rsd)
         np.testing.assert_almost_equal(step_rsd_unc, self.step_rsd_unc)
 
+    def test_hist_rsd_equal_magnitude(self):
+        """Test that the rsd uncertainty is zero where numerator and denominator cancel."""
+        _, step_rsd_unc = hist_ratio(
+            numerator=np.array([2.0, -3.0, 4.0]),
+            denominator=np.array([2.0, 3.0, 1.0]),
+            numerator_unc=np.array([0.5, 0.5, 0.5]),
+            step=False,
+            method="root_square_diff",
+        )
+
+        np.testing.assert_almost_equal(step_rsd_unc, [0, 0, 2 / np.sqrt(15)])
+
     def test_hist_not_same_length_numerator_denominator(self):
         """Test case where denominator and numerator have not the same length."""
         with self.assertRaises(AssertionError):
