@@ -290,6 +290,17 @@ class HistRatioTestCase(unittest.TestCase):
         np.testing.assert_almost_equal(step, self.step)
         np.testing.assert_almost_equal(step_unc, self.step_unc)
 
+    def test_hist_ratio_negative_denominator(self):
+        """Test that the ratio uncertainty stays positive for negative denominators."""
+        step, step_unc = hist_ratio(
+            numerator=self.numerator,
+            denominator=-self.denominator,
+            numerator_unc=self.numerator_unc,
+        )
+
+        np.testing.assert_almost_equal(step, -self.step)
+        np.testing.assert_almost_equal(step_unc, self.step_unc)
+
     def test_hist_rsd(self):
         step_rsd, step_rsd_unc = hist_ratio(
             numerator=self.numerator,
@@ -299,6 +310,18 @@ class HistRatioTestCase(unittest.TestCase):
         )
 
         np.testing.assert_almost_equal(step_rsd, self.step_rsd)
+        np.testing.assert_almost_equal(step_rsd_unc, self.step_rsd_unc)
+
+    def test_hist_rsd_negative_numerator(self):
+        """Test that the rsd uncertainty stays positive for negative numerators."""
+        step_rsd, step_rsd_unc = hist_ratio(
+            numerator=-self.numerator,
+            denominator=-self.denominator,
+            numerator_unc=self.numerator_unc,
+            method="root_square_diff",
+        )
+
+        np.testing.assert_almost_equal(step_rsd, -self.step_rsd)
         np.testing.assert_almost_equal(step_rsd_unc, self.step_rsd_unc)
 
     def test_hist_not_same_length_numerator_denominator(self):

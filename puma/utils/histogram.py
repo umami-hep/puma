@@ -274,7 +274,7 @@ def hist_ratio(
     if method == "divide":
         step_ratio = save_divide(numerator, denominator, 1 if step else np.inf)
         # Calculate ratio uncertainty
-        step_unc = save_divide(numerator_unc, denominator, default=0 if step else np.inf)
+        step_unc = save_divide(numerator_unc, np.abs(denominator), default=0 if step else np.inf)
     elif method == "root_square_diff":
         step_ratio = np.multiply(
             np.sign(numerator - denominator), np.sqrt(np.abs(numerator**2 - denominator**2))
@@ -282,7 +282,7 @@ def hist_ratio(
         # Calculate ratio uncertainty
         step_unc = np.zeros_like(step_ratio)
         step_unc = np.divide(
-            np.multiply(numerator, numerator_unc),
+            np.multiply(np.abs(numerator), numerator_unc),
             np.sqrt(np.abs(numerator**2 - denominator**2)),
             where=(numerator - denominator != 0),
         )
