@@ -1,0 +1,2 @@
+zensical
+mkdocstrings-python>=2.0
