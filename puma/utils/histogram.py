@@ -284,7 +284,6 @@ def hist_ratio(
         step_unc = np.divide(
             np.multiply(np.abs(numerator), numerator_unc),
             np.sqrt(np.abs(numerator**2 - denominator**2)),
-            out=step_unc,
             where=(numerator**2 - denominator**2 != 0),
         )
     elif method == "subtract":
