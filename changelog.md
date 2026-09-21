@@ -2,8 +2,9 @@
 
 ### [Latest]
 
-- Fix negative ratio uncertainties in `hist_ratio` [#376](https://github.com/umami-hep/puma/pull/376)
+### [v0.5.5](https://github.com/umami-hep/puma/releases/tag/v0.5.4) (21.09.2026)
 
+- Fix negative ratio uncertainties in `hist_ratio` [#376](https://github.com/umami-hep/puma/pull/376)
 
 ### [v0.5.4](https://github.com/umami-hep/puma/releases/tag/v0.5.4) (30.06.2026)
 
