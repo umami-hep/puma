@@ -1,10 +1,13 @@
+
 # Changelog
 
 ### [Latest]
 
+### [v0.5.6](https://github.com/umami-hep/puma/releases/tag/v0.5.6) (30.09.2026)
+
 - Update atlas-ftag-tools to v0.3.6 [#377](https://github.com/umami-hep/puma/pull/377)
 
-### [v0.5.5](https://github.com/umami-hep/puma/releases/tag/v0.5.4) (21.09.2026)
+### [v0.5.5](https://github.com/umami-hep/puma/releases/tag/v0.5.5) (21.09.2026)
 
 - Fix negative ratio uncertainties in `hist_ratio` [#376](https://github.com/umami-hep/puma/pull/376)
 
