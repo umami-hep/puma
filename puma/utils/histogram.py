@@ -138,6 +138,9 @@ def hist_w_unc(
     if weights is None:
         weights = np.ones(len(arr))
 
+    # Accumulate in float64, low-precision weights saturate or wrap in np.histogram
+    weights = np.asarray(weights, dtype=np.float64)
+
     # Check if there are nan values in the input values
     nan_mask = np.isnan(arr)
     if np.sum(nan_mask) > 0:

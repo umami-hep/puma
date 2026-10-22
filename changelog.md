@@ -3,6 +3,8 @@
 
 ### [Latest]
 
+- Accumulate histogram weights in float64 so low-precision inputs no longer saturate or wrap [#378](https://github.com/umami-hep/puma/pull/378)
+
 ### [v0.5.6](https://github.com/umami-hep/puma/releases/tag/v0.5.6) (30.09.2026)
 
 - Update atlas-ftag-tools to v0.3.6 [#377](https://github.com/umami-hep/puma/pull/377)
