@@ -147,7 +147,7 @@ class Histogram(PlotLineObject):
         self.flavour = flavour
 
         # Set the inputs as attributes
-        self.weights = weights if weights is not None else np.ones_like(values)
+        self.weights = weights if weights is not None else np.ones_like(values, dtype=float)
         self.sum_of_weights = float(np.sum(self.weights))
         self.ratio_group = ratio_group
         self.add_flavour_label = add_flavour_label
@@ -254,7 +254,7 @@ class Histogram(PlotLineObject):
         """
         # Replace the weights if None
         if weights is None:
-            weights = np.ones_like(values)
+            weights = np.ones_like(values, dtype=float)
 
         # Check that the weights are a np.ndarray
         assert isinstance(weights, np.ndarray)

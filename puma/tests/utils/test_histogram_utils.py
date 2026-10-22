@@ -59,6 +59,18 @@ class HistWUncTestCase(unittest.TestCase):
             np.testing.assert_almost_equal(bins, np.linspace(0, 5, 6))
             np.testing.assert_almost_equal(hist, np.array([0.2, 0.2, 0.2, 0, 0.4]))
 
+    def test_hist_w_unc_low_precision_weights(self):
+        """Test that low-precision weights are accumulated in float64."""
+        values = np.repeat(np.array([0.5, 1.5]), 3000)
+        bins = np.array([0.0, 1.0, 2.0])
+        for dtype in (np.float16, np.uint8):
+            with self.subTest(dtype=dtype):
+                _, hist, unc, _ = hist_w_unc(
+                    values, bins=bins, normed=False, weights=np.ones(6000, dtype=dtype)
+                )
+                np.testing.assert_array_equal(hist, np.array([3000, 3000]))
+                np.testing.assert_array_almost_equal(unc, np.sqrt(np.array([3000, 3000])))
+
     def test_hist_w_unc_zero_case(self):
         """Test what happens if empty array is provided as input."""
         bins, hist, unc, band = hist_w_unc(
