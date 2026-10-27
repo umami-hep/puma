@@ -15,6 +15,7 @@
         <link rel="canonical" href="https://umami-hep.github.io/puma/api/fraction_scan/">
       
       
+      
         <link rel="prev" href="../var_vs_var/">
       
       
@@ -25,7 +26,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.67">
+      <meta name="generator" content="zensical-0.0.73">
     
     
       
@@ -36,12 +37,12 @@
       
         
       
-      <link rel="stylesheet" href="../../assets/stylesheets/classic/main.cfc7948b.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/classic/main.94dd801d.min.css">
       
         
           
         
-        <link rel="stylesheet" href="../../assets/stylesheets/classic/palette.bf1c5cd6.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/classic/palette.813d4b3f.min.css">
       
       
 
@@ -81,14 +82,11 @@
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <label class="md-overlay" for="__drawer" aria-hidden="true"></label>
     <div data-md-component="skip">
-      
-        
-        <a href="#puma.fraction_scan.get_fx_values" class="md-skip">
-          Skip to content
-        </a>
-      
+      <a href="#__skip" class="md-skip">
+        Skip to content
+      </a>
     </div>
     <div data-md-component="announce">
       
@@ -106,9 +104,10 @@
   <img src="../../assets/PUMA.png" alt="PUMA: Plotting UMami Api">
 
     </a>
-    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+    <label class="md-header__button md-icon" for="__drawer">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+      <span class="md-visually-hidden">Navigation</span>
     </label>
     <div class="md-header__title" data-md-component="header-title">
       <div class="md-header__ellipsis">
@@ -160,9 +159,10 @@
     
       
       
-        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+        <label class="md-header__button md-icon" for="__search">
           
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+          <span class="md-visually-hidden">Search</span>
         </label>
         <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
   <button type="button" class="md-search__button">
@@ -1399,6 +1399,7 @@
             <div class="md-content" data-md-component="content">
               
               <article class="md-content__inner md-typeset">
+                <a id="__skip" tabindex="-1"></a>
                 
                   
 
@@ -1406,7 +1407,7 @@
   
 
 
-  <h1 id="__skip">Fraction Scan</h1>
+  <h1>Fraction Scan</h1>
 
 <div class="doc doc-object doc-function">
 
@@ -1478,39 +1479,39 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>puma/fraction_scan.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-8"> 8</a></span>
-<span class="normal"><a href="#__codelineno-0-9"> 9</a></span>
-<span class="normal"><a href="#__codelineno-0-10">10</a></span>
-<span class="normal"><a href="#__codelineno-0-11">11</a></span>
-<span class="normal"><a href="#__codelineno-0-12">12</a></span>
-<span class="normal"><a href="#__codelineno-0-13">13</a></span>
-<span class="normal"><a href="#__codelineno-0-14">14</a></span>
-<span class="normal"><a href="#__codelineno-0-15">15</a></span>
-<span class="normal"><a href="#__codelineno-0-16">16</a></span>
-<span class="normal"><a href="#__codelineno-0-17">17</a></span>
-<span class="normal"><a href="#__codelineno-0-18">18</a></span>
-<span class="normal"><a href="#__codelineno-0-19">19</a></span>
-<span class="normal"><a href="#__codelineno-0-20">20</a></span>
-<span class="normal"><a href="#__codelineno-0-21">21</a></span>
-<span class="normal"><a href="#__codelineno-0-22">22</a></span>
-<span class="normal"><a href="#__codelineno-0-23">23</a></span>
-<span class="normal"><a href="#__codelineno-0-24">24</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_fx_values</span><span class="p">(</span><span class="n">resolution</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="w">    </span><span class="sd">"""Calculate the fraction values which are to be tested.</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10"></a>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="sd">    Parameters</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="sd">    ----------</span>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="sd">    resolution : int, optional</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="sd">        Resolution of the fraction values, by default 100</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15"></a>
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="sd">    Returns</span>
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="sd">    -------</span>
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="sd">    np.ndarray</span>
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="sd">        Array with the fraction values that are to be used.</span>
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="sd">    """</span>
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21"></a>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span>
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22"></a>        <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">resolution</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span>
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23"></a>        <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">resolution</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span>
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24"></a>    <span class="p">))</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#puma.fraction_scan.get_fx_values--source--__codelineno-0-8"> 8</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_fx_values--source--__codelineno-0-9"> 9</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_fx_values--source--__codelineno-0-10">10</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_fx_values--source--__codelineno-0-11">11</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_fx_values--source--__codelineno-0-12">12</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_fx_values--source--__codelineno-0-13">13</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_fx_values--source--__codelineno-0-14">14</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_fx_values--source--__codelineno-0-15">15</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_fx_values--source--__codelineno-0-16">16</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_fx_values--source--__codelineno-0-17">17</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_fx_values--source--__codelineno-0-18">18</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_fx_values--source--__codelineno-0-19">19</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_fx_values--source--__codelineno-0-20">20</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_fx_values--source--__codelineno-0-21">21</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_fx_values--source--__codelineno-0-22">22</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_fx_values--source--__codelineno-0-23">23</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_fx_values--source--__codelineno-0-24">24</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="puma.fraction_scan.get_fx_values--source--__span-0-8"><a id="puma.fraction_scan.get_fx_values--source--__codelineno-0-8" name="puma.fraction_scan.get_fx_values--source--__codelineno-0-8"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_fx_values</span><span class="p">(</span><span class="n">resolution</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="puma.fraction_scan.get_fx_values--source--__span-0-9"><a id="puma.fraction_scan.get_fx_values--source--__codelineno-0-9" name="puma.fraction_scan.get_fx_values--source--__codelineno-0-9"></a><span class="w">    </span><span class="sd">"""Calculate the fraction values which are to be tested.</span>
+</span><span id="puma.fraction_scan.get_fx_values--source--__span-0-10"><a id="puma.fraction_scan.get_fx_values--source--__codelineno-0-10" name="puma.fraction_scan.get_fx_values--source--__codelineno-0-10"></a>
+</span><span id="puma.fraction_scan.get_fx_values--source--__span-0-11"><a id="puma.fraction_scan.get_fx_values--source--__codelineno-0-11" name="puma.fraction_scan.get_fx_values--source--__codelineno-0-11"></a><span class="sd">    Parameters</span>
+</span><span id="puma.fraction_scan.get_fx_values--source--__span-0-12"><a id="puma.fraction_scan.get_fx_values--source--__codelineno-0-12" name="puma.fraction_scan.get_fx_values--source--__codelineno-0-12"></a><span class="sd">    ----------</span>
+</span><span id="puma.fraction_scan.get_fx_values--source--__span-0-13"><a id="puma.fraction_scan.get_fx_values--source--__codelineno-0-13" name="puma.fraction_scan.get_fx_values--source--__codelineno-0-13"></a><span class="sd">    resolution : int, optional</span>
+</span><span id="puma.fraction_scan.get_fx_values--source--__span-0-14"><a id="puma.fraction_scan.get_fx_values--source--__codelineno-0-14" name="puma.fraction_scan.get_fx_values--source--__codelineno-0-14"></a><span class="sd">        Resolution of the fraction values, by default 100</span>
+</span><span id="puma.fraction_scan.get_fx_values--source--__span-0-15"><a id="puma.fraction_scan.get_fx_values--source--__codelineno-0-15" name="puma.fraction_scan.get_fx_values--source--__codelineno-0-15"></a>
+</span><span id="puma.fraction_scan.get_fx_values--source--__span-0-16"><a id="puma.fraction_scan.get_fx_values--source--__codelineno-0-16" name="puma.fraction_scan.get_fx_values--source--__codelineno-0-16"></a><span class="sd">    Returns</span>
+</span><span id="puma.fraction_scan.get_fx_values--source--__span-0-17"><a id="puma.fraction_scan.get_fx_values--source--__codelineno-0-17" name="puma.fraction_scan.get_fx_values--source--__codelineno-0-17"></a><span class="sd">    -------</span>
+</span><span id="puma.fraction_scan.get_fx_values--source--__span-0-18"><a id="puma.fraction_scan.get_fx_values--source--__codelineno-0-18" name="puma.fraction_scan.get_fx_values--source--__codelineno-0-18"></a><span class="sd">    np.ndarray</span>
+</span><span id="puma.fraction_scan.get_fx_values--source--__span-0-19"><a id="puma.fraction_scan.get_fx_values--source--__codelineno-0-19" name="puma.fraction_scan.get_fx_values--source--__codelineno-0-19"></a><span class="sd">        Array with the fraction values that are to be used.</span>
+</span><span id="puma.fraction_scan.get_fx_values--source--__span-0-20"><a id="puma.fraction_scan.get_fx_values--source--__codelineno-0-20" name="puma.fraction_scan.get_fx_values--source--__codelineno-0-20"></a><span class="sd">    """</span>
+</span><span id="puma.fraction_scan.get_fx_values--source--__span-0-21"><a id="puma.fraction_scan.get_fx_values--source--__codelineno-0-21" name="puma.fraction_scan.get_fx_values--source--__codelineno-0-21"></a>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span>
+</span><span id="puma.fraction_scan.get_fx_values--source--__span-0-22"><a id="puma.fraction_scan.get_fx_values--source--__codelineno-0-22" name="puma.fraction_scan.get_fx_values--source--__codelineno-0-22"></a>        <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">resolution</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span>
+</span><span id="puma.fraction_scan.get_fx_values--source--__span-0-23"><a id="puma.fraction_scan.get_fx_values--source--__codelineno-0-23" name="puma.fraction_scan.get_fx_values--source--__codelineno-0-23"></a>        <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">resolution</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span>
+</span><span id="puma.fraction_scan.get_fx_values--source--__span-0-24"><a id="puma.fraction_scan.get_fx_values--source--__codelineno-0-24" name="puma.fraction_scan.get_fx_values--source--__codelineno-0-24"></a>    <span class="p">))</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -1603,37 +1604,37 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>puma/fraction_scan.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-27">27</a></span>
-<span class="normal"><a href="#__codelineno-0-28">28</a></span>
-<span class="normal"><a href="#__codelineno-0-29">29</a></span>
-<span class="normal"><a href="#__codelineno-0-30">30</a></span>
-<span class="normal"><a href="#__codelineno-0-31">31</a></span>
-<span class="normal"><a href="#__codelineno-0-32">32</a></span>
-<span class="normal"><a href="#__codelineno-0-33">33</a></span>
-<span class="normal"><a href="#__codelineno-0-34">34</a></span>
-<span class="normal"><a href="#__codelineno-0-35">35</a></span>
-<span class="normal"><a href="#__codelineno-0-36">36</a></span>
-<span class="normal"><a href="#__codelineno-0-37">37</a></span>
-<span class="normal"><a href="#__codelineno-0-38">38</a></span>
-<span class="normal"><a href="#__codelineno-0-39">39</a></span>
-<span class="normal"><a href="#__codelineno-0-40">40</a></span>
-<span class="normal"><a href="#__codelineno-0-41">41</a></span>
-<span class="normal"><a href="#__codelineno-0-42">42</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_efficiency</span><span class="p">(</span><span class="n">scores</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fx</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28"></a><span class="w">    </span><span class="sd">"""Calculate the efficiency for a given set of scores that are above a certain threshold.</span>
-</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29"></a>
-</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="sd">    Parameters</span>
-</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="sd">    ----------</span>
-</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="sd">    scores : np.ndarray</span>
-</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="sd">        Array of the output scores.</span>
-</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34"></a><span class="sd">    fx : float</span>
-</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35"></a><span class="sd">        Cut threshold for which needs to be passed.</span>
-</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36"></a>
-</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37"></a><span class="sd">    Returns</span>
-</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38"></a><span class="sd">    -------</span>
-</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="sd">    float</span>
-</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="sd">        Efficiency (in percent) how many scores pass the threshold.</span>
-</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41"></a><span class="sd">    """</span>
-</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42"></a>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">scores</span> <span class="o">&gt;</span> <span class="n">fx</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#puma.fraction_scan.get_efficiency--source--__codelineno-0-27">27</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_efficiency--source--__codelineno-0-28">28</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_efficiency--source--__codelineno-0-29">29</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_efficiency--source--__codelineno-0-30">30</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_efficiency--source--__codelineno-0-31">31</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_efficiency--source--__codelineno-0-32">32</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_efficiency--source--__codelineno-0-33">33</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_efficiency--source--__codelineno-0-34">34</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_efficiency--source--__codelineno-0-35">35</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_efficiency--source--__codelineno-0-36">36</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_efficiency--source--__codelineno-0-37">37</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_efficiency--source--__codelineno-0-38">38</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_efficiency--source--__codelineno-0-39">39</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_efficiency--source--__codelineno-0-40">40</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_efficiency--source--__codelineno-0-41">41</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_efficiency--source--__codelineno-0-42">42</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="puma.fraction_scan.get_efficiency--source--__span-0-27"><a id="puma.fraction_scan.get_efficiency--source--__codelineno-0-27" name="puma.fraction_scan.get_efficiency--source--__codelineno-0-27"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_efficiency</span><span class="p">(</span><span class="n">scores</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fx</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+</span><span id="puma.fraction_scan.get_efficiency--source--__span-0-28"><a id="puma.fraction_scan.get_efficiency--source--__codelineno-0-28" name="puma.fraction_scan.get_efficiency--source--__codelineno-0-28"></a><span class="w">    </span><span class="sd">"""Calculate the efficiency for a given set of scores that are above a certain threshold.</span>
+</span><span id="puma.fraction_scan.get_efficiency--source--__span-0-29"><a id="puma.fraction_scan.get_efficiency--source--__codelineno-0-29" name="puma.fraction_scan.get_efficiency--source--__codelineno-0-29"></a>
+</span><span id="puma.fraction_scan.get_efficiency--source--__span-0-30"><a id="puma.fraction_scan.get_efficiency--source--__codelineno-0-30" name="puma.fraction_scan.get_efficiency--source--__codelineno-0-30"></a><span class="sd">    Parameters</span>
+</span><span id="puma.fraction_scan.get_efficiency--source--__span-0-31"><a id="puma.fraction_scan.get_efficiency--source--__codelineno-0-31" name="puma.fraction_scan.get_efficiency--source--__codelineno-0-31"></a><span class="sd">    ----------</span>
+</span><span id="puma.fraction_scan.get_efficiency--source--__span-0-32"><a id="puma.fraction_scan.get_efficiency--source--__codelineno-0-32" name="puma.fraction_scan.get_efficiency--source--__codelineno-0-32"></a><span class="sd">    scores : np.ndarray</span>
+</span><span id="puma.fraction_scan.get_efficiency--source--__span-0-33"><a id="puma.fraction_scan.get_efficiency--source--__codelineno-0-33" name="puma.fraction_scan.get_efficiency--source--__codelineno-0-33"></a><span class="sd">        Array of the output scores.</span>
+</span><span id="puma.fraction_scan.get_efficiency--source--__span-0-34"><a id="puma.fraction_scan.get_efficiency--source--__codelineno-0-34" name="puma.fraction_scan.get_efficiency--source--__codelineno-0-34"></a><span class="sd">    fx : float</span>
+</span><span id="puma.fraction_scan.get_efficiency--source--__span-0-35"><a id="puma.fraction_scan.get_efficiency--source--__codelineno-0-35" name="puma.fraction_scan.get_efficiency--source--__codelineno-0-35"></a><span class="sd">        Cut threshold for which needs to be passed.</span>
+</span><span id="puma.fraction_scan.get_efficiency--source--__span-0-36"><a id="puma.fraction_scan.get_efficiency--source--__codelineno-0-36" name="puma.fraction_scan.get_efficiency--source--__codelineno-0-36"></a>
+</span><span id="puma.fraction_scan.get_efficiency--source--__span-0-37"><a id="puma.fraction_scan.get_efficiency--source--__codelineno-0-37" name="puma.fraction_scan.get_efficiency--source--__codelineno-0-37"></a><span class="sd">    Returns</span>
+</span><span id="puma.fraction_scan.get_efficiency--source--__span-0-38"><a id="puma.fraction_scan.get_efficiency--source--__codelineno-0-38" name="puma.fraction_scan.get_efficiency--source--__codelineno-0-38"></a><span class="sd">    -------</span>
+</span><span id="puma.fraction_scan.get_efficiency--source--__span-0-39"><a id="puma.fraction_scan.get_efficiency--source--__codelineno-0-39" name="puma.fraction_scan.get_efficiency--source--__codelineno-0-39"></a><span class="sd">    float</span>
+</span><span id="puma.fraction_scan.get_efficiency--source--__span-0-40"><a id="puma.fraction_scan.get_efficiency--source--__codelineno-0-40" name="puma.fraction_scan.get_efficiency--source--__codelineno-0-40"></a><span class="sd">        Efficiency (in percent) how many scores pass the threshold.</span>
+</span><span id="puma.fraction_scan.get_efficiency--source--__span-0-41"><a id="puma.fraction_scan.get_efficiency--source--__codelineno-0-41" name="puma.fraction_scan.get_efficiency--source--__codelineno-0-41"></a><span class="sd">    """</span>
+</span><span id="puma.fraction_scan.get_efficiency--source--__span-0-42"><a id="puma.fraction_scan.get_efficiency--source--__codelineno-0-42" name="puma.fraction_scan.get_efficiency--source--__codelineno-0-42"></a>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">scores</span> <span class="o">&gt;</span> <span class="n">fx</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -1743,67 +1744,67 @@ default False.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>puma/fraction_scan.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-45">45</a></span>
-<span class="normal"><a href="#__codelineno-0-46">46</a></span>
-<span class="normal"><a href="#__codelineno-0-47">47</a></span>
-<span class="normal"><a href="#__codelineno-0-48">48</a></span>
-<span class="normal"><a href="#__codelineno-0-49">49</a></span>
-<span class="normal"><a href="#__codelineno-0-50">50</a></span>
-<span class="normal"><a href="#__codelineno-0-51">51</a></span>
-<span class="normal"><a href="#__codelineno-0-52">52</a></span>
-<span class="normal"><a href="#__codelineno-0-53">53</a></span>
-<span class="normal"><a href="#__codelineno-0-54">54</a></span>
-<span class="normal"><a href="#__codelineno-0-55">55</a></span>
-<span class="normal"><a href="#__codelineno-0-56">56</a></span>
-<span class="normal"><a href="#__codelineno-0-57">57</a></span>
-<span class="normal"><a href="#__codelineno-0-58">58</a></span>
-<span class="normal"><a href="#__codelineno-0-59">59</a></span>
-<span class="normal"><a href="#__codelineno-0-60">60</a></span>
-<span class="normal"><a href="#__codelineno-0-61">61</a></span>
-<span class="normal"><a href="#__codelineno-0-62">62</a></span>
-<span class="normal"><a href="#__codelineno-0-63">63</a></span>
-<span class="normal"><a href="#__codelineno-0-64">64</a></span>
-<span class="normal"><a href="#__codelineno-0-65">65</a></span>
-<span class="normal"><a href="#__codelineno-0-66">66</a></span>
-<span class="normal"><a href="#__codelineno-0-67">67</a></span>
-<span class="normal"><a href="#__codelineno-0-68">68</a></span>
-<span class="normal"><a href="#__codelineno-0-69">69</a></span>
-<span class="normal"><a href="#__codelineno-0-70">70</a></span>
-<span class="normal"><a href="#__codelineno-0-71">71</a></span>
-<span class="normal"><a href="#__codelineno-0-72">72</a></span>
-<span class="normal"><a href="#__codelineno-0-73">73</a></span>
-<span class="normal"><a href="#__codelineno-0-74">74</a></span>
-<span class="normal"><a href="#__codelineno-0-75">75</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_optimal_fraction_value</span><span class="p">(</span>
-</span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46"></a>    <span class="n">fraction_scan</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-</span><span id="__span-0-47"><a id="__codelineno-0-47" name="__codelineno-0-47"></a>    <span class="n">fraction_space</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-</span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48"></a>    <span class="n">rej</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-</span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-</span><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50"></a><span class="w">    </span><span class="sd">"""After calculating a fraction scan, find the optimal fraction value.</span>
-</span><span id="__span-0-51"><a id="__codelineno-0-51" name="__codelineno-0-51"></a>
-</span><span id="__span-0-52"><a id="__codelineno-0-52" name="__codelineno-0-52"></a><span class="sd">    Parameters</span>
-</span><span id="__span-0-53"><a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="sd">    ----------</span>
-</span><span id="__span-0-54"><a id="__codelineno-0-54" name="__codelineno-0-54"></a><span class="sd">    fraction_scan : np.ndarray</span>
-</span><span id="__span-0-55"><a id="__codelineno-0-55" name="__codelineno-0-55"></a><span class="sd">        2D array of efficiency (or rejection) scores for each fraction value.</span>
-</span><span id="__span-0-56"><a id="__codelineno-0-56" name="__codelineno-0-56"></a><span class="sd">    fraction_space : np.ndarray</span>
-</span><span id="__span-0-57"><a id="__codelineno-0-57" name="__codelineno-0-57"></a><span class="sd">        1D array of fraction values.</span>
-</span><span id="__span-0-58"><a id="__codelineno-0-58" name="__codelineno-0-58"></a><span class="sd">    rej : bool, optional</span>
-</span><span id="__span-0-59"><a id="__codelineno-0-59" name="__codelineno-0-59"></a><span class="sd">        If True, find the maximum rejection values else find the minimum efficiency values, by</span>
-</span><span id="__span-0-60"><a id="__codelineno-0-60" name="__codelineno-0-60"></a><span class="sd">        default False.</span>
-</span><span id="__span-0-61"><a id="__codelineno-0-61" name="__codelineno-0-61"></a>
-</span><span id="__span-0-62"><a id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="sd">    Returns</span>
-</span><span id="__span-0-63"><a id="__codelineno-0-63" name="__codelineno-0-63"></a><span class="sd">    -------</span>
-</span><span id="__span-0-64"><a id="__codelineno-0-64" name="__codelineno-0-64"></a><span class="sd">    tuple[np.ndarray, np.ndarray]</span>
-</span><span id="__span-0-65"><a id="__codelineno-0-65" name="__codelineno-0-65"></a><span class="sd">        Returns the optimal fraction value (index) and the actual value.</span>
-</span><span id="__span-0-66"><a id="__codelineno-0-66" name="__codelineno-0-66"></a><span class="sd">    """</span>
-</span><span id="__span-0-67"><a id="__codelineno-0-67" name="__codelineno-0-67"></a>    <span class="c1"># normalise x- and y-axes</span>
-</span><span id="__span-0-68"><a id="__codelineno-0-68" name="__codelineno-0-68"></a>    <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span> <span class="o">=</span> <span class="n">fraction_scan</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">fraction_scan</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
-</span><span id="__span-0-69"><a id="__codelineno-0-69" name="__codelineno-0-69"></a>    <span class="n">xs</span> <span class="o">/=</span> <span class="nb">max</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
-</span><span id="__span-0-70"><a id="__codelineno-0-70" name="__codelineno-0-70"></a>    <span class="n">ys</span> <span class="o">/=</span> <span class="nb">max</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span>
-</span><span id="__span-0-71"><a id="__codelineno-0-71" name="__codelineno-0-71"></a>
-</span><span id="__span-0-72"><a id="__codelineno-0-72" name="__codelineno-0-72"></a>    <span class="c1"># if rej=True get maximum distance to origin</span>
-</span><span id="__span-0-73"><a id="__codelineno-0-73" name="__codelineno-0-73"></a>    <span class="n">opt_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">xs</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">ys</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="k">if</span> <span class="n">rej</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">xs</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">ys</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-</span><span id="__span-0-74"><a id="__codelineno-0-74" name="__codelineno-0-74"></a>
-</span><span id="__span-0-75"><a id="__codelineno-0-75" name="__codelineno-0-75"></a>    <span class="k">return</span> <span class="n">opt_idx</span><span class="p">,</span> <span class="n">fraction_space</span><span class="p">[</span><span class="n">opt_idx</span><span class="p">]</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-45">45</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-46">46</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-47">47</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-48">48</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-49">49</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-50">50</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-51">51</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-52">52</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-53">53</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-54">54</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-55">55</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-56">56</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-57">57</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-58">58</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-59">59</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-60">60</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-61">61</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-62">62</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-63">63</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-64">64</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-65">65</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-66">66</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-67">67</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-68">68</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-69">69</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-70">70</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-71">71</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-72">72</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-73">73</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-74">74</a></span>
+<span class="normal"><a href="#puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-75">75</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-45"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-45" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-45"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_optimal_fraction_value</span><span class="p">(</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-46"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-46" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-46"></a>    <span class="n">fraction_scan</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-47"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-47" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-47"></a>    <span class="n">fraction_space</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-48"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-48" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-48"></a>    <span class="n">rej</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-49"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-49" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-49"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-50"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-50" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-50"></a><span class="w">    </span><span class="sd">"""After calculating a fraction scan, find the optimal fraction value.</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-51"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-51" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-51"></a>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-52"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-52" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-52"></a><span class="sd">    Parameters</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-53"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-53" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-53"></a><span class="sd">    ----------</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-54"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-54" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-54"></a><span class="sd">    fraction_scan : np.ndarray</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-55"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-55" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-55"></a><span class="sd">        2D array of efficiency (or rejection) scores for each fraction value.</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-56"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-56" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-56"></a><span class="sd">    fraction_space : np.ndarray</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-57"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-57" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-57"></a><span class="sd">        1D array of fraction values.</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-58"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-58" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-58"></a><span class="sd">    rej : bool, optional</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-59"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-59" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-59"></a><span class="sd">        If True, find the maximum rejection values else find the minimum efficiency values, by</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-60"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-60" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-60"></a><span class="sd">        default False.</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-61"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-61" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-61"></a>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-62"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-62" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-62"></a><span class="sd">    Returns</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-63"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-63" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-63"></a><span class="sd">    -------</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-64"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-64" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-64"></a><span class="sd">    tuple[np.ndarray, np.ndarray]</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-65"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-65" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-65"></a><span class="sd">        Returns the optimal fraction value (index) and the actual value.</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-66"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-66" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-66"></a><span class="sd">    """</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-67"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-67" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-67"></a>    <span class="c1"># normalise x- and y-axes</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-68"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-68" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-68"></a>    <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span> <span class="o">=</span> <span class="n">fraction_scan</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">fraction_scan</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-69"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-69" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-69"></a>    <span class="n">xs</span> <span class="o">/=</span> <span class="nb">max</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-70"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-70" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-70"></a>    <span class="n">ys</span> <span class="o">/=</span> <span class="nb">max</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-71"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-71" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-71"></a>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-72"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-72" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-72"></a>    <span class="c1"># if rej=True get maximum distance to origin</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-73"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-73" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-73"></a>    <span class="n">opt_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">xs</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">ys</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="k">if</span> <span class="n">rej</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">xs</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">ys</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-74"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-74" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-74"></a>
+</span><span id="puma.fraction_scan.get_optimal_fraction_value--source--__span-0-75"><a id="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-75" name="puma.fraction_scan.get_optimal_fraction_value--source--__codelineno-0-75"></a>    <span class="k">return</span> <span class="n">opt_idx</span><span class="p">,</span> <span class="n">fraction_space</span><span class="p">[</span><span class="n">opt_idx</span><span class="p">]</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -1874,10 +1875,10 @@ default False.</p>
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["content.code.copy","navigation.sections","navigation.top"],"redirect":null,"search":"../../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["content.code.copy","navigation.sections","navigation.top"],"redirect":null,"search":"../../assets/javascripts/workers/search.c47bb847.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.67a597eb.min.js"></script>
+      <script src="../../assets/javascripts/bundle.77dd0ce9.min.js"></script>
       
         <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
       
