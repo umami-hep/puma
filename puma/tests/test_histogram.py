@@ -192,6 +192,28 @@ class HistogramTestCase(unittest.TestCase):
             hist.band, np.array([0.375, 0.625]) - (np.sqrt(np.array([3, 5])) / 8)
         )
 
+    def test_default_weights_low_precision_values(self):
+        """Test that default weights do not inherit a low-precision values dtype."""
+        bins = np.array([0.0, 1.0, 2.0])
+        for dtype in (np.float16, np.uint8):
+            with self.subTest(dtype=dtype):
+                values = np.repeat(np.array([0, 1], dtype=dtype), 3000)
+                hist = Histogram(values=values, bins=bins, norm=False)
+                hist.update(values=values)
+                np.testing.assert_array_equal(hist.hist, np.array([6000, 6000]))
+                self.assertEqual(hist.sum_of_weights, 12000)
+
+    def test_low_precision_weights(self):
+        """Test that float16 weights summing above the float16 maximum are handled."""
+        bins = np.array([0.0, 1.0, 2.0])
+        values = np.repeat(np.array([0.5, 1.5]), 40000)
+        weights = np.ones(80000, dtype=np.float16)
+        hist = Histogram(values=values, weights=weights, bins=bins, norm=False)
+        self.assertEqual(hist.sum_of_weights, 80000)
+        hist.update(values=values, weights=weights)
+        np.testing.assert_array_equal(hist.hist, np.array([80000, 80000]))
+        self.assertEqual(hist.sum_of_weights, 160000)
+
     def test_update_behaviour_with_weights_no_norm(self):
         """Test the default behaviour of update with weights and no norm."""
         hist = Histogram(
