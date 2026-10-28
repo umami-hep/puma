@@ -1310,8 +1310,8 @@ For this task, you will:
         signal=Flavours["bjets"],
         flavours=Flavours.by_category("single-btag"),
         fraction_values={
-            "fc": 0.07,
-            "fu": 0.93,
+            "fc": 0.018,
+            "fu": 0.982,
             "ftau": 0,
         },
     )
@@ -1322,8 +1322,8 @@ For this task, you will:
         signal=Flavours["bjets"],
         flavours=Flavours.by_category("single-btag"),
         fraction_values={
-            "fc": 0.07,
-            "fu": 0.93,
+            "fc": 0.018,
+            "fu": 0.982,
             "ftau": 0,
         },
     )
