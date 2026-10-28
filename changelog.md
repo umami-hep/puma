@@ -3,6 +3,8 @@
 
 ### [Latest]
 
+- Update the plotting tutorial for the current puma version [#381](https://github.com/umami-hep/puma/pull/381)
+
 ### [v0.5.7](https://github.com/umami-hep/puma/releases/tag/v0.5.7) (28.10.2026)
 
 - Accumulate histogram weights in float64 so low-precision inputs no longer saturate or wrap [#378](https://github.com/umami-hep/puma/pull/378)
