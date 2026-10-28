@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import tkinter as tk
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -17,7 +16,6 @@ from ftag.labels import Label
 from IPython import get_ipython
 from IPython.display import display
 from matplotlib import gridspec, lines
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from matplotlib.ticker import MaxNLocator
 
@@ -26,6 +24,8 @@ from puma.utils import logger
 atlasify.LINE_SPACING = 1.3  # overwrite the default, which is 1.2
 
 if TYPE_CHECKING:  # pragma: no cover
+    import tkinter as tk
+
     from matplotlib.axes import Axes
 
 
@@ -898,6 +898,11 @@ class PlotBase(PlotObject):
         # Ensure figure is initialized
         if self.fig is None:
             raise ValueError("You need to initalize the figure before using show().")
+
+        # tkinter is only imported here, so puma also works where it is not installed
+        import tkinter as tk
+
+        from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
         # Create the Tkinter root window
         root = tk.Tk()

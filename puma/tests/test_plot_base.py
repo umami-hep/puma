@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import subprocess
+import sys
 import unittest
 from unittest.mock import ANY, MagicMock, patch
 
@@ -244,8 +246,8 @@ class TestPlotBase(unittest.TestCase):
         self.plot_base.show()
         mock_display.assert_called_once_with(self.plot_base.fig)
 
-    @patch("puma.plot_base.FigureCanvasTkAgg")
-    @patch("puma.plot_base.tk.Tk")
+    @patch("matplotlib.backends.backend_tkagg.FigureCanvasTkAgg")
+    @patch("tkinter.Tk")
     @patch("puma.plot_base.PlotBase.is_running_in_jupyter", return_value=False)
     def test_show_in_tkinter(self, mock_jupyter, mock_tk, mock_canvas):  # noqa:ARG002
         """
@@ -440,3 +442,9 @@ class TestPlotBase(unittest.TestCase):
         self.plot_base.n_ratio_panels = 0
         with self.assertRaises(ValueError):
             self.plot_base.show()
+
+
+def test_import_without_tkinter():
+    """Puma can be imported where tkinter is not installed."""
+    code = "import sys; sys.modules['tkinter'] = None; import puma.plot_base"
+    subprocess.run([sys.executable, "-c", code], check=True)
