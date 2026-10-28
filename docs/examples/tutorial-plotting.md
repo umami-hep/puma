@@ -43,6 +43,9 @@ pip install "puma-hep>=0.5.7"
 
 The version requirement makes sure you get an error on an older Python version, instead of a silently
 installed old `puma` version which does not work with the solutions below.
+On EL9 machines and lxplus, the system Python is 3.9. There you can either use the container below,
+or get a newer Python with `setupATLAS` and `lsetup "python el9-3.11"` and install `puma` into a
+virtual environment (`python3 -m venv puma_venv && source puma_venv/bin/activate`).
 
 You can also use so-called containers for the tutorial or in general for `puma`. This is the
 recommended way to run `puma` if you have different python versions and dependencies running on your
@@ -341,9 +344,13 @@ jets, $c$-jets and $b$-jets.
     pt_plot.savefig("tutorial_histogram_pT.png")
     ```
 
+    By default, jets outside the bin range are added to the first and last bin, which is why the
+    last bin sticks out. Pass `underoverflow=False` to `Histogram` if you want to drop them instead.
+
 #### Task 1.3: Plot the $b$-jets Probability Output of two Different Taggers
 
-In this task you will plot the $b$-jets probability of two different taggers - RNNIP and DIPS.
+In this task you will plot the $b$-jets probability of two different taggers - RNNIP (`rnnip_pb`)
+and DIPS (`dipsLoose20220314v2_pb`).
 
 1.  Create the histogram plot (similar to the one from the previous task) and the different
     histograms. If you plot this for light-flavour jets, $c$-jets and $b$-jets, you should have 6
@@ -962,8 +969,11 @@ with short method calls.
 
     The high-level API writes plots and cached intermediate `Histogram`/`Roc` objects into the
     output directory. If you only want a fast test while developing a script, pass `num_jets=50_000`
-    to `load_taggers_from_file()`. On the first run, `puma` warns that no histogram files were
-    found. This is expected, since the cache is still empty.
+    to `load_taggers_from_file()`. On the first run, `puma` warns that no histogram and ROC files
+    were found. This is expected, since the cache is still empty.
+
+    The plots end up in `tutorial_high_level_plots/btag/disc/ttbar_btag_disc.png` and
+    `tutorial_high_level_plots/btag/roc/ttbar_btag_roc.png`.
 
 ### Task 5: Other Supported Plot Types
 
@@ -1190,15 +1200,15 @@ For this task, you will:
     cp /eos/user/u/umamibot/tutorials/zpext_run3.h5 </path/to/tutorial/data/>
     ```
 
+    Replace `</path/to/tutorial/data/>` with the directory which holds your tutorial files.
+
     If you don't work on lxplus, download it via
 
     ```bash
     wget https://umami-ci-provider.web.cern.ch/puma/zpext_run3.h5
     ```
 
-    You should provide a path for the dummy `</path/to/tutorial/data/>` in the command above and run
-    the python example below in that directory:
-
+    Run the python example below in the directory which holds the tutorial files:
 
     ```python
     import numpy as np
@@ -1399,7 +1409,7 @@ For this task, you will:
 
         # Initialise histogram plot
         plot_histo = HistogramPlot(
-            ylabel="Number of events",
+            ylabel="Number of jets",
             xlabel=axis_labels[v[0]],
             logy=True,
             atlas_first_tag="Simulation Internal",
