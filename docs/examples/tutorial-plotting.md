@@ -33,16 +33,27 @@ free to toggle also the solution with a worked example.
 
 ## Setting Up Everything You Need
 
-For the tutorial, you will need `puma`. Probably the easiest way to get `puma` is via `PyPI`.
+For the tutorial, you will need `puma`, which requires Python 3.11 or newer (check with
+`python3 --version`). Probably the easiest way to get `puma` is via `PyPI`.
 You can install it like any other Python package using the following command:
 
 ```bash
-pip install puma-hep
+pip install "puma-hep>=0.5.7"
 ```
+
+The version requirement makes sure you get an error on an older Python version, instead of a silently
+installed old `puma` version which does not work with the solutions below.
+On EL9 machines and lxplus, the system Python is 3.9. There you can either use the container below,
+or get a newer Python with `setupATLAS` and `lsetup "python el9-3.11"` and install `puma` into a
+virtual environment (`python3 -m venv puma_venv && source puma_venv/bin/activate`).
 
 You can also use so-called containers for the tutorial or in general for `puma`. This is the
 recommended way to run `puma` if you have different python versions and dependencies running on your
-system. You can read more about this in the [FTAG Docs](https://ftag.docs.cern.ch/software/container_usage/).
+system. With `apptainer` (e.g. on lxplus), you can start the `puma` image with
+
+```bash
+apptainer shell -B $PWD docker://gitlab-registry.cern.ch/aft/training-images/puma-images/puma:latest
+```
 
 For this tutorial, two `.h5` files were prepared, one $t\bar{t}$ and one $Z'$ file. You can download
 them from the `eos` directly. The path to the directory where the files are stored is
@@ -53,6 +64,9 @@ the files via the following two commands:
 wget https://umami-ci-provider.web.cern.ch/puma/ttbar.h5
 wget https://umami-ci-provider.web.cern.ch/puma/zpext.h5
 ```
+
+The solutions assume that the files are in the directory where you run your scripts. If you use the
+files from `eos` instead, replace the file names by the full `eos` paths.
 
 ## Tutorial Tasks
 
@@ -92,7 +106,7 @@ Now, it is up to you. **Generate a dummy multi-class output of a neural network.
     ```py
     from puma.utils import get_dummy_multiclass_scores
 
-    # Generating 10_000 jets
+    # Generating 9_999 jets (3_333 per flavour)
     dummy_jets, dummy_labels = get_dummy_multiclass_scores()
     print(dummy_jets)
     print(dummy_labels)
@@ -183,8 +197,8 @@ fraction value.
 retrieve the working point cut value for 70% $b$-jet efficiency.**
 
 ??? info "Hint: Where to get the Labels from?"
-    The `labels` from task 0.1 have the same values as the `HadronConeExclTruthLabelID`
-    described in the [FTAG algo docs](https://ftag.docs.cern.ch/algorithms/labelling/jet_labels/#delta-r-matching-default-scheme-in-ftag).
+    The `labels` from task 0.1 have the same values as the `HadronConeExclTruthLabelID`,
+    which is 0 for light-flavour jets, 4 for $c$-jets and 5 for $b$-jets.
 
 ??? info "Hint: Which function to use?"
     You can have a look at the `percentile` function from `numpy`.
@@ -200,7 +214,7 @@ retrieve the working point cut value for 70% $b$-jet efficiency.**
     scores = np.apply_along_axis(disc_fct, axis=1, arr=dummy_jets_2d)
     target_eff = 0.7
     cutvalue = np.percentile(scores[bjets], 100.0 * (1.0 - target_eff))
-    print("cut value for 70% $b$-jet efficiency:", cutvalue)
+    print("cut value for 70% b-jet efficiency:", cutvalue)
     ```
 
     The current way to implement this is using the [atlas-ftag-tools metrics functions](https://github.com/umami-hep/atlas-ftag-tools/blob/main/ftag/utils/metrics.py)
@@ -222,8 +236,8 @@ measure. The rejection is simply the inverse of the efficiency $\frac{1}{\vareps
     print("light-flavour jets rejection:", 1 / ljets_eff)
 
     cjets_eff = ((scores > cutvalue) & cjets).sum() / cjets.sum()
-    print("$c$-flavour jets efficiency:", cjets_eff)
-    print("$c$-flavour jets rejection:", 1 / cjets_eff)
+    print("c-jets efficiency:", cjets_eff)
+    print("c-jets rejection:", 1 / cjets_eff)
     ```
 
     Alternatively, all this functionality is also provided by the `atlas-ftag-tools` package.
@@ -267,8 +281,8 @@ script from this task.
     ```py
     import h5py
 
-    # Use directly the eos path or use the path to your downloaded files
-    ttbar_filepath = "/eos/user/u/umamibot/tutorials/ttbar.h5"
+    # path to the downloaded file (or the eos path)
+    ttbar_filepath = "ttbar.h5"
 
     # load the "jets" and "tracks_loose" dataset from the h5 file
     with h5py.File(ttbar_filepath, "r") as h5file:
@@ -302,8 +316,8 @@ jets, $c$-jets and $b$-jets.
     from ftag import Flavours
     from puma import Histogram, HistogramPlot
 
-    # Use directly the eos path or use the path to your downloaded files
-    ttbar_filepath = "/eos/user/u/umamibot/tutorials/ttbar.h5"
+    # path to the downloaded file (or the eos path)
+    ttbar_filepath = "ttbar.h5"
 
     # load the jets dataset from the h5 file
     with h5py.File(ttbar_filepath, "r") as h5file:
@@ -330,9 +344,13 @@ jets, $c$-jets and $b$-jets.
     pt_plot.savefig("tutorial_histogram_pT.png")
     ```
 
+    By default, jets outside the bin range are added to the first and last bin, which is why the
+    last bin sticks out. Pass `underoverflow=False` to `Histogram` if you want to drop them instead.
+
 #### Task 1.3: Plot the $b$-jets Probability Output of two Different Taggers
 
-In this task you will plot the $b$-jets probability of two different taggers - RNNIP and DIPS.
+In this task you will plot the $b$-jets probability of two different taggers - RNNIP (`rnnip_pb`)
+and DIPS (`dipsLoose20220314v2_pb`).
 
 1.  Create the histogram plot (similar to the one from the previous task) and the different
     histograms. If you plot this for light-flavour jets, $c$-jets and $b$-jets, you should have 6
@@ -377,6 +395,7 @@ In this task you will plot the $b$-jets probability of two different taggers - R
             jets[is_light]["rnnip_pb"],
             ratio_group="ujets",
             flavour=Flavours["ujets"],
+            label="RNNIP",
             bins=np.linspace(0, 1, 50),
         ),
         reference=True,
@@ -386,6 +405,7 @@ In this task you will plot the $b$-jets probability of two different taggers - R
             jets[is_c]["rnnip_pb"],
             ratio_group="cjets",
             flavour=Flavours["cjets"],
+            label="RNNIP",
             bins=np.linspace(0, 1, 50),
         ),
         reference=True,
@@ -395,6 +415,7 @@ In this task you will plot the $b$-jets probability of two different taggers - R
             jets[is_b]["rnnip_pb"],
             ratio_group="bjets",
             flavour=Flavours["bjets"],
+            label="RNNIP",
             bins=np.linspace(0, 1, 50),
         ),
         reference=True,
@@ -406,6 +427,7 @@ In this task you will plot the $b$-jets probability of two different taggers - R
             jets[is_light]["dipsLoose20220314v2_pb"],
             ratio_group="ujets",
             flavour=Flavours["ujets"],
+            label="DIPS",
             bins=np.linspace(0, 1, 50),
             linestyle="--",
         )
@@ -415,6 +437,7 @@ In this task you will plot the $b$-jets probability of two different taggers - R
             jets[is_c]["dipsLoose20220314v2_pb"],
             ratio_group="cjets",
             flavour=Flavours["cjets"],
+            label="DIPS",
             bins=np.linspace(0, 1, 50),
             linestyle="--",
         )
@@ -424,6 +447,7 @@ In this task you will plot the $b$-jets probability of two different taggers - R
             jets[is_b]["dipsLoose20220314v2_pb"],
             ratio_group="bjets",
             flavour=Flavours["bjets"],
+            label="DIPS",
             bins=np.linspace(0, 1, 50),
             linestyle="--",
         )
@@ -461,7 +485,7 @@ which is challenging here and there.
         print(tracks.shape)
 
     d0_plot = HistogramPlot(
-        xlabel="$d_0$ significance",
+        xlabel="Signed $d_0$ significance",
         ylabel="Normalised number of tracks",
         figsize=(6, 4.5),
     )
@@ -470,27 +494,29 @@ which is challenging here and there.
         Histogram(
             tracks["IP3D_signed_d0_significance"][is_light, :].flatten(),
             flavour=Flavours["ujets"],
-            bins=np.linspace(-3, 3, 50),
+            bins=np.linspace(-5, 20, 50),
         )
     )
     d0_plot.add(
         Histogram(
             tracks["IP3D_signed_d0_significance"][is_c, :].flatten(),
             flavour=Flavours["cjets"],
-            bins=np.linspace(-3, 3, 50),
+            bins=np.linspace(-5, 20, 50),
         )
     )
     d0_plot.add(
         Histogram(
             tracks["IP3D_signed_d0_significance"][is_b, :].flatten(),
             flavour=Flavours["bjets"],
-            bins=np.linspace(-3, 3, 50),
+            bins=np.linspace(-5, 20, 50),
         )
     )
 
     d0_plot.draw()
     d0_plot.savefig("tutorial_histogram_track_variable.png")
     ```
+
+    The warning about `nan` values is expected: the tracks are padded with `nan` up to 40 tracks per jet.
 
 ### Task 2: ROC Plots
 
@@ -517,10 +543,10 @@ rejection for a range of $b$-jets efficiencies.
     from ftag import Flavours
     from ftag.hdf5 import H5Reader
 
-    ttbar_filepath = "/eos/user/u/umamibot/tutorials/ttbar.h5"
+    ttbar_filepath = "ttbar.h5"
 
     # load the jets dataset from the h5 file
-    reader = H5Reader(ttbar_filepath, batch_size=100)
+    reader = H5Reader(ttbar_filepath, batch_size=100_000)
     data = reader.load()
     jets = data["jets"]
 
@@ -607,7 +633,7 @@ rejection for a range of $b$-jets efficiencies.
         n_ratio_panels=1,
         ylabel="Background rejection",
         xlabel="$b$-jet efficiency",
-        atlas_second_tag="$\\sqrt{s}=13$ TeV, dummy jets \ndummy sample, $f_{c}=0.018$",
+        atlas_second_tag="$\\sqrt{s}=13$ TeV, PFlow jets\n$t\\bar{t}$ sample, $f_{c}=0.018$",
         figsize=(6.5, 6),
         y_scale=1.4,
     )
@@ -660,7 +686,7 @@ rejection for a range of $b$-jets efficiencies.
         n_ratio_panels=2,
         ylabel="Background rejection",
         xlabel="$b$-jet efficiency",
-        atlas_second_tag="$\\sqrt{s}=13$ TeV, dummy jets \ndummy sample, $f_{c}=0.018$",
+        atlas_second_tag="$\\sqrt{s}=13$ TeV, PFlow jets\n$t\\bar{t}$ sample, $f_{c}=0.018$",
         figsize=(6.5, 6),
         y_scale=1.4,
     )
@@ -707,10 +733,10 @@ For a fixed inclusive $b$-efficiency, you plot the $b$-efficiency for different 
     from ftag import Flavours
     from ftag.hdf5 import H5Reader
 
-    ttbar_filepath = "/eos/user/u/umamibot/tutorials/ttbar.h5"
+    ttbar_filepath = "ttbar.h5"
 
     # load the jets dataset from the h5 file
-    reader = H5Reader(ttbar_filepath, batch_size=100)
+    reader = H5Reader(ttbar_filepath, batch_size=100_000)
     data = reader.load()
     jets = data["jets"]
 
@@ -851,7 +877,7 @@ batch.
     from ftag.hdf5 import H5Reader
     from puma import Histogram, HistogramPlot
 
-    ttbar_filepath = "/eos/user/u/umamibot/tutorials/ttbar.h5"
+    ttbar_filepath = "ttbar.h5"
 
     reader = H5Reader(ttbar_filepath, batch_size=100_000, shuffle=False)
     variables = {"jets": ["pt", "HadronConeExclTruthLabelID"]}
@@ -900,7 +926,8 @@ with short method calls.
 ??? info "Hint: Where can I find more examples?"
 
     The high-level API is documented in the [high-level API docs](../hlapi/index.md). The full
-    example script is in `examples/high_level_plots.py`.
+    example script is
+    [`examples/high_level_plots.py`](https://github.com/umami-hep/puma/blob/main/examples/high_level_plots.py).
 
 ??? warning "Solution"
 
@@ -909,7 +936,7 @@ with short method calls.
 
     from puma.hlplots import Results, Tagger
 
-    ttbar_filepath = "/eos/user/u/umamibot/tutorials/ttbar.h5"
+    ttbar_filepath = "ttbar.h5"
 
     dips = Tagger(
         name="dipsLoose20220314v2",
@@ -942,7 +969,11 @@ with short method calls.
 
     The high-level API writes plots and cached intermediate `Histogram`/`Roc` objects into the
     output directory. If you only want a fast test while developing a script, pass `num_jets=50_000`
-    to `load_taggers_from_file()`.
+    to `load_taggers_from_file()`. On the first run, `puma` warns that no histogram and ROC files
+    were found. This is expected, since the cache is still empty.
+
+    The plots end up in `tutorial_high_level_plots/btag/disc/ttbar_btag_disc.png` and
+    `tutorial_high_level_plots/btag/roc/ttbar_btag_roc.png`.
 
 ### Task 5: Other Supported Plot Types
 
@@ -964,7 +995,7 @@ for quick sample-composition checks.
     from ftag import Flavours
     from puma.pie import PiePlot
 
-    ttbar_filepath = "/eos/user/u/umamibot/tutorials/ttbar.h5"
+    ttbar_filepath = "ttbar.h5"
 
     with h5py.File(ttbar_filepath, "r") as h5file:
         labels = h5file["jets"]["HadronConeExclTruthLabelID"][:]
@@ -1003,7 +1034,7 @@ output probability for each true jet flavour. Here we use the DIPS output probab
     from puma.matshow import MatshowPlot
     from puma.utils.confusion_matrix import confusion_matrix
 
-    ttbar_filepath = "/eos/user/u/umamibot/tutorials/ttbar.h5"
+    ttbar_filepath = "ttbar.h5"
 
     with h5py.File(ttbar_filepath, "r") as h5file:
         jets = h5file["jets"][:]
@@ -1056,9 +1087,9 @@ on the discriminant distribution.
     from ftag.utils import get_discriminant
     from puma import IntegratedEfficiency, IntegratedEfficiencyPlot
 
-    ttbar_filepath = "/eos/user/u/umamibot/tutorials/ttbar.h5"
+    ttbar_filepath = "ttbar.h5"
 
-    reader = H5Reader(ttbar_filepath, batch_size=100)
+    reader = H5Reader(ttbar_filepath, batch_size=100_000)
     jets = reader.load()["jets"]
 
     discs_dips = get_discriminant(
@@ -1097,6 +1128,14 @@ on the discriminant distribution.
     plot.add(
         IntegratedEfficiency(
             discs_rnnip[is_b],
+            discs_rnnip[is_b],
+            flavour="bjets",
+            tagger="RNNIP",
+        )
+    )
+    plot.add(
+        IntegratedEfficiency(
+            discs_rnnip[is_b],
             discs_rnnip[is_light],
             flavour="ujets",
             tagger="RNNIP",
@@ -1108,6 +1147,14 @@ on the discriminant distribution.
             discs_rnnip[is_c],
             flavour="cjets",
             tagger="RNNIP",
+        )
+    )
+    plot.add(
+        IntegratedEfficiency(
+            discs_dips[is_b],
+            discs_dips[is_b],
+            flavour="bjets",
+            tagger="DIPS r22",
         )
     )
     plot.add(
@@ -1153,15 +1200,15 @@ For this task, you will:
     cp /eos/user/u/umamibot/tutorials/zpext_run3.h5 </path/to/tutorial/data/>
     ```
 
+    Replace `</path/to/tutorial/data/>` with the directory which holds your tutorial files.
+
     If you don't work on lxplus, download it via
 
     ```bash
     wget https://umami-ci-provider.web.cern.ch/puma/zpext_run3.h5
     ```
 
-    You should provide a path for the dummy `</path/to/tutorial/data/>` in the command above and in the
-    python example below:
-
+    Run the python example below in the directory which holds the tutorial files:
 
     ```python
     import numpy as np
@@ -1170,12 +1217,12 @@ For this task, you will:
 
     # load the "jets" datasets from the h5 files
     filepath_run2 = "zpext.h5"
-    reader = H5Reader(filepath_run2, batch_size=100)
+    reader = H5Reader(filepath_run2, batch_size=100_000)
     data = reader.load()
     jets_run2 = data["jets"]
     
     filepath_run3 = "zpext_run3.h5"
-    reader = H5Reader(filepath_run3, batch_size=100)
+    reader = H5Reader(filepath_run3, batch_size=100_000)
     data = reader.load()
     jets_run3 = data["jets"]
 
@@ -1185,7 +1232,7 @@ For this task, you will:
 
     # Initialise histogram plot
     plot_histo = HistogramPlot(
-        ylabel="Number of events",
+        ylabel="Normalised number of jets",
         xlabel=r"average interactions per crossing $\langle\mu\rangle$ [a.u.]",
         logy=False,
         atlas_first_tag="Simulation Internal",
@@ -1243,9 +1290,6 @@ For this task, you will:
 
 ??? warning "Solution"
 
-    You should provide the path for the dummy `</path/to/tutorial/data/>` in the python example below:
-
-
     ```python
     import numpy as np
     import pandas as pd
@@ -1255,8 +1299,8 @@ For this task, you will:
     from ftag.hdf5 import H5Reader
 
     # load the "jets" dataset from the h5 file
-    filepath = "/path/to/tutorial/data/ttbar.h5"
-    reader = H5Reader(filepath, batch_size=100)
+    filepath = "ttbar.h5"
+    reader = H5Reader(filepath, batch_size=100_000)
     data = reader.load()
     jets = data["jets"]
     jets_df = pd.DataFrame(jets)
@@ -1276,8 +1320,8 @@ For this task, you will:
         signal=Flavours["bjets"],
         flavours=Flavours.by_category("single-btag"),
         fraction_values={
-            "fc": 0.07,
-            "fu": 0.93,
+            "fc": 0.018,
+            "fu": 0.982,
             "ftau": 0,
         },
     )
@@ -1288,8 +1332,8 @@ For this task, you will:
         signal=Flavours["bjets"],
         flavours=Flavours.by_category("single-btag"),
         fraction_values={
-            "fc": 0.07,
-            "fu": 0.93,
+            "fc": 0.018,
+            "fu": 0.982,
             "ftau": 0,
         },
     )
@@ -1365,7 +1409,7 @@ For this task, you will:
 
         # Initialise histogram plot
         plot_histo = HistogramPlot(
-            ylabel="Number of events",
+            ylabel="Number of jets",
             xlabel=axis_labels[v[0]],
             logy=True,
             atlas_first_tag="Simulation Internal",
