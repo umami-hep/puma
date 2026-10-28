@@ -2147,7 +2147,10 @@ You can install it like any other Python package using the following command:</p
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"puma-hep&gt;=0.5.7"</span>
 </span></code></pre></div>
 <p>The version requirement makes sure you get an error on an older Python version, instead of a silently
-installed old <code>puma</code> version which does not work with the solutions below.</p>
+installed old <code>puma</code> version which does not work with the solutions below.
+On EL9 machines and lxplus, the system Python is 3.9. There you can either use the container below,
+or get a newer Python with <code>setupATLAS</code> and <code>lsetup "python el9-3.11"</code> and install <code>puma</code> into a
+virtual environment (<code>python3 -m venv puma_venv &amp;&amp; source puma_venv/bin/activate</code>).</p>
 <p>You can also use so-called containers for the tutorial or in general for <code>puma</code>. This is the
 recommended way to run <code>puma</code> if you have different python versions and dependencies running on your
 system. With <code>apptainer</code> (e.g. on lxplus), you can start the <code>puma</code> image with</p>
@@ -2407,9 +2410,12 @@ documentation for histogram plots with <code>puma</code>
 </span><span id="__span-9-30"><a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a><span class="n">pt_plot</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
 </span><span id="__span-9-31"><a id="__codelineno-9-31" name="__codelineno-9-31" href="#__codelineno-9-31"></a><span class="n">pt_plot</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">"tutorial_histogram_pT.png"</span><span class="p">)</span>
 </span></code></pre></div>
+<p>By default, jets outside the bin range are added to the first and last bin, which is why the
+last bin sticks out. Pass <code>underoverflow=False</code> to <code>Histogram</code> if you want to drop them instead.</p>
 </details>
 <h4 id="task-13-plot-the-b-jets-probability-output-of-two-different-taggers">Task 1.3: Plot the <span class="arithmatex">\(b\)</span>-jets Probability Output of two Different Taggers<a class="headerlink" href="#task-13-plot-the-b-jets-probability-output-of-two-different-taggers" title="Permanent link">#</a></h4>
-<p>In this task you will plot the <span class="arithmatex">\(b\)</span>-jets probability of two different taggers - RNNIP and DIPS.</p>
+<p>In this task you will plot the <span class="arithmatex">\(b\)</span>-jets probability of two different taggers - RNNIP (<code>rnnip_pb</code>)
+and DIPS (<code>dipsLoose20220314v2_pb</code>).</p>
 <ol>
 <li>Create the histogram plot (similar to the one from the previous task) and the different
     histograms. If you plot this for light-flavour jets, <span class="arithmatex">\(c\)</span>-jets and <span class="arithmatex">\(b\)</span>-jets, you should have 6
@@ -2998,8 +3004,10 @@ example script is
 </span></code></pre></div>
 <p>The high-level API writes plots and cached intermediate <code>Histogram</code>/<code>Roc</code> objects into the
 output directory. If you only want a fast test while developing a script, pass <code>num_jets=50_000</code>
-to <code>load_taggers_from_file()</code>. On the first run, <code>puma</code> warns that no histogram files were
-found. This is expected, since the cache is still empty.</p>
+to <code>load_taggers_from_file()</code>. On the first run, <code>puma</code> warns that no histogram and ROC files
+were found. This is expected, since the cache is still empty.</p>
+<p>The plots end up in <code>tutorial_high_level_plots/btag/disc/ttbar_btag_disc.png</code> and
+<code>tutorial_high_level_plots/btag/roc/ttbar_btag_roc.png</code>.</p>
 </details>
 <h3 id="task-5-other-supported-plot-types">Task 5: Other Supported Plot Types<a class="headerlink" href="#task-5-other-supported-plot-types" title="Permanent link">#</a></h3>
 <p>The main flavour-tagging performance plots are histograms, ROC curves and efficiency/rejection
@@ -3206,11 +3214,11 @@ Run-3 MC for the Z' sample.</p>
 <p>Copy the Run-3 MC file (assuming you work on lxplus):</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>cp<span class="w"> </span>/eos/user/u/umamibot/tutorials/zpext_run3.h5<span class="w"> </span>&lt;/path/to/tutorial/data/&gt;
 </span></code></pre></div>
+<p>Replace <code>&lt;/path/to/tutorial/data/&gt;</code> with the directory which holds your tutorial files.</p>
 <p>If you don't work on lxplus, download it via</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>wget<span class="w"> </span>https://umami-ci-provider.web.cern.ch/puma/zpext_run3.h5
 </span></code></pre></div>
-<p>You should provide a path for the dummy <code>&lt;/path/to/tutorial/data/&gt;</code> in the command above and run
-the python example below in that directory:</p>
+<p>Run the python example below in the directory which holds the tutorial files:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 </span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">puma</span><span class="w"> </span><span class="kn">import</span> <span class="n">Histogram</span><span class="p">,</span> <span class="n">HistogramPlot</span>
 </span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ftag.hdf5</span><span class="w"> </span><span class="kn">import</span> <span class="n">H5Reader</span>
@@ -3404,7 +3412,7 @@ is left unchanged.</p>
 </span><span id="__span-25-116"><a id="__codelineno-25-116" name="__codelineno-25-116" href="#__codelineno-25-116"></a>
 </span><span id="__span-25-117"><a id="__codelineno-25-117" name="__codelineno-25-117" href="#__codelineno-25-117"></a>    <span class="c1"># Initialise histogram plot</span>
 </span><span id="__span-25-118"><a id="__codelineno-25-118" name="__codelineno-25-118" href="#__codelineno-25-118"></a>    <span class="n">plot_histo</span> <span class="o">=</span> <span class="n">HistogramPlot</span><span class="p">(</span>
-</span><span id="__span-25-119"><a id="__codelineno-25-119" name="__codelineno-25-119" href="#__codelineno-25-119"></a>        <span class="n">ylabel</span><span class="o">=</span><span class="s2">"Number of events"</span><span class="p">,</span>
+</span><span id="__span-25-119"><a id="__codelineno-25-119" name="__codelineno-25-119" href="#__codelineno-25-119"></a>        <span class="n">ylabel</span><span class="o">=</span><span class="s2">"Number of jets"</span><span class="p">,</span>
 </span><span id="__span-25-120"><a id="__codelineno-25-120" name="__codelineno-25-120" href="#__codelineno-25-120"></a>        <span class="n">xlabel</span><span class="o">=</span><span class="n">axis_labels</span><span class="p">[</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
 </span><span id="__span-25-121"><a id="__codelineno-25-121" name="__codelineno-25-121" href="#__codelineno-25-121"></a>        <span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 </span><span id="__span-25-122"><a id="__codelineno-25-122" name="__codelineno-25-122" href="#__codelineno-25-122"></a>        <span class="n">atlas_first_tag</span><span class="o">=</span><span class="s2">"Simulation Internal"</span><span class="p">,</span>
