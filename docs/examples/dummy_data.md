@@ -23,9 +23,9 @@ df = get_dummy_2_taggers()
 
 ```
 
-The second function is `get_dummy_multiclass_scores` which returns an output array
-with shape `(size, 3)`, which is the usual output of our multi-class classifiers like
-DIPS, and the labels conform with the `HadronConeExclTruthLabelID` variable.
+The second function is `get_dummy_multiclass_scores` which returns a structured array
+of length `size` with the fields `ujets`, `cjets` and `bjets`, which is the usual output of our
+multi-class classifiers like DIPS, and the labels conform with the `HadronConeExclTruthLabelID` variable.
 
 ```python
 from puma.utils import get_dummy_multiclass_scores

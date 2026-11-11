@@ -3,6 +3,7 @@
 
 ### [Latest]
 
+- Update the plotting tutorial for the current puma version [#381](https://github.com/umami-hep/puma/pull/381)
 - Import tkinter only when showing a plot, so puma can be imported without it [#380](https://github.com/umami-hep/puma/pull/380)
 
 ### [v0.5.7](https://github.com/umami-hep/puma/releases/tag/v0.5.7) (28.10.2026)
